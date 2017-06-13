@@ -1,0 +1,753 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<schema xmlns:witsml="http://www.witsml.org/schemas/131"
+	targetNamespace="http://www.witsml.org/schemas/131" 
+	xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+	xmlns="http://www.w3.org/2001/XMLSchema" 
+	elementFormDefault="qualified" 
+	version="1.3.1">
+	<include schemaLocation="typ_catalog.xsd"/>
+	<!-- POSC License Agreement
+	This file is distributed under the POSC License Agreement at
+	http://www.posc.org/about/license.shtml.
+	Use of this file constitutes agreement with the POSC License Agreement.
+	-->
+	<!--                                                         -->
+	<!-- =============== DTS TYPES  ================== -->
+	<!--                                                         -->
+	<simpleType name="anyDate">
+		<annotation>
+			<documentation>A union of date and dateTime, so that time is not mandatory.</documentation>
+		</annotation>
+		<union memberTypes="dateTime date gYearMonth gYear"/>
+	</simpleType>
+	<!--                                                         -->
+	<complexType name="generalMeasureType">
+		<simpleContent>
+  			<extension base="witsml:abstractMeasure">
+				<attribute name="uom" type="witsml:uomString" use="optional"/>
+			</extension>
+		</simpleContent>
+	</complexType>
+	<!--                                                         -->
+	<complexType name="temperatureSlopeMeasure">
+		<simpleContent>
+  			<extension base="witsml:abstractMeasure">
+				<attribute name="uom" type="witsml:uomString" use="optional"/>
+			</extension>
+		</simpleContent>
+	</complexType>
+	<!--                                                         -->
+	<complexType name="typeOptionalClassString">
+		<annotation>
+			<documentation>A type with a classType attribute. This allows a user to give a 
+			classification of something, and to specify the type of classification that it is. 
+			There is no control over the class values, or the class types.</documentation>
+		</annotation>
+		<simpleContent>
+			<extension base="witsml:abstractNameString">
+				<attribute name="classType" type="witsml:kindString" use="optional">
+					<annotation>
+						<documentation>This identifies the classification system to 
+						which the class belongs. </documentation>
+					</annotation>
+				</attribute>
+			</extension>
+		</simpleContent>
+	</complexType>
+	<!--                                                         -->
+	<!-- =============== MISCELLANEOUS TYPES  ================== -->
+	<!--                                                         -->
+	<simpleType name="logicalBoolean" final="#all">
+		<annotation>
+			<documentation>Values of "true" (or "1") and "false" (or "0").</documentation>
+		</annotation>
+		<restriction base="witsml:abstractBoolean"/>
+	</simpleType>
+	<!--                                                         -->
+	<simpleType name="date" final="#all">
+		<annotation>
+			<documentation>A julian date.</documentation>
+		</annotation>
+		<restriction base="witsml:abstractDate"/>
+	</simpleType>
+	<!--                                                         -->
+	<simpleType name="timestamp" final="#all">
+		<annotation>
+			<documentation>A date with the time of day and an optional time zone.
+			While the time zone is optional, it is strongly advised that the zone 
+			always be specified in each date time value.</documentation>
+		</annotation>
+		<restriction base="witsml:abstractDateTime"/>
+	</simpleType>
+	<!--                                                         -->
+	<simpleType name="timeZone" final="#all">
+		<annotation>
+			<documentation>A time zone conforming to the dateTime specification.
+			It should be of the form "Z" or "shh.mm" where 
+				"s" is "+" or "-", 
+				"hh" is 00 to 23 and
+				"mm" is 00 to 59.</documentation>
+		</annotation>
+		<restriction base="witsml:abstractString">
+			<pattern value="[Z]|([-+](([01][0-9])|(2[0-3])):[0-5][0-9])"/>
+		</restriction>
+	</simpleType>
+	<!--                                                         -->
+	<simpleType name="calendarYear" final="#all">
+		<annotation>
+			<documentation>A calendar year (CCYY) in the gregorian calendar.</documentation>
+		</annotation>
+		<restriction base="witsml:abstractYear"/>
+	</simpleType>
+	<!--                                                         -->
+	<complexType name="yAxisAzimuth">
+		<annotation>
+			<documentation>The angle of a Y axis from North.
+			This is a variation of planeAngleMeasure with an 
+			attribute defining the direction of north.</documentation>
+		</annotation>
+		<simpleContent>
+			<extension base="witsml:abstractMeasure">
+				<attribute name="uom" type="witsml:planeAngleUom" use="required">
+					<annotation>
+						<documentation>The unit of measure of the azimuth value.</documentation>
+					</annotation>
+				</attribute>
+				<attribute name="northDirection" type="witsml:AziRef" use="optional">
+					<annotation>
+						<documentation>Specifies the direction to be considered North for the y axis.</documentation>
+					</annotation>
+				</attribute>
+			</extension>
+		</simpleContent>
+	</complexType>
+	<!--                                                         -->
+	<complexType name="volumePerVolumeMeasurePercent">
+		<annotation>
+			<documentation>A volume per volume measure that is constrained to a unit of percent.</documentation>
+		</annotation>
+		<simpleContent>
+			<extension base="witsml:abstractMeasure">
+				<attribute name="uom" type="witsml:PercentUom" use="required"/>
+			</extension>
+		</simpleContent>
+	</complexType>
+	<!--                                                         -->
+	<simpleType name="PercentUom">
+		<restriction base="witsml:abstractUomEnum">
+			<enumeration value="%"/>
+		</restriction>
+	</simpleType>
+	<!--                                                         -->
+	<simpleType name="unitlessQuantity" final="#all">
+		<annotation>
+			<documentation>A unitless quantity. This should not 
+			be confused with a dimensionless measure.</documentation>
+		</annotation>
+		<restriction base="witsml:abstractDouble"/>
+	</simpleType>
+	<!--                                                         -->
+	<complexType name="genericMeasure">
+		<annotation>
+			<documentation>A generic measure type.
+			This should not be used except in situations where the underlying class of data is 
+			captured elsewhere. For example, for a log curve.</documentation>
+		</annotation>
+		<simpleContent>
+			<extension base="witsml:abstractMeasure">
+				<attribute name="uom" type="witsml:uomString" use="optional">
+					<annotation>
+						<documentation>The unit of measure for the quantity.
+						The uom is mandatory unless the value represents a unitless quantity.</documentation>
+					</annotation>
+				</attribute>
+			</extension>
+		</simpleContent>
+	</complexType>
+	<!--                                                         -->
+	<complexType name="indexCurve">
+		<annotation>
+			<documentation>The mnemonic of a log index curve plus 
+			the column index of the curve.</documentation>
+		</annotation>
+		<simpleContent>
+			<extension base="witsml:str32">
+				<attribute name="columnIndex" type="witsml:nonNegativeCount" use="required">
+					<annotation>
+						<documentation>The column index of the curve.</documentation>
+					</annotation>
+				</attribute>
+			</extension>
+		</simpleContent>
+	</complexType>
+	<!--                                                         -->
+	<complexType name='ratioGenericMeasure'>
+		<annotation>
+			<documentation>Representation of a number as a double, possibly qualified as a ratio of doubles.	
+			Ratio component attributes 'numerator' and 'denominator' may be both present or both absent.	
+			When ratio component attributes are present, the ratio represented is to be used with
+			the double representation included for human readability.
+			A 'canonical' representation, according to the following rules, is suggested:
+			Only use numerator/denominator when the representation of the number as double is not 
+			sufficiently precise (i. e. causes errors of accumulation).
+			Express both numerator and denominator as integers (doubles with integer values) reduced 
+			to 'least common denominator' if possible.</documentation>
+		</annotation>
+		<simpleContent>
+			<extension base="witsml:abstractMeasure">
+				<attribute name="uom" type="witsml:uomString" use="required">
+					<annotation>
+						<documentation>The unit of measure for the quantity.
+						If for some reason a uom is not appropriate for the quantity,
+						a unit of "Euc" should be used.</documentation>
+					</annotation>
+				</attribute>
+				<attribute name='numerator' type='witsml:unitlessQuantity' use="optional"/>
+				<attribute name='denominator' type='witsml:unitlessQuantity' use="optional"/>
+			</extension>
+		</simpleContent>
+	</complexType>
+	<!--                                                         -->
+	<!-- ===================== array types ===================== -->
+	<!--                                                         -->
+	<simpleType name='listOfString'>
+		<annotation>
+			<documentation>A representation of a list of string values,
+			restricted to strings without embedded whitespace.</documentation>
+		</annotation>
+		<list itemType='witsml:str32'/>
+	</simpleType>
+	<!--                                                         -->
+	<simpleType name='listOfDouble'>
+		<annotation>
+			<documentation>
+				A representation of a list of double values.
+			</documentation>
+		</annotation>
+		<list itemType='witsml:abstractDouble'/>
+	</simpleType>
+	<!--                                                         -->
+	<!-- =========== uid and foreign key data types ============ -->
+	<!--                                                         -->
+	<complexType name="refNameString" final="#all">
+		<annotation>
+			<documentation>A reference to a name in another node of the xml hierachy.
+			This value represents a foreign key from one element to another.</documentation>
+		</annotation>
+		<simpleContent>
+			<extension base="witsml:abstractNameString">
+				<attribute name="uidRef" type="witsml:refString" use="optional">
+					<annotation>
+						<documentation>A reference to the unique identifier (uid attribute) in the node
+						referenced by the name value. 
+						This attribute is required within the context of a WITSML server.</documentation>
+					</annotation>
+				</attribute>
+			</extension>
+		</simpleContent>
+	</complexType>
+	<!--                                                         -->
+	<complexType name="refObjectString" final="#all">
+		<annotation>
+			<documentation>A reference to a name in another object.
+			This value represents a foreign key from one object to another.
+			Knowledge of the object being referenced is defined by an attribute.</documentation>
+		</annotation>
+		<simpleContent>
+			<extension base="witsml:abstractNameString">
+				<attribute name="object" type="witsml:nameString" use="required">
+					<annotation>
+						<documentation>The name of the singular object being referenced.</documentation>
+					</annotation>
+				</attribute>
+				<attribute name="uidRef" type="witsml:refString" use="optional">
+					<annotation>
+						<documentation>A reference to the unique identifier (uid attribute) in the object
+						referenced by the name value. 
+						This attribute is required within the context of a WITSML server.</documentation>
+					</annotation>
+				</attribute>
+			</extension>
+		</simpleContent>
+	</complexType>
+	<!--                                                         -->
+	<complexType name="refPositiveCount" final="#all">
+		<annotation>
+			<documentation>A reference to a index value in another node of the xml hierachy.
+			This value represents a foreign key from one element to another.</documentation>
+		</annotation>
+		<simpleContent>
+			<extension base="witsml:abstractPositiveCount">
+				<attribute name="uidRef" type="witsml:refString" use="optional">
+					<annotation>
+						<documentation>A reference to the unique identifier (uid attribute) in the node
+						referenced by the index value. 
+						This attribute is required within the context of a WITSML server.</documentation>
+					</annotation>
+				</attribute>
+			</extension>
+		</simpleContent>
+	</complexType>
+	<!--                                                     -->
+	<simpleType name="refWellDatum" final="#all">
+		<annotation>
+			<documentation>A reference to a wellDatum in the current well. 
+			This value must match the uid value in a WellDatum. 
+			This value represents a foreign key from one element to another.
+			This is an exception to the convention that a foreign key must utilize both 
+			a human contextual name and a uid value. For messages outside the context of
+			a server then this value will commonly match the value of the name of the 
+			wellDatum (e.g., 'KB') if uids are not not used in that context.
+			This was a compromise in order to allow the coordinate structures to be simple
+			and still be usable both within the context of a server and outside the context of a server.</documentation>
+		</annotation>
+		<restriction base="witsml:abstractUidString"/>
+	</simpleType>
+	<!--                                                         -->
+	<!-- =========== CONTENT SPECIFIC STRING TYPES  ============ -->
+	<!--                                                         -->
+	<simpleType name="nameString" final="#all">
+		<annotation>
+			<documentation>A user assigned human recognizable contextual name of something. 
+			There should be no assumption that (interoperable) semantic information will be extracted from the name by a third party.
+			This type of value is generally not guaranteed to be unique and is not a candidate to be replaced by an enumeration.</documentation>
+		</annotation>
+		<restriction base="witsml:abstractNameString"/>
+	</simpleType>
+	<!--                                                         -->
+	<simpleType name="commentString" final="#all">
+		<annotation>
+			<documentation>A comment or remark intended for human consumption. 
+			There should be no assumption that semantics can be extracted from this field by a computer. 
+			Neither should there be an assumption that any two humans will interpret the information 
+			in the same way (i.e., it may not be interoperable).</documentation>
+		</annotation>
+		<restriction base="witsml:abstractCommentString"/>
+	</simpleType>
+	<!--                                                         -->
+	<simpleType name="descriptionString" final="#all">
+		<annotation>
+			<documentation>A textual description of something.</documentation>
+		</annotation>
+		<restriction base="witsml:abstractString">
+			<maxLength value="256"/>
+		</restriction>
+	</simpleType>
+	<!--                                                         -->
+	<simpleType name="shortDescriptionString" final="#all">
+		<annotation>
+			<documentation>A short textual description of something.</documentation>
+		</annotation>
+		<restriction base="witsml:abstractString">
+			<maxLength value="64"/>
+		</restriction>
+	</simpleType>
+	<!--                                                         -->
+	<complexType name="encodedArrayString">
+		<annotation>
+			<documentation>An encoded value or values. The encoding may utilize 
+			any of several xsd encodings. Something external to the value must
+			define the encoding. The uom attribute is optional because the value may 
+			be a string or unitless quantity. If the value is a measure then
+			the uom must be specified.</documentation>
+		</annotation>
+		<simpleContent>
+			<extension base="witsml:abstractMaximumLengthString">
+				<attribute name="uom" type="witsml:uomString" use="optional"/>
+			</extension>
+		</simpleContent>
+	</complexType>
+	<!--                                                         -->
+	<simpleType name="encodedValueString" final="#all">
+		<annotation>
+			<documentation>A single value. The encoding may utilize 
+			any of several xsd encodings. Something external to the value must
+			define the encoding.</documentation>
+		</annotation>
+		<restriction base="witsml:abstractString">
+			<maxLength value="32"/>
+		</restriction>
+	</simpleType>
+	<!--                                                         -->
+	<simpleType name="kindString" final="#all">
+		<annotation>
+			<documentation>A community assigned human recognizable name. 
+			This type of value is intended to be unique and is generally a candidate to be constrained to an enumerated list.</documentation>
+		</annotation>
+		<restriction base="witsml:abstractTypeEnum">
+		</restriction>
+	</simpleType>
+	<!--                                                         -->
+	<simpleType name="uomString" final="#all">
+		<annotation>
+			<documentation>A unit of measure acronym from the POSC unit of measure file.</documentation>
+		</annotation>
+		<restriction base="witsml:abstractUomEnum"/>
+	</simpleType>
+	<!--                                                         -->
+	<simpleType name="uidString" final="#all">
+		<annotation>
+			<documentation>A locally unique identifier. 
+			The value is not intended to convey any semantic content (e.g., it may be computer generated). 
+			The value is only required to be unique within a context in a document (e.g., defined via key and keyref). 
+			There is no guarantee that the same data in multiple documents will utilize the same uid value 
+			unless enforced by the source of the document (e.g., a document server).</documentation>
+		</annotation>
+		<restriction base="witsml:abstractUidString"/>
+	</simpleType>
+	<!--                                                     -->
+	<simpleType name="refString" final="#all">
+		<annotation>
+			<documentation>A reference to the unique identifier of another element. 
+			This value represents a foreign key from one element to another.
+			The value should match the value of an attribute of type uidString.</documentation>
+		</annotation>
+		<restriction base="witsml:abstractUidString"/>
+	</simpleType>
+	<!--                                                         -->
+	<simpleType name="schemaVersionString" final="#all">
+		<annotation>
+			<documentation>The version of the schema.
+			The first three levels are fixed. The fourth level can vary
+			to represent on the constraints defined in enumerations and 
+			XML loader files. </documentation>
+		</annotation>
+		<restriction base="witsml:abstractString">
+			<maxLength value="16"/>
+			<pattern value="1\.3\.1\.([1-9]|([1-9][0-9]))"/>
+		</restriction>
+	</simpleType>
+	<!--                                                         -->
+	<complexType name="nameStruct" final="#all">
+		<annotation>
+			<documentation>The name of something within a naming system.</documentation>
+		</annotation>
+		<simpleContent>
+			<extension base="witsml:abstractNameString">
+				<attribute name="namingSystem" type="witsml:nameString" use="optional">
+					<annotation>
+						<documentation>The naming system within the name is (hopefully) unique.</documentation>
+					</annotation>
+				</attribute>
+			</extension>
+		</simpleContent>
+	</complexType>
+	<!--                                                         -->
+	<complexType name="wellKnownNameStruct" final="#all">
+		<annotation>
+			<documentation>The name of something within a mandatory naming system 
+			with an optional code.</documentation>
+		</annotation>
+		<simpleContent>
+			<extension base="witsml:abstractNameString">
+				<attribute name="namingSystem" type="witsml:nameString" use="required">
+					<annotation>
+						<documentation>The naming system within the name is unique.</documentation>
+					</annotation>
+				</attribute>
+				<attribute name="code" type="witsml:kindString" use="optional">
+					<annotation>
+						<documentation>A unique (short) code associated with the name.</documentation>
+					</annotation>
+				</attribute>
+			</extension>
+		</simpleContent>
+	</complexType>
+	<!--                                                         -->
+	<simpleType name="uncollapsedString" final="#all">
+		<annotation>
+			<documentation>A textual string that retains all whitespace.</documentation>
+		</annotation>
+		<restriction base="witsml:abstractUncollapsedString">
+			<maxLength value="256"/>
+		</restriction>
+	</simpleType>
+	<!--                                                         -->
+	<simpleType name="iadcBearingWearCode" final="#all">
+		<annotation>
+			<documentation>IADC bearing wear code: integer 0 - 8 or one of the letters E, F, N or X. .</documentation>
+		</annotation>
+		<restriction base="witsml:abstractString">
+			<maxLength value="1"/>
+			<pattern value="[0-8EFNX]"/>
+		</restriction>
+	</simpleType>
+	<!--                                                         -->
+	<simpleType name="geodeticZoneString" final="#all">
+		<annotation>
+			<documentation>A geodetic zone with values from 1 to 60 and a required direction 
+			of "N" (North) or "S" (South). For example, "21N".</documentation>
+		</annotation>
+		<restriction base="witsml:abstractString">
+			<maxLength value="3"/>
+			<pattern value="([1-9]|[1-5][0-9]|60)[NS]"/>
+		</restriction>
+	</simpleType>
+	<!--                                                         -->
+	<!-- =========== Well Based Coordinate Types  ============ -->
+	<!--                                                         -->
+	<complexType name="measuredDepthCoord" final="#all">
+		<annotation>
+			<documentation>A measured depth coordinate in a wellbore. 
+			Positive moving from the reference datum toward the bottomhole.
+			All coordinates with the same datum (and same uom) can be considered to be in the same 
+			Coordinate Reference System and are thus directly comparable.</documentation>
+		</annotation>
+		<simpleContent>
+			<extension base="witsml:abstractMeasure">
+				<attribute name="uom" type="witsml:MeasuredDepthUom" use="required">
+					<annotation>
+						<documentation>The unit of measure of the quantity value.</documentation>
+					</annotation>
+				</attribute>
+				<attribute name="datum" type="witsml:refWellDatum" use="optional">
+					<annotation>
+						<documentation>A pointer to the reference datum for this coordinate 
+						value as defined in WellDatum. This value is assumed to match the uid
+						value in a WellDatum.
+						If not given then the default WellDatum must be assumed.</documentation>
+					</annotation>
+				</attribute>
+			</extension>
+		</simpleContent>
+	</complexType>
+	<!--                                                         -->
+	<simpleType name="MeasuredDepthUom">
+		<annotation>
+			<documentation>The units of measure that are valid for measured depths in a wellbore.</documentation>
+		</annotation>
+		<restriction base="witsml:abstractUomEnum">
+			<enumeration value="m">
+				<annotation>
+					<documentation>meter</documentation>
+				</annotation>
+			</enumeration>
+			<enumeration value="ft">
+				<annotation>
+					<documentation>International Foot</documentation>
+				</annotation>
+			</enumeration>
+			<enumeration value="ftUS">
+				<annotation>
+					<documentation>US Survey Foot</documentation>
+				</annotation>
+			</enumeration>
+		</restriction>
+	</simpleType>
+	<!--                                                     -->
+	<complexType name="wellVerticalDepthCoord" final="#all">
+		<annotation>
+			<documentation>A vertical (gravity based) depth coordinate within the context of a well.
+			Positive moving downward from the reference datum. 
+			All coordinates with the same datum (and same uom) can be considered to be in the same 
+			Coordinate Reference System and are thus directly comparable.</documentation>
+		</annotation>
+		<simpleContent>
+			<extension base="witsml:abstractMeasure">
+				<attribute name="uom" type="witsml:WellVerticalCoordinateUom" use="required">
+					<annotation>
+						<documentation>The unit of measure of the quantity value.</documentation>
+					</annotation>
+				</attribute>
+				<attribute name="datum" type="witsml:refWellDatum" use="optional">
+					<annotation>
+						<documentation>A pointer to the reference datum for this coordinate 
+						value as defined in WellDatum. 
+						If not given then the default WellDatum must be assumed.</documentation>
+					</annotation>
+				</attribute>
+			</extension>
+		</simpleContent>
+	</complexType>
+	<!--                                                     -->
+	<complexType name="wellElevationCoord" final="#all">
+		<annotation>
+			<documentation>A vertical (gravity based) elevation coordinate within the context of a well.
+			Positive moving upward from the reference datum.  
+			All coordinates with the same datum (and same uom) can be considered to be in the same 
+			Coordinate Reference System and are thus directly comparable.</documentation>
+		</annotation>
+		<simpleContent>
+			<extension base="witsml:abstractMeasure">
+				<attribute name="uom" type="witsml:WellVerticalCoordinateUom" use="required">
+					<annotation>
+						<documentation>The unit of measure of the quantity value.
+						If not given then the default unit of measure of the explicitly
+						or implicitly given datum must be assumed.</documentation>
+					</annotation>
+				</attribute>
+				<attribute name="datum" type="witsml:refWellDatum" use="optional">
+					<annotation>
+						<documentation>A pointer to the reference datum for this coordinate 
+						value as defined in WellDatum. 
+						If not given then the default WellDatum must be assumed.</documentation>
+					</annotation>
+				</attribute>
+			</extension>
+		</simpleContent>
+	</complexType>
+	<!--                                                     -->
+	<simpleType name="WellVerticalCoordinateUom">
+		<annotation>
+			<documentation>The units of measure that are valid for vertical gravity based 
+			coordinates (i.e., elevation or vertical depth) within the context of a well.</documentation>
+		</annotation>
+		<restriction base="witsml:abstractUomEnum">
+			<enumeration value="m">
+				<annotation>
+					<documentation>meter</documentation>
+				</annotation>
+			</enumeration>
+			<enumeration value="ft">
+				<annotation>
+					<documentation>International Foot</documentation>
+				</annotation>
+			</enumeration>
+			<enumeration value="ftUS">
+				<annotation>
+					<documentation>US Survey Foot</documentation>
+				</annotation>
+			</enumeration>
+			<enumeration value="ftBr(65)">
+				<annotation>
+					<documentation>British Foot 1865</documentation>
+				</annotation>
+			</enumeration>
+		</restriction>
+	</simpleType>
+	<!--                                                         -->
+	<!-- ========== CONTENT SPECIFIC INTEGER TYPES  ============ -->
+	<!--                                                         -->
+	<simpleType name="nonNegativeCount" final="#all">
+		<annotation>
+			<documentation>A non-negative integer (zero based count or index) with a maximum value of 32767 (2-bytes).
+			For items that represent "number of" something or a "sequential" count or index.</documentation>
+		</annotation>
+		<restriction base="witsml:abstractShort">
+			<minInclusive value="0">
+				<annotation>
+					<documentation>This value can be zero but cannot be negative.</documentation>
+				</annotation>
+			</minInclusive>
+		</restriction>
+	</simpleType>
+	<!--                                                         -->
+	<simpleType name="positiveCount" final="#all">
+		<annotation>
+			<documentation>A positive integer (one based count or index).</documentation>
+		</annotation>
+		<restriction base="witsml:abstractPositiveCount">
+			<minInclusive value="1">
+				<annotation>
+					<documentation>This value cannot be negative or zero.</documentation>
+				</annotation>
+			</minInclusive>
+		</restriction>
+	</simpleType>
+	<!--                                                         -->
+	<simpleType name="positiveBigCount" final="#all">
+		<annotation>
+			<documentation>A large positive integer (one based count or index) with a maximum value of 2,147,483,647 (4-bytes).</documentation>
+		</annotation>
+		<restriction base="witsml:abstractInt">
+			<minInclusive value="1">
+				<annotation>
+					<documentation>This value cannot be negative or zero.</documentation>
+				</annotation>
+			</minInclusive>
+		</restriction>
+	</simpleType>
+	<!--                                                         -->
+	<simpleType name="integerCount" final="#all">
+		<annotation>
+			<documentation>A positive or negative count with a maximum positive value of 2147483647 (4-bytes).</documentation>
+		</annotation>
+		<restriction base="witsml:abstractInt"/>
+	</simpleType>
+	<!--                                                         -->
+	<simpleType name="beaufortScaleIntegerCode" final="#all">
+		<annotation>
+			<documentation>An estimate wind strength based on the Beaufort Wind Scale. 
+			Values range from 0 (calm) to 12 (hurricane). </documentation>
+		</annotation>
+		<restriction base="witsml:abstractShort">
+			<minInclusive value="0"/>
+			<maxInclusive value="12"/>
+		</restriction>
+	</simpleType>
+	<!--                                                         -->
+	<simpleType name="pumpActionIntegerCode" final="#all">
+		<annotation>
+			<documentation>Pump Action: 1 = Single acting, 2 = double acting.</documentation>
+		</annotation>
+		<restriction base="witsml:abstractShort">
+			<minInclusive value="1"/>
+			<maxInclusive value="2"/>
+		</restriction>
+	</simpleType>
+	<!--                                                         -->
+	<simpleType name="iadcIntegerCode" final="#all">
+		<annotation>
+			<documentation>IADC codes: 0 to 8.</documentation>
+		</annotation>
+		<restriction base="witsml:abstractShort">
+			<minInclusive value="0"/>
+			<maxInclusive value="8"/>
+		</restriction>
+	</simpleType>
+	<!--                                                         -->
+	<simpleType name="levelIntegerCode" final="#all">
+		<annotation>
+			<documentation>Integer level code from 1 through 5.</documentation>
+		</annotation>
+		<restriction base="witsml:abstractShort">
+			<minInclusive value="0"/>
+			<maxInclusive value="8"/>
+		</restriction>
+	</simpleType>
+	<!--                                                         -->
+	<!-- ========== REMAINING V1.2 TYPES  ============ -->
+	<!--                                                         -->
+	<complexType name="cost">
+		<simpleContent>
+			<extension base="witsml:abstractDouble">
+				<attribute name="currency" type="witsml:kindString" use="optional"/>
+			</extension>
+		</simpleContent>
+	</complexType>
+	<!--                                                         -->
+	<complexType name="indexedObject">
+		<simpleContent>
+			<extension base="witsml:abstractTypeEnum">
+				<attribute name="index" type="witsml:positiveCount" use="required">
+					<annotation>
+						<documentation>Indexes things with the same name. 
+						That is the first one, the second one, etc.</documentation>
+					</annotation>
+				</attribute>
+				<attribute name="name" type="witsml:kindString" use="optional"/>
+				<attribute name="uom" type="witsml:uomString" use="optional"/>
+				<attribute name="description" type="witsml:descriptionString" use="optional"/>
+			</extension>
+		</simpleContent>
+	</complexType>
+	<!--                                                         -->
+	<simpleType name="str2">
+		<restriction base="witsml:abstractString">
+			<maxLength value="2"/>
+		</restriction>
+	</simpleType>
+	<!--                                                         -->
+	<simpleType name="str16">
+		<restriction base="witsml:abstractString">
+			<maxLength value="16"/>
+		</restriction>
+	</simpleType>
+	<!--                                                         -->
+	<simpleType name="str32">
+		<restriction base="witsml:abstractString">
+			<maxLength value="32"/>
+		</restriction>
+	</simpleType>
+	<!--                                                         -->
+</schema>
