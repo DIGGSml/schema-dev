@@ -1,0 +1,1046 @@
+<?xml version="1.0" encoding="utf-8"?>
+<schema xmlns:xlink="http://www.w3.org/1999/xlink" xmlns:diggs="http://diggsml.org/schemas/2.0.b"
+	xmlns:diggs_geo="http://diggsml.org/schemas/2.0.b/geotechnical"
+	xmlns:witsml="http://www.witsml.org/schemas/131"
+	xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns="http://www.w3.org/2001/XMLSchema"
+	xmlns:gml="http://www.opengis.net/gml/3.2"
+	targetNamespace="http://diggsml.org/schemas/2.0.b/geotechnical" elementFormDefault="qualified"
+	version="2.0.b" vc:maxVersion="1.1" vc:minVersion="1.0"
+	xmlns:vc="http://www.w3.org/2007/XMLSchema-versioning">
+	<!-- import the gml and xlinks namespaces (original local profiles) -->
+	<import namespace="http://www.opengis.net/gml/3.2" schemaLocation="gml3.2Profile_diggs.xsd"/>
+	<import namespace="http://www.w3.org/1999/xlink" schemaLocation="xlinks.xsd"/>
+	<import namespace="http://www.w3.org/XML/1998/namespace" schemaLocation="xml.xsd"/>
+	<!--  (canonical complete schemas for TeamEngine GML validation) 
+	<import namespace="http://www.opengis.net/gml/3.2" schemaLocation="http://schemas.opengis.net/gml/3.2.1/gml.xsd"/>
+	<import namespace="http://www.w3.org/1999/xlink" schemaLocation="http://www.w3.org/XML/2008/06/xlink.xsd"/>
+	<import namespace="http://www.w3.org/XML/1998/namespace" schemaLocation="http://www.w3.org/2001/xml.xsd"/>
+	-->
+	<!-- include and import other DIGGS schemas -->
+	<import namespace="http://diggsml.org/schemas/2.0.b" schemaLocation="Kernel.xsd"/>
+	<!-- import the witsml schemas -->
+	<import namespace="http://www.witsml.org/schemas/131"
+		schemaLocation="witsml/1.3.1.1/typ_dataTypes.xsd"/>
+	<element name="AtterbergLimitsTest" type="diggs_geo:AtterbergLimitsTestType" abstract="false"
+		substitutionGroup="diggs:AbstractLaboratoryTest">
+		<annotation>
+			<documentation>The Atterberg limits are a basic measure of the nature of a fine-grained soil. Depending on the water content of the soil, it may appear in four states: solid, semi-solid, plastic and liquid. In each state the consistency and behavior of a soil is different and thus so are its engineering properties. Thus, the boundary between each state can be defined based on a change in the soil's behavior. The Atterberg limits can be used to distinguish between silt and clay, and it can distinguish between different types of silts and clays.</documentation>
+		</annotation>
+	</element>
+	<complexType name="AtterbergLimitsTestType">
+		<annotation>
+			<documentation>Base type for AtterbergLimitsTest</documentation>
+		</annotation>
+		<complexContent>
+			<extension base="diggs:AbstractLaboratoryTestType">
+				<sequence>
+					<element minOccurs="0" name="ovenDriedBeforeTest" type="boolean">
+						<annotation>
+							<documentation>True if sample is oven dried at 100 deg C or hotter prior to testing; otherwise false. True value for this property should produce a liquid_limit_oven_dried reportable result</documentation>
+						</annotation>
+					</element>
+					<element minOccurs="0" name="sieveProcedure">
+						<annotation>
+							<documentation>Value is wet if wet sieving on No. 40 screen (0.425 mm) is performed; dry if dry sieving on No. 40 screen (0.425 mm) is performed; none if no sieving is performed (sample is all finer-grained than 0.425 mm or coarser particles are picked out; unknown if not known. If value is None, the property handRemoved should be used.</documentation>
+						</annotation>
+						<simpleType>
+							<restriction base="string">
+								<enumeration value="wet"/>
+								<enumeration value="dry"/>
+								<enumeration value="none"/>
+								<enumeration value="unknown"/>
+							</restriction>
+						</simpleType>
+					</element>
+					<element minOccurs="0" name="handRemoved" type="boolean">
+						<annotation>
+							<documentation>True if plus screen No. 40 particles are removed from the sample by hand, false if not. If no sieving is performed this property is required</documentation>
+						</annotation>
+					</element>
+					<element minOccurs="0" name="percentRetainedNo40" type="diggs:DiggsStringType">
+						<annotation>
+							<documentation>Estimate of percent of sample retained on No. 40 screen. If no sieving is performed, this value would hold the estimated percentage of plus 40 particles removed by hand from the sample, if applicable. String type.</documentation>
+						</annotation>
+					</element>
+					<element minOccurs="0" name="specimenInitialState"
+						type="diggs_geo:AtterbergInitialConditionEnumType"/>
+					<element minOccurs="0" name="multiPointLLmethod" type="boolean">
+						<annotation>
+							<documentation>Value is true if the liquid limit method is multi-point, false if liquid limit is calculated from a single point test</documentation>
+						</annotation>
+					</element>
+					<element minOccurs="0" name="casagrandeTrial"
+						type="diggs_geo:CasagrandeTrialPropertyType" maxOccurs="unbounded">
+						<annotation>
+							<documentation>Property containing one or more CasagrandeTrial or FallConeTrial objects detailing results of these various liquid limit tests
+</documentation>
+						</annotation>
+					</element>
+					<element minOccurs="0" name="fallConeTrial"
+						type="diggs_geo:FallConeTrialPropertyType" maxOccurs="unbounded">
+						<annotation>
+							<documentation>Property containing one or more CasagrandeTrial or FallConeTrial objects detailing results of these various liquid limit tests
+</documentation>
+						</annotation>
+					</element>
+					<element minOccurs="0" name="plasticLimitTrial"
+						type="diggs_geo:PlasticLimitTrialPropertyType" maxOccurs="unbounded">
+						<annotation>
+							<documentation>Property containing one or more PlasticLimitTrial objects detailing the results of each plastic limit trial</documentation>
+						</annotation>
+					</element>
+					<element minOccurs="0" name="shrinkageLimitTrial"
+						type="diggs_geo:ShrinkageLimitTrialPropertyType" maxOccurs="unbounded">
+						<annotation>
+							<documentation>Property containing one or more ShrinkageLimitTrial objects detailing the results of each shrinkage limit trial</documentation>
+						</annotation>
+					</element>
+				</sequence>
+			</extension>
+		</complexContent>
+	</complexType>
+	<element name="CasagrandeTrial" type="diggs_geo:CasagrandeTrialType"
+		substitutionGroup="diggs:AbstractProcedureTrial"> </element>
+	<complexType name="CasagrandeTrialType">
+		<complexContent>
+			<extension base="diggs:AbstractProcedureTrialType">
+				<sequence>
+					<element minOccurs="0" name="trialNo" type="witsml:positiveCount"/>
+					<element minOccurs="0" name="isManual" type="boolean">
+						<annotation>
+							<documentation>True if the liquid limit device is manual crank, false if motorized</documentation>
+						</annotation>
+					</element>
+					<element minOccurs="1" name="blowCount" type="witsml:positiveCount">
+						<annotation>
+							<documentation>The number of drops of the brass cup needed to close the groove in the sample
+</documentation>
+						</annotation>
+					</element>
+					<element name="waterContent" type="diggs:PercentDoubleType">
+						<annotation>
+							<documentation>Moisture content for this trial</documentation>
+						</annotation>
+					</element>
+				</sequence>
+			</extension>
+		</complexContent>
+	</complexType>
+	<element name="FallConeTrial" type="diggs_geo:FallConeTrialType"
+		substitutionGroup="diggs:AbstractProcedureTrial"> </element>
+	<complexType name="FallConeTrialType">
+		<complexContent>
+			<extension base="diggs:AbstractProcedureTrialType">
+				<sequence>
+					<element minOccurs="0" name="trialNo" type="witsml:positiveCount"/>
+					<element minOccurs="1" name="penetration" type="witsml:lengthMeasure">
+						<annotation>
+							<documentation>The distance fall cone penetrated soil sample in this trial
+</documentation>
+						</annotation>
+					</element>
+					<element name="waterContent" type="diggs:PercentDoubleType">
+						<annotation>
+							<documentation>Moisture content for this trial</documentation>
+						</annotation>
+					</element>
+				</sequence>
+			</extension>
+		</complexContent>
+	</complexType>
+	<complexType name="CasagrandeTrialPropertyType">
+		<sequence>
+			<element maxOccurs="1" ref="diggs_geo:CasagrandeTrial"/>
+		</sequence>
+	</complexType>
+	<complexType name="FallConeTrialPropertyType">
+		<sequence>
+			<element maxOccurs="1" ref="diggs_geo:FallConeTrial"/>
+		</sequence>
+	</complexType>
+	<element name="PlasticLimitTrial" type="diggs_geo:PlasticLimitTrialType"
+		substitutionGroup="diggs:AbstractProcedureTrial"> </element>
+	<complexType name="PlasticLimitTrialType">
+		<complexContent>
+			<extension base="diggs:AbstractProcedureTrialType">
+				<sequence>
+					<element minOccurs="0" name="trialNo" type="witsml:positiveCount"/>
+					<element minOccurs="0" name="isManual" type="boolean">
+						<annotation>
+							<documentation>True if thread rollout is done manually, false if otherwise</documentation>
+						</annotation>
+					</element>
+					<element name="waterContent" type="diggs:PercentDoubleType">
+						<annotation>
+							<documentation>Moisture content for this trial</documentation>
+						</annotation>
+					</element>
+				</sequence>
+			</extension>
+		</complexContent>
+	</complexType>
+	<complexType name="PlasticLimitTrialPropertyType">
+		<sequence>
+			<element maxOccurs="1" ref="diggs_geo:PlasticLimitTrial"/>
+		</sequence>
+	</complexType>
+	<element name="ShrinkageLimitTrial" type="diggs_geo:ShrinkageLimitTrialType"> </element>
+	<complexType name="ShrinkageLimitTrialType">
+		<complexContent>
+			<extension base="diggs:AbstractObjectType">
+				<sequence>
+					<element minOccurs="0" name="trialNo" type="witsml:positiveCount"/>
+					<element name="waterContentWetSoil" type="diggs:PercentDoubleType">
+						<annotation>
+							<documentation>Moisture content for the wet soil paste</documentation>
+						</annotation>
+					</element>
+					<element name="volumeWetSoil" type="witsml:volumeMeasure"/>
+					<element name="volumeDrySoil" type="witsml:volumeMeasure"/>
+					<element name="massDrySoil" type="witsml:massMeasure"/>
+				</sequence>
+			</extension>
+		</complexContent>
+	</complexType>
+	<complexType name="ShrinkageLimitTrialPropertyType">
+		<sequence>
+			<element maxOccurs="1" ref="diggs_geo:ShrinkageLimitTrial"/>
+		</sequence>
+	</complexType>
+	<element name="LabCompactionTest" type="diggs_geo:LabCompactionTestType" abstract="false"
+		substitutionGroup="diggs:AbstractLaboratoryTest">
+		<annotation>
+			<documentation>The Compaction Test is a laboratory method of experimentally determining the optimal moisture content at which a given soil type will become most dense and achieve its maximum dry density.</documentation>
+		</annotation>
+	</element>
+	<complexType name="LabCompactionTestType">
+		<annotation>
+			<documentation>Base type for CompactionTest</documentation>
+		</annotation>
+		<complexContent>
+			<extension base="diggs:AbstractLaboratoryTestType">
+				<sequence>
+					<element maxOccurs="1" minOccurs="0" name="compactionTestType"
+						type="diggs_geo:CompactionTestEnumType"/>
+					<element name="mouldDiameter" type="witsml:lengthMeasure" minOccurs="0"/>
+					<element name="mouldVolume" type="witsml:volumeMeasure" minOccurs="0"/>
+					<element name="rammerDiameter" type="witsml:lengthMeasure" minOccurs="0"/>
+					<element name="rammerMass" type="witsml:massMeasure" minOccurs="0"/>
+					<element name="rammerDrop" type="witsml:lengthMeasure" minOccurs="0"/>
+					<element name="rammerIsManual" type="boolean" minOccurs="0"/>
+					<element name="numberOfLayers" type="witsml:positiveCount" minOccurs="0"/>
+					<element name="blowsPerLayer" type="witsml:positiveCount" minOccurs="0"/>
+					<element name="trial" type="diggs_geo:LabCompactionTestTrialPropertyType"
+						minOccurs="0" maxOccurs="unbounded"/>
+				</sequence>
+			</extension>
+		</complexContent>
+	</complexType>
+	<element name="LabCompactionTestTrial" type="diggs_geo:LabCompactionTestTrialType"
+		abstract="false" substitutionGroup="diggs:AbstractObject">
+		<annotation>
+			<documentation>Results for each trial</documentation>
+		</annotation>
+	</element>
+	<complexType name="LabCompactionTestTrialPropertyType">
+		<annotation>
+			<documentation>Property for CompactionTestTrials, required parent element that holds the multiple trials.</documentation>
+		</annotation>
+		<sequence>
+			<element ref="diggs_geo:LabCompactionTestTrial" minOccurs="1" maxOccurs="1"/>
+		</sequence>
+	</complexType>
+	<complexType name="LabCompactionTestTrialType">
+		<annotation>
+			<documentation>Base type for CompactionTestTrials</documentation>
+		</annotation>
+		<complexContent>
+			<extension base="diggs:AbstractObjectType">
+				<sequence>
+					<element name="trialNo" type="witsml:positiveCount" minOccurs="0">
+						<annotation>
+							<documentation>The count of the test cycle</documentation>
+						</annotation>
+					</element>
+					<element name="waterContent" type="diggs:PercentMeasureType" minOccurs="0">
+						<annotation>
+							<documentation>Moisture content measured in this trial.</documentation>
+						</annotation>
+					</element>
+					<element name="dryDensity" type="diggs:DensityOrUnitWeightMeasureType"
+						minOccurs="0">
+						<annotation>
+							<documentation>Dry unit weight measured in this trial.</documentation>
+						</annotation>
+					</element>
+					<element name="moistureAdjustment" type="witsml:massMeasure" minOccurs="0">
+						<annotation>
+							<documentation>Weight of water added or subtracted from this trial specimen (California Test 216)</documentation>
+						</annotation>
+					</element>
+					<element name="tamperReading" type="double" minOccurs="0">
+						<annotation>
+							<documentation>Tamper reading (California Test 216)</documentation>
+						</annotation>
+					</element>
+					<element maxOccurs="unbounded" minOccurs="0" name="otherTrialProperty"
+						type="diggs:ParameterPropertyType"/>
+				</sequence>
+			</extension>
+		</complexContent>
+	</complexType>
+	<element name="LabDensityTest" type="diggs:AbstractLaboratoryTestType"
+		substitutionGroup="diggs:AbstractLaboratoryTest">
+		<annotation>
+			<documentation>The Density Test produces density values, mass per volume.</documentation>
+		</annotation>
+	</element>
+	<element name="DrivenPenetrationTest" type="diggs_geo:DrivenPenetrationTestType"
+		abstract="false" substitutionGroup="diggs:AbstractInsituTest">
+		<annotation>
+			<documentation>The Driven Penetration Test includes all methods that involve driving a rod (with or without a sampler) by impact hammer.  The most common test of this type inclue the Standard Penetration Test and the Becker Hammer Test.</documentation>
+		</annotation>
+	</element>
+	<complexType name="DrivenPenetrationTestType">
+		<annotation>
+			<documentation>Base type for DrivenPenetrationTest</documentation>
+		</annotation>
+		<complexContent>
+			<extension base="diggs:AbstractInsituTestType">
+				<sequence>
+					<element name="penetrationTestType" type="gml:CodeType">
+						<annotation>
+							<documentation>Type of penetration test performed, e.g. Standard Penetration Test, Becker Hammer Test, etc.</documentation>
+						</annotation>
+					</element>
+					<element name="hammerType" type="gml:CodeType" minOccurs="0">
+						<annotation>
+							<documentation>The type of hammer used for the sampling and penetration, including the mechanism used to lift and drop the hammer assembly.  Additional details about the sampler (e.g. cathead diameter, number of turns, etc) can be mapped to the equipment object.</documentation>
+						</annotation>
+					</element>
+					<element name="hammerMass" type="witsml:massMeasure" minOccurs="0">
+						<annotation>
+							<documentation>The hammer mass used to drive the sampler.</documentation>
+						</annotation>
+					</element>
+					<element name="hammerDropHeight" type="witsml:lengthMeasure" minOccurs="0">
+						<annotation>
+							<documentation>The hammer drop height.</documentation>
+						</annotation>
+					</element>
+					<element name="hammerEfficiency" type="diggs:PercentMeasureType" minOccurs="0">
+						<annotation>
+							<documentation>A description of the energy efficiency of the hammer.</documentation>
+						</annotation>
+					</element>
+					<element name="samplerLength" type="witsml:lengthMeasure" minOccurs="0">
+						<annotation>
+							<documentation>The length of the sampler barrel.</documentation>
+						</annotation>
+					</element>
+					<element name="samplerInternalDiameter" type="witsml:lengthMeasure"
+						minOccurs="0">
+						<annotation>
+							<documentation>The inside diameter of the sampler.</documentation>
+						</annotation>
+					</element>
+					<element name="samplerLinerDescription" type="diggs:DiggsStringType"
+						minOccurs="0">
+						<annotation>
+							<documentation>A description of the liner, if used.</documentation>
+						</annotation>
+					</element>
+					<element name="samplerRetainerDescription" type="diggs:DiggsStringType"
+						minOccurs="0">
+						<annotation>
+							<documentation>A description of the basket retainer, if used.</documentation>
+						</annotation>
+					</element>
+					<element name="rodType" type="gml:CodeType" minOccurs="0">
+						<annotation>
+							<documentation>The type of sampling rods used for penetration.</documentation>
+						</annotation>
+					</element>
+					<element name="rodExternalDiameter" type="witsml:lengthMeasure" minOccurs="0">
+						<annotation>
+							<documentation>The external diameter of the sampling rods.</documentation>
+						</annotation>
+					</element>
+					<element name="rodWeight" type="witsml:perLengthUom" minOccurs="0">
+						<annotation>
+							<documentation>The drive rod weight per unit length.</documentation>
+						</annotation>
+					</element>
+					<element name="depthCasing" type="witsml:lengthMeasure" minOccurs="0">
+						<annotation>
+							<documentation>Casing depth at time of test</documentation>
+						</annotation>
+					</element>
+					<element name="selfWeightPenetration" type="witsml:lengthMeasure" minOccurs="0">
+						<annotation>
+							<documentation>The distance the sampler penetrates the soil under its own weight before applying hammer blows</documentation>
+						</annotation>
+					</element>
+					<element name="waterDepth" type="witsml:lengthMeasure" minOccurs="0">
+						<annotation>
+							<documentation>Depth to water at time of test.</documentation>
+						</annotation>
+					</element>
+					<element name="totalPenetration" type="witsml:lengthMeasure" minOccurs="0">
+						<annotation>
+							<documentation>Total distance the sampler penetrated the soil following completion of the procedure</documentation>
+						</annotation>
+					</element>
+					<element name="driveSet" type="diggs_geo:DriveSetPropertyType" minOccurs="0"
+						maxOccurs="unbounded"/>
+				</sequence>
+			</extension>
+		</complexContent>
+	</complexType>
+	<element name="WaterContentTest" type="diggs_geo:WaterContentTestType" abstract="false"
+		substitutionGroup="diggs:AbstractLaboratoryTest">
+		<annotation>
+			<documentation>Water content or moisture content is the quantity of water contained in a material, expressed as a ratio.  Also referred to as moisture content, this is the mass of water divided by the mass of the solids, expressed as a percentage.</documentation>
+		</annotation>
+	</element>
+	<complexType name="WaterContentTestType">
+		<annotation>
+			<documentation/>
+		</annotation>
+		<complexContent>
+			<extension base="diggs:AbstractLaboratoryTestType">
+				<sequence>
+					<element minOccurs="0" name="waterContentFromTrimmings" type="boolean">
+						<annotation>
+							<documentation>True if water content measurement is taken from trimmings of a prepared specimen; false if derived from an entire specimen</documentation>
+						</annotation>
+					</element>
+					<element minOccurs="0" name="dryingTemperature"
+						type="witsml:thermodynamicTemperatureMeasure">
+						<annotation>
+							<documentation>Temperature of the oven or other drying apparatus</documentation>
+						</annotation>
+					</element>
+					<element minOccurs="0" name="dryingTime" type="witsml:timeMeasure">
+						<annotation>
+							<documentation>Amount of time specimen was maintained at drying temperature</documentation>
+						</annotation>
+					</element>
+				</sequence>
+			</extension>
+		</complexContent>
+	</complexType>
+	<element name="ParticleSizeTest" type="diggs_geo:ParticleSizeTestType" abstract="false"
+		substitutionGroup="diggs:AbstractLaboratoryTest">
+		<annotation>
+			<documentation>This test produces the distribution of particle sizes in soils as determined by sieve analysis and/or hydrometer analysis.</documentation>
+		</annotation>
+	</element>
+	<complexType name="ParticleSizeTestType">
+		<annotation>
+			<documentation>Base type for ParticleSizeTest</documentation>
+		</annotation>
+		<complexContent>
+			<extension base="diggs:AbstractLaboratoryTestType">
+				<sequence>
+					<element minOccurs="0" name="sieveAnalysis"
+						type="diggs_geo:SieveAnalysisPropertyType"/>
+					<element minOccurs="0" name="hydrometer" type="diggs_geo:HydrometerPropertyType"
+					/>
+				</sequence>
+			</extension>
+		</complexContent>
+	</complexType>
+	<element name="SieveAnalysis" type="diggs_geo:SieveAnalysisType"/>
+	<complexType name="SieveAnalysisType">
+		<annotation>
+			<documentation>Base type for ParticleSizeTest</documentation>
+		</annotation>
+		<complexContent>
+			<extension base="diggs:AbstractObjectType">
+				<sequence>
+					<element minOccurs="0" name="wetSieved" type="boolean">
+						<annotation>
+							<documentation>True if the sample is wet sieved (eg. washed through the screen; false if not.</documentation>
+						</annotation>
+					</element>
+					<element minOccurs="0" name="sandGravelConsistency" type="gml:CodeType">
+						<annotation>
+							<documentation>A description of the condition of sand and gravel size particles in the specimen that could bias the particle-size results (eg. hard, soft, friable, weathered). Intended to come from a controlled list.</documentation>
+						</annotation>
+					</element>
+					<element maxOccurs="unbounded" minOccurs="0" name="otherSieveAnalysisProperty"
+						type="diggs:ParameterPropertyType"/>
+					<element name="gradingData" type="diggs_geo:GradingPropertyType" minOccurs="0"
+						maxOccurs="unbounded"/>
+					<element minOccurs="0" name="panData" type="diggs_geo:PanDataPropertyType"/>
+				</sequence>
+			</extension>
+		</complexContent>
+	</complexType>
+	<complexType name="SieveAnalysisPropertyType">
+		<sequence>
+			<element ref="diggs_geo:SieveAnalysis"/>
+		</sequence>
+	</complexType>
+	<element name="Hydrometer" type="diggs_geo:HydrometerType"/>
+	<complexType name="HydrometerType">
+		<annotation>
+			<documentation>Base type for ParticleSizeTest</documentation>
+		</annotation>
+		<complexContent>
+			<extension base="diggs:AbstractObjectType">
+				<sequence>
+					<element minOccurs="0" name="drySoilWeight" type="witsml:massMeasure">
+						<annotation>
+							<documentation>Weight of the sediment used for the test (after passing through a sieve)</documentation>
+						</annotation>
+					</element>
+					<element minOccurs="0" name="sizeFractionUsed"
+						type="diggs:SizeFractionPropertyType">
+						<annotation>
+							<documentation>Diameter of the sieve used (typically 2 mm - No. 10 sieve)</documentation>
+						</annotation>
+					</element>
+					<element minOccurs="0" name="soakingPeriod"
+						type="diggs:TimeIntervalPropertyType">
+						<annotation>
+							<documentation>Time interval that sediment is left to stand in cylinder prior to test</documentation>
+						</annotation>
+					</element>
+					<element minOccurs="0" name="dispersionDevice" type="gml:CodeType">
+						<annotation>
+							<documentation>Device used for dispersing sediment (eg. magnetic stirrer, air jet, etc.). Intended to come from a controlled list.</documentation>
+						</annotation>
+					</element>
+					<element minOccurs="0" name="dispersionDuration"
+						type="diggs:TimeIntervalPropertyType">
+						<annotation>
+							<documentation>Duration of dispersion</documentation>
+						</annotation>
+					</element>
+					<element minOccurs="0" name="hydrometerType" type="gml:CodeType">
+						<annotation>
+							<documentation>Type of hydrometer used (eg. 151H, 152H). Intended to come from a controlled list.</documentation>
+						</annotation>
+					</element>
+					<element minOccurs="0" name="specificGravityUsed" type="double">
+						<annotation>
+							<documentation>Specific gravity used for calculations</documentation>
+						</annotation>
+					</element>
+					<element maxOccurs="unbounded" minOccurs="0" name="otherHydrometerProperty"
+						type="diggs:ParameterPropertyType"/>
+					<element maxOccurs="unbounded" minOccurs="0" name="sedimentationData"
+						type="diggs_geo:SedimentationPropertyType"/>
+				</sequence>
+			</extension>
+		</complexContent>
+	</complexType>
+	<complexType name="HydrometerPropertyType">
+		<sequence>
+			<element ref="diggs_geo:Hydrometer"/>
+		</sequence>
+	</complexType>
+	<element name="Sedimentation" type="diggs_geo:SedimentationType"/>
+	<complexType name="SedimentationType">
+		<annotation>
+			<documentation>Base type for ParticleSizeTest</documentation>
+		</annotation>
+		<complexContent>
+			<extension base="diggs:AbstractObjectType">
+				<sequence>
+					<element minOccurs="0" name="clockTime" type="diggs:UnifiedDateTimeType">
+						<annotation>
+							<documentation>Time that measurement is taken</documentation>
+						</annotation>
+					</element>
+					<element minOccurs="0" name="elapsedTime" type="witsml:timeMeasure">
+						<annotation>
+							<documentation>The elapsed time of the hydrometer reading since the start of the test</documentation>
+						</annotation>
+					</element>
+					<element minOccurs="0" name="hydrometerReading" type="witsml:densityMeasure">
+						<annotation>
+							<documentation>The value read from the hydrometer at reading time</documentation>
+						</annotation>
+					</element>
+					<element minOccurs="0" name="temperature"
+						type="witsml:thermodynamicTemperatureMeasure">
+						<annotation>
+							<documentation>The temperature at the time of the hydrometer reading</documentation>
+						</annotation>
+					</element>
+					<element minOccurs="0" name="compositeCorrection" type="witsml:densityMeasure">
+						<annotation>
+							<documentation>The composite correction applied</documentation>
+						</annotation>
+					</element>
+					<element minOccurs="0" name="correctedReading" type="witsml:densityMeasure">
+						<annotation>
+							<documentation>The corrected hydrometer reading after correction applied</documentation>
+						</annotation>
+					</element>
+					<element minOccurs="0" name="effectiveLength" type="witsml:lengthMeasure">
+						<annotation>
+							<documentation>The the distance through which soil particles fall in a given
+period of time</documentation>
+						</annotation>
+					</element>
+					<element minOccurs="0" name="particleDiameter" type="witsml:lengthMeasure">
+						<annotation>
+							<documentation>Particle size computed from Stoke's Law</documentation>
+						</annotation>
+					</element>
+					<element minOccurs="0" name="percentPassing" type="diggs:PercentMeasureType">
+						<annotation>
+							<documentation>Percent of sediment smaller than particle diameter</documentation>
+						</annotation>
+					</element>
+				</sequence>
+			</extension>
+		</complexContent>
+	</complexType>
+	<complexType name="SedimentationPropertyType">
+		<sequence>
+			<element ref="diggs_geo:Sedimentation"/>
+		</sequence>
+	</complexType>
+	<!-- Should discuss whether a pump test is a monitoring activity as opposed to a test procedure. Need to vet an appropriate structure for a pump test before incorporating -->
+	<element name="DriveSet" type="diggs_geo:DriveSetType" abstract="false"
+		substitutionGroup="diggs:AbstractObject">
+		<annotation>
+			<documentation>Provides data structure to capture blow counts for tests where samplers or instruments are driven by impact methods.</documentation>
+		</annotation>
+	</element>
+	<complexType name="DriveSetType">
+		<annotation>
+			<documentation>Base type for DriveSet object.</documentation>
+		</annotation>
+		<complexContent>
+			<extension base="diggs:AbstractObjectType">
+				<sequence>
+					<element name="index" type="positiveInteger">
+						<annotation>
+							<documentation>An integer that indicates the location of the drive set. The first or seating drive of a test would be assigned an index of 1, the next drive set an index of 2, etc. An index of 1 should only be used for the seating drive.</documentation>
+						</annotation>
+					</element>
+					<element name="blowCount" type="positiveInteger">
+						<annotation>
+							<documentation>An integer value of the number of hammer blows in this drive set.</documentation>
+						</annotation>
+					</element>
+					<element name="penetration" type="witsml:lengthMeasure">
+						<annotation>
+							<documentation>The distance the sampler is driven into the soil in this drive set.</documentation>
+						</annotation>
+					</element>
+					<element name="delay" type="diggs:DelayEventPropertyType" minOccurs="0">
+						<annotation>
+							<documentation>Duration of delay before increment started.</documentation>
+						</annotation>
+					</element>
+					<element name="torque" type="witsml:momentOfForceMeasure" minOccurs="0">
+						<annotation>
+							<documentation>Maximum torque required to rotate rods.</documentation>
+						</annotation>
+					</element>
+				</sequence>
+			</extension>
+		</complexContent>
+	</complexType>
+	<complexType name="DriveSetPropertyType">
+		<annotation>
+			<documentation>This is the property that contains the DriveSet object(s).  It is needed to satisfy the GML object-property rule when DriveSet is used as an element in another test.</documentation>
+		</annotation>
+		<sequence>
+			<element ref="diggs_geo:DriveSet" minOccurs="1" maxOccurs="1"/>
+		</sequence>
+	</complexType>
+	<element name="Grading" type="diggs_geo:GradingType" abstract="false"
+		substitutionGroup="diggs:AbstractObject">
+		<annotation>
+			<documentation>Provides data structure to capture percentage of particle sizes in a sample.</documentation>
+		</annotation>
+	</element>
+	<complexType name="GradingType">
+		<annotation>
+			<documentation>Base type for Grading object.</documentation>
+		</annotation>
+		<complexContent>
+			<extension base="diggs:AbstractObjectType">
+				<sequence>
+					<element name="particleSize" type="witsml:lengthMeasure">
+						<annotation>
+							<documentation>Size of this screen openings of the sieve or grain diameter evaluated via hydrometer, related to the value entered in the percentPassing or percentRetained property.
+</documentation>
+						</annotation>
+					</element>
+					<element name="sieveNumber" type="gml:CodeType" minOccurs="0">
+						<annotation>
+							<documentation>The number of the sieve (for sieve analyses)</documentation>
+						</annotation>
+					</element>
+					<element name="percentPassing" type="diggs:PercentMeasureType" minOccurs="0">
+						<annotation>
+							<documentation>The amount of the total sample "passing" (that has particle size smaller than) this size fraction. Expressed as a weight percent.</documentation>
+						</annotation>
+					</element>
+					<element name="percentRetained" type="diggs:PercentMeasureType" minOccurs="0">
+						<annotation>
+							<documentation>The amount of the total sample "retained" at this size fraction (that has particle size greater or equal to the particleSize property. Expressed as a weight percent.</documentation>
+						</annotation>
+					</element>
+					<element name="weightRetained" type="witsml:massMeasure" minOccurs="0">
+						<annotation>
+							<documentation>The dry weight of sample "retained" at this size fraction (that has particle size greater or equal to the particleSize property.</documentation>
+						</annotation>
+					</element>
+					<element minOccurs="0" name="otherGradingProperty"
+						type="diggs:ParameterPropertyType" maxOccurs="unbounded">
+						<annotation>
+							<documentation>name/value pairs of other grading parameters not specifically in the Grading object</documentation>
+						</annotation>
+					</element>
+				</sequence>
+			</extension>
+		</complexContent>
+	</complexType>
+	<complexType name="GradingPropertyType">
+		<annotation>
+			<documentation>This is the property that contains the Grading object(s).  It is needed to satisfy the GML object-property rule when Grading is used as an element in another test.</documentation>
+		</annotation>
+		<choice>
+			<element ref="diggs_geo:Grading" minOccurs="1" maxOccurs="1"/>
+		</choice>
+	</complexType>
+	<element name="PanData" type="diggs_geo:PanDataType">
+		<annotation>
+			<documentation>Data properties for material left in the pan (passing all sieves) or finest size fraction</documentation>
+		</annotation>
+	</element>
+	<complexType name="PanDataType">
+		<annotation>
+			<documentation>Base type for Grading object.</documentation>
+		</annotation>
+		<complexContent>
+			<extension base="diggs:AbstractObjectType">
+				<sequence>
+					<element minOccurs="0" name="percentLoss" type="diggs:PercentDoubleType">
+						<annotation>
+							<documentation>Percent of the sample lost as a result of the sieve analysis. This is equal to 1- (final weight (cumulative weights of all particle sizes) / initial sample weight)* 100</documentation>
+						</annotation>
+					</element>
+					<element name="percentRetained" type="diggs:PercentMeasureType" minOccurs="0">
+						<annotation>
+							<documentation>The amount of the cumulative soil sample "retained" on the pan. Expressed as a weight percent.</documentation>
+						</annotation>
+					</element>
+					<element name="weightRetained" type="witsml:massMeasure" minOccurs="0">
+						<annotation>
+							<documentation>The cumulative dry weight of sample "retained" on the pan. This value is less than or equal to the dry weight of the sample, depending on loss.</documentation>
+						</annotation>
+					</element>
+					<element minOccurs="0" name="otherGradingProperty"
+						type="diggs:ParameterPropertyType" maxOccurs="unbounded">
+						<annotation>
+							<documentation>name/value pairs of other grading parameters not specifically in the Grading object</documentation>
+						</annotation>
+					</element>
+				</sequence>
+			</extension>
+		</complexContent>
+	</complexType>
+	<complexType name="PanDataPropertyType">
+		<annotation>
+			<documentation>This is the property that contains the Grading object(s).  It is needed to satisfy the GML object-property rule when Grading is used as an element in another test.</documentation>
+		</annotation>
+		<choice>
+			<element ref="diggs_geo:PanData" minOccurs="1" maxOccurs="1"/>
+		</choice>
+	</complexType>
+	<!-- These are orphaned Porewater pressure elements intended for Pore Water dissipation tests. Pore Pressure tests need to be further vetted before incorporating such structures
+	<element name="PorewaterPressureMeasure" type="diggs_geo:PorewaterPressureMeasureType"
+		abstract="false" substitutionGroup="diggs:AbstractObject">
+		<annotation>
+			<documentation>Provides data structure to capture porewater pressure measurements.</documentation>
+		</annotation>
+	</element>
+	<complexType name="PorewaterPressureMeasureType">
+		<annotation>
+			<documentation>Base type for PorewaterPressureMeasure</documentation>
+		</annotation>
+		<complexContent>
+			<extension base="diggs:AbstractObjectType">
+				<sequence>
+					<element name="cellIdRef" type="gml:ReferenceType" minOccurs="0"/>
+					<element name="pressure" type="witsml:pressureMeasure" minOccurs="0"/>
+				</sequence>
+			</extension>
+		</complexContent>
+	</complexType>
+	<complexType name="PorewaterPressureMeasurePropertyType">
+		<annotation>
+			<documentation>This is the property that contains the PorewaterPressureMeasure object(s).  It is needed to satisfy the GML object-property rule when PorewaterPressureMeasure is used as an element in another test.</documentation>
+		</annotation>
+		<sequence>
+			<element ref="diggs_geo:PorewaterPressureMeasure" minOccurs="1" maxOccurs="1"/>
+		</sequence>
+	</complexType>
+	-->
+	<element name="SpecificGravityTest" type="diggs_geo:SpecifiGravityTestType" abstract="false"
+		substitutionGroup="diggs:AbstractLaboratoryTest">
+		<annotation>
+			<documentation>Linear shrinkage is the decrease in length of a soil sample when oven-dried, starting with a moisture content of the sample at the liquid limit.</documentation>
+		</annotation>
+	</element>
+	<complexType name="SpecifiGravityTestType">
+		<annotation>
+			<documentation>Base type for LinearShrinkageTest</documentation>
+		</annotation>
+		<complexContent>
+			<extension base="diggs:AbstractLaboratoryTestType">
+				<sequence>
+					<element name="waterTemperature" type="witsml:thermodynamicTemperatureMeasure"
+						minOccurs="0">
+						<annotation>
+							<documentation>Size fraction from which test portion was obtained.</documentation>
+						</annotation>
+					</element>
+					<element minOccurs="0" name="temperatureWaterAndSoil"
+						type="witsml:thermodynamicTemperatureMeasure"/>
+					<element minOccurs="0" name="correctionFactorForWaterTemperature" type="double"
+					/>
+				</sequence>
+			</extension>
+		</complexContent>
+	</complexType>
+	<simpleType name="CompactionTestEnumType">
+		<union>
+			<simpleType>
+				<restriction base="string">
+					<enumeration value="Proctor"/>
+					<enumeration value="Modified Proctor"/>
+					<enumeration value="California Test 216"/>
+					<enumeration value="Porter static"/>
+				</restriction>
+			</simpleType>
+			<simpleType>
+				<restriction base="string">
+					<pattern value="other:\w{2,}"/>
+				</restriction>
+			</simpleType>
+		</union>
+	</simpleType>
+
+	<simpleType name="AtterbergInitialConditionEnumType">
+		<union>
+			<simpleType>
+				<restriction base="string">
+					<enumeration value="Wet"/>
+					<enumeration value="Dry (air)"/>
+					<enumeration value="Dry (oven &lt;60degC)"/>
+				</restriction>
+			</simpleType>
+			<simpleType>
+				<restriction base="string">
+					<pattern value="other:\w{2,}"/>
+				</restriction>
+			</simpleType>
+		</union>
+	</simpleType>
+	<element abstract="false" name="PhotoIonizationDetectorTest"
+		substitutionGroup="diggs:AbstractLaboratoryTest" type="diggs:AbstractLaboratoryTestType">
+		<annotation>
+			<documentation>This test measures volatile organic compounds and other gases.</documentation>
+		</annotation>
+	</element>
+	<element name="StaticConePenetrationTest" substitutionGroup="diggs:AbstractInsituTest"
+		type="diggs_geo:StaticConePenetrationTestType">
+		<annotation>
+			<documentation>The Cone Penetration Test is an in situ testing method used to determine the geotechnical engineering properties of soils and delineating soil stratigraphy.  The test method consists of pushing an instrumented cone, with the tip facing down, into the ground at a controlled rate.</documentation>
+		</annotation>
+	</element>
+	<complexType name="StaticConePenetrationTestType">
+		<annotation>
+			<documentation>Base type for StaticConePenetrationTest</documentation>
+		</annotation>
+		<complexContent>
+			<extension base="diggs:AbstractInsituTestType">
+				<sequence>
+					<element minOccurs="0" name="penetrometerType" type="gml:CodeType">
+						<annotation>
+							<documentation>The type of static cone penetrometer used for testing.</documentation>
+						</annotation>
+					</element>
+					<element minOccurs="0" name="distanceTipToSleeve" type="witsml:lengthMeasure">
+						<annotation>
+							<documentation>The distance between the tip and the center of the friction sleeve. A unit of measure is required in the uom attribute.</documentation>
+						</annotation>
+					</element>
+					<element minOccurs="0" name="frictionReducer" type="diggs:DiggsStringType">
+						<annotation>
+							<documentation>A description of the type, size and location of the friction reducer behind the base of the cone should be reported if used</documentation>
+						</annotation>
+					</element>
+					<element minOccurs="0" name="frictionSleeveArea" type="witsml:areaMeasure">
+						<annotation>
+							<documentation>The surface area of the friction sleeve located immediately behind the penetrometer tip.</documentation>
+						</annotation>
+					</element>
+					<element minOccurs="0" name="netAreaRatioCorrection" type="double">
+						<annotation>
+							<documentation>The correction necessary to adjust the penetration cone resistance due to penetration water pressures acting behind the cone tip.</documentation>
+						</annotation>
+					</element>
+					<element minOccurs="0" name="penetrationRate" type="witsml:velocityMeasure">
+						<annotation>
+							<documentation>The rate of advance of the penetrometer.</documentation>
+						</annotation>
+					</element>
+					<element minOccurs="0" name="piezoconeType" type="gml:CodeType">
+						<annotation>
+							<documentation>The type of Piezocone is defined in part by the location of the filter element.</documentation>
+						</annotation>
+					</element>
+					<element maxOccurs="unbounded" minOccurs="0" name="porePressureElementInfo"
+						type="diggs_geo:PorePressureElementPropertyType"/>
+					<element minOccurs="0" name="pushRodType" type="gml:CodeType">
+						<annotation>
+							<documentation>The type of pushing rods used for CPT penetration. Standard nomenclature can be used such as A-rod or N-rod</documentation>
+						</annotation>
+					</element>
+					<element minOccurs="0" name="tipCapacity" type="witsml:forceMeasure">
+						<annotation>
+							<documentation>The capacity of the tip load cell.</documentation>
+						</annotation>
+					</element>
+					<element minOccurs="0" name="sleeveCapacity" type="witsml:forceMeasure">
+						<annotation>
+							<documentation>The capacity of the sleeve load cell.</documentation>
+						</annotation>
+					</element>
+					<element minOccurs="0" name="surfaceCapacity" type="witsml:forceMeasure">
+						<annotation>
+							<documentation>The capacity of the surface load cell.</documentation>
+						</annotation>
+					</element>
+					<element minOccurs="0" name="tipApexAngle" type="witsml:planeAngleMeasure">
+						<annotation>
+							<documentation>The apex angle of the conical point of the penetrometer tip.</documentation>
+						</annotation>
+					</element>
+					<element minOccurs="0" name="tipArea" type="witsml:areaMeasure">
+						<annotation>
+							<documentation>The conical base area of the penetrometer tip.</documentation>
+						</annotation>
+					</element>
+				</sequence>
+			</extension>
+		</complexContent>
+	</complexType>
+	<element name="PorePressureElement" type="diggs_geo:PorePressureElementType">
+		<annotation>
+			<documentation>Provides data structure to capture pore pressure sensor metadata.</documentation>
+		</annotation>
+	</element>
+	<complexType name="PorePressureElementType">
+		<annotation>
+			<documentation>Base type for PorePressureElement.</documentation>
+		</annotation>
+		<complexContent>
+			<extension base="diggs:AbstractObjectType">
+				<sequence>
+					<element minOccurs="0" name="cellId" type="diggs:DiggsStringType">
+						<annotation>
+							<documentation>The id number or value that identifies this filter element</documentation>
+						</annotation>
+					</element>
+					<element minOccurs="0" name="filterElementLocation" type="witsml:lengthMeasure">
+						<annotation>
+							<documentation>The location of the filter element as distance from the cone tip</documentation>
+						</annotation>
+					</element>
+					<element maxOccurs="1" minOccurs="0" name="poreCapacity"
+						type="witsml:generalMeasureType">
+						<annotation>
+							<documentation>The capacity of the pore pressure load cell.</documentation>
+						</annotation>
+					</element>
+					<element maxOccurs="1" minOccurs="0" name="porousElementType"
+						type="gml:CodeType">
+						<annotation>
+							<documentation>The type of material used as porous filter element. The following materials are typically used: a) plastic, b) sintered bronze, c) sintered steel, d) ceramic, or e) other. This value is extendable using Other: xx.</documentation>
+						</annotation>
+					</element>
+					<element maxOccurs="1" minOccurs="0" name="saturationFluid" type="gml:CodeType">
+						<annotation>
+							<documentation>The fluid used to saturate the porous filter element. The following deaired fluids are typically used: a) water, b) glycerin, c) silicon oil, or d) other This value is extendable using Other: xx.</documentation>
+						</annotation>
+					</element>
+					<choice maxOccurs="1" minOccurs="0">
+						<element minOccurs="0" name="saturationMethod" type="gml:CodeType">
+							<annotation>
+								<documentation>A description of the procedure used to saturate the porous filter element.</documentation>
+							</annotation>
+						</element>
+						<element minOccurs="0" name="saturationMethodRef"
+							type="diggs:MetadataReferenceType">
+							<annotation>
+								<appinfo>Diggs:Specification</appinfo>
+							</annotation>
+						</element>
+					</choice>
+				</sequence>
+			</extension>
+		</complexContent>
+	</complexType>
+	<complexType name="PorePressureElementPropertyType">
+		<annotation>
+			<documentation>This is the property that contains the PorePressureElement object(s).  It is needed to satisfy the GML object-property rule when PorePressureElement is used as an element in another test.</documentation>
+		</annotation>
+		<sequence>
+			<element maxOccurs="1" minOccurs="1" ref="diggs_geo:PorePressureElement"/>
+		</sequence>
+	</complexType>
+	<element name="WirelineLog" substitutionGroup="diggs:AbstractInsituTest"
+		type="diggs_geo:WirelineLogType">
+		<annotation>
+			<documentation>This is a generic test structure to capture all forms of geophysical test data collected by wireline methods.</documentation>
+		</annotation>
+	</element>
+	<complexType name="WirelineLogType">
+		<annotation>
+			<documentation>Base type for WirelineLog</documentation>
+		</annotation>
+		<complexContent>
+			<extension base="diggs:AbstractInsituTestType">
+				<sequence>
+					<element minOccurs="0" name="runNumber" type="diggs:DiggsStringType">
+						<annotation>
+							<documentation>Log run number. This should normally be a number; however some legacy systems encode other information in this value.</documentation>
+						</annotation>
+					</element>
+					<element minOccurs="0" name="bhaRunNumber" type="witsml:positiveCount">
+						<annotation>
+							<documentation>The bottom hole assembly run number associated with this log.</documentation>
+						</annotation>
+					</element>
+					<element maxOccurs="unbounded" minOccurs="0" name="logParameter"
+						type="diggs:ParameterPropertyType">
+						<annotation>
+							<documentation>Log parameters that apply to the overall log. </documentation>
+						</annotation>
+					</element>
+				</sequence>
+			</extension>
+		</complexContent>
+	</complexType>
+	<complexType name="LabChemicalTestType">
+		<complexContent>
+			<extension base="diggs:AbstractLaboratoryTestType"/>
+		</complexContent>
+	</complexType>
+	<element name="LabChemicalTest" substitutionGroup="diggs:AbstractLaboratoryTest"
+		type="diggs_geo:LabChemicalTestType"/>
+</schema>

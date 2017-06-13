@@ -1,0 +1,238 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<schema xmlns:witsml="http://www.witsml.org/schemas/131"
+	targetNamespace="http://www.witsml.org/schemas/131" 
+	xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+	xmlns="http://www.w3.org/2001/XMLSchema" 
+	elementFormDefault="qualified" 
+	version="1.3.1">
+
+	<!-- POSC License Agreement
+	This file is distributed under the POSC License Agreement at
+	http://www.posc.org/about/license.shtml.
+	Use of this file constitutes agreement with the POSC License Agreement.
+	-->
+
+
+	<!--                                                         -->
+	<!-- ================= ABSTRACT BASE TYPES ================= -->
+	<!--                                                         -->
+	<simpleType name="abstractBoolean">
+		<annotation>
+			<documentation>This type disallows an "empty" boolean value.
+			This type should not be used directly except to derive another type.
+			All boolean types should be derived from this type rather than using boolen.</documentation>
+		</annotation>
+		<restriction base="boolean">
+			<pattern value=".+"/>
+		</restriction>
+	</simpleType>
+	<!--                                                         -->
+	<simpleType name="abstractDateTime">
+		<annotation>
+			<documentation>This type disallows an "empty" dateTime value.
+			This type should not be used directly except to derive another type.
+			All dateTime types should be derived from this type rather than using dateTime.</documentation>
+		</annotation>
+		<restriction base="dateTime">
+			<pattern value=".+"/>
+		</restriction>
+	</simpleType>
+	<!--                                                         -->
+	<simpleType name="abstractDate">
+		<annotation>
+			<documentation>This type disallows an "empty" date value.
+			This type should not be used directly except to derive another type.
+			All dateTime types should be derived from this type rather than using dateTime.</documentation>
+		</annotation>
+		<restriction base="date">
+			<pattern value=".+"/>
+		</restriction>
+	</simpleType>
+	<!--                                                         -->
+	<simpleType name="abstractYear">
+		<annotation>
+			<documentation>This type disallows an "empty" gYear value.
+			This type should not be used directly except to derive another type.
+			All year types should be derived from this type rather than using gYear.</documentation>
+		</annotation>
+		<restriction base="gYear">
+			<pattern value=".+"/>
+		</restriction>
+	</simpleType>
+	<!--                                                         -->
+	<simpleType name="abstractDouble">
+		<annotation>
+			<documentation>This type disallows an "empty" double value.
+			This type should not be used directly except to derive another type.</documentation>
+		</annotation>
+		<restriction base="double">
+			<pattern value=".+"/>
+		</restriction>
+	</simpleType>
+	<!--                                                         -->
+	<simpleType name="abstractShort">
+		<annotation>
+			<documentation>This type disallows an "empty" short value.
+			This type should not be used directly except to derive another type.</documentation>
+		</annotation>
+		<restriction base="short">
+			<pattern value=".+"/>
+		</restriction>
+	</simpleType>
+	<!--                                                         -->
+	<simpleType name="abstractInt">
+		<annotation>
+			<documentation>This type disallows an "empty" int value.
+			This type should not be used directly except to derive another type.</documentation>
+		</annotation>
+		<restriction base="int">
+			<pattern value=".+"/>
+		</restriction>
+	</simpleType>
+	<!--                                                         -->
+	<simpleType name="abstractString">
+		<annotation>
+			<documentation>The intended abstract supertype of all strings.
+			This abstract type allows the control over whitespace for all strings to be defined at a high level. 
+			This type should not be used directly except to derive another type.</documentation>
+		</annotation>
+		<restriction base="string">
+			<whiteSpace value='collapse'>
+				<annotation>
+					<documentation>Replace tab, line feed and carriage return with 
+					a space, collapse contiguous sequences of spaces to a single space 
+					and then remove leading and trailing spaces.</documentation>
+				</annotation>
+			</whiteSpace>
+			<minLength value='1'>
+				<annotation>
+					<documentation>The empty string is not allowed.
+					This constraint conbined with the whiteSpace collapse constraint means
+					that a blank value is not allowed.</documentation>
+				</annotation>
+			</minLength>
+		</restriction>
+	</simpleType>
+	<!--                                                         -->
+	<complexType name="abstractMeasure" abstract="true">
+		<annotation>
+			<documentation>The intended abstract supertype of all quantities that have a value 
+			with a unit of measure. The unit of measure is in the uom attribute of the subtypes. 
+			This type allows all quantities to be profiled to be a 'float' instead of a 'double'.</documentation>
+		</annotation>
+		<simpleContent>
+			<extension base="witsml:abstractDouble"/>
+		</simpleContent>
+	</complexType>
+	<!--                                                         -->
+	<simpleType name="abstractMaximumLengthString">
+		<annotation>
+			<documentation>This defines the maximum acceptable length of a
+			string that can be stored in a data base.</documentation>
+		</annotation>
+		<restriction base="witsml:abstractString">
+			<maxLength value="4000">
+				<annotation>
+					<documentation>This value should be the smallest "maximum 
+					size of a variable length character type" in commonly used DBMSs. 
+					This is the maximum size of a VARCHAR2 in Oracle 8.</documentation>
+				</annotation>
+			</maxLength>
+		</restriction>
+	</simpleType>
+	<!--                                                         -->
+	<simpleType name="abstractUncollapsedString">
+		<annotation>
+			<documentation>The intended abstract supertype of all strings that must maintain whitespace. 
+			The type abstractString should normally be used.
+			This type should not be used directly except to derive another type.</documentation>
+		</annotation>
+		<restriction base="string">
+			<minLength value='1'>
+				<annotation>
+					<documentation>The empty string is not allowed.</documentation>
+				</annotation>
+			</minLength>
+		</restriction>
+	</simpleType>
+	<!--                                                         -->
+	<!-- =========== CONTENT SPECIFIC ABSTRACT TYPES  ========== -->
+	<!--                                                         -->
+	<simpleType name="abstractPositiveCount">
+		<annotation>
+			<documentation>A positive integer (one based count or index) with a maximum value of 32767 (2-bytes).</documentation>
+		</annotation>
+		<restriction base="witsml:abstractShort">
+			<minInclusive value="1">
+				<annotation>
+					<documentation>This value cannot be negative or zero.</documentation>
+				</annotation>
+			</minInclusive>
+		</restriction>
+	</simpleType>
+	<!--                                                         -->
+	<!-- ======= CONTENT SPECIFIC ABSTRACT STRING TYPES  ======= -->
+	<!--                                                         -->
+	<simpleType name="abstractNameString">
+		<annotation>
+			<documentation>The intended abstract supertype of all user assigned human 
+			recognizable contextual name types. 
+			There should be no assumption that (interoperable) semantic information will be extracted from the name by a third party.
+			This type of value is generally not guaranteed to be unique and is not a candidate to be replaced by an enumeration.</documentation>
+		</annotation>
+		<restriction base="witsml:abstractString">
+			<maxLength value="64"/>
+		</restriction>
+	</simpleType>
+	<!--                                                         -->
+	<simpleType name="abstractUidString">
+		<annotation>
+			<documentation>The intended abstract supertype of all locally unique identifiers. 
+			The value is not intended to convey any semantic content (e.g., it may be computer generated). 
+			The value is only required to be unique within a context in a document (e.g., defined via key and keyref). 
+			There is no guarantee that the same data in multiple documents will utilize the same uid value 
+			unless enforced by the source of the document (e.g., a document server).
+			Spaces are not allowed.</documentation>
+		</annotation>
+		<restriction base="witsml:abstractString">
+			<maxLength value="64"/>
+			<pattern  value="[^ ]*"/>
+		</restriction>
+	</simpleType>
+	<!--                                                         -->
+	<simpleType name="abstractCommentString">
+		<annotation>
+			<documentation>The intended abstract supertype of all comments or remarks 
+			intended for human consumption. 
+			There should be no assumption that semantics can be extracted from the field by a computer. 
+			Neither should there be an assumption that any two humans will interpret the information 
+			in the same way (i.e., it may not be interoperable).</documentation>
+		</annotation>
+		<restriction base="witsml:abstractMaximumLengthString"/>
+	</simpleType>
+	<!--                                                         -->
+	<simpleType name="abstractTypeEnum">
+		<annotation>
+			<documentation>The intended abstract supertype of all enumerated "types".
+			This abstract type allows the maximum length of a type enumeration to be centrally defined.
+			This type should not be used directly except to derive another type.
+			It should also be used for uncontrolled strings which are candidates to become enumerations at a future date.</documentation>
+		</annotation>
+		<restriction base="witsml:abstractString">
+			<maxLength value="40"/>
+		</restriction>
+	</simpleType>
+	<!--                                                         -->
+	<simpleType name="abstractUomEnum">
+		<annotation>
+			<documentation>The intended abstract supertype of all "units of measure".
+			This abstract type allows the maximum length of a UOM enumeration to be centrally defined. 
+			This type is abstract in the sense that it should not be used directly 
+			except to derive another type.</documentation>
+		</annotation>
+ 		<restriction base="witsml:abstractString">
+ 			<maxLength value="24"/>
+ 		</restriction>
+	</simpleType>
+	<!--                                                         -->
+</schema>
