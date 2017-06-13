@@ -1,0 +1,167 @@
+<?xml version="1.0" encoding="utf-8"?>
+<schema xmlns:xlink="http://www.w3.org/1999/xlink" 
+  xmlns:diggs="http://schemas.diggsml.com/2.0.a"
+  xmlns:diggs_geo="http://schemas.diggsml.com/2.0.a/geotechnical"
+  xmlns:witsml="http://www.witsml.org/schemas/131"
+  xmlns:diggs_env="http://schemas.diggsml.com/2.0.a/environmental"
+  xmlns="http://www.w3.org/2001/XMLSchema"
+  xmlns:diggs_mon="http://schemas.diggsml.com/2.0.a/monitoring"
+  xmlns:diggs_pil="http://schemas.diggsml.com/2.0.a/piling"
+  xmlns:gml="http://www.opengis.net/gml/3.2"
+  targetNamespace="http://schemas.diggsml.com/2.0.a/environmental" 
+  version="2.0.a"
+  elementFormDefault="qualified">  
+  
+  <import namespace="http://www.opengis.net/gml/3.2" schemaLocation="http://schemas.opengis.net/gml/3.2.1/gml.xsd"/>
+  <import namespace="http://www.w3.org/1999/xlink" schemaLocation="http://www.w3.org/XML/2008/06/xlink.xsd"/>
+  <import namespace="http://www.w3.org/XML/1998/namespace" schemaLocation="http://www.w3.org/2001/xml.xsd"/>
+  <import namespace="http://www.witsml.org/schemas/131" schemaLocation="http://diggsml.org/2.0a/schemas/witsml/1.3.1.1/typ_dataTypes.xsd"/>
+  <import namespace="http://schemas.diggsml.com/2.0.a" schemaLocation="http://diggsml.org/2.0a/schemas/Kernel.xsd"/>
+  <element name="Filtration" type="diggs_env:FiltrationType"
+    substitutionGroup="diggs:AbstractObject" abstract="false"/>
+  <complexType name="FiltrationType">
+    <complexContent>
+      <extension base="diggs:AbstractObjectType">
+        <sequence>
+          <element name="phase" type="gml:CodeType" minOccurs="0" maxOccurs="1"/>
+          <element name="poreSize" type="witsml:lengthMeasure" minOccurs="0" maxOccurs="1"/>
+        </sequence>
+      </extension>
+    </complexContent>
+  </complexType>
+  <complexType name="FiltrationPropertyType">
+    <sequence>
+      <element ref="diggs_env:Filtration" minOccurs="0" maxOccurs="unbounded"/>
+    </sequence>
+  </complexType>
+  <element name="Purge" type="diggs_env:PurgeType" substitutionGroup="diggs:AbstractFeature"
+    abstract="false"/>
+  <complexType name="PurgeType">
+    <complexContent>
+      <extension base="diggs:AbstractFeatureType">
+        <sequence>
+          <element name="casingVolume" type="witsml:volumeMeasure" minOccurs="0" maxOccurs="1"/>
+          <element name="isProductContainerised" type="boolean" minOccurs="0" maxOccurs="1"/>
+          <element name="isWaterContainerised" type="boolean" minOccurs="0" maxOccurs="1"/>
+          <element name="isWaterTreated" type="boolean" minOccurs="0" maxOccurs="1"/>
+          <element name="productContainersLabeled" type="boolean" minOccurs="0" maxOccurs="1"/>
+          <element name="pumpingTiming" type="diggs:TimeIntervalPropertyType" minOccurs="0"
+            maxOccurs="1"/>
+          <element name="purgeToDry" type="boolean" minOccurs="0" maxOccurs="1"/>
+          <element name="timing" type="diggs:TimeIntervalPropertyType" minOccurs="0" maxOccurs="1"/>
+          <element name="totalPurgeVolume" type="witsml:volumeMeasure" minOccurs="0" maxOccurs="1"/>
+          <element name="type" type="gml:CodeType" minOccurs="0" maxOccurs="1"/>
+          <element name="waterLevelReadings" type="diggs_env:WaterLevelReadingPropertyType"
+            minOccurs="0" maxOccurs="1"/>
+        </sequence>
+      </extension>
+    </complexContent>
+  </complexType>
+  <complexType name="PurgePropertyType">
+    <sequence>
+      <element ref="diggs_env:Purge" minOccurs="0" maxOccurs="unbounded"/>
+    </sequence>
+  </complexType>
+  <complexType name="SpectralAnalysisType">
+    <complexContent>
+      <extension base="diggs_env:ChemicalAnalysisType">
+        <sequence>
+          <element name="wavelength" type="witsml:lengthMeasure" minOccurs="0" maxOccurs="1"/>
+        </sequence>
+      </extension>
+    </complexContent>
+  </complexType>
+
+  <element name="SpectralAnalysis" type="diggs_env:SpectralAnalysisType"
+    substitutionGroup="diggs_env:ChemicalAnalysis" abstract="false"/>
+
+
+  <element name="TICResult" type="diggs_env:TICResultType" substitutionGroup="gml:AbstractValue"
+    abstract="false"/>
+  <complexType name="TICResultType">
+    <complexContent>
+      <extension base="diggs:PropertyType">
+        <sequence>
+          <element name="percentMatch" type="diggs:PercentMeasureType" minOccurs="0" maxOccurs="1"/>
+          <element name="retentionTime" type="diggs:TimeIntervalPropertyType" minOccurs="0"
+            maxOccurs="1"/>
+        </sequence>
+      </extension>
+    </complexContent>
+  </complexType>
+  <complexType name="TICResultPropertyType">
+    <sequence>
+      <element ref="diggs_env:TICResult" minOccurs="0" maxOccurs="unbounded"/>
+    </sequence>
+  </complexType>
+  <element name="WaterLevelReading" type="diggs_env:WaterLevelReadingType"
+    substitutionGroup="diggs:AbstractFeature" abstract="false"/>
+  <complexType name="WaterLevelReadingType">
+    <complexContent>
+      <extension base="diggs:AbstractFeatureType">
+        <sequence>
+          <element name="captureQualifier" type="gml:CodeType" minOccurs="1" maxOccurs="1"/>
+          <element name="isDry" type="boolean" minOccurs="0" maxOccurs="1"/>
+          <element name="isReportable" type="boolean" minOccurs="0" maxOccurs="1"/>
+          <choice>
+            <element name="readingMethod" type="gml:CodeType" minOccurs="0" maxOccurs="1"/>
+            <element minOccurs="0" name="readingMethodRef" type="diggs:MetadataReferenceType">
+              <annotation>
+                <appinfo>diggs:Specification</appinfo>
+              </annotation>
+            </element>
+          </choice>
+          <element name="productType" type="gml:CodeType" minOccurs="0" maxOccurs="1"/>
+          <element name="timing" type="diggs:TimeIntervalPropertyType" minOccurs="0" maxOccurs="1"/>
+          <element name="type" type="gml:CodeType" minOccurs="0" maxOccurs="1"/>
+          <element name="depths" type="diggs_env:WaterLevelReadingMeasurementsPropertyType"
+            minOccurs="0" maxOccurs="1"/>
+          <element name="elevations" type="diggs_env:WaterLevelReadingMeasurementsPropertyType"
+            minOccurs="0" maxOccurs="1"/>
+        </sequence>
+      </extension>
+    </complexContent>
+  </complexType>
+  <complexType name="WaterLevelReadingPropertyType">
+    <sequence>
+      <element ref="diggs_env:WaterLevelReading" minOccurs="0" maxOccurs="unbounded"/>
+    </sequence>
+  </complexType>
+  <element name="WaterLevelReadingMeasurements" type="diggs_env:WaterLevelReadingMeasurementsType"
+    substitutionGroup="gml:AbstractGML" abstract="false"/>
+  <complexType name="WaterLevelReadingMeasurementsType">
+    <complexContent>
+      <extension base="gml:AbstractGMLType">
+        <sequence>
+          <element name="bottom" type="gml:PointPropertyType" minOccurs="0" maxOccurs="1"/>
+          <element name="cRSType" type="gml:CodeType" minOccurs="0" maxOccurs="1"/>
+          <element name="product" type="gml:PointPropertyType" minOccurs="0" maxOccurs="1"/>
+          <element name="water" type="gml:PointPropertyType" minOccurs="0" maxOccurs="1"/>
+          <element name="waterCorrected" type="gml:PointPropertyType" minOccurs="0" maxOccurs="1"/>
+        </sequence>
+      </extension>
+    </complexContent>
+  </complexType>
+  <complexType name="WaterLevelReadingMeasurementsPropertyType">
+    <sequence>
+      <element ref="diggs_env:WaterLevelReadingMeasurements" minOccurs="0" maxOccurs="unbounded"/>
+    </sequence>
+  </complexType>
+  <element name="ChemicalAnalysis" type="diggs_env:ChemicalAnalysisType"
+    substitutionGroup="diggs:AbstractLaboratoryTest" abstract="false"/>
+  <complexType name="ChemicalAnalysisType">
+    <complexContent>
+      <extension base="diggs:AbstractLaboratoryTestType">
+        <sequence>
+          <element name="sampleVolume" type="witsml:volumeMeasure" minOccurs="0" maxOccurs="1"/>
+          <element name="dilutionFactor" type="double" minOccurs="0" maxOccurs="1"/>
+          <element name="analysisType" type="gml:CodeType" minOccurs="0" maxOccurs="1"/>
+          <!--         <element name="results" type="diggs_env:AbstractResultPropertyType" minOccurs="0" 
+   maxOccurs="1"/> -->
+        </sequence>
+      </extension>
+    </complexContent>
+  </complexType>
+  <element name="AbstractChemicalAnalysis" type="diggs_env:ChemicalAnalysisType"
+    substitutionGroup="diggs:AbstractLaboratoryTest" abstract="true"/>
+</schema>
