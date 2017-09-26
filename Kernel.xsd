@@ -412,6 +412,13 @@
                                 survey (left/right).</documentation>
                         </annotation>
                     </element>
+                    <element name="division" type="diggs:DiggsStringType" minOccurs="0"
+                        maxOccurs="1">
+                        <annotation>
+                            <documentation>Name or ID of a territory of land classified as a
+                                Division </documentation>
+                        </annotation>
+                    </element>
                     <element name="district" type="diggs:DiggsStringType" minOccurs="0"
                         maxOccurs="1">
                         <annotation>
@@ -422,6 +429,13 @@
                     <element name="parceI" type="diggs:DiggsStringType" minOccurs="0" maxOccurs="1">
                         <annotation>
                             <documentation>Name or ID of a territory of land classified as a Parcel
+                            </documentation>
+                        </annotation>
+                    </element>
+                    <element name="quadrangle" type="diggs:DiggsStringType" minOccurs="0"
+                        maxOccurs="1">
+                        <annotation>
+                            <documentation>Name or ID of a territory of land classified as a map quadrange
                             </documentation>
                         </annotation>
                     </element>
@@ -628,10 +642,10 @@
         </sequence>
     </complexType>
     <element name="DocumentInformation" type="diggs:DocumentInformationType"
-        substitutionGroup="diggs:AbstractFeature" abstract="false" block="" nillable="false"/>
+        substitutionGroup="diggs:AbstractFeatureBase" abstract="false" block="" nillable="false"/>
     <complexType name="DocumentInformationType">
         <complexContent>
-            <extension base="diggs:AbstractFeatureType">
+            <extension base="diggs:AbstractFeatureBaseType">
                 <sequence>
                     <element name="creationDate" type="diggs:UnifiedDateTimeType">
                         <annotation>
@@ -639,17 +653,11 @@
                                 created.</documentation>
                         </annotation>
                     </element>
-                    <element minOccurs="0" name="effectiveDate" type="diggs:UnifiedDateTimeType">
+                    <element minOccurs="0" name="expirationDate" type="diggs:UnifiedDateTimeType">
                         <annotation>
                             <documentation>The effective date for the data in this XML instance. It
                                 would likely represent the most recent date when data in the
                                 instance was last added to or modified.</documentation>
-                        </annotation>
-                    </element>
-                    <element minOccurs="0" name="language" type="language">
-                        <annotation>
-                            <documentation>The default language used in this instance
-                                document</documentation>
                         </annotation>
                     </element>
                     <element name="author" type="diggs:BusinessAssociatePropertyType" minOccurs="0"
@@ -810,13 +818,18 @@
         substitutionGroup="diggs:AbstractFeatureBase" type="diggs:AbstractNamedFeatureType"/>
     <complexType name="AbstractNamedFeatureType">
         <complexContent>
-            <extension base="diggs:AbstractFeatureBaseType">
+            <restriction base="diggs:AbstractFeatureType">
                 <sequence>
-                    <element maxOccurs="unbounded" minOccurs="1" ref="gml:name"/>
-                    <element minOccurs="0" name="internalIdentifier"
-                        type="diggs:CodeWithAuthorityType">
-                        <annotation>
-                            <documentation>The value of this property is the identifier originally
+                    <sequence>
+                        <element minOccurs="0" ref="gml:description"/>
+                        <element minOccurs="0" ref="gml:identifier"/>
+                    </sequence>
+                    <sequence>
+                        <element maxOccurs="unbounded" minOccurs="1" ref="gml:name"/>
+                        <element minOccurs="0" name="internalIdentifier"
+                            type="diggs:CodeWithAuthorityType">
+                            <annotation>
+                                <documentation>The value of this property is the identifier originally
                                 created by the authority for this feature, or that is used as the
                                 identifier in the authority's internal data management system. There
                                 is no assumption as to the unique scope or persistence of this
@@ -827,51 +840,51 @@
                                 internal data management system. The codeSpace attribute must be
                                 populated to identify the authority that uses the internalIdentifier
                                 value.</documentation>
-                        </annotation>
-                    </element>
-                    <element minOccurs="0" name="status" type="gml:CodeType">
-                        <annotation>
-                            <documentation>A text string to provide information about the status of
+                            </annotation>
+                        </element>
+                        <element minOccurs="0" name="status" type="gml:CodeType">
+                            <annotation>
+                                <documentation>A text string to provide information about the status of
                                 the object to be used to track QA/QC controls, review or release
                                 status, etc. The values used are intended to come from a controlled
                                 list of terms maintained by an organization.</documentation>
-                        </annotation>
-                    </element>
-                    <element name="associatedFile" type="diggs:AssociatedFilePropertyType"
-                        minOccurs="0" maxOccurs="unbounded">
-                        <annotation>
-                            <documentation/>
-                        </annotation>
-                    </element>
-                    <element name="associatedFileRef" type="diggs:FeatureReferenceType"
-                        minOccurs="0" maxOccurs="unbounded">
-                        <annotation>
-                            <appinfo source="urn:x-gml:targetElement">diggs:AssociatedFile</appinfo>
-                            <documentation>A reference to an AssociatedFile object that provides
-                                    information about external files or documents associated with
-                                    this feature. The target value is indicated in the appinfo
-                                    element.</documentation>
-                        </annotation>
-                    </element>
-                    <element name="role" type="diggs:RolePropertyType" minOccurs="0"
-                        maxOccurs="unbounded">
-                        <annotation>
-                            <documentation>Identifies a specific role or task performed that is
-                                    associated with this specific feature, the person or
-                                    organization that performed the role, and associated time frame,
-                                    if applicable.</documentation>
-                        </annotation>
-                    </element>
-                    <element name="remark" type="diggs:RemarkPropertyType" minOccurs="0"
-                        maxOccurs="unbounded">
-                        <annotation>
-                            <documentation>Any comment or remark associated with this specific
-                                    feature.</documentation>
-                        </annotation>
-                    </element>
+                            </annotation>
+                        </element>
+                        <element maxOccurs="unbounded" minOccurs="0" name="associatedFile"
+                            type="diggs:AssociatedFilePropertyType">
+                            <annotation>
+                                <documentation/>
+                            </annotation>
+                        </element>
+                        <element maxOccurs="unbounded" minOccurs="0" name="associatedFileRef"
+                            type="diggs:FeatureReferenceType">
+                            <annotation>
+                                <appinfo source="urn:x-gml:targetElement">diggs:AssociatedFile</appinfo>
+                                <documentation>A reference to an AssociatedFile object that provides
+                                information about external files or documents associated with this
+                                feature. The target value is indicated in the appinfo
+                                element.</documentation>
+                            </annotation>
+                        </element>
+                        <element maxOccurs="unbounded" minOccurs="0" name="role"
+                            type="diggs:RolePropertyType">
+                            <annotation>
+                                <documentation>Identifies a specific role or task performed that is
+                                associated with this specific feature, the person or organization
+                                that performed the role, and associated time frame, if
+                                applicable.</documentation>
+                            </annotation>
+                        </element>
+                        <element maxOccurs="unbounded" minOccurs="0" name="remark"
+                            type="diggs:RemarkPropertyType">
+                            <annotation>
+                                <documentation>Any comment or remark associated with this specific
+                                feature.</documentation>
+                            </annotation>
+                        </element>
+                    </sequence>
                 </sequence>
-                <attribute ref="xml:lang"/>
-            </extension>
+            </restriction>
         </complexContent>
     </complexType>
     <element abstract="true" name="AbstractObject" substitutionGroup="gml:AbstractGML"
@@ -999,70 +1012,32 @@
         </sequence>
     </complexType>
     <element name="BusinessAssociate" type="diggs:BusinessAssociateType"
-        substitutionGroup="diggs:AbstractFeatureBase" abstract="false">
+        substitutionGroup="diggs:AbstractNamedFeature" abstract="false">
         <annotation>
             <documentation>A person or entity</documentation>
         </annotation>
     </element>
     <complexType name="BusinessAssociateType">
         <complexContent>
-            <extension base="diggs:AbstractFeatureBaseType">
+            <extension base="diggs:AbstractNamedFeatureType">
                 <sequence>
-                    <sequence>
-                        <element maxOccurs="unbounded" minOccurs="1" ref="gml:name"/>
-                        <element minOccurs="0" name="status" type="gml:CodeType">
-                            <annotation>
-                                <documentation>A text string to provide information about the status
-                                    of the object to be used to track QA/QC controls, review or
-                                    release status, etc. The values used are intended to come from a
-                                    controlled list of terms maintained by an
-                                    organization.</documentation>
-                            </annotation>
-                        </element>
-                        <element name="associatedFile" type="diggs:AssociatedFilePropertyType"
-                            minOccurs="0" maxOccurs="unbounded">
-                            <annotation>
-                                <documentation/>
-                            </annotation>
-                        </element>
-                        <element name="associatedFileRef" type="diggs:FeatureReferenceType"
-                            minOccurs="0" maxOccurs="unbounded">
-                            <annotation>
-                                <appinfo source="urn:x-gml:targetElement">diggs:AssociatedFile</appinfo>
-                                <documentation>A reference to an AssociatedFile object that provides
-                                    information about external files or documents associated with
-                                    this feature. The target value is indicated in the appinfo
-                                    element.</documentation>
-                            </annotation>
-                        </element>
-                        <element name="remark" type="diggs:RemarkPropertyType" minOccurs="0"
-                            maxOccurs="unbounded">
-                            <annotation>
-                                <documentation>Any comment or remark associated with this specific
-                                    feature.</documentation>
-                            </annotation>
-                        </element>
-                    </sequence>
-                    <sequence>
-                        <element name="title" type="gml:CodeType" minOccurs="0" maxOccurs="1"/>
-                        <element name="address" type="diggs:AddressPropertyType" minOccurs="0"
-                            maxOccurs="unbounded"/>
-                        <element name="emailAddress" type="diggs:EmailType" minOccurs="0"
-                            maxOccurs="unbounded"/>
-                        <element name="phoneNumber" type="diggs:PhoneType" minOccurs="0"
-                            maxOccurs="unbounded"/>
-                        <element name="associatedWith" type="gml:ReferenceType" minOccurs="0"
-                            maxOccurs="unbounded">
-                            <annotation>
-                                <appinfo source="urn:x-gml:targetElement">diggs:BusinessAssociate</appinfo>
-                                <documentation>A property element that supports a value by reference
+                    <element name="title" type="gml:CodeType" minOccurs="0" maxOccurs="1"/>
+                    <element name="address" type="diggs:AddressPropertyType" minOccurs="0"
+                        maxOccurs="unbounded"/>
+                    <element name="emailAddress" type="diggs:EmailType" minOccurs="0"
+                        maxOccurs="unbounded"/>
+                    <element name="phoneNumber" type="diggs:PhoneType" minOccurs="0"
+                        maxOccurs="unbounded"/>
+                    <element name="associatedWith" type="gml:ReferenceType" minOccurs="0"
+                        maxOccurs="unbounded">
+                        <annotation>
+                            <appinfo source="urn:x-gml:targetElement">diggs:BusinessAssociate</appinfo>
+                            <documentation>A property element that supports a value by reference
                                     only. The target value is indicated in the appinfo
                                     element.</documentation>
-                            </annotation>
-                        </element>
-                    </sequence>
+                        </annotation>
+                    </element>
                 </sequence>
-                <attribute ref="xml:lang"/>
             </extension>
         </complexContent>
     </complexType>
@@ -1497,7 +1472,7 @@
     <element abstract="true" name="AbstractSimpleMetadata" type="diggs:AbstractSimpleMetadataType"/>
     <complexType abstract="true" name="AbstractSimpleMetadataType"/>
     <element name="AssociatedFile" type="diggs:AssociatedFileType"
-        substitutionGroup="diggs:AbstractFeatureBase" abstract="false">
+        substitutionGroup="diggs:AbstractNamedFeature" abstract="false">
         <annotation>
             <documentation>An AssociatedFile object provides information about external files or
                 documents associated with other features.</documentation>
@@ -1505,36 +1480,8 @@
     </element>
     <complexType name="AssociatedFileType">
         <complexContent>
-            <extension base="diggs:AbstractFeatureBaseType">
+            <extension base="diggs:AbstractNamedFeatureType">
                 <sequence>
-                    <sequence>
-                        <element maxOccurs="unbounded" minOccurs="1" ref="gml:name"/>
-                        <element minOccurs="0" name="status" type="gml:CodeType">
-                            <annotation>
-                                <documentation>A text string to provide information about the status
-                                    of the object to be used to track QA/QC controls, review or
-                                    release status, etc. The values used are intended to come from a
-                                    controlled list of terms maintained by an
-                                    organization.</documentation>
-                            </annotation>
-                        </element>
-                        <element name="role" type="diggs:RolePropertyType" minOccurs="0"
-                            maxOccurs="unbounded">
-                            <annotation>
-                                <documentation>Identifies a specific role or task performed that is
-                                    associated with this specific feature, the person or
-                                    organization that performed the role, and associated time frame,
-                                    if applicable.</documentation>
-                            </annotation>
-                        </element>
-                        <element name="remark" type="diggs:RemarkPropertyType" minOccurs="0"
-                            maxOccurs="unbounded">
-                            <annotation>
-                                <documentation>Any comment or remark associated with this specific
-                                    feature.</documentation>
-                            </annotation>
-                        </element>
-                    </sequence>
                     <sequence>
                         <element minOccurs="0" name="fileURL" type="diggs:DiggsStringType"/>
                         <element maxOccurs="1" minOccurs="0" name="fileType" type="gml:CodeType"/>
@@ -1545,7 +1492,6 @@
                             type="diggs:UnifiedDateTimeType"/>
                     </sequence>
                 </sequence>
-                <attribute ref="xml:lang"/>
             </extension>
         </complexContent>
     </complexType>
@@ -1842,6 +1788,14 @@
                 value is indicated in the appinfo element.</documentation>
         </annotation>
     </element>
+    <element name="specimenRef" type="diggs:FeatureReferenceType">
+        <annotation>
+            <appinfo source="urn:x-gml:targetElement">Diggs:Sample</appinfo>
+            <documentation>A reference to a test specimen</documentation>
+            <documentation>A property element that supports a value by reference only. The target
+                value is indicated in the appinfo element.</documentation>
+        </annotation>
+    </element>
     <element name="sampleProducedRef" type="diggs:FeatureReferenceType">
         <annotation>
             <appinfo source="urn:x-gml:targetElement">Diggs:SampleProduced</appinfo>
@@ -2056,13 +2010,29 @@
                                 on this sample.</documentation>
                         </annotation>
                     </element>
-                    <element minOccurs="1" name="totalSampleRecovery" type="diggs:PercentDoubleType">
+                    <element minOccurs="1" name="totalSampleRecovery" type="witsml:lengthMeasure">
                         <annotation>
                             <documentation>Percentage of the total amount of sample recovered
                                 relative to the total amount of material sampled. If no sample
                                 recovered, this value is 0. This value is 100 for fluid or gas
                                 samples, and for soil or rock samples where there is full
                                 recovery.</documentation>
+                        </annotation>
+                    </element>
+                    <element minOccurs="0" name="rockQualityDesignation"
+                        type="diggs:Val0-100MeasureType">
+                        <annotation>
+                            <documentation><![CDATA[For rock cores, Rock Quality Designation]]></documentation>
+                        </annotation>
+                    </element>
+                    <element minOccurs="0" name="solidCoreRecovery" type="diggs:Val0-100MeasureType">
+                        <annotation>
+                            <documentation><![CDATA[For rock cores, percentage of core recovered that is solid and undisturbed]]></documentation>
+                        </annotation>
+                    </element>
+                    <element minOccurs="0" name="lengthLongestPortion" type="witsml:lengthMeasure">
+                        <annotation>
+                            <documentation><![CDATA[Length of the sample]]></documentation>
                         </annotation>
                     </element>
                     <element maxOccurs="unbounded" minOccurs="0" name="sampleProduced"
@@ -3712,27 +3682,6 @@
                             <documentation>Total length of the sample, as recovered</documentation>
                         </annotation>
                     </element>
-                    <element minOccurs="0" name="rockQualityDesignation"
-                        type="diggs:Val0-100MeasureType">
-                        <annotation>
-                            <documentation><![CDATA[For rock cores, Rock Quality Designation]]></documentation>
-                        </annotation>
-                    </element>
-                    <element minOccurs="0" name="solidCoreRecovery" type="diggs:Val0-100MeasureType">
-                        <annotation>
-                            <documentation><![CDATA[For rock cores, percentage of core recovered that is solid and undisturbed]]></documentation>
-                        </annotation>
-                    </element>
-                    <element minOccurs="0" name="lengthLongestPortion" type="witsml:lengthMeasure">
-                        <annotation>
-                            <documentation><![CDATA[Length of the sample]]></documentation>
-                        </annotation>
-                    </element>
-                    <element minOccurs="0" name="totalCoreRecovery" type="diggs:PercentDoubleType">
-                        <annotation>
-                            <documentation><![CDATA[Percentage of core recovered relative to the total length of earth material cored]]></documentation>
-                        </annotation>
-                    </element>
                 </sequence>
             </extension>
         </complexContent>
@@ -3966,6 +3915,8 @@
                                 drilling of the hole.</documentation>
                         </annotation>
                     </element>
+                    <element minOccurs="0" name="holeBearing" type="witsml:planeAngleMeasure"/>
+                    <element minOccurs="0" name="holePlunge" type="witsml:planeAngleMeasure"/>
                 </sequence>
             </extension>
         </complexContent>
@@ -4049,12 +4000,7 @@
     <complexType name="WaterStrikeType">
         <complexContent>
             <extension base="diggs:AbstractObjectType">
-                <sequence>
-                    <element name="dateTime" type="diggs:UnifiedDateTimeType">
-                        <annotation>
-                            <documentation><![CDATA[DateTime that water strike occurred.]]></documentation>
-                        </annotation>
-                    </element>
+                <sequence minOccurs="0">
                     <element minOccurs="0" name="bottomCasing"
                         type="diggs:PointLocationPropertyType">
                         <annotation>
@@ -4063,12 +4009,20 @@
                                 system.</documentation>
                         </annotation>
                     </element>
-                    <element name="waterStrikeDepth" type="diggs:PointLocationPropertyType">
+                    <element name="dateTime" type="diggs:UnifiedDateTimeType">
                         <annotation>
-                            <documentation>Measured depth to water level at time of strike;;
-                                measured in borehole linear referencing system.</documentation>
+                            <documentation><![CDATA[DateTime that water strike occurred.]]></documentation>
                         </annotation>
                     </element>
+                    <choice>
+                        <element name="notEncountered" type="boolean"/>
+                        <element name="waterStrikeDepth" type="diggs:PointLocationPropertyType">
+                            <annotation>
+                                <documentation>Measured depth to water level at time of strike;;
+                                measured in borehole linear referencing system.</documentation>
+                            </annotation>
+                        </element>
+                    </choice>
                     <element maxOccurs="unbounded" minOccurs="0" name="postStrikeReading"
                         type="diggs:PostStrikeReadingPropertyType">
                         <annotation>
@@ -4882,13 +4836,22 @@
         <complexContent>
             <extension base="diggs:AbstractObjectType">
                 <sequence>
-                    <element name="apparentDensity" type="gml:CodeType" minOccurs="0">
-                        <annotation>
-                            <documentation>A text string describing the consistency of
+                    <choice>
+                        <element name="apparentDensity" type="gml:CodeType" minOccurs="0">
+                            <annotation>
+                                <documentation>A text string describing the consistency of
                                 coarse-grained soils (eg. "loose"); intended to come from a
                                 controlled list</documentation>
-                        </annotation>
-                    </element>
+                            </annotation>
+                        </element>
+                        <element name="consistency" type="gml:CodeType" minOccurs="0">
+                            <annotation>
+                                <documentation>A text string describing the consistency of fine-grained
+                                soils (eg. "soft"); intended to come from a controlled
+                                list</documentation>
+                            </annotation>
+                        </element>
+                    </choice>
                     <element name="beddingOrientation" type="gml:CodeType" minOccurs="0">
                         <annotation>
                             <documentation>A text string describing the bedding orientation (eg.
@@ -4905,13 +4868,6 @@
                         <annotation>
                             <documentation>A text string describing the degree of cementation (eg.
                                 "weakly"); intended to come from a controlled list</documentation>
-                        </annotation>
-                    </element>
-                    <element name="consistency" type="gml:CodeType" minOccurs="0">
-                        <annotation>
-                            <documentation>A text string describing the consistency of fine-grained
-                                soils (eg. "soft"); intended to come from a controlled
-                                list</documentation>
                         </annotation>
                     </element>
                     <element name="dilatancy" type="gml:CodeType" minOccurs="0">
@@ -4980,11 +4936,19 @@
                                 "weak"); intended to come from a controlled list</documentation>
                         </annotation>
                     </element>
+                    <element minOccurs="0" name="rockGrainSize" type="gml:CodeType">
+                        <annotation>
+                            <documentation>A descriptive term or phrase to describe the overall
+                                particle size distribution of the soil, eg. "fine sand", "fine to
+                                coarse". "silt and very fine sand". Intended to come from a
+                                controlled list.</documentation>
+                        </annotation>
+                    </element>
                     <element minOccurs="0" name="rockHardness" type="gml:CodeType">
                         <annotation>
                             <documentation>A descriptive term or phrase to describe the relative
-                                hardness of rock, as governed by its compressive strengh, eg.
-                                "strong". Intended to come from a controlled list.</documentation>
+                                hardness of rock, as governed by its mineralogy, eg.
+                                "hardness". Intended to come from a controlled list.</documentation>
                         </annotation>
                     </element>
                     <element minOccurs="0" name="rockSlakingRate" type="gml:CodeType">
@@ -4992,6 +4956,13 @@
                             <documentation>A descriptive term or phrase to describe the relative
                                 rate of slaking of rock, eg. "slow". Intended to come from a
                                 controlled list.</documentation>
+                        </annotation>
+                    </element>
+                    <element minOccurs="0" name="rockStrength" type="gml:CodeType">
+                        <annotation>
+                            <documentation>A descriptive term or phrase to describe the relative
+                                hardness of rock, as governed by its compressive strengh, eg.
+                                "strong". Intended to come from a controlled list.</documentation>
                         </annotation>
                     </element>
                     <element minOccurs="0" name="rockWeathering" type="gml:CodeType">
@@ -6264,18 +6235,6 @@
             <enumeration value="per mil"/>
         </restriction>
     </simpleType>
-    <simpleType name="IntegerEnumType">
-        <restriction base="string">
-            <enumeration value="integer">
-                <annotation>
-                    <documentation>Short integer data value.</documentation>
-                </annotation>
-            </enumeration>
-        </restriction>
-    </simpleType>
-    <simpleType name="PropertyDataTypeEnumType">
-        <union memberTypes="witsml:LogDataType diggs:IntegerEnumType"/>
-    </simpleType>
     <complexType name="SizeFractionPropertyType">
         <annotation>
             <documentation/>
@@ -6764,5 +6723,17 @@ DSB: REMOVED FROM PROFILE
                 />
             </simpleType>
         </restriction>
+    </simpleType>
+    <simpleType name="IntegerEnumType">
+        <restriction base="string">
+            <enumeration value="integer">
+                <annotation>
+                    <documentation>Short integer data value.</documentation>
+                </annotation>
+            </enumeration>
+        </restriction>
+    </simpleType>
+    <simpleType name="PropertyDataTypeEnumType">
+        <union memberTypes="witsml:LogDataType IntegerEnumType"/>
     </simpleType>
 </schema>
