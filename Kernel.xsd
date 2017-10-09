@@ -208,7 +208,7 @@
                         <annotation>
                             <documentation>The value of this property is the identifier originally
                                 created by the authority for this feature, or that is used as the
-                                identifier in the authority's internal data management system. There
+                                identifier in the authority's internal data management system - commonly this might be a borehole number or id, job number, or contract number. There
                                 is no assumption as to the unique scope or persistence of this
                                 identifier. In cases where the original or internal identifier does
                                 not meet the semantic requirements for gml:id or gml:identifier, the
@@ -225,12 +225,6 @@
                                 the object to be used to track QA/QC controls, review or release
                                 status, etc. The values used are intended to come from a controlled
                                 list of terms maintained by an organization.</documentation>
-                        </annotation>
-                    </element>
-                    <element name="associatedFile" type="diggs:AssociatedFilePropertyType"
-                        minOccurs="0" maxOccurs="unbounded">
-                        <annotation>
-                            <documentation/>
                         </annotation>
                     </element>
                     <element name="associatedFileRef" type="diggs:FeatureReferenceType"
@@ -453,12 +447,6 @@
                                 list of terms maintained by an organization.</documentation>
                             </annotation>
                         </element>
-                        <element maxOccurs="unbounded" minOccurs="0" name="associatedFile"
-                            type="diggs:AssociatedFilePropertyType">
-                            <annotation>
-                                <documentation/>
-                            </annotation>
-                        </element>
                         <element maxOccurs="unbounded" minOccurs="0" name="associatedFileRef"
                             type="diggs:FeatureReferenceType">
                             <annotation>
@@ -508,18 +496,6 @@
                                 the object to be used to track QA/QC controls, review or release
                                 status, etc. The values used are intended to come from a controlled
                                 list of terms maintained by an organization.</documentation>
-                        </annotation>
-                    </element>
-                    <element name="associatedFile" type="diggs:AssociatedFilePropertyType"
-                        minOccurs="0" maxOccurs="unbounded"> </element>
-                    <element name="associatedFileRef" type="diggs:FeatureReferenceType"
-                        minOccurs="0" maxOccurs="unbounded">
-                        <annotation>
-                            <appinfo source="urn:x-gml:targetElement">diggs:AssociatedFile</appinfo>
-                            <documentation>A reference to an AssociatedFile object that provides
-                                information about external files or documents associated with this
-                                feature. The target value is indicated in the appinfo
-                                element.</documentation>
                         </annotation>
                     </element>
                     <element name="remark" type="diggs:RemarkPropertyType" minOccurs="0"
@@ -767,8 +743,6 @@
                     </element>
                     <element name="remark" type="diggs:RemarkPropertyType" minOccurs="0"
                         maxOccurs="unbounded"/>
-                    <element minOccurs="0" name="role" type="diggs:RolePropertyType"
-                        maxOccurs="unbounded"/>
                 </sequence>
             </extension>
         </complexContent>
@@ -939,7 +913,7 @@
         </restriction>
     </simpleType>
     <element name="AssociatedFile" type="diggs:AssociatedFileType"
-        substitutionGroup="diggs:AbstractNamedFeature" abstract="false">
+        substitutionGroup="diggs:AbstractNamedObject" abstract="false">
         <annotation>
             <documentation>An AssociatedFile object provides information about external files or
                 documents associated with other features.</documentation>
@@ -956,14 +930,22 @@
     </complexType>
     <complexType name="AssociatedFileType">
         <complexContent>
-            <extension base="diggs:AbstractNamedFeatureType">
+            <extension base="diggs:AbstractNamedObjectType">
                 <sequence>
                     <sequence>
                         <element minOccurs="0" name="fileURL" type="diggs:DiggsStringType"/>
-                        <element maxOccurs="1" minOccurs="0" name="fileType" type="gml:CodeType"/>
+                        <element maxOccurs="1" minOccurs="0" name="fileType" type="gml:CodeType">
+                            <annotation>
+                                <documentation>Digital file type, typically denoted by the file prefix (eg. JPG, PDF)</documentation>
+                            </annotation>
+                        </element>
                         <element maxOccurs="1" minOccurs="0" name="creatingApplication"
                             type="diggs:SoftwareApplicationPropertyType"/>
-                        <element maxOccurs="1" minOccurs="0" name="documentType" type="gml:CodeType"/>
+                        <element maxOccurs="1" minOccurs="0" name="documentType" type="gml:CodeType">
+                            <annotation>
+                                <documentation>Type of document that the file represents, such as photo, report, log, etc.)</documentation>
+                            </annotation>
+                        </element>
                         <element maxOccurs="1" minOccurs="0" name="fileDate"
                             type="diggs:UnifiedDateTimeType"/>
                     </sequence>
@@ -1234,6 +1216,8 @@
                                 a hole's linear referencing system.</documentation>
                         </annotation>
                     </element>
+                    <element minOccurs="0" name="holeBearing" type="witsml:planeAngleMeasure"/>
+                    <element minOccurs="0" name="holePlunge" type="witsml:planeAngleMeasure"/>
                     <element maxOccurs="1" minOccurs="0" name="boreholePurpose" type="gml:CodeType">
                         <annotation>
                             <documentation>A description of the purpose for drilling the hole (eg.
@@ -1308,8 +1292,6 @@
                                 drilling of the hole.</documentation>
                         </annotation>
                     </element>
-                    <element minOccurs="0" name="holeBearing" type="witsml:planeAngleMeasure"/>
-                    <element minOccurs="0" name="holePlunge" type="witsml:planeAngleMeasure"/>
                 </sequence>
             </extension>
         </complexContent>
@@ -1443,17 +1425,16 @@
         <complexContent>
             <extension base="diggs:AbstractObjectType">
                 <sequence>
-                    <element minOccurs="0" name="sourceCustodian"
-                        type="diggs:BusinessAssociatePropertyType">
+                    <element minOccurs="0" name="sourceCustodianRef"
+                        type="diggs:FeatureReferenceType">
                         <annotation>
-                            <documentation> The BusinessAssociate that is releasing custody of the
-                                sample.</documentation>
+                            <documentation> A reference to the BusinessAssociate object that is releasing custody of the sample.</documentation>
                         </annotation>
                     </element>
-                    <element minOccurs="0" name="destinationCustodian"
-                        type="diggs:BusinessAssociatePropertyType">
+                    <element minOccurs="0" name="destinationCustodianRef"
+                        type="diggs:FeatureReferenceType">
                         <annotation>
-                            <documentation> The name of a BusinessAssociate that is receiving
+                            <documentation> A reference to the BusinessAssociate object that is receiving
                                 custody of the sample.</documentation>
                         </annotation>
                     </element>
@@ -1922,7 +1903,7 @@
             </extension>
         </complexContent>
     </complexType>
-    <element name="Contract" type="diggs:ContractType" substitutionGroup="diggs:AbstractObject"
+    <element name="Contract" type="diggs:ContractType" substitutionGroup="diggs:AbstractFeature"
         abstract="false"/>
     <complexType name="ContractPropertyType">
         <sequence>
@@ -1931,51 +1912,18 @@
     </complexType>
     <complexType name="ContractType">
         <complexContent>
-            <extension base="diggs:AbstractObjectType">
+            <extension base="diggs:AbstractFeatureType">
                 <sequence>
-                    <element name="associatedFile" type="diggs:AssociatedFilePropertyType"
-                        minOccurs="0" maxOccurs="unbounded"> </element>
-                    <element name="associatedFileRef" type="diggs:FeatureReferenceType"
-                        minOccurs="0" maxOccurs="unbounded">
-                        <annotation>
-                            <appinfo source="urn:x-gml:targetElement">diggs:AssociatedFile</appinfo>
-                            <documentation>A reference to an AssociatedFile object that provides
-                                information about external files or documents associated with this
-                                feature. The target value is indicated in the appinfo
-                                element.</documentation>
-                        </annotation>
-                    </element>
-                    <element name="title" type="diggs:DiggsStringType" minOccurs="0" maxOccurs="1"/>
-                    <element name="contractNumber" type="diggs:DiggsStringType" minOccurs="0"
-                        maxOccurs="1"/>
                     <element name="version" type="diggs:DiggsStringType" minOccurs="0" maxOccurs="1"/>
-                    <element name="client" type="diggs:BusinessAssociatePropertyType" minOccurs="0"
-                        maxOccurs="unbounded"/>
-                    <element name="clientRef" type="diggs:FeatureReferenceType" minOccurs="0"
-                        maxOccurs="unbounded">
-                        <annotation>
-                            <appinfo>diggs:BusinessAssociate</appinfo>
-                            <documentation>A property element that supports a value by reference
-                                only. The target value is indicated in the appinfo
-                                element.</documentation>
-                        </annotation>
-                    </element>
-                    <element name="contractor" type="diggs:BusinessAssociatePropertyType"
-                        minOccurs="0" maxOccurs="unbounded"/>
-                    <element name="contractorRef" type="diggs:FeatureReferenceType" minOccurs="0"
-                        maxOccurs="unbounded">
-                        <annotation>
-                            <appinfo>diggs:BusinessAssociate</appinfo>
-                            <documentation>A property element that supports a value by reference
-                                only. The target value is indicated in the appinfo
-                                element.</documentation>
-                        </annotation>
-                    </element>
                     <element minOccurs="0" name="contractDate" type="diggs:UnifiedDateTimeType"/>
                     <element minOccurs="0" name="revisionDate" type="diggs:UnifiedDateTimeType"
                         maxOccurs="unbounded"/>
                     <element name="type" type="gml:CodeType" minOccurs="0" maxOccurs="1"/>
-                    <element name="cost" type="witsml:cost" minOccurs="0" maxOccurs="1"/>
+                    <element name="value" type="witsml:cost" minOccurs="0" maxOccurs="1">
+                        <annotation>
+                            <documentation>The total value of the contract; the currency attribute holds the currency type.</documentation>
+                        </annotation>
+                    </element>
                 </sequence>
             </extension>
         </complexContent>
@@ -2323,8 +2271,6 @@
                                 instance was last added to or modified.</documentation>
                         </annotation>
                     </element>
-                    <element name="author" type="diggs:BusinessAssociatePropertyType" minOccurs="0"
-                        maxOccurs="unbounded"> </element>
                     <element name="authorRef" type="diggs:FeatureReferenceType" minOccurs="0"
                         maxOccurs="unbounded">
                         <annotation>
@@ -2484,6 +2430,9 @@
         <union memberTypes="diggs:OtherNameType diggs:QualifierEnumType"/>
     </simpleType>
     <complexType name="FeatureReferenceType">
+        <annotation>
+            <documentation>This type is used to point to a DIGGS feature (by its gml:id in the xlink:href attribute) or by its gml:identifier (using indentifierRef attribute)</documentation>
+        </annotation>
         <complexContent>
             <extension base="gml:ReferenceType">
                 <attribute name="identifierRef" type="diggs:IdentifierReferenceType" use="optional">
@@ -4586,8 +4535,6 @@ DSB: REMOVED FROM PROFILE
             <extension base="diggs:AbstractSimpleMetadataType">
                 <sequence>
                     <element name="content" type="diggs:DiggsStringType" minOccurs="1" maxOccurs="1"/>
-                    <element name="author" type="diggs:BusinessAssociatePropertyType"
-                        maxOccurs="unbounded" minOccurs="0"/>
                     <element name="authorRef" type="diggs:FeatureReferenceType"
                         maxOccurs="unbounded" minOccurs="0">
                         <annotation>
@@ -4653,24 +4600,15 @@ DSB: REMOVED FROM PROFILE
                         minOccurs="0" maxOccurs="1"/>
                     <element name="remark" type="diggs:RemarkPropertyType" minOccurs="0"
                         maxOccurs="unbounded"/>
-                    <choice maxOccurs="unbounded" minOccurs="1">
-                        <element name="businessAssociate" type="diggs:BusinessAssociatePropertyType"
-                            maxOccurs="1" minOccurs="1">
-                            <annotation>
-                                <documentation>Name of person or entity serving the
-                                    role</documentation>
-                            </annotation>
-                        </element>
-                        <element name="businessAssociateRef" type="diggs:FeatureReferenceType"
-                            maxOccurs="1" minOccurs="1">
-                            <annotation>
-                                <appinfo>diggs:BusinessAssociate</appinfo>
-                                <documentation>A property element that supports a value by reference
+                    <element name="businessAssociateRef" type="diggs:FeatureReferenceType"
+                        maxOccurs="1" minOccurs="1">
+                        <annotation>
+                            <appinfo>diggs:BusinessAssociate</appinfo>
+                            <documentation>A property element that supports a value by reference
                                     only. The target value is indicated in the appinfo
                                     element.</documentation>
-                            </annotation>
-                        </element>
-                    </choice>
+                        </annotation>
+                    </element>
                 </sequence>
             </extension>
         </complexContent>
@@ -5759,7 +5697,7 @@ DSB: REMOVED FROM PROFILE
     </complexType>
     <complexType name="TimeArrayPropertyType">
         <sequence maxOccurs="1" minOccurs="1">
-            <element ref="diggs:TimeInstant"/>
+            <element ref="gml:TimeInstant"/>
         </sequence>
     </complexType>
     <element name="timeDomain" type="diggs:TimeDomainType" substitutionGroup="gml:domainSet"/>
@@ -6657,7 +6595,8 @@ DSB: REMOVED FROM PROFILE
         <complexContent>
             <extension base="diggs:BoreholeType">
                 <sequence>
-                    <element minOccurs="0" name="parentBorehole" type="diggs:FeatureReferenceType">
+                    <element minOccurs="0" name="parentBoreholeRef"
+                        type="diggs:FeatureReferenceType">
                         <annotation>
                             <appinfo>diggs:Borehole</appinfo>
                             <documentation>A reference to the Borehole feature within which this
