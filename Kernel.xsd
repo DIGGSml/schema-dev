@@ -69,10 +69,13 @@
     <complexType abstract="true" name="AbstractDescriptionSystemType">
         <complexContent>
             <extension base="diggs:AbstractFeatureType">
-                <choice>
-                    <element ref="diggs:samplingFeatureRef"/>
-                    <element ref="diggs:sampleRef"/>
-                </choice>
+                <sequence>
+                    <element ref="diggs:projectRef"/>
+                    <choice>
+                        <element ref="diggs:samplingFeatureRef"/>
+                        <element ref="diggs:sampleRef"/>
+                    </choice>
+                </sequence>
             </extension>
         </complexContent>
     </complexType>
@@ -1591,24 +1594,31 @@
             </simpleType>
         </union>
     </simpleType>
-    <element name="ColorDescription" substitutionGroup="diggs:AbstractDescription"
-        type="diggs:ColorDescriptionType">
+    <element name="colorCode" type="diggs:DescriptorCodeType">
         <annotation>
             <documentation>A color layer describes the color of materials encountered. All layers
                 within a color layer system must not overlap, although multiple colors can be
                 described within a single zone.</documentation>
         </annotation>
     </element>
-    <complexType name="ColorDescriptionPropertyType">
+    <element name="ColorObservation" substitutionGroup="diggs:AbstractDescription"
+        type="diggs:ColorObservationType">
+        <annotation>
+            <documentation>A color layer describes the color of materials encountered. All layers
+                within a color layer system must not overlap, although multiple colors can be
+                described within a single zone.</documentation>
+        </annotation>
+    </element>
+    <complexType name="ColorObservationPropertyType">
         <sequence maxOccurs="1">
-            <element maxOccurs="1" ref="diggs:ColorDescription">
+            <element maxOccurs="1" ref="diggs:ColorObservation">
                 <annotation>
                     <documentation>Color layers must not overlap</documentation>
                 </annotation>
             </element>
         </sequence>
     </complexType>
-    <complexType name="ColorDescriptionType">
+    <complexType name="ColorObservationType">
         <complexContent>
             <extension base="diggs:AbstractDescriptionType">
                 <sequence>
@@ -1623,6 +1633,13 @@
             </extension>
         </complexContent>
     </complexType>
+    <element name="colorName" type="diggs:DescriptorCodeType">
+        <annotation>
+            <documentation>A color layer describes the color of materials encountered. All layers
+                within a color layer system must not overlap, although multiple colors can be
+                described within a single zone.</documentation>
+        </annotation>
+    </element>
     <complexType name="ColorPropertyType">
         <sequence>
             <element maxOccurs="1" minOccurs="1" ref="diggs:Color"/>
@@ -1633,31 +1650,47 @@
         <complexContent>
             <extension base="diggs:AbstractObjectType">
                 <sequence>
-                    <element name="colorCode" type="diggs:DescriptorCodeType" minOccurs="0">
-                        <annotation>
-                            <documentation>The code value that defines the color; preferably defined
-                                by an authority identified in the codespace attribute (eg.
-                                10YR4/3)</documentation>
-                        </annotation>
-                    </element>
-                    <element name="abundanceCode" type="gml:CodeType" minOccurs="0">
-                        <annotation>
-                            <documentation>A measure of the amount of the color present as a string
+                    <choice>
+                        <element minOccurs="1" name="colorCode" type="diggs:DescriptorCodeType">
+                            <annotation>
+                                <documentation>The code value that defines the color; preferably defined by an authority identified in the codespace attribute (eg. 10YR4/3)</documentation>
+                            </annotation>
+                        </element>
+                        <sequence>
+                            <element minOccurs="1" name="colorName" type="diggs:DescriptorCodeType"
+                                maxOccurs="1">
+                                <annotation>
+                                    <documentation>The name of the color, preferably defined by an authority defined in the codespace attribute (eg. reddish brown)</documentation>
+                                </annotation>
+                            </element>
+                            <element minOccurs="0" name="colorCode" type="diggs:DescriptorCodeType">
+                                <annotation>
+                                    <documentation>The code value that defines the color; preferably defined by an authority identified in the codespace attribute (eg. 10YR4/3)</documentation>
+                                </annotation>
+                            </element>
+                        </sequence>
+                    </choice>
+                    <choice>
+                        <element name="abundanceCode" type="gml:CodeType" minOccurs="0">
+                            <annotation>
+                                <documentation>A measure of the amount of the color present as a string
                                 type, intended to come from a controlled list (eg. few, rare,
                                 common, etc.)</documentation>
-                        </annotation>
-                    </element>
-                    <element name="abundancePercent" type="diggs:Val0-100MeasureType" minOccurs="0">
-                        <annotation>
-                            <documentation>A measure of the amount of the color present, expressed
+                            </annotation>
+                        </element>
+                        <element name="abundancePercent" type="diggs:Val0-100MeasureType"
+                            minOccurs="0">
+                            <annotation>
+                                <documentation>A measure of the amount of the color present, expressed
                                 as a percentage.</documentation>
-                        </annotation>
-                    </element>
+                            </annotation>
+                        </element>
+                    </choice>
                 </sequence>
             </extension>
         </complexContent>
     </complexType>
-    <element name="ColorSystem" substitutionGroup="diggs:AbstractFeature"
+    <element name="ColorSystem" substitutionGroup="diggs:AbstractDescriptionSystem"
         type="diggs:ColorSystemType"/>
     <complexType name="ColorSystemPropertyType">
         <sequence maxOccurs="1">
@@ -1666,16 +1699,16 @@
     </complexType>
     <complexType name="ColorSystemType">
         <complexContent>
-            <extension base="diggs:AbstractFeatureType">
+            <extension base="diggs:AbstractDescriptionSystemType">
                 <sequence>
-                    <element name="colorType" type="diggs:DiggsStringType">
+                    <element name="colorType" type="gml:CodeType">
                         <annotation>
                             <documentation>A text string defining the kind of "Color Description"
                                 system described *("eg. Munsell Color", "wet color".
                             </documentation>
                         </annotation>
                     </element>
-                    <element name="description" type="diggs:ColorDescriptionPropertyType"
+                    <element name="colorObservation" type="diggs:ColorObservationPropertyType"
                         maxOccurs="unbounded"/>
                 </sequence>
             </extension>
@@ -1694,19 +1727,22 @@
                 <sequence maxOccurs="1" minOccurs="1">
                     <element maxOccurs="1" minOccurs="1" name="lithology"
                         type="diggs:LithologyPropertyType"/>
-                    <element name="abundanceCode" type="gml:CodeType" minOccurs="0">
-                        <annotation>
-                            <documentation>A measure of the amount of the subordinate lithology
+                    <choice>
+                        <element name="abundanceCode" type="gml:CodeType" minOccurs="0">
+                            <annotation>
+                                <documentation>A measure of the amount of the subordinate lithology
                                 present as a string type, intended to come from a controlled list
                                 (eg. few, rare, common, etc.)</documentation>
-                        </annotation>
-                    </element>
-                    <element name="abundancePercent" type="diggs:Val0-100MeasureType" minOccurs="0">
-                        <annotation>
-                            <documentation>A measure of the amount of the subordinate lithology
+                            </annotation>
+                        </element>
+                        <element name="abundancePercent" type="diggs:Val0-100MeasureType"
+                            minOccurs="0">
+                            <annotation>
+                                <documentation>A measure of the amount of the subordinate lithology
                                 present, expressed as a percentage.</documentation>
-                        </annotation>
-                    </element>
+                            </annotation>
+                        </element>
+                    </choice>
                 </sequence>
                 <attribute name="association" type="diggs:LithologyCharacterEnumType"/>
             </extension>
@@ -1735,8 +1771,8 @@
             </simpleType>
         </union>
     </simpleType>
-    <element name="ConstituentDescription" substitutionGroup="diggs:AbstractDescription"
-        type="diggs:ConstituentDescriptionType">
+    <element name="ConstituentObservation" substitutionGroup="diggs:AbstractDescription"
+        type="diggs:ConstituentObservationType">
         <annotation>
             <documentation>Constituent layers describe details of earth materials encountered within
                 a sampling feature. Constituent layers restricted to a specific lithologic layer are
@@ -1745,12 +1781,12 @@
                 same named constituents cannot overlap.</documentation>
         </annotation>
     </element>
-    <complexType name="ConstituentDescriptionPropertyType">
+    <complexType name="ConstituentObservationPropertyType">
         <sequence maxOccurs="1">
-            <element maxOccurs="1" ref="diggs:ConstituentDescription"/>
+            <element maxOccurs="1" ref="diggs:ConstituentObservation"/>
         </sequence>
     </complexType>
-    <complexType name="ConstituentDescriptionType">
+    <complexType name="ConstituentObservationType">
         <complexContent>
             <extension base="diggs:AbstractDescriptionType">
                 <sequence>
@@ -1771,7 +1807,7 @@
             </element>
         </sequence>
     </complexType>
-    <element name="ConstituentSystem" substitutionGroup="diggs:AbstractFeature"
+    <element name="ConstituentSystem" substitutionGroup="diggs:AbstractDescriptionSystem"
         type="diggs:ConstituentSystemType"/>
     <complexType name="ConstituentSystemPropertyType">
         <sequence maxOccurs="1">
@@ -1780,17 +1816,17 @@
     </complexType>
     <complexType name="ConstituentSystemType">
         <complexContent>
-            <extension base="diggs:AbstractFeatureType">
+            <extension base="diggs:AbstractDescriptionSystemType">
                 <sequence>
-                    <element name="constituentType" type="diggs:DiggsStringType">
+                    <element name="constituentType" type="gml:CodeType">
                         <annotation>
                             <documentation>A text string defining the kind of "Constituent
                                 Description" system described (eg. :"Fossils" or "Diagenesis".
                             </documentation>
                         </annotation>
                     </element>
-                    <element name="description" type="diggs:ConstituentDescriptionPropertyType"
-                        maxOccurs="unbounded"/>
+                    <element name="constituentObservation"
+                        type="diggs:ConstituentObservationPropertyType" maxOccurs="unbounded"/>
                 </sequence>
             </extension>
         </complexContent>
@@ -1806,19 +1842,22 @@
                                 codespace attribute</documentation>
                         </annotation>
                     </element>
-                    <element name="abundanceCode" type="gml:CodeType" minOccurs="0">
-                        <annotation>
-                            <documentation>A measure of the amount of the constituent present as a
+                    <choice>
+                        <element name="abundanceCode" type="gml:CodeType" minOccurs="0">
+                            <annotation>
+                                <documentation>A measure of the amount of the constituent present as a
                                 string type, intended to come from a controlled list (eg. few, rare,
                                 common, etc.)</documentation>
-                        </annotation>
-                    </element>
-                    <element name="abundancePercent" type="diggs:Val0-100MeasureType" minOccurs="0">
-                        <annotation>
-                            <documentation>A measure of the amount of the constituent present,
+                            </annotation>
+                        </element>
+                        <element name="abundancePercent" type="diggs:Val0-100MeasureType"
+                            minOccurs="0">
+                            <annotation>
+                                <documentation>A measure of the amount of the constituent present,
                                 expressed as a percentage.</documentation>
-                        </annotation>
-                    </element>
+                            </annotation>
+                        </element>
+                    </choice>
                     <element name="distribution" type="gml:CodeType" minOccurs="0">
                         <annotation>
                             <documentation>A description of how the constituent is distributed
@@ -2205,14 +2244,14 @@
             </extension>
         </complexContent>
     </complexType>
-    <complexType name="DiscontinuityDescriptionType">
+    <complexType name="DiscontinuityObservationType">
         <annotation>
             <documentation>A discontinuity or zone of discontinuities</documentation>
         </annotation>
         <complexContent>
             <extension base="diggs:AbstractDescriptionType">
                 <sequence>
-                    <element name="fractureDescription" type="diggs:FractureDescriptionPropertyType"
+                    <element name="fractureObservation" type="diggs:FractureObservationPropertyType"
                         minOccurs="0"/>
                     <element name="fractureSpacing" minOccurs="0"
                         type="diggs:FractureSpacingPropertyType"/>
@@ -2220,20 +2259,20 @@
             </extension>
         </complexContent>
     </complexType>
-    <element name="DiscontinuityDescription" substitutionGroup="diggs:AbstractDescription"
-        type="diggs:DiscontinuityDescriptionType">
+    <element name="DiscontinuityObservation" substitutionGroup="diggs:AbstractDescription"
+        type="diggs:DiscontinuityObservationType">
         <annotation>
             <documentation>Describes fractures and joints and their spacing. Individual
                 discontinuities or zone of discontinuities within a discontinuity system may
                 overlap.</documentation>
         </annotation>
     </element>
-    <complexType name="DiscontinuityDescriptionPropertyType">
+    <complexType name="DiscontinuityObservationPropertyType">
         <sequence maxOccurs="1">
-            <element maxOccurs="1" ref="diggs:DiscontinuityDescription"/>
+            <element maxOccurs="1" ref="diggs:DiscontinuityObservation"/>
         </sequence>
     </complexType>
-    <element name="DiscontinuitySystem" substitutionGroup="diggs:AbstractFeature"
+    <element name="DiscontinuitySystem" substitutionGroup="diggs:AbstractDescriptionSystem"
         type="diggs:DiscontinuitySystemType"/>
     <complexType name="DiscontinuitySystemPropertyType">
         <sequence maxOccurs="1">
@@ -2242,7 +2281,7 @@
     </complexType>
     <complexType name="DiscontinuitySystemType">
         <complexContent>
-            <extension base="diggs:AbstractFeatureType">
+            <extension base="diggs:AbstractDescriptionSystemType">
                 <sequence>
                     <element name="discontinuityType" type="gml:CodeType">
                         <annotation>
@@ -2250,8 +2289,8 @@
                             </documentation>
                         </annotation>
                     </element>
-                    <element name="description" type="diggs:DiscontinuityDescriptionPropertyType"
-                        maxOccurs="unbounded"/>
+                    <element name="discontinuityObservation"
+                        type="diggs:DiscontinuityObservationPropertyType" maxOccurs="unbounded"/>
                 </sequence>
             </extension>
         </complexContent>
@@ -2744,13 +2783,13 @@
             </extension>
         </complexContent>
     </complexType>
-    <element name="FractureDescription" type="diggs:FractureDescriptionType"/>
-    <complexType name="FractureDescriptionPropertyType">
+    <element name="FractureObservation" type="diggs:FractureObservationType"/>
+    <complexType name="FractureObservationPropertyType">
         <sequence>
-            <element ref="diggs:FractureDescription"/>
+            <element ref="diggs:FractureObservation"/>
         </sequence>
     </complexType>
-    <complexType name="FractureDescriptionType">
+    <complexType name="FractureObservationType">
         <complexContent>
             <extension base="diggs:AbstractObjectType">
                 <sequence>
@@ -3093,14 +3132,14 @@
             </simpleType>
         </union>
     </simpleType>
-    <element name="LithologyDescription" substitutionGroup="diggs:AbstractDescription"
-        type="diggs:LithologyDescriptionType"/>
-    <complexType name="LithologyDescriptionPropertyType">
+    <element name="LithologyObservation" substitutionGroup="diggs:AbstractDescription"
+        type="diggs:LithologyObservationType"/>
+    <complexType name="LithologyObservationPropertyType">
         <sequence maxOccurs="1">
-            <element maxOccurs="1" ref="diggs:LithologyDescription"/>
+            <element maxOccurs="1" ref="diggs:LithologyObservation"/>
         </sequence>
     </complexType>
-    <complexType name="LithologyDescriptionType">
+    <complexType name="LithologyObservationType">
         <complexContent>
             <extension base="diggs:AbstractDescriptionType">
                 <sequence>
@@ -3133,7 +3172,7 @@
             </element>
         </sequence>
     </complexType>
-    <element name="LithologySystem" substitutionGroup="diggs:AbstractFeature"
+    <element name="LithologySystem" substitutionGroup="diggs:AbstractDescriptionSystem"
         type="diggs:LithologySystemType"/>
     <complexType name="LithologySystemPropertyType">
         <sequence maxOccurs="1">
@@ -3142,7 +3181,7 @@
     </complexType>
     <complexType name="LithologySystemType">
         <complexContent>
-            <extension base="diggs:AbstractFeatureType">
+            <extension base="diggs:AbstractDescriptionSystemType">
                 <sequence>
                     <element name="lithologyClassificationType" type="gml:CodeType">
                         <annotation>
@@ -3151,8 +3190,8 @@
                                 used within this system</documentation>
                         </annotation>
                     </element>
-                    <element name="description" type="diggs:LithologyDescriptionPropertyType"
-                        maxOccurs="unbounded"/>
+                    <element name="lithologyObservation"
+                        type="diggs:LithologyObservationPropertyType" maxOccurs="unbounded"/>
                 </sequence>
             </extension>
         </complexContent>
@@ -3167,7 +3206,7 @@
                     <choice>
                         <sequence>
                             <element name="classificationCode" type="diggs:DescriptorCodeType"
-                                minOccurs="1" maxOccurs="unbounded">
+                                minOccurs="1" maxOccurs="1">
                                 <annotation>
                                     <documentation>The value that describes the geology (eg. "SM" or
                                         "silty sand"; in the classification system defined in the
@@ -3579,7 +3618,7 @@ DSB: REMOVED FROM PROFILE
     </element>
     <complexType name="ObservationsPropertyType">
         <sequence>
-            <element ref="diggs:Observations"/>
+            <element ref="diggs:AbstractDescriptionSystem"/>
         </sequence>
     </complexType>
     <complexType name="ObservationsType">
@@ -3596,18 +3635,18 @@ DSB: REMOVED FROM PROFILE
                         type="diggs:DiscontinuitySystemPropertyType"/>
                     <element maxOccurs="unbounded" minOccurs="0" name="orientedFeatureDescription"
                         type="diggs:OrientationSystemPropertyType"/>
-                    <element maxOccurs="unbounded" minOccurs="0" name="stratigraphy"
+                    <element maxOccurs="unbounded" minOccurs="0" name="stratigraphicDescription"
                         type="diggs:StratigraphySystemPropertyType"/>
                     <element maxOccurs="unbounded" minOccurs="0" name="otherDescription"
-                        type="diggs:OtherDescriptionSystemPropertyType"/>
+                        type="diggs:OtherObservationSystemPropertyType"/>
                 </sequence>
             </extension>
         </complexContent>
     </complexType>
     <element name="Orientation" substitutionGroup="diggs:AbstractObject"
         type="diggs:OrientationType"/>
-    <element name="OrientationDescription" substitutionGroup="diggs:AbstractDescription"
-        type="diggs:OrientationDescriptionType">
+    <element name="OrientationObservation" substitutionGroup="diggs:AbstractDescription"
+        type="diggs:OrientationObservationType">
         <annotation>
             <documentation>Orientation layers describe the geometry of vectors or planar surfaces
                 encountered at a sampling feature, such as bedding, joints, cross-beds, etc. These
@@ -3635,7 +3674,7 @@ DSB: REMOVED FROM PROFILE
             </simpleType>
         </union>
     </simpleType>
-    <complexType name="OrientationDescriptionType">
+    <complexType name="OrientationObservationType">
         <complexContent>
             <extension base="diggs:AbstractDescriptionType">
                 <sequence>
@@ -3649,7 +3688,7 @@ DSB: REMOVED FROM PROFILE
             <element ref="diggs:Orientation"/>
         </sequence>
     </complexType>
-    <element name="OrientationSystem" substitutionGroup="diggs:AbstractFeature"
+    <element name="OrientationSystem" substitutionGroup="diggs:AbstractDescriptionSystem"
         type="diggs:OrientationSystemType"/>
     <complexType name="OrientationSystemPropertyType">
         <sequence maxOccurs="1">
@@ -3658,7 +3697,7 @@ DSB: REMOVED FROM PROFILE
     </complexType>
     <complexType name="OrientationSystemType">
         <complexContent>
-            <extension base="diggs:AbstractFeatureType">
+            <extension base="diggs:AbstractDescriptionSystemType">
                 <sequence>
                     <element name="orientationFeatureType"
                         type="diggs:OrientationObsPropertyEnumType">
@@ -3668,15 +3707,15 @@ DSB: REMOVED FROM PROFILE
                                 (eg. faults, bedding)</documentation>
                         </annotation>
                     </element>
-                    <element name="description" type="diggs:OrientationDescriptionPropertyType"
-                        maxOccurs="unbounded"/>
+                    <element name="orientationFeatureObservation"
+                        type="diggs:OrientationObservationPropertyType" maxOccurs="unbounded"/>
                 </sequence>
             </extension>
         </complexContent>
     </complexType>
-    <complexType name="OrientationDescriptionPropertyType">
+    <complexType name="OrientationObservationPropertyType">
         <sequence maxOccurs="1">
-            <element maxOccurs="1" ref="diggs:OrientationDescription"/>
+            <element maxOccurs="1" ref="diggs:OrientationObservation"/>
         </sequence>
     </complexType>
     <complexType name="OrientationType">
@@ -3717,8 +3756,8 @@ DSB: REMOVED FROM PROFILE
                 value is indicated in the appinfo element.</documentation>
         </annotation>
     </element>
-    <element name="OtherDescription" substitutionGroup="diggs:AbstractDescription"
-        type="diggs:OtherDescriptionType">
+    <element name="OtherObservation" substitutionGroup="diggs:AbstractDescription"
+        type="diggs:OtherObservationType">
         <annotation>
             <documentation>A structure for defining a layer system of unknown type. Observations
                 consist of name-value pairs, where these names should reference code lists. As this
@@ -3726,19 +3765,19 @@ DSB: REMOVED FROM PROFILE
                 for a specific use case.</documentation>
         </annotation>
     </element>
-    <complexType name="OtherDescriptionPropertyType">
+    <complexType name="OtherObservationPropertyType">
         <sequence maxOccurs="1">
-            <element maxOccurs="1" ref="diggs:OtherDescription"/>
+            <element maxOccurs="1" ref="diggs:OtherObservation"/>
         </sequence>
     </complexType>
-    <element name="OtherDescriptionSystem" substitutionGroup="diggs:AbstractFeature"
-        type="diggs:OtherDescriptionSystemType"/>
-    <complexType name="OtherDescriptionSystemPropertyType">
+    <element name="OtherObservationSystem" substitutionGroup="diggs:AbstractDescriptionSystem"
+        type="diggs:OtherObservationSystemType"/>
+    <complexType name="OtherObservationSystemPropertyType">
         <sequence maxOccurs="1">
-            <element maxOccurs="1" ref="diggs:OtherDescriptionSystem"> </element>
+            <element maxOccurs="1" ref="diggs:OtherObservationSystem"> </element>
         </sequence>
     </complexType>
-    <complexType name="OtherDescriptionType">
+    <complexType name="OtherObservationType">
         <complexContent>
             <extension base="diggs:AbstractDescriptionType">
                 <sequence>
@@ -3748,9 +3787,9 @@ DSB: REMOVED FROM PROFILE
             </extension>
         </complexContent>
     </complexType>
-    <complexType name="OtherDescriptionSystemType">
+    <complexType name="OtherObservationSystemType">
         <complexContent>
-            <extension base="diggs:AbstractFeatureType">
+            <extension base="diggs:AbstractDescriptionSystemType">
                 <sequence>
                     <element name="otherSystemType" type="gml:CodeType">
                         <annotation>
@@ -3758,7 +3797,7 @@ DSB: REMOVED FROM PROFILE
                             </documentation>
                         </annotation>
                     </element>
-                    <element name="description" type="diggs:OtherDescriptionPropertyType"
+                    <element name="otherObservation" type="diggs:OtherObservationPropertyType"
                         maxOccurs="unbounded"/>
                 </sequence>
             </extension>
@@ -5570,8 +5609,8 @@ DSB: REMOVED FROM PROFILE
             <enumeration value="%/kyr"/>
         </restriction>
     </simpleType>
-    <element name="StratigraphyDescription" substitutionGroup="diggs:AbstractDescription"
-        type="diggs:StratigraphyDescriptionType">
+    <element name="StratigraphyObservation" substitutionGroup="diggs:AbstractDescription"
+        type="diggs:StratigraphyObservationType">
         <annotation>
             <documentation>Stratigraphy layers are ordered bodies of rock or sediment, such as
                 formations, biostratigraphic units or aquifers. Observations within a stratigraphy
@@ -5579,16 +5618,16 @@ DSB: REMOVED FROM PROFILE
                 they must be unique within the layer system. </documentation>
         </annotation>
     </element>
-    <complexType name="StratigraphyDescriptionPropertyType">
+    <complexType name="StratigraphyObservationPropertyType">
         <sequence maxOccurs="1">
-            <element maxOccurs="1" ref="diggs:StratigraphyDescription"/>
+            <element maxOccurs="1" ref="diggs:StratigraphyObservation"/>
         </sequence>
     </complexType>
-    <complexType name="StratigraphyDescriptionType">
+    <complexType name="StratigraphyObservationType">
         <complexContent>
             <extension base="diggs:AbstractDescriptionType">
                 <sequence>
-                    <element name="name" type="gml:CodeType">
+                    <element name="stratigraphicUnitName" type="gml:CodeType">
                         <annotation>
                             <documentation>The name of the stratigraphic unit (eg. Harold Formation)
                                 assigned to this zone. Should come from a controlled list based on
@@ -5619,7 +5658,7 @@ DSB: REMOVED FROM PROFILE
             </simpleType>
         </union>
     </simpleType>
-    <element name="StratigraphySystem" substitutionGroup="diggs:AbstractFeature"
+    <element name="StratigraphySystem" substitutionGroup="diggs:AbstractDescriptionSystem"
         type="diggs:StratigraphySystemType"/>
     <complexType name="StratigraphySystemPropertyType">
         <sequence maxOccurs="1">
@@ -5628,7 +5667,7 @@ DSB: REMOVED FROM PROFILE
     </complexType>
     <complexType name="StratigraphySystemType">
         <complexContent>
-            <extension base="diggs:AbstractFeatureType">
+            <extension base="diggs:AbstractDescriptionSystemType">
                 <sequence>
                     <element name="stratigraphyType" type="diggs:StratigraphyObservationEnumType">
                         <annotation>
@@ -5636,8 +5675,8 @@ DSB: REMOVED FROM PROFILE
                                 stratigraphic units described in this system</documentation>
                         </annotation>
                     </element>
-                    <element name="description" type="diggs:StratigraphyDescriptionPropertyType"
-                        maxOccurs="unbounded"/>
+                    <element name="stratigraphyObservation"
+                        type="diggs:StratigraphyObservationPropertyType" maxOccurs="unbounded"/>
                 </sequence>
             </extension>
         </complexContent>
