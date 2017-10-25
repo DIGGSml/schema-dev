@@ -22,31 +22,290 @@
     <import namespace="http://www.witsml.org/schemas/131"
         schemaLocation="witsml/1.3.1.1/typ_dataTypes.xsd"/>
 
-    <element abstract="false" name="DirectShearTest"
-        substitutionGroup="diggs:AbstractLaboratoryTest" type="diggs_geo:DirectShearTestType">
+    <element abstract="false" name="BackPressureIncrement"
+        substitutionGroup="diggs:AbstractProcedureTrial" type="diggs_geo:BackPressureIncrementType"> </element>
+    <complexType name="BackPressureIncrementPropertyType">
         <annotation>
-            <documentation>The direct shear test, also known as a shearbox test, is used for determination of the consolidated drained (or undrained) shear strength of soils. The test is performed by deforming a specimen at a controlled rate on or near a single shear plane.</documentation>
+            <documentation>Property for BackPressureIncrements</documentation>
         </annotation>
-    </element>
-    <complexType name="DirectShearTestType">
+        <sequence>
+            <element maxOccurs="1" minOccurs="1" ref="diggs_geo:ConsolidationIncrement"/>
+        </sequence>
+    </complexType>
+    <complexType name="BackPressureIncrementType">
         <annotation>
-            <documentation>Base type for DirectShearTest</documentation>
+            <documentation/>
         </annotation>
         <complexContent>
-            <extension base="diggs:AbstractLaboratoryTestType">
+            <extension base="diggs:AbstractProcedureTrialType">
                 <sequence>
-                    <element default="false" minOccurs="0" name="directShearTestType"
-                        type="gml:CodeType">
+                    <element minOccurs="1" name="incrementNumber" type="witsml:positiveCount">
                         <annotation>
-                            <documentation>Type of shear box test.</documentation>
+                            <documentation>Index of the increment (eg. 1 is the first increment, 2 is the second, etc.)</documentation>
                         </annotation>
                     </element>
-                    <element maxOccurs="unbounded" minOccurs="0" name="trial"
-                        type="diggs_geo:DirectShearTestTrialPropertyType"/>
+                    <element minOccurs="1" name="backPressureApplied" type="witsml:pressureMeasure">
+                        <annotation>
+                            <documentation>Amount of backpressure applied to the speciment during this backpressure increment.</documentation>
+                        </annotation>
+                    </element>
+                    <element minOccurs="0" name="bValue" type="double">
+                        <annotation>
+                            <documentation>The pore pressure parameter B is defined as the change in the specimen pore pressure that occurs as a result of a change in the chamber pressure when the specimen drainage valves are closed, divided by the change in chamber pressure.</documentation>
+                        </annotation>
+                    </element>
+                    <element minOccurs="0" name="chamberPressureApplied"
+                        type="witsml:pressureMeasure">
+                        <annotation>
+                            <documentation>Amount of chamber pressure applied to the speciment during this backpressure increment.</documentation>
+                        </annotation>
+                    </element>
+                    <element minOccurs="0" name="deairedWaterUsed" type="boolean"/>
+                    <element minOccurs="0" name="elapsedTime" type="witsml:timeMeasure">
+                        <annotation>
+                            <documentation>Time since the initiation of saturation stage</documentation>
+                        </annotation>
+                    </element>
                 </sequence>
             </extension>
         </complexContent>
     </complexType>
+    <element abstract="false" name="CompressiveStrengthTest"
+        substitutionGroup="diggs:AbstractLaboratoryTestProcedure"
+        type="diggs_geo:CompressiveStrengthTestType">
+        <annotation>
+            <documentation>The Compressive Strength of a material is that value of uniaxial compressive stress reached when the material fails</documentation>
+        </annotation>
+    </element>
+    <complexType name="CompressiveStrengthTestType">
+        <annotation>
+            <documentation>Base type for CompressiveStrengthTest</documentation>
+        </annotation>
+        <complexContent>
+            <extension base="diggs:AbstractLaboratoryTestProcedureType">
+                <sequence>
+                    <element minOccurs="0" name="waterContent" type="diggs:WaterContentType">
+                        <annotation>
+                            <documentation>Water content of specimen tested</documentation>
+                        </annotation>
+                    </element>
+                    <element minOccurs="0" name="testDuration" type="witsml:timeMeasure">
+                        <annotation>
+                            <documentation>Duration of the test.</documentation>
+                        </annotation>
+                    </element>
+                    <element minOccurs="0" name="stressRate" type="diggs:forcePerTimeMeasure">
+                        <annotation>
+                            <documentation>Stress rate</documentation>
+                        </annotation>
+                    </element>
+                    <element minOccurs="0" name="failureMode" type="gml:CodeType">
+                        <annotation>
+                            <documentation>Mode of failure (eg. shear).</documentation>
+                        </annotation>
+                    </element>
+                </sequence>
+            </extension>
+        </complexContent>
+    </complexType>
+    <element abstract="false" name="ConsolidationIncrement"
+        substitutionGroup="diggs:AbstractProcedureTrial" type="diggs_geo:ConsolidationIncrementType">
+        <annotation>
+            <documentation/>
+        </annotation>
+    </element>
+    <complexType name="ConsolidationIncrementPropertyType">
+        <annotation>
+            <documentation>Property for ConsolidationIncrements</documentation>
+        </annotation>
+        <sequence>
+            <element maxOccurs="1" minOccurs="1" ref="diggs_geo:ConsolidationIncrement"/>
+        </sequence>
+    </complexType>
+    <complexType name="ConsolidationIncrementType">
+        <annotation>
+            <documentation/>
+        </annotation>
+        <complexContent>
+            <extension base="diggs:AbstractProcedureTrialType">
+                <sequence>
+                    <element minOccurs="0" name="deformationIndicatorReading"
+                        type="witsml:lengthMeasure">
+                        <annotation>
+                            <documentation>Amount of chamber pressure applied to the speciment during this backpressure increment.</documentation>
+                        </annotation>
+                    </element>
+                    <element minOccurs="1" name="elapsedTime" type="witsml:timeMeasure">
+                        <annotation>
+                            <documentation>Time since the initiation of consolidation stage</documentation>
+                        </annotation>
+                    </element>
+                    <element minOccurs="1" name="volumeChange" type="witsml:volumeMeasure">
+                        <annotation>
+                            <documentation>Change in volume obtained from the volume change device at the observed elapsed time.</documentation>
+                        </annotation>
+                    </element>
+                </sequence>
+            </extension>
+        </complexContent>
+    </complexType>
+    <element abstract="false" name="ConsolidationTest"
+        substitutionGroup="diggs:AbstractLaboratoryTestProcedure"
+        type="diggs_geo:ConsolidationTestType">
+        <annotation>
+            <documentation>Result from a Consolidation Test. This test is performed to determine the magnitude and rate of volume decrease that a laterally confined soil specimen undergoes when subjected to different vertical pressures. From the measured data, the consolidation curve (pressure-void ratio relationship) can be plotted. This data is useful in determining the compression index (slope of virgin curve), the recompression index (slope of recompression curve) and the preconsolidation pressure (or maximum past pressure) of the soil. In addition, the data obtained can also be used to determine the coefficient of consolidation and the coefficient of secondary compression of the soil.</documentation>
+        </annotation>
+    </element>
+    <complexType name="ConsolidationTestType">
+        <annotation>
+            <documentation>Base type for ConsolidationTest</documentation>
+        </annotation>
+        <complexContent>
+            <extension base="diggs:AbstractLaboratoryTestProcedureType">
+                <sequence>
+                    <element default="false" minOccurs="0" name="consolidationTestType"
+                        type="gml:CodeType">
+                        <annotation>
+                            <documentation>Type of consolidation test.</documentation>
+                        </annotation>
+                    </element>
+                    <element minOccurs="0" name="initialWaterContent" type="diggs:WaterContentType">
+                        <annotation>
+                            <documentation>Initial moisture content of specimen</documentation>
+                        </annotation>
+                    </element>
+                    <element minOccurs="0" name="finalWaterContent" type="diggs:WaterContentType">
+                        <annotation>
+                            <documentation>Final moisture content of specimen</documentation>
+                        </annotation>
+                    </element>
+                    <element minOccurs="0" name="initialBulkDensity"
+                        type="diggs:DensityOrUnitWeightMeasureType">
+                        <annotation>
+                            <documentation>Initial bulk density.</documentation>
+                        </annotation>
+                    </element>
+                    <element minOccurs="0" name="initialDryDensity"
+                        type="diggs:DensityOrUnitWeightMeasureType">
+                        <annotation>
+                            <documentation>Initial dry density.</documentation>
+                        </annotation>
+                    </element>
+                    <element minOccurs="0" name="specificGravity" type="double">
+                        <annotation>
+                            <documentation>Specific gravity of solids.</documentation>
+                        </annotation>
+                    </element>
+                    <element minOccurs="0" name="initialSaturation" type="diggs:PercentMeasureType">
+                        <annotation>
+                            <documentation>Initial degree of saturation</documentation>
+                        </annotation>
+                    </element>
+                    <element minOccurs="0" name="swellingPressure" type="witsml:pressureMeasure">
+                        <annotation>
+                            <documentation>Swelling pressure.</documentation>
+                        </annotation>
+                    </element>
+                    <element minOccurs="0" name="heightChange" type="diggs:PercentMeasureType">
+                        <annotation>
+                            <documentation>Height change of specimen on saturation, or flooding as percentage of original height</documentation>
+                        </annotation>
+                    </element>
+                    <element minOccurs="0" name="initialVoidRatio" type="double">
+                        <annotation>
+                            <documentation>Initial void ratio prior to running tests.</documentation>
+                        </annotation>
+                    </element>
+                    <element maxOccurs="unbounded" minOccurs="0" name="trial"
+                        type="diggs_geo:ConsolidationTestTrialPropertyType"/>
+                </sequence>
+            </extension>
+        </complexContent>
+    </complexType>
+    <element abstract="false" name="ConsolidationTestTrial" substitutionGroup="diggs:AbstractObject"
+        type="diggs_geo:ConsolidationTestTrialType">
+        <annotation>
+            <documentation>Results for each trial</documentation>
+        </annotation>
+    </element>
+    <complexType name="ConsolidationTestTrialPropertyType">
+        <annotation>
+            <documentation>Property for ConsolidationTestTrials, required parent element that holds the multiple trials.</documentation>
+        </annotation>
+        <sequence>
+            <element maxOccurs="1" minOccurs="1" ref="diggs_geo:ConsolidationTestTrial"/>
+        </sequence>
+    </complexType>
+    <complexType name="ConsolidationTestTrialType">
+        <annotation>
+            <documentation>Base type for ConsolidationTestTrials</documentation>
+        </annotation>
+        <complexContent>
+            <extension base="diggs:AbstractObjectType">
+                <sequence>
+                    <element minOccurs="0" name="trialNo" type="integer">
+                        <annotation>
+                            <documentation>The count of the test cycle</documentation>
+                        </annotation>
+                    </element>
+                    <element minOccurs="0" name="loadingStress" type="witsml:pressureMeasure">
+                        <annotation>
+                            <documentation>The loading stress increment.</documentation>
+                        </annotation>
+                    </element>
+                    <element minOccurs="0" name="initialVoidRatio" type="double">
+                        <annotation>
+                            <documentation>Initial void ratio prior at start of increment.</documentation>
+                        </annotation>
+                    </element>
+                    <element minOccurs="0" name="finalVoidRatio" type="double">
+                        <annotation>
+                            <documentation>Final void ratio at end of increment.</documentation>
+                        </annotation>
+                    </element>
+                    <element minOccurs="0" name="endingStress" type="witsml:pressureMeasure">
+                        <annotation>
+                            <documentation>Stress at end of stress increment/decrement</documentation>
+                        </annotation>
+                    </element>
+                    <element minOccurs="0" name="coefficientOfConsolidation" type="double">
+                        <annotation>
+                            <documentation>Coefficient of consolidation for this stress increment.</documentation>
+                        </annotation>
+                    </element>
+                    <element minOccurs="0" name="coefficientOfSecondaryCompression" type="double">
+                        <annotation>
+                            <documentation>Coefficient of secondary compression over stress increment</documentation>
+                        </annotation>
+                    </element>
+                    <element minOccurs="0" name="coefficientTertiaryCompressionIncrement"
+                        type="double">
+                        <annotation>
+                            <documentation>Coefficient of tertiary compression over stress increment</documentation>
+                        </annotation>
+                    </element>
+                    <element minOccurs="0" name="coefficientOfVolumeCompressibility" type="double">
+                        <annotation>
+                            <documentation>Reported coefficient of volume compressibility over stress increment</documentation>
+                        </annotation>
+                    </element>
+                    <element minOccurs="0" name="averageTemperature"
+                        type="witsml:thermodynamicTemperatureMeasure">
+                        <annotation>
+                            <documentation>Average temperature over stress increment</documentation>
+                        </annotation>
+                    </element>
+                </sequence>
+            </extension>
+        </complexContent>
+    </complexType>
+    <element abstract="false" name="DirectShearTest"
+        substitutionGroup="diggs:AbstractLaboratoryTestProcedure"
+        type="diggs_geo:DirectShearTestType">
+        <annotation>
+            <documentation>The direct shear test, also known as a shearbox test, is used for determination of the consolidated drained (or undrained) shear strength of soils. The test is performed by deforming a specimen at a controlled rate on or near a single shear plane.</documentation>
+        </annotation>
+    </element>
     <element abstract="false" name="DirectShearTestTrial" substitutionGroup="diggs:AbstractObject"
         type="diggs_geo:DirectShearTestTrialType">
         <annotation>
@@ -60,6 +319,25 @@
         <sequence>
             <element maxOccurs="1" minOccurs="1" ref="diggs_geo:DirectShearTestTrial"/>
         </sequence>
+    </complexType>
+    <complexType name="DirectShearTestType">
+        <annotation>
+            <documentation>Base type for DirectShearTest</documentation>
+        </annotation>
+        <complexContent>
+            <extension base="diggs:AbstractLaboratoryTestProcedureType">
+                <sequence>
+                    <element default="false" minOccurs="0" name="directShearTestType"
+                        type="gml:CodeType">
+                        <annotation>
+                            <documentation>Type of shear box test.</documentation>
+                        </annotation>
+                    </element>
+                    <element maxOccurs="unbounded" minOccurs="0" name="trial"
+                        type="diggs_geo:DirectShearTestTrialPropertyType"/>
+                </sequence>
+            </extension>
+        </complexContent>
     </complexType>
     <complexType name="DirectShearTestTrialType">
         <annotation>
@@ -144,13 +422,12 @@
                             <documentation>Particle density, specific gravity.</documentation>
                         </annotation>
                     </element>
-                    <element minOccurs="0" name="initialWaterContent"
-                        type="diggs:PercentMeasureType">
+                    <element minOccurs="0" name="initialWaterContent" type="diggs:WaterContentType">
                         <annotation>
                             <documentation>Initial moisture content.</documentation>
                         </annotation>
                     </element>
-                    <element minOccurs="0" name="finalWaterContent" type="diggs:PercentMeasureType">
+                    <element minOccurs="0" name="finalWaterContent" type="diggs:WaterContentType">
                         <annotation>
                             <documentation>Final moisture content.</documentation>
                         </annotation>
@@ -164,157 +441,428 @@
             </extension>
         </complexContent>
     </complexType>
-    <element abstract="false" name="ConsolidationTest"
-        substitutionGroup="diggs:AbstractLaboratoryTest" type="diggs_geo:ConsolidationTestType">
+    <element abstract="false" name="FilterInfo" substitutionGroup="diggs:AbstractObject"
+        type="diggs_geo:FilterInfoType"> </element>
+    <complexType name="FilterInfoPropertyType">
         <annotation>
-            <documentation>Result from a Consolidation Test. This test is performed to determine the magnitude and rate of volume decrease that a laterally confined soil specimen undergoes when subjected to different vertical pressures. From the measured data, the consolidation curve (pressure-void ratio relationship) can be plotted. This data is useful in determining the compression index (slope of virgin curve), the recompression index (slope of recompression curve) and the preconsolidation pressure (or maximum past pressure) of the soil. In addition, the data obtained can also be used to determine the coefficient of consolidation and the coefficient of secondary compression of the soil.</documentation>
-        </annotation>
-    </element>
-    <complexType name="ConsolidationTestType">
-        <annotation>
-            <documentation>Base type for ConsolidationTest</documentation>
-        </annotation>
-        <complexContent>
-            <extension base="diggs:AbstractLaboratoryTestType">
-                <sequence>
-                    <element default="false" minOccurs="0" name="consolidationTestType"
-                        type="gml:CodeType">
-                        <annotation>
-                            <documentation>Type of consolidation test.</documentation>
-                        </annotation>
-                    </element>
-                    <element minOccurs="0" name="initialWaterContent"
-                        type="diggs:PercentMeasureType">
-                        <annotation>
-                            <documentation>Initial moisture content of specimen</documentation>
-                        </annotation>
-                    </element>
-                    <element minOccurs="0" name="finalWaterContent" type="diggs:PercentMeasureType">
-                        <annotation>
-                            <documentation>Final moisture content of specimen</documentation>
-                        </annotation>
-                    </element>
-                    <element minOccurs="0" name="initialBulkDensity"
-                        type="diggs:DensityOrUnitWeightMeasureType">
-                        <annotation>
-                            <documentation>Initial bulk density.</documentation>
-                        </annotation>
-                    </element>
-                    <element minOccurs="0" name="initialDryDensity"
-                        type="diggs:DensityOrUnitWeightMeasureType">
-                        <annotation>
-                            <documentation>Initial dry density.</documentation>
-                        </annotation>
-                    </element>
-                    <element minOccurs="0" name="specificGravity" type="double">
-                        <annotation>
-                            <documentation>Specific gravity of solids.</documentation>
-                        </annotation>
-                    </element>
-                    <element minOccurs="0" name="initialSaturation" type="diggs:PercentMeasureType">
-                        <annotation>
-                            <documentation>Initial degree of saturation</documentation>
-                        </annotation>
-                    </element>
-                    <element minOccurs="0" name="swellingPressure" type="witsml:pressureMeasure">
-                        <annotation>
-                            <documentation>Swelling pressure.</documentation>
-                        </annotation>
-                    </element>
-                    <element minOccurs="0" name="heightChange" type="diggs:PercentMeasureType">
-                        <annotation>
-                            <documentation>Height change of specimen on saturation, or flooding as percentage of original height</documentation>
-                        </annotation>
-                    </element>
-                    <element minOccurs="0" name="initialVoidRatio" type="double">
-                        <annotation>
-                            <documentation>Initial void ratio prior to running tests.</documentation>
-                        </annotation>
-                    </element>
-                    <element maxOccurs="unbounded" minOccurs="0" name="trial"
-                        type="diggs_geo:ConsolidationTestTrialPropertyType"/>
-                </sequence>
-            </extension>
-        </complexContent>
-    </complexType>
-    <element abstract="false" name="ConsolidationTestTrial" substitutionGroup="diggs:AbstractObject"
-        type="diggs_geo:ConsolidationTestTrialType">
-        <annotation>
-            <documentation>Results for each trial</documentation>
-        </annotation>
-    </element>
-    <complexType name="ConsolidationTestTrialPropertyType">
-        <annotation>
-            <documentation>Property for ConsolidationTestTrials, required parent element that holds the multiple trials.</documentation>
+            <documentation>Property type for FilterInfo
+</documentation>
         </annotation>
         <sequence>
-            <element maxOccurs="1" minOccurs="1" ref="diggs_geo:ConsolidationTestTrial"/>
+            <element maxOccurs="1" minOccurs="1" ref="diggs_geo:FilterInfo"/>
         </sequence>
     </complexType>
-    <element abstract="false" name="CompressiveStrengthTest"
-        substitutionGroup="diggs:AbstractLaboratoryTest"
-        type="diggs_geo:CompressiveStrengthTestType">
+    <complexType name="FilterInfoType">
         <annotation>
-            <documentation>The Compressive Strength of a material is that value of uniaxial compressive stress reached when the material fails</documentation>
+            <documentation/>
+        </annotation>
+        <complexContent>
+            <extension base="diggs:AbstractObjectType">
+                <sequence>
+                    <element minOccurs="0" name="filterPaperConfiguration" type="gml:CodeType">
+                        <annotation>
+                            <documentation>Configuration of filter paper, eg. strips, spiral. Intended to come from a controlled list of terms.</documentation>
+                        </annotation>
+                    </element>
+                    <element minOccurs="0" name="filterPaperDisksUsed" type="boolean"/>
+                    <element minOccurs="0" name="filterPaperType" type="gml:CodeType">
+                        <annotation>
+                            <documentation>Type of filter paper used, eg. No. 54, intended to come from a controlled list of terms.</documentation>
+                        </annotation>
+                    </element>
+                    <element minOccurs="0" name="loadCarriedbyFilterPaperStrips"
+                        type="witsml:forcePerLengthMeasure">
+                        <annotation>
+                            <documentation>Load carried by filter-paper strips per unit length of perimeter of specimen covered by filter-paper. This is usually approximated at 0.00019 kN/mm or 0.19 kN/m (1.1 lbf/in.). Use description or remark property if determined otherwise.</documentation>
+                        </annotation>
+                    </element>
+                    <element minOccurs="0" name="perimeterCarriedbyFilterPaperStrips"
+                        type="witsml:lengthMeasure">
+                        <annotation>
+                            <documentation>Perimeter of specimen covered by filter-paper</documentation>
+                        </annotation>
+                    </element>
+                </sequence>
+            </extension>
+        </complexContent>
+    </complexType>
+    <element abstract="false" name="MembraneInfo" substitutionGroup="diggs:AbstractObject"
+        type="diggs_geo:MembraneInfoType"> </element>
+    <complexType name="MembraneInfoPropertyType">
+        <annotation>
+            <documentation>Property type for MembraneInfo</documentation>
+        </annotation>
+        <sequence>
+            <element maxOccurs="1" minOccurs="1" ref="diggs_geo:MembraneInfo"/>
+        </sequence>
+    </complexType>
+    <complexType name="MembraneInfoType">
+        <annotation>
+            <documentation/>
+        </annotation>
+        <complexContent>
+            <extension base="diggs:AbstractObjectType">
+                <sequence>
+                    <element minOccurs="0" name="membraneMaterial" type="gml:CodeType">
+                        <annotation>
+                            <documentation>Membrane material, eg. latex, nitrile, etc. Intended to come from a controlled list of terms.</documentation>
+                        </annotation>
+                    </element>
+                    <element minOccurs="0" name="membraneYoungsModulus"
+                        type="witsml:pressureMeasure">
+                        <annotation>
+                            <documentation>Young's modulus of membrane material</documentation>
+                        </annotation>
+                    </element>
+                    <element minOccurs="0" name="membraneYoungsmodulusDetermination"
+                        type="diggs:DescriptorMethodEnumType">
+                        <annotation>
+                            <documentation>From enumerated list. If Young's modulus is determined by hanging and stretching the membrane, a value of calculated should be used here. Otherwise use assumed or other appropriate descriptor.</documentation>
+                        </annotation>
+                    </element>
+                    <element minOccurs="0" name="numberOfMembranesUsed" type="witsml:positiveCount"/>
+                    <element minOccurs="0" name="membraneThickness" type="witsml:lengthMeasure"/>
+                    <element minOccurs="0" name="unstretchedMembraneCircumference"
+                        type="witsml:lengthMeasure"/>
+                    <element minOccurs="0" name="unstretchedMembraneLength"
+                        type="witsml:lengthMeasure"/>
+                </sequence>
+            </extension>
+        </complexContent>
+    </complexType>
+    <element abstract="false" name="ShearingIncrement"
+        substitutionGroup="diggs:AbstractProcedureTrial" type="diggs_geo:ShearingnIncrementType">
+        <annotation>
+            <documentation/>
         </annotation>
     </element>
-    <complexType name="CompressiveStrengthTestType">
+    <complexType name="ShearingIncrementPropertyType">
         <annotation>
-            <documentation>Base type for CompressiveStrengthTest</documentation>
+            <documentation>Property for ConsolidationIncrements</documentation>
+        </annotation>
+        <sequence>
+            <element maxOccurs="1" minOccurs="1" ref="diggs_geo:ShearingIncrement"/>
+        </sequence>
+    </complexType>
+    <complexType name="ShearingnIncrementType">
+        <annotation>
+            <documentation/>
         </annotation>
         <complexContent>
-            <extension base="diggs:AbstractLaboratoryTestType">
+            <extension base="diggs:AbstractProcedureTrialType">
                 <sequence>
-                    <element minOccurs="0" name="waterContent" type="diggs:PercentMeasureType">
+                    <choice>
+                        <element minOccurs="1" name="deviatorStress" type="witsml:pressureMeasure">
+                            <annotation>
+                                <documentation>The difference between the major and minor principal stresses, computed from the axial load divided by the cross-sectional area of the specimen</documentation>
+                            </annotation>
+                        </element>
+                        <sequence>
+                            <element minOccurs="1" name="axialLoad" type="witsml:forceMeasure">
+                                <annotation>
+                                    <documentation>Load applied to the top of the sample</documentation>
+                                </annotation>
+                            </element>
+                            <element minOccurs="0" name="deviatorStress"
+                                type="witsml:pressureMeasure">
+                                <annotation>
+                                    <documentation>The difference between the major and minor principal stresses, computed from the axial load divided by the cross-sectional area of the specimen</documentation>
+                                </annotation>
+                            </element>
+                        </sequence>
+                    </choice>
+                    <element minOccurs="1" name="axialStrain" type="diggs:PercentMeasureType">
                         <annotation>
-                            <documentation>Water content of specimen tested</documentation>
+                            <documentation>Strain deflection of sample under load</documentation>
                         </annotation>
                     </element>
-                    <element minOccurs="0" name="testDuration" type="witsml:timeMeasure">
+                    <element minOccurs="0" name="elapsedTime" type="witsml:timeMeasure">
                         <annotation>
-                            <documentation>Duration of the test.</documentation>
+                            <documentation>Time since the initiation of consolidation stage</documentation>
                         </annotation>
                     </element>
-                    <element minOccurs="0" name="stressRate" type="diggs:forcePerTimeMeasure">
-                        <annotation>
-                            <documentation>Stress rate</documentation>
-                        </annotation>
-                    </element>
-                    <element minOccurs="0" name="failureMode" type="gml:CodeType">
-                        <annotation>
-                            <documentation>Mode of failure (eg. shear).</documentation>
-                        </annotation>
-                    </element>
+                    <choice>
+                        <element minOccurs="1" name="totalPoreWaterPressure"
+                            type="witsml:pressureMeasure">
+                            <annotation>
+                                <documentation>Total Pore water pressure measured</documentation>
+                            </annotation>
+                        </element>
+                        <sequence>
+                            <element minOccurs="1" name="inducedPoreWaterPressure"
+                                type="witsml:pressureMeasure">
+                                <annotation>
+                                    <documentation>Pore water pressure induced under loading defined as total pore water pressure minus back pressure</documentation>
+                                </annotation>
+                            </element>
+                            <element minOccurs="0" name="totalPoreWaterPressure"
+                                type="witsml:pressureMeasure">
+                                <annotation>
+                                    <documentation>Total Pore water pressure measured</documentation>
+                                </annotation>
+                            </element>
+                        </sequence>
+                    </choice>
                 </sequence>
             </extension>
         </complexContent>
     </complexType>
-    <complexType name="TriaxialTestType">
-        <annotation>
-            <documentation>Base type for DirectShearTest</documentation>
-        </annotation>
-        <complexContent>
-            <extension base="diggs:AbstractLaboratoryTestType">
-                <sequence>
-                    <element default="false" minOccurs="0" name="triaxialTestType"
-                        type="gml:CodeType">
-                        <annotation>
-                            <documentation>Type of triaxial test (eg. effective stress, total stress)</documentation>
-                        </annotation>
-                    </element>
-                    <element maxOccurs="unbounded" minOccurs="0" name="trial"
-                        type="diggs_geo:TriaxialTestTrialPropertyType"/>
-                    <!-- 2015-05-01 PwD changed from type="diggs_geo:TriaxialTestTrialsType" -->
-                </sequence>
-            </extension>
-        </complexContent>
-    </complexType>
-    <element abstract="false" name="TriaxialTest" substitutionGroup="diggs:AbstractLaboratoryTest"
-        type="diggs_geo:TriaxialTestType">
+    <element abstract="false" name="TriaxialTest"
+        substitutionGroup="diggs:AbstractLaboratoryTestProcedure" type="diggs_geo:TriaxialTestType">
         <annotation>
             <documentation>In a triaxial shear test, stress is applied to a sample in a way which results in stresses along one axis being different from the stresses in perpendicular directions. In conventional triaxial tests, this involves subjecting a cylindrical soil sample to radial stresses (confining pressure) and controlled increases in axial stresses or axial displacements. Depending on the combination of loading and drainage condition, three main types of triaxial tests can be carried out: 1) Consolidated – Drained (CD), 2) Consolidated – Undrained (CU), 3) Unconsolidated - Undrained (UU). From the triaxial test results, it is possible to deduce the shear strength parameters, namely friction angle, cohesion, dilatancy angle and the other dependent parameters.</documentation>
         </annotation>
     </element>
+    <simpleType name="TriaxialTestAreaCorrectionEnumTypeType">
+        <restriction base="string">
+            <enumeration value="Central cylindrical bulging"/>
+            <enumeration value="Parabolic bulging"/>
+            <enumeration value="Right circular cylinder"/>
+            <enumeration value="Slip plane"/>
+        </restriction>
+    </simpleType>
+    <simpleType name="TriaxialTestAreaCorrectionTypeType">
+        <union memberTypes="diggs_geo:TriaxialTestAreaCorrectionEnumTypeType diggs:OtherNameType"/>
+    </simpleType>
+    <element abstract="false" name="TriaxialTestConsolidationStage"
+        substitutionGroup="diggs:AbstractObject" type="diggs_geo:TriaxialTestConsolidationStageType">
+        <annotation>
+            <documentation>Results for the consolidation stage in a TriaxialTest trial</documentation>
+        </annotation>
+    </element>
+    <complexType name="TriaxialTestConsolidationStagePropertyType">
+        <annotation>
+            <documentation>Property for TriaxialTestTrials, required parent element that holds the multiple trials.</documentation>
+        </annotation>
+        <sequence>
+            <element maxOccurs="1" minOccurs="1" ref="diggs_geo:TriaxialTestConsolidationStage"/>
+        </sequence>
+    </complexType>
+    <complexType name="TriaxialTestConsolidationStageType">
+        <annotation>
+            <documentation/>
+        </annotation>
+        <complexContent>
+            <extension base="diggs:AbstractProcedureTrialType">
+                <sequence>
+                    <element maxOccurs="unbounded" minOccurs="0" name="consolidationIncrement"
+                        type="diggs_geo:ConsolidationIncrementPropertyType"/>
+                    <element minOccurs="0" name="specimenCrossSectionalAreaCalculationMethod"
+                        type="gml:CodeType">
+                        <annotation>
+                            <documentation>A description of how the specimen cross-sectional area after consolidation is computed (eg. ASTM Method A, B, etc.), The actual value of the specimen cross-sectional area post-consolidation is provided in the conditionPostTest property of the associated specimen.</documentation>
+                        </annotation>
+                    </element>
+                    <element minOccurs="0" name="effectiveStressEndofConsolidationStage"
+                        type="witsml:pressureMeasure">
+                        <annotation>
+                            <documentation>Effective stress at end of consolidation/start of shear stage</documentation>
+                        </annotation>
+                    </element>
+                    <element minOccurs="0" name="t50" type="witsml:timeMeasure">
+                        <annotation>
+                            <documentation>t50 is the time for 50 percent consolidation. Method for its determination is described in the t50Method property</documentation>
+                        </annotation>
+                    </element>
+                    <element minOccurs="0" name="specimenHeightChangeAfterConsolidation"
+                        type="witsml:lengthMeasure">
+                        <annotation>
+                            <documentation>Change in specimen height after consolidation. The post-consolidation specimen height itself would be recorded in the conditionPostTest property of the associated specimen</documentation>
+                        </annotation>
+                    </element>
+                    <element minOccurs="0" name="t50Method" type="gml:CodeType">
+                        <annotation>
+                            <documentation>The method used to determine t50 - eg. Casagrande, Taylor, etc. Intended to come from a controlled list of terms.</documentation>
+                        </annotation>
+                    </element>
+                </sequence>
+            </extension>
+        </complexContent>
+    </complexType>
+    <element abstract="false" name="TriaxialTestEquipment"
+        substitutionGroup="diggs:AbstractEquipment" type="diggs_geo:TriaxialTestEquipmentType">
+        <annotation>
+            <documentation>In a triaxial shear test, stress is applied to a sample in a way which results in stresses along one axis being different from the stresses in perpendicular directions. In conventional triaxial tests, this involves subjecting a cylindrical soil sample to radial stresses (confining pressure) and controlled increases in axial stresses or axial displacements. Depending on the combination of loading and drainage condition, three main types of triaxial tests can be carried out: 1) Consolidated – Drained (CD), 2) Consolidated – Undrained (CU), 3) Unconsolidated - Undrained (UU). From the triaxial test results, it is possible to deduce the shear strength parameters, namely friction angle, cohesion, dilatancy angle and the other dependent parameters.</documentation>
+        </annotation>
+    </element>
+    <complexType name="TriaxialTestEquipmentType">
+        <complexContent>
+            <extension base="diggs:AbstractEquipmentType">
+                <sequence>
+                    <element minOccurs="0" name="loadCellCapacity" type="witsml:forceMeasure"/>
+                    <element minOccurs="0" name="massOfTopPorousStone" type="witsml:massMeasure"/>
+                    <element minOccurs="0" name="massOfTopCap" type="witsml:massMeasure"/>
+                    <element minOccurs="0" name="pistonDiameter" type="witsml:lengthMeasure">
+                        <annotation>
+                            <documentation>Type of pressure transducer, eg. single pressure transducer, effective stress transducer. Intended to come from a controlled list of terms.</documentation>
+                        </annotation>
+                    </element>
+                    <element minOccurs="0" name="poreWaterPressureDeviceMeetsUndrainedSpecs"
+                        type="boolean">
+                        <annotation>
+                            <documentation>For undrained tests, this property is true if pore water pressure measurement system satisfies the requirment that the volume change due to pore water pressure change divided by total volume of specimen divided by the change in pore pressue less than 3.2 X 10-6 m2/kN (2.2 X 10-5 in2/lb (ASTM 4761-11, Sec. 5.8)</documentation>
+                        </annotation>
+                    </element>
+                    <element minOccurs="0" name="pressureTransducerType" type="gml:CodeType">
+                        <annotation>
+                            <documentation>Type of pressure transducer, eg. single pressure transducer, effective stress transducer. Intended to come from a controlled list of terms.</documentation>
+                        </annotation>
+                    </element>
+                </sequence>
+            </extension>
+        </complexContent>
+    </complexType>
+    <element abstract="false" name="TriaxialTestSaturationStage"
+        substitutionGroup="diggs:AbstractObject" type="diggs_geo:TriaxialTestSaturationStageType">
+        <annotation>
+            <documentation>Results for the saturation stage in a TriaxialTest trial</documentation>
+        </annotation>
+    </element>
+    <complexType name="TriaxialTestSaturationStagePropertyType">
+        <annotation>
+            <documentation>Property for TriaxialTestTrials, required parent element that holds the multiple trials.</documentation>
+        </annotation>
+        <sequence>
+            <element maxOccurs="1" minOccurs="1" ref="diggs_geo:TriaxialTestSaturationStage"/>
+        </sequence>
+    </complexType>
+    <complexType name="TriaxialTestSaturationStageType">
+        <annotation>
+            <documentation/>
+        </annotation>
+        <complexContent>
+            <extension base="diggs:AbstractProcedureTrialType">
+                <sequence>
+                    <element minOccurs="0" name="automatedSaturationEquipmentUsed" type="boolean"/>
+                    <element maxOccurs="unbounded" minOccurs="0" name="backPressureIncrement"
+                        type="diggs_geo:BackPressureIncrementPropertyType"/>
+                    <element minOccurs="0" name="bValueEndOfSaturation" type="double"/>
+                    <element minOccurs="0" name="initialPercentSaturation"
+                        type="diggs:PercentMeasureType">
+                        <annotation>
+                            <documentation>Initial saturation prior to testing</documentation>
+                        </annotation>
+                    </element>
+                    <element minOccurs="0" name="maximumBackPressureApplied"
+                        type="witsml:pressureMeasure"/>
+                    <element minOccurs="0" name="saturationMethod" type="gml:CodeType">
+                        <annotation>
+                            <documentation>Method of saturation, eg. initially saturated (wet) method, initially dry (dry) method, cell pressure, back pressure, etc. Intended to come from a controlled list of terms.</documentation>
+                        </annotation>
+                    </element>
+                </sequence>
+            </extension>
+        </complexContent>
+    </complexType>
+    <element abstract="false" name="TriaxialTestShearStage" substitutionGroup="diggs:AbstractObject"
+        type="diggs_geo:TriaxialTestShearStageType">
+        <annotation>
+            <documentation>Results for the consolidation stage in a TriaxialTest trial</documentation>
+        </annotation>
+    </element>
+    <complexType name="TriaxialTestShearStagePropertyType">
+        <annotation>
+            <documentation>Property for TriaxialTestTrials, required parent element that holds the multiple trials.</documentation>
+        </annotation>
+        <sequence>
+            <element maxOccurs="1" minOccurs="1" ref="diggs_geo:TriaxialTestShearStage"/>
+        </sequence>
+    </complexType>
+    <complexType name="TriaxialTestShearStageType">
+        <annotation>
+            <documentation/>
+        </annotation>
+        <complexContent>
+            <extension base="diggs:AbstractProcedureTrialType">
+                <sequence>
+                    <element minOccurs="0" name="axialStrainAtFailure"
+                        type="diggs:PercentMeasureType"> </element>
+                    <element minOccurs="0" name="deviatorStressAtFailure"
+                        type="witsml:pressureMeasure">
+                        <annotation>
+                            <documentation/>
+                        </annotation>
+                    </element>
+                    <element minOccurs="0" name="failureCriterion" type="gml:CodeType">
+                        <annotation>
+                            <documentation>Criterion used to define failure (eg. maximum deviator stress, max PSR, limiting strain, etc.). Intended to come from a controlled list of terms.</documentation>
+                        </annotation>
+                    </element>
+                    <element minOccurs="0" name="modeOfFailure" type="gml:CodeType">
+                        <annotation>
+                            <documentation>Failure mode (eg. shear plane, bulging, etc.), Intended to come from a controlled list of terms</documentation>
+                        </annotation>
+                    </element>
+                    <choice>
+                        <element minOccurs="1" name="totalPorewaterPressureAtFailure"
+                            type="witsml:pressureMeasure">
+                            <annotation>
+                                <documentation>Total Porewater pressure measured at failure</documentation>
+                            </annotation>
+                        </element>
+                        <sequence>
+                            <element minOccurs="1" name="inducedPorewaterPressureAtFailure"
+                                type="witsml:pressureMeasure">
+                                <annotation>
+                                    <documentation>Induced Porewater pressure measured at failure</documentation>
+                                </annotation>
+                            </element>
+                            <element minOccurs="0" name="totalPorewaterPressureAtFailure"
+                                type="witsml:pressureMeasure">
+                                <annotation>
+                                    <documentation>Total Porewater pressure measured at failure</documentation>
+                                </annotation>
+                            </element>
+                        </sequence>
+                    </choice>
+                    <element minOccurs="0" name="porewaterPressureStartOfShearing"
+                        type="witsml:pressureMeasure">
+                        <annotation>
+                            <documentation>Pore water pressure measured prior to start of shearing</documentation>
+                        </annotation>
+                    </element>
+                    <element minOccurs="0" name="rateOfAxialStrainDuringShear"
+                        type="diggs:StrainPerTimeMeasureType">
+                        <annotation>
+                            <documentation>Strain rate during shear stage
+</documentation>
+                        </annotation>
+                    </element>
+                    <element maxOccurs="unbounded" minOccurs="0" name="shearingIncrement"
+                        type="diggs_geo:ShearingIncrementPropertyType"/>
+                    <element minOccurs="0" name="slopeOfAngleOfFailureSurface"
+                        type="witsml:planeAngleMeasure"/>
+                    <element minOccurs="0" name="totalCellPressureDuringShearStage"
+                        type="witsml:pressureMeasure"/>
+                    <element minOccurs="0" name="undrainedShearStrengthAtFailure"
+                        type="witsml:pressureMeasure">
+                        <annotation>
+                            <documentation/>
+                        </annotation>
+                    </element>
+                    <element minOccurs="0" name="volumetricStrainAtFailureDrainedOnly"
+                        type="diggs:PercentMeasureType">
+                        <annotation>
+                            <documentation>Volumetric strain for drained tests only</documentation>
+                        </annotation>
+                    </element>
+                    <element minOccurs="0" name="waterContentPostShear"
+                        type="diggs:WaterContentType">
+                        <annotation>
+                            <documentation>Final moisture content after shearing is completed</documentation>
+                        </annotation>
+                    </element>
+                    <element minOccurs="0" name="areaCorrectionApplied" type="boolean"/>
+                    <element minOccurs="0" name="areaCorrectionType"
+                        type="diggs_geo:TriaxialTestAreaCorrectionTypeType"/>
+                    <element minOccurs="0" name="filterCorrectionApplied" type="boolean"/>
+                    <element minOccurs="0" name="membraneCorrectionApplied" type="boolean"/>
+                    <element minOccurs="0" name="pistonFrictionCorrectionApplied" type="boolean"/>
+                    <element minOccurs="0" name="upliftCorrectionApplied" type="boolean"/>
+                </sequence>
+            </extension>
+        </complexContent>
+    </complexType>
     <element abstract="false" name="TriaxialTestTrial"
         substitutionGroup="diggs:AbstractProcedureTrial" type="diggs_geo:TriaxialTestTrialType">
         <annotation>
@@ -337,169 +885,49 @@
             <extension base="diggs:AbstractProcedureTrialType">
                 <sequence>
                     <element minOccurs="0" ref="diggs:specimenRef"> </element>
-                    <element minOccurs="0" name="trialNo" type="integer">
+                    <element minOccurs="0" name="filterInfo" type="diggs_geo:FilterInfoPropertyType">
                         <annotation>
-                            <documentation>The count of the test cycle</documentation>
+                            <documentation>Information about filters used and parameters used for filter correction.</documentation>
                         </annotation>
                     </element>
-                    <element minOccurs="0" name="initialWaterContent"
-                        type="diggs:PercentMeasureType">
+                    <element minOccurs="0" name="membraneInfo"
+                        type="diggs_geo:FilterInfoPropertyType">
                         <annotation>
-                            <documentation>Initial moisture content.</documentation>
+                            <documentation>Information about membranes used and parameters used for membrane correction.</documentation>
                         </annotation>
                     </element>
-                    <element minOccurs="0" name="finalWaterContent" type="diggs:PercentMeasureType">
+                    <element minOccurs="0" name="specificGravityUsed"
+                        type="diggs:DescriptorValueType">
                         <annotation>
-                            <documentation>Final moisture content.</documentation>
+                            <documentation>Specific gravity used for calculations</documentation>
                         </annotation>
                     </element>
-                    <element minOccurs="0" name="saturationMethod" type="gml:CodeType"/>
-                    <element minOccurs="0" name="consolidationStageDetails"
-                        type="diggs:DiggsStringType"/>
-                    <element minOccurs="0" name="initialBulkDensity"
-                        type="diggs:DensityOrUnitWeightMeasureType">
-                        <annotation>
-                            <documentation>Initial bulk density.</documentation>
-                        </annotation>
-                    </element>
-                    <element minOccurs="0" name="initialDryDensity"
-                        type="diggs:DensityOrUnitWeightMeasureType">
-                        <annotation>
-                            <documentation>Initial dry density.</documentation>
-                        </annotation>
-                    </element>
-                    <element minOccurs="0" name="initialVoidRatio" type="double">
-                        <annotation>
-                            <documentation>Initial void ratio prior at start of increment.</documentation>
-                        </annotation>
-                    </element>
-                    <element minOccurs="0" name="effectiveStressEndofConsolidationStartofShearStage"
-                        type="witsml:pressureMeasure">
-                        <annotation>
-                            <documentation>Effective stress at end of consolidation/start of shear stage</documentation>
-                        </annotation>
-                    </element>
-                    <element minOccurs="0" name="totalCellPressureDuringShearStage"
-                        type="witsml:pressureMeasure"/>
-                    <element minOccurs="0" name="totalCellPressure" type="witsml:pressureMeasure"/>
-                    <element minOccurs="0" name="porewaterPressureStartOfShearing"
-                        type="witsml:pressureMeasure">
-                        <annotation>
-                            <documentation>Peak shear stress during this trial.</documentation>
-                        </annotation>
-                    </element>
-                    <element minOccurs="0" name="rateOfAxialStrainDuringShear"
-                        type="diggs:StrainPerTimeMeasureType">
-                        <annotation>
-                            <documentation>Strain rate during shear stage
-</documentation>
-                        </annotation>
-                    </element>
-                    <element minOccurs="0" name="axialStrainAtFailure"
-                        type="diggs:PercentMeasureType"> </element>
-                    <element minOccurs="0" name="deviatorStressAtFailure"
-                        type="witsml:pressureMeasure">
-                        <annotation>
-                            <documentation/>
-                        </annotation>
-                    </element>
-                    <element minOccurs="0" name="correctedDeviatorStressAtFailure"
-                        type="witsml:pressureMeasure">
-                        <annotation>
-                            <documentation>Displacement rate for residual stress stage.</documentation>
-                        </annotation>
-                    </element>
-                    <element minOccurs="0" name="porewaterPressureAtFailure"
-                        type="witsml:pressureMeasure">
-                        <annotation>
-                            <documentation>Porewater pressure measured at failure</documentation>
-                        </annotation>
-                    </element>
-                    <element minOccurs="0" name="volumetricStrainAtFailureDrainedOnly"
-                        type="diggs:PercentMeasureType">
-                        <annotation>
-                            <documentation>Horizontal displacement at peak shear stress.</documentation>
-                        </annotation>
-                    </element>
-                    <element minOccurs="0" name="undrainedShearStrengthAtFailure"
-                        type="witsml:pressureMeasure">
-                        <annotation>
-                            <documentation/>
-                        </annotation>
-                    </element>
-                    <element minOccurs="0" name="modeOfFailure" type="diggs:DiggsStringType">
-                        <annotation>
-                            <documentation>Failure mode (eg. brittle)</documentation>
-                        </annotation>
-                    </element>
-                    <element minOccurs="0" name="failureCriterion" type="gml:CodeType">
-                        <annotation>
-                            <documentation/>
-                        </annotation>
-                    </element>
+                    <element minOccurs="0" name="saturationStage"
+                        type="diggs_geo:TriaxialTestSaturationStagePropertyType"/>
+                    <element minOccurs="0" name="consolidationStage"
+                        type="diggs_geo:TriaxialTestConsolidationStagePropertyType"/>
+                    <element minOccurs="0" name="shearStage"
+                        type="diggs_geo:TriaxialTestShearStagePropertyType"/>
                 </sequence>
             </extension>
         </complexContent>
     </complexType>
-    <complexType name="ConsolidationTestTrialType">
+    <complexType name="TriaxialTestType">
         <annotation>
-            <documentation>Base type for ConsolidationTestTrials</documentation>
+            <documentation>Base type for DirectShearTest</documentation>
         </annotation>
         <complexContent>
-            <extension base="diggs:AbstractObjectType">
+            <extension base="diggs:AbstractLaboratoryTestProcedureType">
                 <sequence>
-                    <element minOccurs="0" name="trialNo" type="integer">
+                    <element default="false" minOccurs="0" name="triaxialTestType"
+                        type="gml:CodeType">
                         <annotation>
-                            <documentation>The count of the test cycle</documentation>
+                            <documentation>Type of triaxial test (eg. CU,CD,UU,UD), Intended to come from a controlled list of terms.</documentation>
                         </annotation>
                     </element>
-                    <element minOccurs="0" name="loadingStress" type="witsml:pressureMeasure">
-                        <annotation>
-                            <documentation>The loading stress increment.</documentation>
-                        </annotation>
-                    </element>
-                    <element minOccurs="0" name="initialVoidRatio" type="double">
-                        <annotation>
-                            <documentation>Initial void ratio prior at start of increment.</documentation>
-                        </annotation>
-                    </element>
-                    <element minOccurs="0" name="finalVoidRatio" type="double">
-                        <annotation>
-                            <documentation>Final void ratio at end of increment.</documentation>
-                        </annotation>
-                    </element>
-                    <element minOccurs="0" name="endingStress" type="witsml:pressureMeasure">
-                        <annotation>
-                            <documentation>Stress at end of stress increment/decrement</documentation>
-                        </annotation>
-                    </element>
-                    <element minOccurs="0" name="coefficientOfConsolidation" type="double">
-                        <annotation>
-                            <documentation>Coefficient of consolidation for this stress increment.</documentation>
-                        </annotation>
-                    </element>
-                    <element minOccurs="0" name="coefficientOfSecondaryCompression" type="double">
-                        <annotation>
-                            <documentation>Coefficient of secondary compression over stress increment</documentation>
-                        </annotation>
-                    </element>
-                    <element minOccurs="0" name="coefficientTertiaryCompressionIncrement"
-                        type="double">
-                        <annotation>
-                            <documentation>Coefficient of tertiary compression over stress increment</documentation>
-                        </annotation>
-                    </element>
-                    <element minOccurs="0" name="coefficientOfVolumeCompressibility" type="double">
-                        <annotation>
-                            <documentation>Reported coefficient of volume compressibility over stress increment</documentation>
-                        </annotation>
-                    </element>
-                    <element minOccurs="0" name="averageTemperature"
-                        type="witsml:thermodynamicTemperatureMeasure">
-                        <annotation>
-                            <documentation>Average temperature over stress increment</documentation>
-                        </annotation>
-                    </element>
+                    <element maxOccurs="unbounded" minOccurs="0" name="trial"
+                        type="diggs_geo:TriaxialTestTrialPropertyType"/>
+                    <!-- 2015-05-01 PwD changed from type="diggs_geo:TriaxialTestTrialsType" -->
                 </sequence>
             </extension>
         </complexContent>
