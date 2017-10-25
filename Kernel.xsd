@@ -85,28 +85,22 @@
                 type</documentation>
         </annotation>
         <complexContent>
-            <extension base="diggs:AbstractObjectType">
+            <extension base="diggs:ObjectNoDescriptionType">
                 <sequence>
                     <element maxOccurs="unbounded" minOccurs="0" ref="diggs:measurementRef">
                         <annotation>
+                            <appinfo>diggs:Test, diggs:Monitor</appinfo>
                             <documentation>If the description derives from a measurement, then this
                                 element can be optionally used to point to the subject Test or
                                 Monitor feature via the xlink:href attribute</documentation>
+                            <documentation/>
                         </annotation>
                     </element>
-                    <choice>
-                        <element minOccurs="1" ref="diggs:location">
-                            <annotation>
-                                <documentation>The location of the description</documentation>
-                            </annotation>
-                        </element>
-                        <element name="locationRef" type="gml:ReferenceType" minOccurs="1">
-                            <annotation>
-                                <documentation>A reference to a Geometry object that defines the
-                                    location of this description</documentation>
-                            </annotation>
-                        </element>
-                    </choice>
+                    <element minOccurs="1" ref="diggs:location">
+                        <annotation>
+                            <documentation>The location of the description</documentation>
+                        </annotation>
+                    </element>
                     <element minOccurs="0" name="trueTopObserved" type="boolean">
                         <annotation>
                             <documentation>True or false, indicating whether the geometry of the
@@ -130,10 +124,10 @@
         </complexContent>
     </complexType>
     <element name="AbstractEquipment" abstract="true" type="diggs:AbstractEquipmentType"
-        substitutionGroup="diggs:AbstractNamedFeature"/>
+        substitutionGroup="diggs:AbstractFeature"/>
     <complexType name="AbstractEquipmentType" abstract="true">
         <complexContent>
-            <extension base="diggs:AbstractNamedFeatureType">
+            <extension base="diggs:AbstractFeatureType">
                 <sequence>
                     <element name="class" type="gml:CodeType" minOccurs="0" maxOccurs="1"/>
                     <element name="modelNumber" type="diggs:DiggsStringType" minOccurs="0"
@@ -227,7 +221,7 @@
                                 list of terms maintained by an organization.</documentation>
                         </annotation>
                     </element>
-                    <element name="associatedFileRef" type="diggs:FeatureReferenceType"
+                    <element name="associatedFile" type="diggs:AssociatedFilePropertyType"
                         minOccurs="0" maxOccurs="unbounded">
                         <annotation>
                             <appinfo source="urn:x-gml:targetElement">diggs:AssociatedFile</appinfo>
@@ -302,13 +296,13 @@
             </extension>
         </complexContent>
     </complexType>
-    <element abstract="true" name="AbstractInsituTest"
-        substitutionGroup="diggs:AbstractTestProcedure" type="diggs:AbstractInsituTestType"/>
-    <complexType abstract="false" name="AbstractInsituTestType">
+    <element abstract="true" name="AbstractInsituTestProcedure"
+        substitutionGroup="diggs:AbstractTestProcedure" type="diggs:AbstractInsituTestProcedureType"/>
+    <complexType abstract="false" name="AbstractInsituTestProcedureType">
         <complexContent>
             <extension base="diggs:AbstractTestProcedureType">
                 <sequence>
-                    <element minOccurs="0" name="testEvent" type="diggs:EventPropertyType"
+                    <element minOccurs="0" name="testEvent" type="diggs:InSituTestEventPropertyType"
                         maxOccurs="unbounded">
                         <annotation>
                             <documentation>A test event is a time-based or location-based recording
@@ -326,9 +320,9 @@
             </extension>
         </complexContent>
     </complexType>
-    <element name="AbstractLaboratoryTest" type="diggs:AbstractLaboratoryTestType"
+    <element name="AbstractLaboratoryTestProcedure" type="diggs:AbstractLaboratoryTestProcedureType"
         substitutionGroup="diggs:AbstractTestProcedure" abstract="true"/>
-    <complexType name="AbstractLaboratoryTestType" abstract="false">
+    <complexType name="AbstractLaboratoryTestProcedureType" abstract="false">
         <complexContent>
             <extension base="diggs:AbstractTestProcedureType">
                 <sequence>
@@ -336,15 +330,6 @@
                         maxOccurs="unbounded">
                         <annotation>
                             <documentation/>
-                        </annotation>
-                    </element>
-                    <element name="specimenRef" type="diggs:FeatureReferenceType" minOccurs="0"
-                        maxOccurs="unbounded">
-                        <annotation>
-                            <appinfo>diggs:Specimen</appinfo>
-                            <documentation>A property element that supports a value by reference
-                                only. The target value is indicated in the appinfo
-                                element.</documentation>
                         </annotation>
                     </element>
                 </sequence>
@@ -357,17 +342,6 @@
         <complexContent>
             <extension base="diggs:AbstractSamplingFeatureType">
                 <sequence>
-                    <element name="referencePoint" type="diggs:PointLocationPropertyType"
-                        minOccurs="1"/>
-                    <element minOccurs="0" name="referencePointAccuracy"
-                        type="diggs:LocationAccuracyPropertyType">
-                        <annotation>
-                            <documentation>Provides accuracy information for the referencePoint.
-                                Accuracy for the centerLine coordinates are specified in the
-                                linearElementAccuracy property of the LinearSpatialReferenceSystem
-                                that uses the centerLine as the linear element.</documentation>
-                        </annotation>
-                    </element>
                     <element name="centerLine" type="diggs:LinearExtentPropertyType"
                         maxOccurs="unbounded" minOccurs="1"/>
                     <element name="linearReferencing"
@@ -375,6 +349,19 @@
                         maxOccurs="unbounded"/>
                     <element minOccurs="0" name="localCoordinates"
                         type="diggs:LocalCoordinatePropertyType"/>
+                    <element minOccurs="0" name="plunge" type="witsml:planeAngleMeasure">
+                        <annotation>
+                            <documentation>For an inclined feature, the plunge angle, measured from
+                                the horizontal, positive up</documentation>
+                        </annotation>
+                    </element>
+                    <element minOccurs="0" name="bearing" type="diggs:BearingType">
+                        <annotation>
+                            <documentation>For an inclined feature, the direction of plunge,
+                                positive clockwise from the reference azimuth, as expressed in the
+                                refAzimuth attribute.</documentation>
+                        </annotation>
+                    </element>
                 </sequence>
             </extension>
         </complexContent>
@@ -447,8 +434,8 @@
                                 list of terms maintained by an organization.</documentation>
                             </annotation>
                         </element>
-                        <element maxOccurs="unbounded" minOccurs="0" name="associatedFileRef"
-                            type="diggs:FeatureReferenceType">
+                        <element maxOccurs="unbounded" minOccurs="0" name="associatedFile"
+                            type="diggs:AssociatedFilePropertyType">
                             <annotation>
                                 <appinfo source="urn:x-gml:targetElement">diggs:AssociatedFile</appinfo>
                                 <documentation>A reference to an AssociatedFile object that provides
@@ -562,19 +549,9 @@
         <complexContent>
             <extension base="diggs:AbstractSamplingFeatureType">
                 <sequence>
-                    <element name="referencePoint" type="diggs:PointLocationPropertyType"
+                    <element name="referenceEdge" type="diggs:LinearExtentPropertyType"
                         minOccurs="1"/>
-                    <element minOccurs="0" name="referencePointAccuracy"
-                        type="diggs:LocationAccuracyPropertyType">
-                        <annotation>
-                            <documentation>Provides accuracy information for the referencePoint.
-                                Accuracy for the featurePerimeter coordinates are specified in the
-                                planarElementAccuracy property of the
-                                PlanarSpatialReferenceSystem.</documentation>
-                        </annotation>
-                    </element>
-                    <element name="referenceEdge" type="gml:CurvePropertyType" minOccurs="1"/>
-                    <element name="featureExtent" type="gml:SurfacePropertyType" maxOccurs="1"
+                    <element name="featureExtent" type="diggs:SurfacePropertyType" maxOccurs="1"
                         minOccurs="0">
                         <annotation>
                             <documentation> This element defines the polygon extent of the planar
@@ -583,7 +560,7 @@
                             </documentation>
                         </annotation>
                     </element>
-                    <element name="relativeFeatureBoundary" type="gml:SurfacePropertyType"
+                    <element name="relativeFeatureBoundary" type="diggs:SurfacePropertyType"
                         maxOccurs="1" minOccurs="0">
                         <annotation>
                             <documentation> This element defines the polygon extent of the planar
@@ -595,8 +572,6 @@
                     </element>
                     <element name="planarReferencing" minOccurs="1" maxOccurs="unbounded"
                         type="diggs:VectorLinearSpatialReferenceSystemPropertyType"/>
-                    <element minOccurs="0" name="localCoordinates"
-                        type="diggs:LocalCoordinatePropertyType"/>
                 </sequence>
             </extension>
         </complexContent>
@@ -607,16 +582,7 @@
     <complexType name="AbstractPointSamplingFeatureType">
         <complexContent>
             <extension base="diggs:AbstractSamplingFeatureType">
-                <sequence>
-                    <element name="referencePoint" type="diggs:PointLocationPropertyType"/>
-                    <element minOccurs="0" name="referencePointAccuracy"
-                        type="diggs:LocationAccuracyPropertyType">
-                        <annotation>
-                            <documentation>Provides accuracy information for the reference point
-                                coordinates.</documentation>
-                        </annotation>
-                    </element>
-                </sequence>
+                <sequence> </sequence>
             </extension>
         </complexContent>
     </complexType>
@@ -661,14 +627,33 @@
                     <element maxOccurs="unbounded" minOccurs="0" ref="diggs:associatedProjectRef"/>
                     <element maxOccurs="unbounded" minOccurs="0" name="otherSamplingFeatureProperty"
                         type="diggs:ParameterPropertyType"/>
+                    <element name="referencePoint" type="diggs:PointLocationPropertyType"
+                        minOccurs="1"/>
                     <element name="locality" type="diggs:LocalityPropertyType" minOccurs="0"
                         maxOccurs="1"/>
+                    <element minOccurs="0" name="localCoordinates"
+                        type="diggs:LocalCoordinatePropertyType"/>
                 </sequence>
             </extension>
         </complexContent>
     </complexType>
     <element abstract="true" name="AbstractSimpleMetadata" type="diggs:AbstractSimpleMetadataType"/>
     <complexType abstract="true" name="AbstractSimpleMetadataType"/>
+    <element abstract="true" name="AbstractSpecimen" type="diggs:AbstractSpecimenType"/>
+    <complexType abstract="true" name="AbstractSpecimenType">
+        <annotation>
+            <documentation>gml:AbstractSpecimenType is an abstraction of a specimen to support different specimen types, based on state/type: eg. soil, liquid, gas, rock</documentation>
+        </annotation>
+        <complexContent>
+            <extension base="diggs:AbstractFeatureType">
+                <sequence>
+                    <element maxOccurs="unbounded" ref="diggs:sampleRef"/>
+                    <element minOccurs="0" name="otherSpecimenProperty"
+                        type="diggs:ParameterPropertyType" maxOccurs="unbounded"/>
+                </sequence>
+            </extension>
+        </complexContent>
+    </complexType>
     <complexType abstract="true" name="AbstractSurfaceType">
         <annotation>
             <documentation>gml:AbstractSurfaceType is an abstraction of a surface to support the
@@ -685,24 +670,13 @@
         <complexContent>
             <extension base="diggs:AbstractObjectType">
                 <sequence>
-                    <element name="method" type="diggs:SpecificationPropertyType"
+                    <element name="testProcedureMethod" type="diggs:SpecificationPropertyType"
                         maxOccurs="unbounded" minOccurs="0">
                         <annotation>
-                            <documentation/>
+                            <documentation>A property element that contains a Specification object (or reference to one) detailing the test procedure method used.</documentation>
                         </annotation>
                     </element>
-                    <element name="methodRef" type="diggs:FeatureReferenceType"
-                        maxOccurs="unbounded" minOccurs="0">
-                        <annotation>
-                            <appinfo>diggs:Specification</appinfo>
-                            <documentation>A property element that supports a value by reference
-                                only. The target value is indicated in the appinfo
-                                element.</documentation>
-                        </annotation>
-                    </element>
-                    <element name="equipment" type="diggs:EquipmentPropertyType"
-                        maxOccurs="unbounded" minOccurs="0"/>
-                    <element name="equipmentRef" type="diggs:FeatureReferenceType"
+                    <element name="testProcedureEquipment" type="diggs:EquipmentPropertyType"
                         maxOccurs="unbounded" minOccurs="0">
                         <annotation>
                             <appinfo>diggs:AbstractEquipment</appinfo>
@@ -795,6 +769,12 @@
                         <annotation>
                             <documentation>Start date/time, end date/time, and duration to advance
                                 the reported section of the borehole.</documentation>
+                        </annotation>
+                    </element>
+                    <element name="advancementRate" type="witsml:velocityMeasure" minOccurs="0"
+                        maxOccurs="1">
+                        <annotation>
+                            <documentation>The rate of advancement over the measured depth interval. This property can be used in addition to or in lieu of time.</documentation>
                         </annotation>
                     </element>
                     <element name="downwardThrust" minOccurs="0" type="witsml:forceMeasure">
@@ -920,13 +900,11 @@
         </annotation>
     </element>
     <complexType name="AssociatedFilePropertyType">
-        <complexContent>
-            <extension base="gml:AbstractMetadataPropertyType">
-                <sequence>
-                    <element ref="diggs:AssociatedFile" minOccurs="1" maxOccurs="1"/>
-                </sequence>
-            </extension>
-        </complexContent>
+        <sequence minOccurs="0">
+            <element ref="diggs:AssociatedFile" maxOccurs="1" minOccurs="1"> </element>
+        </sequence>
+        <attributeGroup ref="gml:AssociationAttributeGroup"/>
+        <attributeGroup ref="gml:OwnershipAttributeGroup"/>
     </complexType>
     <complexType name="AssociatedFileType">
         <complexContent>
@@ -1097,26 +1075,16 @@
                                 the hole during this interval</documentation>
                         </annotation>
                     </element>
-                    <element name="method" type="diggs:SpecificationPropertyType"
-                        maxOccurs="unbounded" minOccurs="0"/>
-                    <element name="methodRef" type="diggs:FeatureReferenceType"
+                    <element name="constructionMethod" type="diggs:SpecificationPropertyType"
                         maxOccurs="unbounded" minOccurs="0">
                         <annotation>
-                            <appinfo>diggs:Specification</appinfo>
-                            <documentation>A property element that supports a value by reference
-                                only. The target value is indicated in the appinfo
-                                element.</documentation>
+                            <documentation>Properties describing the method by which the borehole is constructed over this location interval</documentation>
                         </annotation>
                     </element>
-                    <element name="equipment" type="diggs:EquipmentPropertyType"
-                        maxOccurs="unbounded" minOccurs="0"/>
-                    <element name="equipmentRef" type="diggs:FeatureReferenceType"
+                    <element name="constructionEquipment" type="diggs:EquipmentPropertyType"
                         maxOccurs="unbounded" minOccurs="0">
                         <annotation>
-                            <appinfo>diggs:AbstractEquipment</appinfo>
-                            <documentation>A property element that supports a value by reference
-                                only. The target value is indicated in the appinfo
-                                element.</documentation>
+                            <documentation>A property element that contains an Equipment feature (or reference to one) that details the construction equipment used.</documentation>
                         </annotation>
                     </element>
                 </sequence>
@@ -1332,7 +1300,7 @@
                         </annotation>
                     </element>
                 </sequence>
-                <attribute name="method" type="diggs:DescriptorMethodEnumType"/>
+                <attribute name="howDetermined" type="diggs:DescriptorMethodEnumType"/>
             </extension>
         </complexContent>
     </complexType>
@@ -1344,8 +1312,10 @@
     </element>
     <complexType name="BusinessAssociatePropertyType">
         <sequence>
-            <element ref="diggs:BusinessAssociate" minOccurs="1" maxOccurs="1"/>
+            <element ref="diggs:BusinessAssociate" minOccurs="0" maxOccurs="1"/>
         </sequence>
+        <attributeGroup ref="gml:AssociationAttributeGroup"/>
+        <attributeGroup ref="gml:OwnershipAttributeGroup"/>
     </complexType>
     <complexType name="BusinessAssociateType">
         <complexContent>
@@ -1358,8 +1328,8 @@
                         maxOccurs="unbounded"/>
                     <element name="phoneNumber" type="diggs:PhoneType" minOccurs="0"
                         maxOccurs="unbounded"/>
-                    <element name="associatedWith" type="gml:ReferenceType" minOccurs="0"
-                        maxOccurs="unbounded">
+                    <element name="associatedWithRef" type="diggs:FeatureReferenceType"
+                        minOccurs="0" maxOccurs="unbounded">
                         <annotation>
                             <appinfo source="urn:x-gml:targetElement">diggs:BusinessAssociate</appinfo>
                             <documentation>A property element that supports a value by reference
@@ -1425,49 +1395,38 @@
         <complexContent>
             <extension base="diggs:AbstractObjectType">
                 <sequence>
-                    <element minOccurs="0" name="sourceCustodianRef"
-                        type="diggs:FeatureReferenceType">
+                    <element minOccurs="0" name="sourceCustodian"
+                        type="diggs:BusinessAssociatePropertyType">
                         <annotation>
                             <documentation> A reference to the BusinessAssociate object that is releasing custody of the sample.</documentation>
                         </annotation>
                     </element>
-                    <element minOccurs="0" name="destinationCustodianRef"
-                        type="diggs:FeatureReferenceType">
+                    <element minOccurs="0" name="destinationCustodian"
+                        type="diggs:BusinessAssociatePropertyType">
                         <annotation>
                             <documentation> A reference to the BusinessAssociate object that is receiving
                                 custody of the sample.</documentation>
                         </annotation>
                     </element>
-                    <element minOccurs="0" name="dateSent" type="diggs:UnifiedDateTimeType">
+                    <element minOccurs="0" name="dateInitiated" type="diggs:UnifiedDateTimeType">
                         <annotation>
-                            <documentation><![CDATA[Date that sample was shipped]]></documentation>
+                            <documentation><![CDATA[Date that sample was shipped or date that chain of custody event was initiated]]></documentation>
                         </annotation>
                     </element>
-                    <element name="dateReceived" type="diggs:UnifiedDateTimeType" minOccurs="0">
+                    <element name="dateCompleted" type="diggs:UnifiedDateTimeType" minOccurs="0">
                         <annotation>
-                            <documentation><![CDATA[Date that sample was received]]></documentation>
+                            <documentation><![CDATA[Date that sample was received or date that chain of custody event was completed]]></documentation>
                         </annotation>
                     </element>
-                    <element minOccurs="0" name="shippingContainerId" type="diggs:DiggsStringType">
+                    <element minOccurs="0" name="sampleContainer" type="diggs:ContainerPropertyType">
                         <annotation>
-                            <documentation><![CDATA[An identifier for the container that the sample containers are transported in.]]></documentation>
+                            <documentation><![CDATA[Information about the sample container, if repackaged from the initial container.]]></documentation>
                         </annotation>
                     </element>
-                    <element minOccurs="0" name="containerType" type="gml:CodeType">
+                    <element minOccurs="0" name="shippingContainer"
+                        type="diggs:ContainerPropertyType">
                         <annotation>
-                            <documentation>Description of container for the sample; intended to be
-                                derived from a controlled list.
-                                Example:<![CDATA[Jar, Bucket, Vial, Bag]]></documentation>
-                        </annotation>
-                    </element>
-                    <element minOccurs="0" name="containerLabel" type="diggs:DiggsStringType">
-                        <annotation>
-                            <documentation>Identifier for the sample container</documentation>
-                        </annotation>
-                    </element>
-                    <element minOccurs="0" name="preservativeAdded" type="gml:CodeType">
-                        <annotation>
-                            <documentation>Example:<![CDATA[The type of preservative added to sample, if any.]]></documentation>
+                            <documentation><![CDATA[Information about the container that the sample containers are transported in.]]></documentation>
                         </annotation>
                     </element>
                 </sequence>
@@ -1860,6 +1819,8 @@
         <sequence>
             <element ref="diggs:Container" maxOccurs="1" minOccurs="1"/>
         </sequence>
+        <attributeGroup ref="gml:AssociationAttributeGroup"/>
+        <attributeGroup ref="gml:OwnershipAttributeGroup"/>
     </complexType>
     <complexType name="ContainerType">
         <complexContent>
@@ -1897,6 +1858,11 @@
                             <documentation>Description of container for the sample; intended to be
                                 derived from a controlled list.
                                 Example:<![CDATA[Jar, Bucket, Vial, Bag, Box]]></documentation>
+                        </annotation>
+                    </element>
+                    <element minOccurs="0" name="preservativeAdded" type="gml:CodeType">
+                        <annotation>
+                            <documentation>Example:<![CDATA[The type of preservative added to sample, if any.]]></documentation>
                         </annotation>
                     </element>
                 </sequence>
@@ -2029,7 +1995,7 @@
     <complexType name="DescriptorCodeType">
         <simpleContent>
             <extension base="gml:CodeType">
-                <attribute name="method" type="diggs:DescriptorMethodEnumType"/>
+                <attribute name="howDetermined" type="diggs:DescriptorMethodEnumType"/>
             </extension>
         </simpleContent>
     </complexType>
@@ -2060,6 +2026,13 @@
             <enumeration value="visual"/>
         </restriction>
     </simpleType>
+    <complexType name="DescriptorValueType" abstract="false">
+        <simpleContent>
+            <extension base="double">
+                <attribute name="howDetermined" type="diggs:DescriptorMethodEnumType"/>
+            </extension>
+        </simpleContent>
+    </complexType>
     <element abstract="false" name="Detector" substitutionGroup="diggs:AbstractObject"
         type="diggs:DetectorType">
         <annotation>
@@ -2076,22 +2049,12 @@
         <complexContent>
             <extension base="diggs:AbstractObjectType">
                 <sequence>
-                    <choice>
-                        <element minOccurs="0" name="detectorLocation"
-                            type="diggs:LocationPropertyType">
-                            <annotation>
-                                <documentation>The location that the detector measures (eg response
+                    <element minOccurs="0" name="detectorLocation" type="diggs:LocationPropertyType">
+                        <annotation>
+                            <documentation>The location that the detector measures (eg response
                                     zone of the detector)</documentation>
-                            </annotation>
-                        </element>
-                        <element name="detectorLocationRef" type="gml:ReferenceType" minOccurs="0">
-                            <annotation>
-                                <documentation>The location of the description referenced to the
-                                    sampling feature's or sample's linear spatial reference
-                                    system.</documentation>
-                            </annotation>
-                        </element>
-                    </choice>
+                        </annotation>
+                    </element>
                     <element maxOccurs="1" minOccurs="0" name="measurand"
                         type="diggs:CodeWithAuthorityType">
                         <annotation>
@@ -2127,6 +2090,15 @@
     <simpleType name="diggsDensityOrUnitWeightUom">
         <union memberTypes="diggs:geotechnicalDensityUom witsml:densityUom witsml:forcePerVolumeUom"
         />
+    </simpleType>
+    <simpleType name="DimensionMeasurementTechniqueEnumType">
+        <restriction base="string">
+            <enumeration value="Calipers"/>
+            <enumeration value="PI-tape"/>
+        </restriction>
+    </simpleType>
+    <simpleType name="DimensionMeasurementTechniqueType">
+        <union memberTypes="diggs:DimensionMeasurementTechniqueEnumType diggs:OtherNameType"/>
     </simpleType>
     <complexType name="DensityOrUnitWeightMeasureType">
         <simpleContent>
@@ -2179,13 +2151,7 @@
                         type="diggs:AbstractMeasurementPropertyType" maxOccurs="unbounded"/>
                     <element name="group" type="diggs:GroupPropertyType" minOccurs="0"
                         maxOccurs="unbounded"/>
-                    <element name="associatedFile" type="diggs:AssociatedFilePropertyType"
-                        minOccurs="0" maxOccurs="unbounded"/>
                     <element name="businessAssociate" type="diggs:BusinessAssociatePropertyType"
-                        minOccurs="0" maxOccurs="unbounded"/>
-                    <element name="equipment" type="diggs:EquipmentPropertyType" minOccurs="0"
-                        maxOccurs="unbounded"/>
-                    <element name="specification" type="diggs:SpecificationPropertyType"
                         minOccurs="0" maxOccurs="unbounded"/>
                 </sequence>
                 <attribute ref="xml:lang"/>
@@ -2271,7 +2237,7 @@
                                 instance was last added to or modified.</documentation>
                         </annotation>
                     </element>
-                    <element name="authorRef" type="diggs:FeatureReferenceType" minOccurs="0"
+                    <element name="author" type="diggs:BusinessAssociateType" minOccurs="0"
                         maxOccurs="unbounded">
                         <annotation>
                             <appinfo source="urn:x-gml:targetElement">diggs:BusinessAssociate</appinfo>
@@ -2378,11 +2344,6 @@
             <enumeration value="kWh/L"/>
         </restriction>
     </simpleType>
-    <complexType name="EventPropertyType">
-        <sequence>
-            <element ref="diggs:AbstractEvent" minOccurs="1" maxOccurs="1"/>
-        </sequence>
-    </complexType>
     <element name="Environment" type="diggs:EnvironmentType"
         substitutionGroup="diggs:AbstractObject" abstract="false"/>
     <complexType name="EnvironmentPropertyType">
@@ -2412,8 +2373,10 @@
         abstract="false"/>
     <complexType name="EquipmentPropertyType">
         <sequence>
-            <element ref="diggs:AbstractEquipment" maxOccurs="1" minOccurs="1"/>
+            <element ref="diggs:AbstractEquipment" maxOccurs="1" minOccurs="0"/>
         </sequence>
+        <attributeGroup ref="gml:AssociationAttributeGroup"/>
+        <attributeGroup ref="gml:OwnershipAttributeGroup"/>
     </complexType>
     <complexType name="EquipmentType">
         <complexContent>
@@ -2614,6 +2577,25 @@
                                 slag</documentation>
                         </annotation>
                     </element>
+                </sequence>
+            </extension>
+        </complexContent>
+    </complexType>
+    <element name="FluidSpecimen" type="diggs:FluidSpecimenType"
+        substitutionGroup="diggs:AbstractSpecimen">
+        <annotation>
+            <documentation>An object that describes the physical conditions of a fluid specimen subjected testing</documentation>
+        </annotation>
+    </element>
+    <complexType name="FluidSpecimenType">
+        <complexContent>
+            <extension base="diggs:AbstractSpecimenType">
+                <sequence>
+                    <element minOccurs="0" name="dilutionFactor" type="witsml:unitlessQuantity"/>
+                    <element minOccurs="0" name="leachatePreparationDateTime"
+                        type="diggs:UnifiedDateTimeType"/>
+                    <element minOccurs="0" name="leachatePreparationMethod"
+                        type="diggs:SpecificationPropertyType"/>
                 </sequence>
             </extension>
         </complexContent>
@@ -2849,7 +2831,8 @@
                         </annotation>
                     </element>
                 </sequence>
-                <attribute form="unqualified" name="method" type="diggs:DescriptorMethodEnumType"/>
+                <attribute form="unqualified" name="howDetermined"
+                    type="diggs:DescriptorMethodEnumType"/>
             </extension>
         </complexContent>
     </complexType>
@@ -2948,6 +2931,60 @@
             </extension>
         </simpleContent>
     </complexType>
+    <element name="InSituTestEvent" type="diggs:InSituTestEventType"
+        substitutionGroup="diggs:AbstractEvent">
+        <annotation>
+            <documentation>An object detailing a time or depth-based event that may occur during an in-situ test</documentation>
+        </annotation>
+    </element>
+    <complexType name="InSituTestEventPropertyType">
+        <sequence>
+            <element ref="diggs:InSituTestEvent"/>
+        </sequence>
+    </complexType>
+    <complexType name="InSituTestEventType">
+        <complexContent>
+            <extension base="diggs:AbstractEventType">
+                <sequence/>
+            </extension>
+        </complexContent>
+    </complexType>
+    <element name="IntactSpecimenPreparationInfo" type="diggs:IntactSpecimenPreparationInfoType"
+        substitutionGroup="diggs:AbstractObject"> </element>
+    <complexType name="IntactSpecimenPreparationInfoPropertyType">
+        <sequence>
+            <element ref="diggs:IntactSpecimenPreparationInfo"/>
+        </sequence>
+    </complexType>
+    <complexType name="IntactSpecimenPreparationInfoType">
+        <complexContent>
+            <extension base="diggs:AbstractObjectType">
+                <sequence>
+                    <element minOccurs="0" name="IntactSpecimenType"
+                        type="diggs:IntactSpecimenTypeType"/>
+                    <element minOccurs="0" name="specimenTrimmedInWetRoom" type="boolean">
+                        <annotation>
+                            <documentation>For trimmed intact specimens, true if trimming occurs in a wet room.</documentation>
+                        </annotation>
+                    </element>
+                </sequence>
+            </extension>
+        </complexContent>
+    </complexType>
+    <simpleType name="IntactSpecimenTypeEnumType">
+        <restriction base="string">
+            <enumeration value="extruded"/>
+            <enumeration value="sub-sampled"/>
+            <enumeration value="trimmed">
+                <annotation>
+                    <documentation>Short integer data value.</documentation>
+                </annotation>
+            </enumeration>
+        </restriction>
+    </simpleType>
+    <simpleType name="IntactSpecimenTypeType">
+        <union memberTypes="diggs:IntactSpecimenTypeEnumType diggs:OtherNameType"/>
+    </simpleType>
     <simpleType name="IntegerEnumType">
         <restriction base="string">
             <enumeration value="integer">
@@ -3028,21 +3065,14 @@
         <complexContent>
             <extension base="diggs:AbstractRelativeReferenceSystemType">
                 <sequence>
-                    <element minOccurs="0" name="linearElementAccuracy"
-                        type="diggs:LocationAccuracyPropertyType">
+                    <element minOccurs="0" name="linearReferencingMethodUncertainty"
+                        type="diggs:UncertaintyPropertyType">
                         <annotation>
-                            <documentation>Provides accuracy information for the linear element
-                                referenced by this reference system.</documentation>
-                        </annotation>
-                    </element>
-                    <element minOccurs="0" name="linearReferencingMethodAccuracy"
-                        type="diggs:LocationAccuracyPropertyType">
-                        <annotation>
-                            <documentation>Provides accuracy information for the location (geometry)
+                            <documentation>Provides accuracy value (usually a length measure) for the location (geometry)
                                 elements that use this linear reference system for their SRS. For
                                 example, for depths in a hole, this property could provide
                                 information as to the source and accuracy of depth values that
-                                relate to this reference system.</documentation>
+                                relate to this reference system. If individual elements that refer to this reference system have different uncertainties, those uncertainties are reported within those elements themselves.</documentation>
                         </annotation>
                     </element>
                 </sequence>
@@ -3059,6 +3089,8 @@
             <element ref="gml:coordinates"/>
             -->
                     </choice>
+                    <element minOccurs="0" name="uncertainty"
+                        type="diggs:LocationUncertaintyPropertyType"/>
                 </sequence>
             </extension>
         </complexContent>
@@ -3150,7 +3182,7 @@
             <documentation/>
         </annotation>
         <complexContent>
-            <extension base="diggs:AbstractObjectType">
+            <extension base="diggs:ObjectNoDescriptionType">
                 <sequence>
                     <choice>
                         <sequence>
@@ -3273,30 +3305,22 @@
                                 feature</documentation>
                         </annotation>
                     </element>
-                    <element minOccurs="0" name="referenceAzimuth" type="witsml:AziRef">
-                        <annotation>
-                            <documentation>Reference azimuth for the northing and easting values,
-                                from an enumerated list: magnetic north, grid north, true north,
-                                unknown </documentation>
-                        </annotation>
-                    </element>
                     <element minOccurs="0" name="elevation" type="witsml:lengthMeasure">
                         <annotation>
                             <documentation>Elevation value for the feature, positive
                                 up</documentation>
                         </annotation>
                     </element>
-                    <element minOccurs="0" name="plunge" type="witsml:planeAngleMeasure">
+                    <element minOccurs="0" name="localCoodinateUncertainty"
+                        type="diggs:LocationUncertaintyPropertyType">
                         <annotation>
-                            <documentation>For an inclined feature, the plunge angle, measured from
-                                the horizontal, positive up</documentation>
+                            <documentation>Elevation value for the feature, positive
+                                up</documentation>
                         </annotation>
                     </element>
-                    <element minOccurs="0" name="bearing" type="diggs:BearingType">
+                    <element minOccurs="0" name="originAxisAzimuth" type="diggs:BearingType">
                         <annotation>
-                            <documentation>For an inclined feature, the direction of plunge,
-                                positive clockwise from the reference azimuth, as expressed in the
-                                refAzimuth attribute.</documentation>
+                            <documentation>Origin axis azimuth for the northing and easting values, reported as a bearing, positive clockwise from the reference aziumuth reported in the refAzimuth attribute.</documentation>
                         </annotation>
                     </element>
                 </sequence>
@@ -3391,32 +3415,6 @@
         </complexContent>
     </complexType>
     <element name="location" substitutionGroup="gml:domainSet" type="diggs:LocationPropertyType"> </element>
-    <element name="LocationAccuracy" substitutionGroup="diggs:AbstractSimpleMetadata"
-        type="diggs:LocationAccuracyType">
-        <annotation>
-            <documentation>Closeness of reported coordinate or relative distance values to values
-                accepted as or being true.</documentation>
-        </annotation>
-    </element>
-    <complexType name="LocationAccuracyPropertyType">
-        <complexContent>
-            <extension base="gml:AbstractMetadataPropertyType">
-                <sequence>
-                    <element ref="diggs:LocationAccuracy"/>
-                </sequence>
-            </extension>
-        </complexContent>
-    </complexType>
-    <complexType name="LocationAccuracyType">
-        <complexContent>
-            <extension base="diggs:AbstractSimpleMetadataType">
-                <sequence>
-                    <element minOccurs="0" name="measurementMethod" type="gml:CodeType"/>
-                    <element minOccurs="0" name="result" type="gml:MeasureType"/>
-                </sequence>
-            </extension>
-        </complexContent>
-    </complexType>
     <complexType name="LocationPropertyType">
         <complexContent>
             <restriction base="gml:DomainSetType">
@@ -3433,6 +3431,43 @@ DSB: REMOVED FROM PROFILE
                 <attributeGroup ref="gml:OwnershipAttributeGroup"/>
                 <attributeGroup ref="gml:AssociationAttributeGroup"/>
             </restriction>
+        </complexContent>
+    </complexType>
+    <element name="LocationUncertainty" type="diggs:LocationUncertaintyType"
+        substitutionGroup="diggs:AbstractObject" abstract="false"/>
+    <complexType name="LocationUncertaintyPropertyType">
+        <sequence>
+            <element ref="diggs:LocationUncertainty" minOccurs="1" maxOccurs="1">
+                <annotation>
+                    <documentation>The Accuracy object contains properties to define the accuracy of a location value or measurement</documentation>
+                </annotation>
+            </element>
+        </sequence>
+    </complexType>
+    <complexType name="LocationUncertaintyType">
+        <complexContent>
+            <extension base="diggs:AbstractObjectType">
+                <sequence>
+                    <element minOccurs="0" name="xValueUncertainty"
+                        type="diggs:UncertaintyPropertyType">
+                        <annotation>
+                            <documentation>Uncertainty for the x value of a location coordinate.</documentation>
+                        </annotation>
+                    </element>
+                    <element minOccurs="0" name="yValueUncertainty"
+                        type="diggs:UncertaintyPropertyType">
+                        <annotation>
+                            <documentation>Uncertainty for the y value of a location coordinate, applicable to 2D or 3D SRS'</documentation>
+                        </annotation>
+                    </element>
+                    <element minOccurs="0" name="zValueUncertainty"
+                        type="diggs:UncertaintyPropertyType">
+                        <annotation>
+                            <documentation>Uncertainty for the z value of a location coordinate, applicable to 3D SRS'</documentation>
+                        </annotation>
+                    </element>
+                </sequence>
+            </extension>
         </complexContent>
     </complexType>
     <simpleType name="MaterialEnumType">
@@ -3534,6 +3569,8 @@ DSB: REMOVED FROM PROFILE
             <extension base="diggs:AbstractGeometricAggregateType">
                 <sequence>
                     <element maxOccurs="unbounded" minOccurs="0" ref="gml:curveMember"/>
+                    <element minOccurs="0" name="uncertainty"
+                        type="diggs:LocationUncertaintyPropertyType"/>
                 </sequence>
             </extension>
         </complexContent>
@@ -3558,6 +3595,39 @@ DSB: REMOVED FROM PROFILE
                 <attribute name="reason" type="gml:NilReasonType" use="optional"/>
             </extension>
         </simpleContent>
+    </complexType>
+    <complexType name="ObjectNoDescriptionType" mixed="false">
+        <annotation>
+            <documentation/>
+        </annotation>
+        <complexContent>
+            <restriction base="diggs:AbstractObjectType">
+                <sequence>
+                    <sequence>
+                        <element minOccurs="0" ref="gml:identifier"/>
+                    </sequence>
+                    <sequence>
+                        <element minOccurs="0" name="status" type="gml:CodeType">
+                            <annotation>
+                                <documentation>A text string to provide information about the status of
+                                the object to be used to track QA/QC controls, review or release
+                                status, etc. The values used are intended to come from a controlled
+                                list of terms maintained by an organization.</documentation>
+                            </annotation>
+                        </element>
+                        <element maxOccurs="unbounded" minOccurs="0" name="remark"
+                            type="diggs:RemarkPropertyType">
+                            <annotation>
+                                <documentation>Any comment or remark associated with this specific
+                                object.</documentation>
+                            </annotation>
+                        </element>
+                    </sequence>
+                </sequence>
+                <attribute ref="gml:id" use="required"/>
+                <attribute ref="xml:lang"/>
+            </restriction>
+        </complexContent>
     </complexType>
     <element abstract="false" name="Observations" substitutionGroup="diggs:AbstractObject"
         type="diggs:ObservationsType">
@@ -3742,7 +3812,7 @@ DSB: REMOVED FROM PROFILE
                 <sequence>
                     <element name="otherSystemType" type="gml:CodeType">
                         <annotation>
-                            <documentation>The kind of "Other Description" system described.
+                            <documentation>The kind of "Other Observation" system described.
                             </documentation>
                         </annotation>
                     </element>
@@ -3858,7 +3928,7 @@ DSB: REMOVED FROM PROFILE
                     <element maxOccurs="unbounded" minOccurs="0" name="otherParticleSizeProperty"
                         type="diggs:ParameterPropertyType"/>
                 </sequence>
-                <attribute name="method" type="diggs:DescriptorMethodEnumType">
+                <attribute name="howDetermined" type="diggs:DescriptorMethodEnumType">
                     <annotation>
                         <documentation>A value that describes the method by which the lithology was
                             determined. Allowed values are: - inferred; estimated from some indirect
@@ -3881,20 +3951,21 @@ DSB: REMOVED FROM PROFILE
     </complexType>
     <complexType name="ParticleSizeType">
         <complexContent>
-            <extension base="diggs:AbstractObjectType">
+            <extension base="diggs:ObjectNoDescriptionType">
                 <choice>
                     <annotation>
-                        <documentation>Either value or descriptor should be present. Both are
+                        <documentation>Either particleSizeValue or particalSizeDescription should be present. Both are
                             allowed.</documentation>
                     </annotation>
                     <sequence>
-                        <element name="value" type="diggs:ParticleSizeValueType" minOccurs="1">
+                        <element name="particleSizeValue" type="diggs:ParticleSizeValueType"
+                            minOccurs="1">
                             <annotation>
                                 <documentation>A numeric value for the particle size, in length
                                     units such as mm diameter, or phi.</documentation>
                             </annotation>
                         </element>
-                        <element name="descriptor" type="gml:CodeType" minOccurs="0">
+                        <element name="particleSizeDescription" type="gml:CodeType" minOccurs="0">
                             <annotation>
                                 <documentation>A text description for the particle size, such as
                                     "very fine sand", etc.</documentation>
@@ -3902,7 +3973,7 @@ DSB: REMOVED FROM PROFILE
                         </element>
                     </sequence>
                     <sequence>
-                        <element name="descriptor" type="gml:CodeType" minOccurs="1">
+                        <element name="particleSizeDescription" type="gml:CodeType" minOccurs="1">
                             <annotation>
                                 <documentation>A text description for the particle size, such as
                                     "very fine sand", etc.</documentation>
@@ -3925,13 +3996,6 @@ DSB: REMOVED FROM PROFILE
         <simpleContent>
             <extension base="double">
                 <attribute name="uom" type="diggs:particleSizeUom" use="required"/>
-            </extension>
-        </simpleContent>
-    </complexType>
-    <complexType name="PercentDoubleType">
-        <simpleContent>
-            <extension base="double">
-                <attribute name="uom" type="witsml:PercentUom" use="required"/>
             </extension>
         </simpleContent>
     </complexType>
@@ -4106,6 +4170,12 @@ DSB: REMOVED FROM PROFILE
                     <choice>
                         <element ref="gml:pos"/>
                     </choice>
+                    <element minOccurs="0" name="uncertainty"
+                        type="diggs:LocationUncertaintyPropertyType">
+                        <annotation>
+                            <documentation>Provides accuracy information for the referencePoint.</documentation>
+                        </annotation>
+                    </element>
                 </sequence>
             </extension>
         </complexContent>
@@ -4116,32 +4186,8 @@ DSB: REMOVED FROM PROFILE
                 <sequence>
                     <element minOccurs="0" ref="gml:exterior"/>
                     <element maxOccurs="unbounded" minOccurs="0" ref="gml:interior"/>
-                </sequence>
-            </extension>
-        </complexContent>
-    </complexType>
-    <element name="PostStrikeReading" substitutionGroup="diggs:AbstractObject"
-        type="diggs:PostStrikeReadingType"/>
-    <complexType name="PostStrikeReadingPropertyType">
-        <sequence maxOccurs="1" minOccurs="1">
-            <element ref="diggs:PostStrikeReading"/>
-        </sequence>
-    </complexType>
-    <complexType name="PostStrikeReadingType">
-        <complexContent>
-            <extension base="diggs:AbstractObjectType">
-                <sequence>
-                    <element name="timeFollowingStrike" type="witsml:timeMeasure">
-                        <annotation>
-                            <documentation><![CDATA[The time following initial water strike when water level is again measured]]></documentation>
-                        </annotation>
-                    </element>
-                    <element name="waterDepth" type="diggs:PointLocationPropertyType">
-                        <annotation>
-                            <documentation>The measure depth to water; measured in a hole's linear
-                                referencing system.</documentation>
-                        </annotation>
-                    </element>
+                    <element minOccurs="0" name="uncertainty"
+                        type="diggs:LocationUncertaintyPropertyType"/>
                 </sequence>
             </extension>
         </complexContent>
@@ -4168,7 +4214,9 @@ DSB: REMOVED FROM PROFILE
     </complexType>
     <complexType name="ProjectEventType">
         <complexContent>
-            <extension base="diggs:AbstractEventType"/>
+            <extension base="diggs:AbstractEventType">
+                <sequence/>
+            </extension>
         </complexContent>
     </complexType>
     <element name="ProjectGroup" substitutionGroup="diggs:AbstractGroup"
@@ -4506,19 +4554,57 @@ DSB: REMOVED FROM PROFILE
                     </element>
                     <element name="sensor" type="diggs:SensorPropertyType" maxOccurs="unbounded"
                         minOccurs="0"/>
-                    <element name="sensorRef" type="diggs:FeatureReferenceType"
-                        maxOccurs="unbounded" minOccurs="0">
+                </sequence>
+            </extension>
+        </complexContent>
+    </complexType>
+    <element name="ReconstitutedSpecimenPreparationInfo"
+        type="diggs:ReconstitutedSpecimenPreparationInfoType"
+        substitutionGroup="diggs:AbstractObject"> </element>
+    <complexType name="ReconstitutedSpecimenPreparationInfoPropertyType">
+        <sequence>
+            <element ref="diggs:ReconstitutedSpecimenPreparationInfo"/>
+        </sequence>
+    </complexType>
+    <complexType name="ReconstitutedSpecimenPreparationInfoType">
+        <complexContent>
+            <extension base="diggs:AbstractObjectType">
+                <sequence>
+                    <element minOccurs="0" name="compactorType"
+                        type="diggs:ReconstitutedSpecimenCompactorType">
                         <annotation>
-                            <appinfo>diggs:Sensor</appinfo>
-                            <documentation>A property element that supports a value by reference
-                                only. The target value is indicated in the appinfo
-                                element.</documentation>
+                            <documentation>Type of compactor used, from an enumerated list: Drop hammer, Harvard miniature, Static rod, Other: (with uncontrolled string following colon).</documentation>
+                        </annotation>
+                    </element>
+                    <element minOccurs="0" name="numberOfLifts" type="witsml:positiveCount">
+                        <annotation>
+                            <documentation>Type of compactor used, from an enumerated list: Drop hammer, Harvard miniature, Static rod, Other: (with uncontrolled string following colon).</documentation>
+                        </annotation>
+                    </element>
+                    <element minOccurs="0" name="relativeCompaction" type="diggs:PercentMeasureType"/>
+                    <element minOccurs="0" name="waterContentRelativeToOptimum" type="double">
+                        <annotation>
+                            <documentation>Water content relative to optimum water content, expressed as decimal (eg. water content at optimum = 1)</documentation>
                         </annotation>
                     </element>
                 </sequence>
             </extension>
         </complexContent>
     </complexType>
+    <simpleType name="ReconstitutedSpecimenCompactorEnumType">
+        <restriction base="string">
+            <enumeration value="Drop hammer"/>
+            <enumeration value="Harvard miniature"/>
+            <enumeration value="Static rod">
+                <annotation>
+                    <documentation>Short integer data value.</documentation>
+                </annotation>
+            </enumeration>
+        </restriction>
+    </simpleType>
+    <simpleType name="ReconstitutedSpecimenCompactorType">
+        <union memberTypes="diggs:ReconstitutedSpecimenCompactorEnumType diggs:OtherNameType"/>
+    </simpleType>
     <element name="Remark" type="diggs:RemarkType" substitutionGroup="diggs:AbstractSimpleMetadata"
         abstract="false"/>
     <complexType name="RemarkPropertyType">
@@ -4535,7 +4621,7 @@ DSB: REMOVED FROM PROFILE
             <extension base="diggs:AbstractSimpleMetadataType">
                 <sequence>
                     <element name="content" type="diggs:DiggsStringType" minOccurs="1" maxOccurs="1"/>
-                    <element name="authorRef" type="diggs:FeatureReferenceType"
+                    <element name="author" type="diggs:BusinessAssociatePropertyType"
                         maxOccurs="unbounded" minOccurs="0">
                         <annotation>
                             <appinfo>diggs:BusinessAssociate</appinfo>
@@ -4600,7 +4686,7 @@ DSB: REMOVED FROM PROFILE
                         minOccurs="0" maxOccurs="1"/>
                     <element name="remark" type="diggs:RemarkPropertyType" minOccurs="0"
                         maxOccurs="unbounded"/>
-                    <element name="businessAssociateRef" type="diggs:FeatureReferenceType"
+                    <element name="businessAssociate" type="diggs:BusinessAssociatePropertyType"
                         maxOccurs="1" minOccurs="1">
                         <annotation>
                             <appinfo>diggs:BusinessAssociate</appinfo>
@@ -4634,7 +4720,7 @@ DSB: REMOVED FROM PROFILE
             </extension>
         </complexContent>
     </complexType>
-    <element name="sampleRef" type="diggs:FeatureReferenceType">
+    <element name="sampleRef" type="diggs:FractionalReferenceType">
         <annotation>
             <appinfo source="urn:x-gml:targetElement">Diggs:Sample</appinfo>
             <documentation>A reference to a sample that is associated with this feature. </documentation>
@@ -4642,7 +4728,8 @@ DSB: REMOVED FROM PROFILE
                 value is indicated in the appinfo element.</documentation>
         </annotation>
     </element>
-    <element name="SampleProduced" type="diggs:SampleProducedType"/>
+    <element name="SampleProduced" type="diggs:SampleProducedType"
+        substitutionGroup="diggs:AbstractObject"/>
     <element name="sampleProducedRef" type="diggs:FeatureReferenceType">
         <annotation>
             <appinfo source="urn:x-gml:targetElement">Diggs:SampleProduced</appinfo>
@@ -4667,7 +4754,57 @@ DSB: REMOVED FROM PROFILE
         <complexContent>
             <extension base="diggs:AbstractObjectType">
                 <sequence>
-                    <element minOccurs="1" ref="diggs:location"/>
+                    <element ref="diggs:sampleRef"/>
+                    <element minOccurs="0" ref="diggs:location"/>
+                </sequence>
+            </extension>
+        </complexContent>
+    </complexType>
+    <complexType name="SamplePropertyType">
+        <sequence>
+            <element maxOccurs="1" minOccurs="1" ref="diggs:Sample"/>
+        </sequence>
+    </complexType>
+    <complexType name="SampleType">
+        <complexContent>
+            <extension base="diggs:AbstractNamedFeatureType">
+                <sequence>
+                    <element name="projectRef" type="diggs:FeatureReferenceType" minOccurs="1">
+                        <annotation>
+                            <documentation/>
+                        </annotation>
+                    </element>
+                    <element ref="diggs:samplingActivityRef"/>
+                    <element name="sampleProducedRef" type="gml:ReferenceType" minOccurs="1">
+                        <annotation>
+                            <documentation/>
+                        </annotation>
+                    </element>
+                    <element minOccurs="0" name="sampleLocationRef" type="gml:ReferenceType">
+                        <annotation>
+                            <documentation>A direct reference to the sample location object stored
+                                in the SampleActivity feature. This is not a mandatory property, as
+                                the sample location can be obtained through the required
+                                sampleProducedRef property. However, it should be used if  sample
+                                records without borehole or samplingActivity information are sent to
+                                a laboratory or other third party for testing or analysis, as the
+                                reference can be returned back in description or measurement
+                                records.</documentation>
+                        </annotation>
+                    </element>
+                    <element name="relativeReferencingSystem"
+                        type="diggs:AbstractRelativeReferenceSystemPropertyType" minOccurs="0"
+                        maxOccurs="1">
+                        <annotation>
+                            <documentation>For a core or block sample, this property can be used to
+                                introduce a relative spatial reference system for describing the
+                                sample relative to a position on the sample instead of relative to
+                                the sampling feature's origin. In this case, the linearElement
+                                property of LinearSpatialReferenceSystem or
+                                VectorLinearSpatialReferenceSystem would reference the sample's
+                                location instead of the sampling feature's. </documentation>
+                        </annotation>
+                    </element>
                     <element minOccurs="0" name="classification" type="gml:CodeType">
                         <annotation>
                             <documentation>A definition of the class of sample collected, such as
@@ -4675,9 +4812,10 @@ DSB: REMOVED FROM PROFILE
                                 list.</documentation>
                         </annotation>
                     </element>
-                    <element minOccurs="0" name="container" type="diggs:ContainerPropertyType">
+                    <element minOccurs="0" name="condition" type="diggs:DiggsStringType">
                         <annotation>
-                            <documentation/>
+                            <documentation>A description of the sample condition; uncontrolled
+                                string</documentation>
                         </annotation>
                     </element>
                     <choice minOccurs="0">
@@ -4701,68 +4839,10 @@ DSB: REMOVED FROM PROFILE
                             </annotation>
                         </element>
                     </choice>
-                </sequence>
-            </extension>
-        </complexContent>
-    </complexType>
-    <complexType name="SamplePropertyType">
-        <sequence>
-            <element maxOccurs="1" minOccurs="1" ref="diggs:Sample"/>
-        </sequence>
-    </complexType>
-    <complexType name="SampleType">
-        <complexContent>
-            <extension base="diggs:AbstractNamedFeatureType">
-                <sequence>
-                    <element ref="diggs:samplingActivityRef"/>
-                    <element name="sampleProducedRef" type="gml:ReferenceType" minOccurs="1">
+                    <element minOccurs="0" name="initialContainer"
+                        type="diggs:ContainerPropertyType">
                         <annotation>
                             <documentation/>
-                        </annotation>
-                    </element>
-                    <element minOccurs="0" name="sampleLocationRef" type="gml:ReferenceType">
-                        <annotation>
-                            <documentation>A direct reference to the sample location object stored
-                                in the SampleActivity feature. This is not a mandatory property, as
-                                the sample location can be obtained through the required
-                                sampleProducedRef property. However, it should be used if the sample
-                                records without borehole or samplingActivity information are sent to
-                                a laboratory or other third party for testing or analysis, as the
-                                reference can be returned back in description or measurement
-                                records.</documentation>
-                        </annotation>
-                    </element>
-                    <element name="relativeReferencingSystem"
-                        type="diggs:AbstractRelativeReferenceSystemPropertyType" minOccurs="0"
-                        maxOccurs="1">
-                        <annotation>
-                            <documentation>For a core or block sample, this property can be used to
-                                introduce a relative spatial reference system for describing the
-                                sample relative to a position on the sample instead of relative to
-                                the sampling feature's origin. In this case, the linearElement
-                                property of LinearSpatialReferenceSystem or
-                                VectorLinearSpatialReferenceSystem would reference the sample's
-                                location instead of the sampling feature's. </documentation>
-                        </annotation>
-                    </element>
-                    <element minOccurs="0" name="classification" type="gml:CodeType">
-                        <annotation>
-                            <documentation>A definition of the class of sample collected. This is
-                                intended to come from a controlled list of values.</documentation>
-                        </annotation>
-                    </element>
-                    <element minOccurs="0" name="initialContainerType" type="gml:CodeType">
-                        <annotation>
-                            <documentation>Description of container for the sample; intended to be
-                                derived from a controlled list.
-                                Example:<![CDATA[Jar, Bucket, Vial, Bag, Box]]></documentation>
-                        </annotation>
-                    </element>
-                    <element minOccurs="0" name="initialContainerLabel" type="diggs:DiggsStringType">
-                        <annotation>
-                            <documentation>Identifier listed on the container holding the sample.
-                                This might be a box number (if for core) or sample number, or the
-                                same value as the sample name</documentation>
                         </annotation>
                     </element>
                     <element minOccurs="0" name="purpose" type="diggs:DiggsStringType">
@@ -4772,40 +4852,12 @@ DSB: REMOVED FROM PROFILE
                                 on this sample.</documentation>
                         </annotation>
                     </element>
-                    <element minOccurs="0" name="condition" type="diggs:DiggsStringType">
-                        <annotation>
-                            <documentation>A description of the sample condition; uncontrolled
-                                string</documentation>
-                        </annotation>
-                    </element>
                     <element minOccurs="0" name="sampleMatrix" type="gml:CodeType">
                         <annotation>
                             <documentation>A description of the sample matrix, if applicable. This
                                 is intended to come from a controlled list.</documentation>
                         </annotation>
                     </element>
-                    <choice minOccurs="0">
-                        <annotation>
-                            <documentation>If sample is cylindrical in shape (eg. a soil or rock
-                                core) or a block sample, select one of the appropriate choices and
-                                enter related information in either cylindricalSampleDetails or
-                                blockSampleDetails properties. </documentation>
-                        </annotation>
-                        <element minOccurs="1" name="cylindricalSampleDetails"
-                            type="diggs:CylindricalSampleDetailPropertyType">
-                            <annotation>
-                                <documentation><![CDATA[If the sample is a core (eg. cylindrical with integrity such that the location of the ends of the sample can be defined in space), then these elements may be used to further describe the sample.]]></documentation>
-                            </annotation>
-                        </element>
-                        <element name="blockSampleDetails"
-                            type="diggs:BlockSampleDetailPropertyType">
-                            <annotation>
-                                <documentation>If the sample is a block sample with integrity and
-                                    measurable width, height, and depth, those details are entered
-                                    here</documentation>
-                            </annotation>
-                        </element>
-                    </choice>
                     <element minOccurs="0" name="chainOfCustodyEvent"
                         type="diggs:ChainOfCustodyEventPropertyType" maxOccurs="unbounded">
                         <annotation>
@@ -4852,6 +4904,18 @@ DSB: REMOVED FROM PROFILE
                         </annotation>
                     </element>
                     <element ref="diggs:projectRef"/>
+                    <choice>
+                        <sequence>
+                            <element ref="diggs:samplingFeatureRef" minOccurs="1" maxOccurs="1"/>
+                            <element name="sampledInterval" type="diggs:LocationPropertyType"
+                                minOccurs="1"/>
+                        </sequence>
+                        <sequence>
+                            <element maxOccurs="unbounded" minOccurs="0"
+                                ref="diggs:associatedProjectRef"/>
+                            <element minOccurs="0" ref="diggs:originalProjectRef"/>
+                        </sequence>
+                    </choice>
                     <element minOccurs="0" name="sourceSampleRef" maxOccurs="unbounded"
                         type="diggs:FractionalReferenceType">
                         <annotation>
@@ -4865,15 +4929,6 @@ DSB: REMOVED FROM PROFILE
                                 sample.</documentation>
                         </annotation>
                     </element>
-                    <choice>
-                        <element ref="diggs:samplingFeatureRef" minOccurs="1" maxOccurs="1"/>
-                        <sequence>
-                            <element maxOccurs="unbounded" minOccurs="0"
-                                ref="diggs:associatedProjectRef"/>
-                            <element minOccurs="0" ref="diggs:originalProjectRef"/>
-                        </sequence>
-                    </choice>
-                    <element name="activityLocation" type="diggs:LocationPropertyType" minOccurs="0"/>
                     <element name="activityType">
                         <annotation>
                             <documentation>A controlled list that indicates the type of sampling
@@ -4901,6 +4956,17 @@ DSB: REMOVED FROM PROFILE
                             </restriction>
                         </simpleType>
                     </element>
+                    <element minOccurs="0" name="lengthLongestPortion" type="witsml:lengthMeasure">
+                        <annotation>
+                            <documentation><![CDATA[Length of the longest solid portion of sample]]></documentation>
+                        </annotation>
+                    </element>
+                    <element minOccurs="0" name="percentSampleRecovered"
+                        type="diggs:PercentMeasureType">
+                        <annotation>
+                            <documentation>The percentage of the sampled interval taken up by solid sample; derived from the totalSampleRecovery divided by the length of the sampledInterval. This value is 0 if no sampled recovered, and  100 if sample recovered is a fluid or gas.</documentation>
+                        </annotation>
+                    </element>
                     <element minOccurs="0" name="purpose" type="diggs:DiggsStringType">
                         <annotation>
                             <documentation>Purpose of taking this sample. This is an uncontrolled
@@ -4908,29 +4974,15 @@ DSB: REMOVED FROM PROFILE
                                 on this sample.</documentation>
                         </annotation>
                     </element>
-                    <element minOccurs="1" name="totalSampleRecovery" type="witsml:lengthMeasure">
+                    <element minOccurs="0" name="totalSampleRecovery" type="witsml:lengthMeasure">
                         <annotation>
-                            <documentation>Percentage of the total amount of sample recovered
-                                relative to the total amount of material sampled. If no sample
-                                recovered, this value is 0. This value is 100 for fluid or gas
-                                samples, and for soil or rock samples where there is full
-                                recovery.</documentation>
+                            <documentation>Length of the total amount of sample recovered. If no sample is recovered, this value is 0. This property is not instantiated if sample recovered is a fluid or gas.</documentation>
                         </annotation>
                     </element>
                     <element minOccurs="0" name="rockQualityDesignation"
                         type="diggs:Val0-100MeasureType">
                         <annotation>
                             <documentation><![CDATA[For rock cores, Rock Quality Designation]]></documentation>
-                        </annotation>
-                    </element>
-                    <element minOccurs="0" name="solidCoreRecovery" type="diggs:Val0-100MeasureType">
-                        <annotation>
-                            <documentation><![CDATA[For rock cores, percentage of core recovered that is solid and undisturbed]]></documentation>
-                        </annotation>
-                    </element>
-                    <element minOccurs="0" name="lengthLongestPortion" type="witsml:lengthMeasure">
-                        <annotation>
-                            <documentation><![CDATA[Length of the sample]]></documentation>
                         </annotation>
                     </element>
                     <element maxOccurs="unbounded" minOccurs="0" name="sampleProduced"
@@ -4949,25 +5001,21 @@ DSB: REMOVED FROM PROFILE
                     <element minOccurs="0" name="samplingEnvironment"
                         type="diggs:EnvironmentPropertyType"/>
                     <element name="samplingMethod" type="diggs:SpecificationPropertyType"
-                        maxOccurs="unbounded" minOccurs="0"/>
-                    <element name="samplingMethodRef" type="diggs:FeatureReferenceType"
                         maxOccurs="unbounded" minOccurs="0">
                         <annotation>
-                            <appinfo>diggs:Specification</appinfo>
-                            <documentation>A property element that supports a value by reference
-                                only. The target value is indicated in the appinfo
-                                element.</documentation>
+                            <documentation>A property that contains a Specification object detailing the method of sampling</documentation>
                         </annotation>
                     </element>
                     <element name="samplingEquipment" type="diggs:EquipmentPropertyType"
-                        maxOccurs="unbounded" minOccurs="0"/>
-                    <element name="samplingEquipmentRef" type="diggs:FeatureReferenceType"
                         maxOccurs="unbounded" minOccurs="0">
                         <annotation>
                             <appinfo>diggs:AbstractEquipment</appinfo>
-                            <documentation>A property element that supports a value by reference
-                                only. The target value is indicated in the appinfo
-                                element.</documentation>
+                            <documentation>A property element that contains an Equipment feature (or reference to one) that details the sampling equipment used</documentation>
+                        </annotation>
+                    </element>
+                    <element minOccurs="0" name="solidCoreRecovery" type="diggs:Val0-100MeasureType">
+                        <annotation>
+                            <documentation><![CDATA[For rock cores, percentage of core recovered that is solid and undisturbed]]></documentation>
                         </annotation>
                     </element>
                     <element maxOccurs="unbounded" minOccurs="0"
@@ -4995,110 +5043,6 @@ DSB: REMOVED FROM PROFILE
                 value is indicated in the appinfo element.</documentation>
         </annotation>
     </element>
-    <complexType name="SamplingFeatureSamplingActivityType">
-        <complexContent>
-            <extension base="diggs:AbstractFeatureType">
-                <sequence>
-                    <element ref="diggs:projectRef"/>
-                    <element minOccurs="0" name="sourceSampleRef" maxOccurs="unbounded"
-                        type="diggs:FractionalReferenceType">
-                        <annotation>
-                            <appinfo source="urn:x-gml:targetElement">diggs:Sample/@gml:id</appinfo>
-                            <documentation>A reference to a sample or samples that are used to
-                                create the sample(s) (identified in the sampleProduced property)
-                                produced by this activity. This element is only used for activities
-                                that subsample or aggregate samples from other samples. For
-                                aggregate samples, the percentage attribute optionally defines how
-                                much of the total new sample is composed from the source
-                                sample.</documentation>
-                        </annotation>
-                    </element>
-                    <choice>
-                        <element ref="diggs:samplingFeatureRef" minOccurs="1" maxOccurs="1"/>
-                        <sequence>
-                            <element maxOccurs="unbounded" minOccurs="0"
-                                ref="diggs:associatedProjectRef"/>
-                            <element minOccurs="0" ref="diggs:originalProjectRef"/>
-                        </sequence>
-                    </choice>
-                    <element name="activityLocation" type="diggs:LocationPropertyType" minOccurs="0"/>
-                    <element name="activityType">
-                        <annotation>
-                            <documentation>A controlled list that indicates the type of sampling
-                                activity. Can be used by applications to validate other activity
-                                info. One of the following strings must be used: collect - activity
-                                created a sample or samples by collecting a sample from a sampling
-                                feature; aggregate - activity created a sample or samples by
-                                aggregating existing samples; related Sample(s) should contain more
-                                than one sourceSampleRef subsample - activity created a sample or
-                                samples by subsampling an existing sample; only one sourceSampleRef
-                                should be specified for the related Sample(s). test - activity
-                                produced a test, standard or blank sample that does not relate to
-                                any field sample or sampling feature; activity should be related to
-                                a project and no sourceSampleRef should be specified for the related
-                                Sample(s). none - the sample activity failed to produce any physical
-                                sample.</documentation>
-                        </annotation>
-                        <simpleType>
-                            <restriction base="string">
-                                <enumeration value="aggregate"/>
-                                <enumeration value="collect"/>
-                                <enumeration value="none"/>
-                                <enumeration value="subsample"/>
-                                <enumeration value="test"/>
-                            </restriction>
-                        </simpleType>
-                    </element>
-                    <element minOccurs="0" name="totalSampleRecovery" type="diggs:PercentDoubleType">
-                        <annotation>
-                            <documentation>Percentage of the total length/size of the sample
-                                recovered relative to the total length/size of earth material cored
-                                or excavated. </documentation>
-                        </annotation>
-                    </element>
-                    <element maxOccurs="unbounded" minOccurs="0" name="sampleProduced"
-                        type="diggs:SampleProducedPropertyType">
-                        <annotation>
-                            <documentation>Identifies the samples, the location(s) of samples
-                                (optional) and derived sample type (a controlled list) that are
-                                produced by this sampling activity</documentation>
-                        </annotation>
-                    </element>
-                    <element minOccurs="0" name="samplingDate" type="diggs:TimeIntervalPropertyType">
-                        <annotation>
-                            <documentation>The date/time for this activity</documentation>
-                        </annotation>
-                    </element>
-                    <element minOccurs="0" name="samplingEnvironment"
-                        type="diggs:EnvironmentPropertyType"/>
-                    <element name="samplingMethod" type="diggs:SpecificationPropertyType"
-                        maxOccurs="unbounded" minOccurs="0"/>
-                    <element name="samplingMethodRef" type="diggs:FeatureReferenceType"
-                        maxOccurs="unbounded" minOccurs="0">
-                        <annotation>
-                            <appinfo>diggs:Specification</appinfo>
-                            <documentation>A property element that supports a value by reference
-                                only. The target value is indicated in the appinfo
-                                element.</documentation>
-                        </annotation>
-                    </element>
-                    <element name="samplingEquipment" type="diggs:EquipmentPropertyType"
-                        maxOccurs="unbounded" minOccurs="0"/>
-                    <element name="samplingEquipmentRef" type="diggs:FeatureReferenceType"
-                        maxOccurs="unbounded" minOccurs="0">
-                        <annotation>
-                            <appinfo>diggs:AbstractEquipment</appinfo>
-                            <documentation>A property element that supports a value by reference
-                                only. The target value is indicated in the appinfo
-                                element.</documentation>
-                        </annotation>
-                    </element>
-                    <element maxOccurs="unbounded" minOccurs="0"
-                        name="otherSamplingActivityProperty" type="diggs:ParameterPropertyType"/>
-                </sequence>
-            </extension>
-        </complexContent>
-    </complexType>
     <element name="Sensor" type="diggs:SensorType" substitutionGroup="diggs:AbstractEquipment"
         abstract="false"/>
     <element name="sensorRef" type="diggs:FeatureReferenceType">
@@ -5112,6 +5056,8 @@ DSB: REMOVED FROM PROFILE
         <sequence>
             <element ref="diggs:Sensor" minOccurs="1" maxOccurs="1"/>
         </sequence>
+        <attributeGroup ref="gml:AssociationAttributeGroup"/>
+        <attributeGroup ref="gml:OwnershipAttributeGroup"/>
     </complexType>
     <complexType name="SensorType">
         <complexContent>
@@ -5131,6 +5077,8 @@ DSB: REMOVED FROM PROFILE
                     <element name="detector" type="diggs:DetectorPropertyType" minOccurs="0"
                         maxOccurs="unbounded"/>
                 </sequence>
+                <attributeGroup ref="gml:AssociationAttributeGroup"/>
+                <attributeGroup ref="gml:OwnershipAttributeGroup"/>
             </extension>
         </complexContent>
     </complexType>
@@ -5139,6 +5087,8 @@ DSB: REMOVED FROM PROFILE
             <extension base="diggs:AbstractGeometricAggregateType">
                 <sequence>
                     <element ref="gml:posList"/>
+                    <element minOccurs="0" name="locationUncertainty"
+                        type="diggs:LocationUncertaintyPropertyType"/>
                 </sequence>
             </extension>
         </complexContent>
@@ -5167,13 +5117,15 @@ DSB: REMOVED FROM PROFILE
         <complexContent>
             <extension base="diggs:AbstractObjectType">
                 <sequence>
-                    <element minOccurs="0" name="minimumGrainSize" type="witsml:lengthMeasure">
+                    <element minOccurs="0" name="minimumGrainSize"
+                        type="diggs:ParticleSizeValueType">
                         <annotation>
                             <documentation>The smallest grain size in the sample fraction used for
                                 this procedure</documentation>
                         </annotation>
                     </element>
-                    <element minOccurs="0" name="maximumGrainSize" type="witsml:lengthMeasure">
+                    <element minOccurs="0" name="maximumGrainSize"
+                        type="diggs:ParticleSizeValueType">
                         <annotation>
                             <documentation>The largest grain size in the sample fraction used for
                                 this procedure</documentation>
@@ -5291,7 +5243,7 @@ DSB: REMOVED FROM PROFILE
                         </annotation>
                     </element>
                     <element minOccurs="0" name="constructionEvent"
-                        type="diggs:BoreholeEventPropertyType" maxOccurs="unbounded">
+                        type="diggs:SoundingEventPropertyType" maxOccurs="unbounded">
                         <annotation>
                             <documentation>Information on sounding construction events with
                                 time.</documentation>
@@ -5313,8 +5265,10 @@ DSB: REMOVED FROM PROFILE
     </element>
     <complexType name="SpecificationPropertyType">
         <sequence>
-            <element ref="diggs:Specification" maxOccurs="1" minOccurs="1"> </element>
+            <element ref="diggs:Specification" maxOccurs="1" minOccurs="0"> </element>
         </sequence>
+        <attributeGroup ref="gml:AssociationAttributeGroup"/>
+        <attributeGroup ref="gml:OwnershipAttributeGroup"/>
     </complexType>
     <complexType name="SpecificationType">
         <complexContent>
@@ -5338,12 +5292,63 @@ DSB: REMOVED FROM PROFILE
             </extension>
         </complexContent>
     </complexType>
-    <element name="Specimen" type="diggs:SpecimenType">
+    <element name="SoilSpecimen" type="diggs:SoilSpecimenType"
+        substitutionGroup="diggs:AbstractSpecimen">
         <annotation>
             <documentation>An object that describes the physical conditions of a specimen subjected
-                to testing</documentation>
+                to soil testing</documentation>
         </annotation>
     </element>
+    <complexType name="SoilSpecimenType">
+        <complexContent>
+            <extension base="diggs:AbstractSpecimenType">
+                <sequence>
+                    <element minOccurs="0" name="conditionPreTest"
+                        type="diggs:SpecimenConditionsPropertyType">
+                        <annotation>
+                            <documentation>Describes the physical conditions of the sample
+                                pre-test</documentation>
+                        </annotation>
+                    </element>
+                    <element minOccurs="0" name="conditionPostTest"
+                        type="diggs:SpecimenConditionsPropertyType">
+                        <annotation>
+                            <documentation>Describes the physical conditions of the specimen post-test. For triaxial tests, this condition is used to report specimen conditions following consolidation stage.</documentation>
+                        </annotation>
+                    </element>
+                    <element minOccurs="0" name="intactSpecimenPreparationInfo"
+                        type="diggs:IntactSpecimenPreparationInfoPropertyType">
+                        <annotation>
+                            <documentation>Describes the physical conditions of the specimen post-test. For triaxial tests, this condition is used to report specimen conditions following consolidation stage.</documentation>
+                        </annotation>
+                    </element>
+                    <element minOccurs="0" name="reconstitutedSpecimenPreparationInfo"
+                        type="diggs:ReconstitutedSpecimenPreparationInfoPropertyType">
+                        <annotation>
+                            <documentation>Describes the physical conditions of the specimen post-test. For triaxial tests, this condition is used to report specimen conditions following consolidation stage.</documentation>
+                        </annotation>
+                    </element>
+                    <element minOccurs="0" name="sizeFraction" type="diggs:SizeFractionPropertyType">
+                        <annotation>
+                            <documentation>For soil speciments, size fraction from which test portion was obtained</documentation>
+                        </annotation>
+                    </element>
+                    <element minOccurs="0" name="specimenType" type="diggs:SpecimenTypeType">
+                        <annotation>
+                            <documentation>The structural condition of the soil specimen being tested,
+                                defined by the following controlled terms: 1) intact - specimen
+                                prepared without disturbance from an "undisturbed" sample (eg.
+                                thin-walled sampler); 2) disturbed - specimen prepared from a
+                                disturbed sample (eg. thick walled sampler; 3) remolded - specimen
+                                prepared from a failed or otherwise disturbed intact specimen; 4)
+                                reconstituted - speciment prepared to a predetermined water content
+                                and density</documentation>
+                        </annotation>
+                    </element>
+                </sequence>
+            </extension>
+        </complexContent>
+    </complexType>
     <element name="SpecimenConditions" type="diggs:SpecimenConditionsType">
         <annotation>
             <documentation>An object that describes the physical conditions of a specimen subjected
@@ -5359,35 +5364,36 @@ DSB: REMOVED FROM PROFILE
         <complexContent>
             <extension base="diggs:AbstractObjectType">
                 <sequence>
-                    <element minOccurs="0" name="drySpecimenWeight" type="witsml:massMeasure">
+                    <element minOccurs="0" name="bulkUnitWeight"
+                        type="diggs:DensityOrUnitWeightMeasureType">
+                        <annotation>
+                            <documentation>Initial bulk density or unit weight</documentation>
+                        </annotation>
+                    </element>
+                    <element minOccurs="0" name="crossSectionalArea" type="witsml:areaMeasure">
+                        <annotation>
+                            <documentation>The cross-sectional area of the specimen. Specific methods for computing this value may be given in the associated test procedure object.</documentation>
+                        </annotation>
+                    </element>
+                    <element minOccurs="0" name="dimensionMeasurementTechnique"
+                        type="diggs:DimensionMeasurementTechniqueType">
+                        <annotation>
+                            <documentation>Technique used to measure specimen lengths and diameters. Enumerated list. - 1) Calipers, 2) PI-tape, 3) Other: (uncontrolled string after colon)</documentation>
+                        </annotation>
+                    </element>
+                    <element minOccurs="0" name="dryUnitWeight"
+                        type="diggs:DensityOrUnitWeightMeasureType">
+                        <annotation>
+                            <documentation>Initial dry density or unit weight</documentation>
+                        </annotation>
+                    </element>
+                    <element minOccurs="0" name="dryWeight" type="witsml:massMeasure">
                         <annotation>
                             <documentation>The weight of the specimen following
                                 drying</documentation>
                         </annotation>
                     </element>
-                    <element minOccurs="0" name="wetSpecimenWeight" type="witsml:massMeasure">
-                        <annotation>
-                            <documentation>The weight of the sample prior to drying.</documentation>
-                        </annotation>
-                    </element>
-                    <element minOccurs="0" name="specimenShape" type="diggs:SpecimenShapeType">
-                        <annotation>
-                            <documentation>The shape of the specimen being tested, defined by the
-                                following controlled terms: 1) cylinder; 2) cube 3) cuboid - a
-                                square cylinder or cube with uneven sides disturbed intact specimen;
-                                4) sphere</documentation>
-                        </annotation>
-                    </element>
-                    <element minOccurs="0" name="specimenHeight" type="witsml:lengthMeasure">
-                        <annotation>
-                            <documentation>The vertical dimension of the specimen</documentation>
-                        </annotation>
-                    </element>
-                    <element minOccurs="0" name="crossSectionalArea" type="witsml:areaMeasure">
-                        <annotation>
-                            <documentation>The cross-sectional area of the specimen </documentation>
-                        </annotation>
-                    </element>
+                    <element minOccurs="0" name="percentSaturation" type="diggs:PercentMeasureType"/>
                     <choice minOccurs="0">
                         <element minOccurs="0" name="specimenDiameter" type="witsml:lengthMeasure">
                             <annotation>
@@ -5412,9 +5418,33 @@ DSB: REMOVED FROM PROFILE
                             </element>
                         </sequence>
                     </choice>
+                    <element minOccurs="0" name="specimenHeight" type="witsml:lengthMeasure">
+                        <annotation>
+                            <documentation>The vertical dimension of the specimen</documentation>
+                        </annotation>
+                    </element>
+                    <element minOccurs="0" name="specimenShape" type="diggs:SpecimenShapeType">
+                        <annotation>
+                            <documentation>The shape of the specimen being tested, defined by the
+                                following controlled terms: 1) cylinder; 2) cube 3) cuboid - a
+                                square cylinder or cube with uneven sides disturbed intact specimen;
+                                4) sphere</documentation>
+                        </annotation>
+                    </element>
+                    <element minOccurs="0" name="specimenVoidRatio" type="witsml:volumeMeasure">
+                        <annotation>
+                            <documentation>Void ratio (for soils) is defined as the volume of voids divided by the volume of solids</documentation>
+                        </annotation>
+                    </element>
                     <element minOccurs="0" name="specimenVolume" type="witsml:volumeMeasure">
                         <annotation>
-                            <documentation>Volume of the specimen</documentation>
+                            <documentation/>
+                        </annotation>
+                    </element>
+                    <element minOccurs="0" name="waterContent" type="diggs:WaterContentType"/>
+                    <element minOccurs="0" name="wetWeight" type="witsml:massMeasure">
+                        <annotation>
+                            <documentation>The weight of the sample prior to drying.</documentation>
                         </annotation>
                     </element>
                     <element minOccurs="0" name="otherConditionProperty"
@@ -5432,9 +5462,11 @@ DSB: REMOVED FROM PROFILE
         </restriction>
     </simpleType>
     <complexType name="SpecimenPropertyType">
-        <sequence>
-            <element maxOccurs="1" minOccurs="1" ref="diggs:Specimen"/>
+        <sequence minOccurs="0">
+            <element maxOccurs="1" minOccurs="1" ref="diggs:AbstractSpecimen"/>
         </sequence>
+        <attributeGroup ref="gml:AssociationAttributeGroup"/>
+        <attributeGroup ref="gml:OwnershipAttributeGroup"/>
     </complexType>
     <element name="specimenRef" type="diggs:FeatureReferenceType">
         <annotation>
@@ -5455,54 +5487,6 @@ DSB: REMOVED FROM PROFILE
     <simpleType name="SpecimenShapeType">
         <union memberTypes="diggs:OtherNameType diggs:SpecimenShapeEnumType"/>
     </simpleType>
-    <complexType name="SpecimenType">
-        <complexContent>
-            <extension base="diggs:AbstractFeatureType">
-                <sequence>
-                    <element minOccurs="1" ref="diggs:sampleRef" maxOccurs="unbounded"/>
-                    <element minOccurs="0" name="specimenType" type="diggs:SpecimenTypeType">
-                        <annotation>
-                            <documentation>The structural condition of the specimen being tested,
-                                defined by the following controlled terms: 1) intact - specimen
-                                prepared without disturbance from an "undisturbed" sample (eg.
-                                thin-walled sampler); 2) disturbed - specimen prepared from a
-                                disturbed sample (eg. thick walled sampler; 3) remolded - specimen
-                                prepared from a failed or otherwise disturbed intact specimen; 4)
-                                reconstituted - speciment prepared to a predetermined water content
-                                and density</documentation>
-                        </annotation>
-                    </element>
-                    <element minOccurs="0" name="sizeFraction" type="diggs:SizeFractionPropertyType">
-                        <annotation>
-                            <documentation>Size fraction from which test portion was
-                                obtained.</documentation>
-                        </annotation>
-                    </element>
-                    <element minOccurs="0" name="dilutionFactor" type="witsml:unitlessQuantity"/>
-                    <element minOccurs="0" name="leachatePreparationMethod"
-                        type="diggs:DiggsStringType"/>
-                    <element minOccurs="0" name="leachatePreparationDateTime"
-                        type="diggs:UnifiedDateTimeType"/>
-                    <element minOccurs="0" name="conditionPreTest"
-                        type="diggs:SpecimenConditionsPropertyType">
-                        <annotation>
-                            <documentation>Describes the physical conditions of the sample
-                                pre-test</documentation>
-                        </annotation>
-                    </element>
-                    <element minOccurs="0" name="conditionPostTest"
-                        type="diggs:SpecimenConditionsPropertyType">
-                        <annotation>
-                            <documentation>Describes the physical conditions of the sample
-                                post-test</documentation>
-                        </annotation>
-                    </element>
-                    <element minOccurs="0" name="otherSpecimenProperty"
-                        type="diggs:ParameterPropertyType" maxOccurs="unbounded"/>
-                </sequence>
-            </extension>
-        </complexContent>
-    </complexType>
     <simpleType name="SpecimenTypeType">
         <union memberTypes="diggs:OtherNameType diggs:SpecimenEnumType"/>
     </simpleType>
@@ -5705,32 +5689,11 @@ DSB: REMOVED FROM PROFILE
         <complexContent>
             <restriction base="gml:DomainSetType">
                 <sequence minOccurs="0">
-                    <element ref="diggs:MultiTimeInstant"/>
+                    <choice>
+                        <element ref="diggs:MultiTimeInstant"/>
+                    </choice>
                 </sequence>
             </restriction>
-        </complexContent>
-    </complexType>
-    <element final="" name="TimeInstant" substitutionGroup="gml:AbstractTimeGeometricPrimitive"
-        type="diggs:TimeInstantType"/>
-    <complexType mixed="false" name="TimeInstantType">
-        <complexContent>
-            <extension base="gml:AbstractTimeGeometricPrimitiveType">
-                <sequence>
-                    <element minOccurs="0" name="role" type="diggs:RolePropertyType"
-                        maxOccurs="unbounded"/>
-                    <element name="remark" type="diggs:RemarkPropertyType" minOccurs="0"
-                        maxOccurs="unbounded"/>
-                    <element ref="gml:timePosition"/>
-                    <element minOccurs="0" name="status" type="gml:CodeType">
-                        <annotation>
-                            <documentation>A text string to provide information about the status of
-                                the object to be used to track QA/QC controls, review or release
-                                status, etc. The values used are intended to come from a controlled
-                                list of terms maintained by an organization.</documentation>
-                        </annotation>
-                    </element>
-                </sequence>
-            </extension>
         </complexContent>
     </complexType>
     <element name="TimeInterval" type="diggs:TimeIntervalType"/>
@@ -5759,7 +5722,7 @@ DSB: REMOVED FROM PROFILE
                                 interest.</documentation>
                         </annotation>
                     </element>
-                    <element name="duration" type="time" maxOccurs="1" minOccurs="0">
+                    <element name="duration" type="witsml:timeMeasure" maxOccurs="1" minOccurs="0">
                         <annotation>
                             <documentation>The duration of time since start, defining the time
                                 interval of interest. Both end and duration are allowed and could
@@ -5839,9 +5802,7 @@ DSB: REMOVED FROM PROFILE
                                 the trench during this interval</documentation>
                         </annotation>
                     </element>
-                    <element name="method" type="diggs:SpecificationPropertyType"
-                        maxOccurs="unbounded" minOccurs="0"/>
-                    <element name="methodRef" type="diggs:FeatureReferenceType"
+                    <element name="constructionMethod" type="diggs:SpecificationPropertyType"
                         maxOccurs="unbounded" minOccurs="0">
                         <annotation>
                             <appinfo>diggs:Specification</appinfo>
@@ -5850,15 +5811,11 @@ DSB: REMOVED FROM PROFILE
                                 element.</documentation>
                         </annotation>
                     </element>
-                    <element name="equipment" type="diggs:EquipmentPropertyType"
-                        maxOccurs="unbounded" minOccurs="0"/>
-                    <element name="equipmentRef" type="diggs:FeatureReferenceType"
+                    <element name="constructionEquipment" type="diggs:EquipmentPropertyType"
                         maxOccurs="unbounded" minOccurs="0">
                         <annotation>
                             <appinfo>diggs:AbstractEquipment</appinfo>
-                            <documentation>A property element that supports a value by reference
-                                only. The target value is indicated in the appinfo
-                                element.</documentation>
+                            <documentation>A property element that contains an Equipment feature (or reference to one) that details the construction equipment used.</documentation>
                         </annotation>
                     </element>
                 </sequence>
@@ -5874,6 +5831,11 @@ DSB: REMOVED FROM PROFILE
     </element>
     <element name="TrenchWallEvent" substitutionGroup="diggs:AbstractEvent"
         type="diggs:TrialPitEventType"/>
+    <complexType name="TrenchWallEventPropertyType">
+        <sequence>
+            <element ref="diggs:TrenchWallEvent"/>
+        </sequence>
+    </complexType>
     <complexType name="TrenchWallType">
         <complexContent>
             <extension base="diggs:AbstractPlanarSamplingFeatureType">
@@ -5905,7 +5867,7 @@ DSB: REMOVED FROM PROFILE
                         </annotation>
                     </element>
                     <element minOccurs="0" name="constructionEvent"
-                        type="diggs:TrialPitEventPropertyType" maxOccurs="unbounded">
+                        type="diggs:TrenchWallEventPropertyType" maxOccurs="unbounded">
                         <annotation>
                             <documentation>Information on construction of the trench with
                                 time</documentation>
@@ -6034,6 +5996,42 @@ DSB: REMOVED FROM PROFILE
             </extension>
         </complexContent>
     </complexType>
+    <element name="Uncertainty" type="diggs:UncertaintyType"
+        substitutionGroup="diggs:AbstractObject" abstract="false"/>
+    <complexType name="UncertaintyPropertyType">
+        <sequence>
+            <element ref="diggs:Uncertainty" minOccurs="1" maxOccurs="1">
+                <annotation>
+                    <documentation>The Uncertainty object contains properties to define the uncertainty of a location value or measurement</documentation>
+                </annotation>
+            </element>
+        </sequence>
+    </complexType>
+    <complexType name="UncertaintyType">
+        <complexContent>
+            <extension base="diggs:AbstractObjectType">
+                <sequence>
+                    <element minOccurs="0" name="plusUncertaintyValue"
+                        type="diggs:DescriptorValueType">
+                        <annotation>
+                            <documentation>Uncertainty is reported as +/- from the reported value (in the same UOM as the value reported); this property reports the + value.</documentation>
+                        </annotation>
+                    </element>
+                    <element minOccurs="0" name="minusUncertaintyValue"
+                        type="diggs:DescriptorValueType">
+                        <annotation>
+                            <documentation>Accuracy is reported as +/- from the reported value (in the same UOM as the value reported); this property reports the - value.</documentation>
+                        </annotation>
+                    </element>
+                    <element minOccurs="0" name="confidenceLevel" type="diggs:PercentMeasureType">
+                        <annotation>
+                            <documentation>Reported as a percentage (eg. 95%)</documentation>
+                        </annotation>
+                    </element>
+                </sequence>
+            </extension>
+        </complexContent>
+    </complexType>
     <simpleType name="UnifiedDateTimeType">
         <union memberTypes="dateTime time date gYearMonth gMonthDay gDay gMonth gYear"/>
     </simpleType>
@@ -6076,7 +6074,7 @@ DSB: REMOVED FROM PROFILE
     <complexType name="Val0-100MeasureType">
         <simpleContent>
             <extension base="diggs:Val0-100Type">
-                <attribute name="uom" type="witsml:PercentUom" use="required"/>
+                <attribute name="uom" type="diggs:PercentEnumType" use="required"/>
             </extension>
         </simpleContent>
     </complexType>
@@ -6133,21 +6131,20 @@ DSB: REMOVED FROM PROFILE
                 <sequence>
                     <element name="offsetVector" type="glrov:VectorType" maxOccurs="3"/>
                     <!-- glrov:VectorType add uom attribute to gml:VectorType -->
-                    <element minOccurs="0" name="linearElementAccuracy"
-                        type="diggs:LocationAccuracyPropertyType">
+                    <element minOccurs="0" name="linearReferencingMethodUncertainty"
+                        type="diggs:UncertaintyPropertyType">
                         <annotation>
-                            <documentation>Provides accuracy information for the linear element
-                                referenced by this reference system.</documentation>
-                        </annotation>
-                    </element>
-                    <element minOccurs="0" name="linearReferencingMethodAccuracy"
-                        type="diggs:LocationAccuracyPropertyType">
-                        <annotation>
-                            <documentation>Provides accuracy information for the location (geometry)
+                            <documentation>Provides accuracy value (usually a length measure) for the location (geometry)
                                 elements that use this linear reference system for their SRS. For
                                 example, for depths in a hole, this property could provide
                                 information as to the source and accuracy of depth values that
-                                relate to this reference system.</documentation>
+                                relate to this reference system. If individual elements that refer to this reference system have different uncertainties, those uncertainties are reported within those elements themselves.</documentation>
+                        </annotation>
+                    </element>
+                    <element minOccurs="0" name="vectorOffsetUncertainty"
+                        type="diggs:LocationUncertaintyPropertyType">
+                        <annotation>
+                            <documentation>Provides accuracy value for the offset vector</documentation>
                         </annotation>
                     </element>
                 </sequence>
@@ -6181,6 +6178,26 @@ DSB: REMOVED FROM PROFILE
   </complexType>
   with the following one to get the same XML instance document content model 
   except for the glrov: namespace prefix on the offsetVector element. -->
+    <simpleType name="WaterContentMethodEnumType">
+        <restriction base="string">
+            <enumeration value="full specimen"/>
+            <enumeration value="trimmings"/>
+            <enumeration value="unknown"/>
+        </restriction>
+    </simpleType>
+    <simpleType name="WaterContentMethodType">
+        <annotation>
+            <documentation>A value that describes the specific approach by which the water content is determined, eg. whether from specimen trimmings or full specimen</documentation>
+        </annotation>
+        <union memberTypes="diggs:WaterContentMethodEnumType diggs:OtherNameType"/>
+    </simpleType>
+    <complexType name="WaterContentType">
+        <simpleContent>
+            <extension base="diggs:PercentMeasureType">
+                <attribute name="derivedFrom" type="diggs:WaterContentMethodType"/>
+            </extension>
+        </simpleContent>
+    </complexType>
     <element name="WaterStrike" substitutionGroup="diggs:AbstractObject"
         type="diggs:WaterStrikeType"/>
     <complexType name="WaterStrikePropertyType">
@@ -6188,10 +6205,35 @@ DSB: REMOVED FROM PROFILE
             <element maxOccurs="1" minOccurs="1" ref="diggs:WaterStrike"/>
         </sequence>
     </complexType>
-    <complexType name="WaterStrikeType">
+    <element name="WaterStrikeReading" substitutionGroup="diggs:AbstractObject"
+        type="diggs:WaterStrikeReadingType"/>
+    <complexType name="WaterStrikeReadingPropertyType">
+        <sequence maxOccurs="1" minOccurs="1">
+            <element ref="diggs:WaterStrikeReading"/>
+        </sequence>
+    </complexType>
+    <complexType name="WaterStrikeReadingType">
         <complexContent>
             <extension base="diggs:AbstractObjectType">
-                <sequence minOccurs="0">
+                <sequence>
+                    <choice minOccurs="0">
+                        <element name="time" type="witsml:timeMeasure">
+                            <annotation>
+                                <documentation><![CDATA[The time following an initial water strike when water level is again measured]]></documentation>
+                            </annotation>
+                        </element>
+                        <element name="dateTime" type="diggs:UnifiedDateTimeType" minOccurs="1">
+                            <annotation>
+                                <documentation><![CDATA[DateTime that water strike measurement occurred.]]></documentation>
+                            </annotation>
+                        </element>
+                    </choice>
+                    <element name="waterLocation" type="diggs:PointLocationPropertyType">
+                        <annotation>
+                            <documentation>The measure depth to water; measured in a hole's linear
+                                referencing system.</documentation>
+                        </annotation>
+                    </element>
                     <element minOccurs="0" name="bottomCasing"
                         type="diggs:PointLocationPropertyType">
                         <annotation>
@@ -6200,33 +6242,43 @@ DSB: REMOVED FROM PROFILE
                                 system.</documentation>
                         </annotation>
                     </element>
-                    <element name="dateTime" type="diggs:UnifiedDateTimeType">
-                        <annotation>
-                            <documentation><![CDATA[DateTime that water strike occurred.]]></documentation>
-                        </annotation>
-                    </element>
+                </sequence>
+            </extension>
+        </complexContent>
+    </complexType>
+    <complexType name="WaterStrikeType">
+        <complexContent>
+            <extension base="diggs:AbstractObjectType">
+                <sequence minOccurs="0">
                     <choice>
-                        <element name="notEncountered" type="boolean"/>
-                        <element name="waterStrikeDepth" type="diggs:PointLocationPropertyType">
-                            <annotation>
-                                <documentation>Measured depth to water level at time of strike;;
-                                measured in borehole linear referencing system.</documentation>
-                            </annotation>
+                        <element name="notEncountered" fixed="true">
+                            <simpleType>
+                                <restriction base="boolean"/>
+                            </simpleType>
                         </element>
-                    </choice>
-                    <element maxOccurs="unbounded" minOccurs="0" name="postStrikeReading"
-                        type="diggs:PostStrikeReadingPropertyType">
-                        <annotation>
-                            <documentation>A series of water level readings that occur at times
+                        <sequence>
+                            <element name="initialWaterStrikeReading"
+                                type="diggs:WaterStrikeReadingPropertyType">
+                                <annotation>
+                                    <documentation>Water level information at time of initial water strike</documentation>
+                                </annotation>
+                            </element>
+                            <element maxOccurs="unbounded" minOccurs="0" name="postStrikeReading"
+                                type="diggs:WaterStrikeReadingPropertyType">
+                                <annotation>
+                                    <documentation>A series of water level readings that occur at times
                                 following the initial water strike</documentation>
-                        </annotation>
-                    </element>
-                    <element minOccurs="0" name="sealDepth" type="diggs:PointLocationPropertyType">
-                        <annotation>
-                            <documentation>Depth at which water strike is sealed by casing; measured
+                                </annotation>
+                            </element>
+                            <element minOccurs="0" name="sealLocation"
+                                type="diggs:PointLocationPropertyType">
+                                <annotation>
+                                    <documentation>Location at which water strike is sealed by casing; measured
                                 in borehole linear referencing system.</documentation>
-                        </annotation>
-                    </element>
+                                </annotation>
+                            </element>
+                        </sequence>
+                    </choice>
                 </sequence>
             </extension>
         </complexContent>
@@ -6545,7 +6597,9 @@ DSB: REMOVED FROM PROFILE
     <element name="WellEvent" type="diggs:WellEventType"/>
     <complexType name="WellEventType">
         <complexContent>
-            <extension base="diggs:AbstractEventType"/>
+            <extension base="diggs:AbstractEventType">
+                <sequence/>
+            </extension>
         </complexContent>
     </complexType>
     <element name="WellOpening" type="diggs:WellOpeningType"/>
@@ -6644,7 +6698,8 @@ DSB: REMOVED FROM PROFILE
                                 with perforations, open end, sand point, etc.) </documentation>
                         </annotation>
                     </element>
-                    <element minOccurs="0" name="initialDevelopmentMethod" type="gml:CodeType">
+                    <element minOccurs="0" name="initialDevelopmentMethod"
+                        type="diggs:SpecificationPropertyType">
                         <annotation>
                             <documentation>Description of the method used to develop the well after
                                 initial construction (eg. compressed air, surged,
