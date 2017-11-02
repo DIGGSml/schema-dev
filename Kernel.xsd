@@ -206,7 +206,7 @@
                                 is no assumption as to the unique scope or persistence of this
                                 identifier. In cases where the original or internal identifier does
                                 not meet the semantic requirements for gml:id or gml:identifier, the
-                                internal identifier may be included in this property in order for
+                                internal identifier may be used in order for
                                 the originating authority to "map back" the identifier to an
                                 internal data management system. The codeSpace attribute must be
                                 populated to identify the authority that uses the internalIdentifier
@@ -347,8 +347,6 @@
                     <element name="linearReferencing"
                         type="diggs:LinearSpatialReferenceSystemPropertyType" minOccurs="1"
                         maxOccurs="unbounded"/>
-                    <element minOccurs="0" name="localCoordinates"
-                        type="diggs:LocalCoordinatePropertyType"/>
                     <element minOccurs="0" name="plunge" type="witsml:planeAngleMeasure">
                         <annotation>
                             <documentation>For an inclined feature, the plunge angle, measured from
@@ -379,10 +377,7 @@
                 <sequence>
                     <element ref="diggs:investigationTarget"/>
                     <element ref="diggs:projectRef"/>
-                    <choice>
-                        <element minOccurs="1" ref="diggs:samplingFeatureRef" maxOccurs="unbounded"/>
-                        <element maxOccurs="unbounded" minOccurs="1" ref="diggs:sampleRef"/>
-                    </choice>
+                    <element minOccurs="0" ref="diggs:samplingFeatureRef" maxOccurs="unbounded"/>
                     <element minOccurs="0" name="otherMeasurementProperty"
                         type="diggs:ParameterPropertyType" maxOccurs="unbounded">
                         <annotation>
@@ -627,10 +622,10 @@
                     <element maxOccurs="unbounded" minOccurs="0" ref="diggs:associatedProjectRef"/>
                     <element maxOccurs="unbounded" minOccurs="0" name="otherSamplingFeatureProperty"
                         type="diggs:ParameterPropertyType"/>
-                    <element name="referencePoint" type="diggs:PointLocationPropertyType"
-                        minOccurs="1"/>
                     <element name="locality" type="diggs:LocalityPropertyType" minOccurs="0"
                         maxOccurs="1"/>
+                    <element name="referencePoint" type="diggs:PointLocationPropertyType"
+                        minOccurs="1"/>
                     <element minOccurs="0" name="localCoordinates"
                         type="diggs:LocalCoordinatePropertyType"/>
                 </sequence>
@@ -1328,7 +1323,7 @@
                         maxOccurs="unbounded"/>
                     <element name="phoneNumber" type="diggs:PhoneType" minOccurs="0"
                         maxOccurs="unbounded"/>
-                    <element name="associatedWithRef" type="diggs:FeatureReferenceType"
+                    <element name="associatedWith" type="diggs:BusinessAssociatePropertyType"
                         minOccurs="0" maxOccurs="unbounded">
                         <annotation>
                             <appinfo source="urn:x-gml:targetElement">diggs:BusinessAssociate</appinfo>
@@ -2002,7 +1997,7 @@
     <simpleType name="DescriptorMethodEnumType">
         <annotation>
             <documentation>A value that describes the method by which the observation or measurement
-                was determined. Allowed values are: - assigned; value is assigned a priori -
+                was determined. Allowed values are: - assigned; value is assigned a priori as a commonly used value or by assumption -
                 calculated; value computed from from other value(s), eg. a water level elevation
                 computed from a depth measurement - graphic; value is a code used for graphic
                 display purposes only - inferred; estimated from some indirect measurement such as a
@@ -2151,8 +2146,6 @@
                         type="diggs:AbstractMeasurementPropertyType" maxOccurs="unbounded"/>
                     <element name="group" type="diggs:GroupPropertyType" minOccurs="0"
                         maxOccurs="unbounded"/>
-                    <element name="businessAssociate" type="diggs:BusinessAssociatePropertyType"
-                        minOccurs="0" maxOccurs="unbounded"/>
                 </sequence>
                 <attribute ref="xml:lang"/>
             </extension>
@@ -2230,14 +2223,17 @@
                                 created.</documentation>
                         </annotation>
                     </element>
-                    <element minOccurs="0" name="expirationDate" type="diggs:UnifiedDateTimeType">
+                    <element minOccurs="0" name="effectiveDate" type="diggs:UnifiedDateTimeType">
                         <annotation>
-                            <documentation>The effective date for the data in this XML instance. It
-                                would likely represent the most recent date when data in the
-                                instance was last added to or modified.</documentation>
+                            <documentation>The effective date for the data in this XML instance. It represents the date the information within this instance document was last modified and would precede the creationDate.</documentation>
                         </annotation>
                     </element>
-                    <element name="author" type="diggs:BusinessAssociateType" minOccurs="0"
+                    <element minOccurs="0" name="expirationDate" type="diggs:UnifiedDateTimeType">
+                        <annotation>
+                            <documentation>The expiration date for the data in this XML instance. It represents the date when this information is no longer relevant or may be superceded.</documentation>
+                        </annotation>
+                    </element>
+                    <element name="author" type="diggs:BusinessAssociatePropertyType" minOccurs="0"
                         maxOccurs="unbounded">
                         <annotation>
                             <appinfo source="urn:x-gml:targetElement">diggs:BusinessAssociate</appinfo>
@@ -3345,7 +3341,40 @@
                 <sequence>
                     <element name="address" type="diggs:AddressPropertyType" minOccurs="0"
                         maxOccurs="1"/>
+                    <element name="district" type="diggs:DiggsStringType" minOccurs="0"
+                        maxOccurs="1">
+                        <annotation>
+                            <documentation>Name or ID of a territory of land classified as a
+                                District </documentation>
+                        </annotation>
+                    </element>
+                    <element name="division" type="diggs:DiggsStringType" minOccurs="0"
+                        maxOccurs="1">
+                        <annotation>
+                            <documentation>Name or ID of a territory of land classified as a
+                                Division </documentation>
+                        </annotation>
+                    </element>
+                    <element minOccurs="0" name="lot" type="diggs:DiggsStringType">
+                        <annotation>
+                            <documentation>Name or ID of a territory of land classified as a Lot
+                            </documentation>
+                        </annotation>
+                    </element>
+                    <element name="parceI" type="diggs:DiggsStringType" minOccurs="0" maxOccurs="1">
+                        <annotation>
+                            <documentation>Name or ID of a territory of land classified as a Parcel
+                            </documentation>
+                        </annotation>
+                    </element>
                     <element name="plss" type="diggs:PlssPropertyType" minOccurs="0" maxOccurs="1"/>
+                    <element name="quadrangle" type="diggs:DiggsStringType" minOccurs="0"
+                        maxOccurs="1">
+                        <annotation>
+                            <documentation>Name or ID of a territory of land classified as a map quadrange
+                            </documentation>
+                        </annotation>
+                    </element>
                     <element name="route" type="diggs:DiggsStringType" minOccurs="0" maxOccurs="1">
                         <annotation>
                             <documentation>Name or ID of the route along which a centerline survey
@@ -3371,42 +3400,16 @@
                                 survey (left/right).</documentation>
                         </annotation>
                     </element>
-                    <element name="division" type="diggs:DiggsStringType" minOccurs="0"
-                        maxOccurs="1">
-                        <annotation>
-                            <documentation>Name or ID of a territory of land classified as a
-                                Division </documentation>
-                        </annotation>
-                    </element>
-                    <element name="district" type="diggs:DiggsStringType" minOccurs="0"
-                        maxOccurs="1">
-                        <annotation>
-                            <documentation>Name or ID of a territory of land classified as a
-                                District </documentation>
-                        </annotation>
-                    </element>
-                    <element name="parceI" type="diggs:DiggsStringType" minOccurs="0" maxOccurs="1">
-                        <annotation>
-                            <documentation>Name or ID of a territory of land classified as a Parcel
-                            </documentation>
-                        </annotation>
-                    </element>
-                    <element name="quadrangle" type="diggs:DiggsStringType" minOccurs="0"
-                        maxOccurs="1">
-                        <annotation>
-                            <documentation>Name or ID of a territory of land classified as a map quadrange
-                            </documentation>
-                        </annotation>
-                    </element>
                     <element name="tract" type="diggs:DiggsStringType" minOccurs="0" maxOccurs="1">
                         <annotation>
                             <documentation>Name or ID of a territory of land classified as a Tract
                             </documentation>
                         </annotation>
                     </element>
-                    <element minOccurs="0" name="lot" type="diggs:DiggsStringType">
+                    <element name="watershed" type="diggs:DiggsStringType" minOccurs="0"
+                        maxOccurs="1">
                         <annotation>
-                            <documentation>Name or ID of a territory of land classified as a Lot
+                            <documentation>Name or ID of a territory of land classified as a Watershed
                             </documentation>
                         </annotation>
                     </element>
@@ -3448,6 +3451,11 @@ DSB: REMOVED FROM PROFILE
         <complexContent>
             <extension base="diggs:AbstractObjectType">
                 <sequence>
+                    <element minOccurs="0" name="locationMethod" type="gml:CodeType">
+                        <annotation>
+                            <documentation>The method used to determine the coordinate information, eg. GPS, Google Earth, surveyed, etc. Intended to come from a controlled list of terms.</documentation>
+                        </annotation>
+                    </element>
                     <element minOccurs="0" name="xValueUncertainty"
                         type="diggs:UncertaintyPropertyType">
                         <annotation>
@@ -4907,7 +4915,7 @@ DSB: REMOVED FROM PROFILE
                     <choice>
                         <sequence>
                             <element ref="diggs:samplingFeatureRef" minOccurs="1" maxOccurs="1"/>
-                            <element name="sampledInterval" type="diggs:LocationPropertyType"
+                            <element name="samplingLocation" type="diggs:LocationPropertyType"
                                 minOccurs="1"/>
                         </sequence>
                         <sequence>
@@ -4974,11 +4982,6 @@ DSB: REMOVED FROM PROFILE
                                 on this sample.</documentation>
                         </annotation>
                     </element>
-                    <element minOccurs="0" name="totalSampleRecovery" type="witsml:lengthMeasure">
-                        <annotation>
-                            <documentation>Length of the total amount of sample recovered. If no sample is recovered, this value is 0. This property is not instantiated if sample recovered is a fluid or gas.</documentation>
-                        </annotation>
-                    </element>
                     <element minOccurs="0" name="rockQualityDesignation"
                         type="diggs:Val0-100MeasureType">
                         <annotation>
@@ -5000,12 +5003,6 @@ DSB: REMOVED FROM PROFILE
                     </element>
                     <element minOccurs="0" name="samplingEnvironment"
                         type="diggs:EnvironmentPropertyType"/>
-                    <element name="samplingMethod" type="diggs:SpecificationPropertyType"
-                        maxOccurs="unbounded" minOccurs="0">
-                        <annotation>
-                            <documentation>A property that contains a Specification object detailing the method of sampling</documentation>
-                        </annotation>
-                    </element>
                     <element name="samplingEquipment" type="diggs:EquipmentPropertyType"
                         maxOccurs="unbounded" minOccurs="0">
                         <annotation>
@@ -5013,9 +5010,20 @@ DSB: REMOVED FROM PROFILE
                             <documentation>A property element that contains an Equipment feature (or reference to one) that details the sampling equipment used</documentation>
                         </annotation>
                     </element>
+                    <element name="samplingMethod" type="diggs:SpecificationPropertyType"
+                        maxOccurs="unbounded" minOccurs="0">
+                        <annotation>
+                            <documentation>A property that contains a Specification object detailing the method of sampling</documentation>
+                        </annotation>
+                    </element>
                     <element minOccurs="0" name="solidCoreRecovery" type="diggs:Val0-100MeasureType">
                         <annotation>
                             <documentation><![CDATA[For rock cores, percentage of core recovered that is solid and undisturbed]]></documentation>
+                        </annotation>
+                    </element>
+                    <element minOccurs="0" name="totalSampleRecovery" type="witsml:lengthMeasure">
+                        <annotation>
+                            <documentation>Length of the total amount of sample recovered. If no sample is recovered, this value is 0. This property is not instantiated if sample recovered is a fluid or gas.</documentation>
                         </annotation>
                     </element>
                     <element maxOccurs="unbounded" minOccurs="0"
@@ -5167,6 +5175,47 @@ DSB: REMOVED FROM PROFILE
                 through insertion of a probe into the ground. </documentation>
         </annotation>
     </element>
+    <element name="SoundingConstructionMethod" type="diggs:SoundingConstructionMethodType"/>
+    <complexType name="SoundingConstructionMethodPropertyType">
+        <sequence>
+            <element maxOccurs="1" minOccurs="1" ref="diggs:SoundingConstructionMethod"/>
+        </sequence>
+    </complexType>
+    <complexType name="SoundingConstructionMethodType">
+        <complexContent>
+            <extension base="diggs:AbstractFeatureType">
+                <sequence>
+                    <element minOccurs="0" ref="diggs:location">
+                        <annotation>
+                            <documentation>The location within the sampling feature that corresponds
+                                to the particular construction method being referenced here. If
+                                omitted, it is assumed that the procedures specified apply to the
+                                entire extent of the sampling feature</documentation>
+                        </annotation>
+                    </element>
+                    <element maxOccurs="1" minOccurs="0" name="methodTime"
+                        type="diggs:TimeIntervalPropertyType">
+                        <annotation>
+                            <documentation>The period of time during which the construction event is
+                                occurring</documentation>
+                        </annotation>
+                    </element>
+                    <element name="constructionMethod" type="diggs:SpecificationPropertyType"
+                        maxOccurs="unbounded" minOccurs="0">
+                        <annotation>
+                            <documentation>Properties describing the method by which the borehole is constructed over this location interval</documentation>
+                        </annotation>
+                    </element>
+                    <element name="constructionEquipment" type="diggs:EquipmentPropertyType"
+                        maxOccurs="unbounded" minOccurs="0">
+                        <annotation>
+                            <documentation>A property element that contains an Equipment feature (or reference to one) that details the construction equipment used.</documentation>
+                        </annotation>
+                    </element>
+                </sequence>
+            </extension>
+        </complexContent>
+    </complexType>
     <element name="SoundingEvent" type="diggs:SoundingEventType"
         substitutionGroup="diggs:AbstractEvent"/>
     <complexType name="SoundingEventPropertyType">
@@ -5236,7 +5285,7 @@ DSB: REMOVED FROM PROFILE
                         </annotation>
                     </element>
                     <element minOccurs="0" name="constructionMethod"
-                        type="diggs:BoreholeConstructionMethodPropertyType" maxOccurs="unbounded">
+                        type="diggs:SoundingConstructionMethodPropertyType" maxOccurs="unbounded">
                         <annotation>
                             <documentation>Information regarding construction of the sounding over
                                 different depth intervals</documentation>
@@ -5292,6 +5341,13 @@ DSB: REMOVED FROM PROFILE
             </extension>
         </complexContent>
     </complexType>
+    <complexType name="SpecificGravityType">
+        <simpleContent>
+            <extension base="diggs:DescriptorValueType">
+                <attribute name="waterTemperature" type="string"/>
+            </extension>
+        </simpleContent>
+    </complexType>
     <element name="SoilSpecimen" type="diggs:SoilSpecimenType"
         substitutionGroup="diggs:AbstractSpecimen">
         <annotation>
@@ -5331,6 +5387,12 @@ DSB: REMOVED FROM PROFILE
                     <element minOccurs="0" name="sizeFraction" type="diggs:SizeFractionPropertyType">
                         <annotation>
                             <documentation>For soil speciments, size fraction from which test portion was obtained</documentation>
+                        </annotation>
+                    </element>
+                    <element minOccurs="0" name="specificGravityOfSolids"
+                        type="diggs:SpecificGravityType">
+                        <annotation>
+                            <documentation>Specific gravity of soil solids (Gs) is the ratio of the density of a substance to the density of a reference substance, usually water at 4 deg C; equivalently, it is the ratio of the mass of a substance to the mass of a reference substance for the same given volume.</documentation>
                         </annotation>
                     </element>
                     <element minOccurs="0" name="specimenType" type="diggs:SpecimenTypeType">
@@ -5431,7 +5493,7 @@ DSB: REMOVED FROM PROFILE
                                 4) sphere</documentation>
                         </annotation>
                     </element>
-                    <element minOccurs="0" name="specimenVoidRatio" type="witsml:volumeMeasure">
+                    <element minOccurs="0" name="specimenVoidRatio" type="double">
                         <annotation>
                             <documentation>Void ratio (for soils) is defined as the volume of voids divided by the volume of solids</documentation>
                         </annotation>
