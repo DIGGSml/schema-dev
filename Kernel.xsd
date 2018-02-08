@@ -1011,24 +1011,6 @@
             </extension>
         </simpleContent>
     </complexType>
-    <element name="BlockSampleDetail" type="diggs:BlockSampleDetailType"
-        substitutionGroup="diggs:AbstractObject" abstract="false"/>
-    <complexType name="BlockSampleDetailPropertyType">
-        <sequence>
-            <element ref="diggs:BlockSampleDetail" minOccurs="1" maxOccurs="1"/>
-        </sequence>
-    </complexType>
-    <complexType name="BlockSampleDetailType">
-        <complexContent>
-            <extension base="diggs:AbstractObjectType">
-                <sequence>
-                    <element name="height" type="witsml:lengthMeasure" minOccurs="0" maxOccurs="1"/>
-                    <element name="length" type="witsml:lengthMeasure" minOccurs="0" maxOccurs="1"/>
-                    <element name="width" type="witsml:lengthMeasure" minOccurs="0" maxOccurs="1"/>
-                </sequence>
-            </extension>
-        </complexContent>
-    </complexType>
     <element abstract="false" name="Borehole"
         substitutionGroup="diggs:AbstractLinearSamplingFeature" type="diggs:BoreholeType">
         <annotation>
@@ -1945,13 +1927,7 @@
             </extension>
         </complexContent>
     </complexType>
-    <element name="CylindricalSampleDetail" type="diggs:CylindricalSampleDetailType"/>
-    <complexType name="CylindricalSampleDetailPropertyType">
-        <sequence>
-            <element ref="diggs:CylindricalSampleDetail"/>
-        </sequence>
-    </complexType>
-    <complexType name="CylindricalSampleDetailType">
+    <complexType name="CylindricalSampleDimensionsType">
         <complexContent>
             <extension base="diggs:AbstractObjectType">
                 <sequence>
@@ -1962,7 +1938,7 @@
                     </element>
                     <element minOccurs="0" name="length" type="witsml:lengthMeasure">
                         <annotation>
-                            <documentation>Total length of the sample, as recovered</documentation>
+                            <documentation>Total length of the sample.</documentation>
                         </annotation>
                     </element>
                 </sequence>
@@ -4826,27 +4802,6 @@ DSB: REMOVED FROM PROFILE
                                 string</documentation>
                         </annotation>
                     </element>
-                    <choice minOccurs="0">
-                        <annotation>
-                            <documentation>If sample is cylindrical in shape (eg. a soil or rock
-                                core) or a block sample, select one of the appropriate choices and
-                                enter related information in either cylindricalSampleDetails or
-                                blockSampleDetails properties. </documentation>
-                        </annotation>
-                        <element minOccurs="1" name="coreSample"
-                            type="diggs:CylindricalSampleDetailPropertyType">
-                            <annotation>
-                                <documentation><![CDATA[If the sample is a core (eg. cylindrical with integrity such that the location of the ends of the sample can be defined in space), then these elements may be used to further describe the sample.]]></documentation>
-                            </annotation>
-                        </element>
-                        <element name="blockSample" type="diggs:BlockSampleDetailPropertyType">
-                            <annotation>
-                                <documentation>If the sample is a block sample with integrity and
-                                    measurable width, height, and depth, those details are entered
-                                    here</documentation>
-                            </annotation>
-                        </element>
-                    </choice>
                     <element minOccurs="0" name="initialContainer"
                         type="diggs:ContainerPropertyType">
                         <annotation>
@@ -4860,6 +4815,8 @@ DSB: REMOVED FROM PROFILE
                                 on this sample.</documentation>
                         </annotation>
                     </element>
+                    <element minOccurs="0" name="sampleDimensions"
+                        type="diggs:SampleDimensionsPropertyType"/>
                     <element minOccurs="0" name="sampleMatrix" type="gml:CodeType">
                         <annotation>
                             <documentation>A description of the sample matrix, if applicable. This
@@ -4966,13 +4923,7 @@ DSB: REMOVED FROM PROFILE
                     </element>
                     <element minOccurs="0" name="lengthLongestPortion" type="witsml:lengthMeasure">
                         <annotation>
-                            <documentation><![CDATA[Length of the longest solid portion of sample]]></documentation>
-                        </annotation>
-                    </element>
-                    <element minOccurs="0" name="percentSampleRecovered"
-                        type="diggs:PercentMeasureType">
-                        <annotation>
-                            <documentation>The percentage of the sampled interval taken up by solid sample; derived from the totalSampleRecovery divided by the length of the sampledInterval. This value is 0 if no sampled recovered, and  100 if sample recovered is a fluid or gas.</documentation>
+                            <documentation><![CDATA[For rock cores, the Length of the longest solid, cylindrical core piece of the sample]]></documentation>
                         </annotation>
                     </element>
                     <element minOccurs="0" name="purpose" type="diggs:DiggsStringType">
@@ -4982,10 +4933,10 @@ DSB: REMOVED FROM PROFILE
                                 on this sample.</documentation>
                         </annotation>
                     </element>
-                    <element minOccurs="0" name="rockQualityDesignation"
-                        type="diggs:Val0-100MeasureType">
+                    <element minOccurs="0" name="rockQualityDesignationLength"
+                        type="witsml:lengthMeasure">
                         <annotation>
-                            <documentation><![CDATA[For rock cores, Rock Quality Designation]]></documentation>
+                            <documentation><![CDATA[For rock cores, the sum of length of core pieces that are > 100 mm (4 inches) measured along the centerline]]></documentation>
                         </annotation>
                     </element>
                     <element maxOccurs="unbounded" minOccurs="0" name="sampleProduced"
@@ -5016,12 +4967,14 @@ DSB: REMOVED FROM PROFILE
                             <documentation>A property that contains a Specification object detailing the method of sampling</documentation>
                         </annotation>
                     </element>
-                    <element minOccurs="0" name="solidCoreRecovery" type="diggs:Val0-100MeasureType">
+                    <element minOccurs="0" name="solidCoreRecoveryLength"
+                        type="witsml:lengthMeasure">
                         <annotation>
-                            <documentation><![CDATA[For rock cores, percentage of core recovered that is solid and undisturbed]]></documentation>
+                            <documentation><![CDATA[For rock cores, the sum of length of solid, cylindrical, core pieces]]></documentation>
                         </annotation>
                     </element>
-                    <element minOccurs="0" name="totalSampleRecovery" type="witsml:lengthMeasure">
+                    <element minOccurs="0" name="totalSampleRecoveryLength"
+                        type="witsml:lengthMeasure">
                         <annotation>
                             <documentation>Length of the total amount of sample recovered. If no sample is recovered, this value is 0. This property is not instantiated if sample recovered is a fluid or gas.</documentation>
                         </annotation>
@@ -5031,6 +4984,45 @@ DSB: REMOVED FROM PROFILE
                 </sequence>
             </extension>
         </complexContent>
+    </complexType>
+    <element name="SampleDimensions" type="diggs:SampleDimensionsType">
+        <annotation>
+            <documentation>For soil or rock samples, contains properties on the sample dimensions
+</documentation>
+        </annotation>
+    </element>
+    <complexType name="SampleDimensionsType">
+        <complexContent>
+            <extension base="diggs:AbstractObjectType">
+                <sequence>
+                    <element minOccurs="0" name="diameter" type="witsml:lengthMeasure">
+                        <annotation>
+                            <documentation><![CDATA[For core or cylindrical samples, the diameter of the sample]]></documentation>
+                        </annotation>
+                    </element>
+                    <element name="height" type="witsml:lengthMeasure" minOccurs="0" maxOccurs="1">
+                        <annotation>
+                            <documentation>For block samples, the length of one of the sides of the block measured normal to the sampling direction</documentation>
+                        </annotation>
+                    </element>
+                    <element name="length" type="witsml:lengthMeasure" minOccurs="0" maxOccurs="1">
+                        <annotation>
+                            <documentation>For block or core samples, the length of the sample measured in the sampling direction (eg. core length or length of block sample as measured between the top and base of the sampling interval)</documentation>
+                        </annotation>
+                    </element>
+                    <element name="width" type="witsml:lengthMeasure" minOccurs="0" maxOccurs="1">
+                        <annotation>
+                            <documentation>For block samples, the length of one of the sides of the block measured normal to the sampling direction</documentation>
+                        </annotation>
+                    </element>
+                </sequence>
+            </extension>
+        </complexContent>
+    </complexType>
+    <complexType name="SampleDimensionsPropertyType">
+        <sequence>
+            <element ref="diggs:SampleDimensions"/>
+        </sequence>
     </complexType>
     <element name="SamplingFeatureGroup" substitutionGroup="diggs:AbstractGroup"
         type="diggs:SamplingFeatureGroupType"/>
@@ -5114,9 +5106,9 @@ DSB: REMOVED FROM PROFILE
         <annotation>
             <documentation/>
         </annotation>
-        <choice>
+        <sequence>
             <element ref="diggs:SizeFraction"/>
-        </choice>
+        </sequence>
     </complexType>
     <complexType name="SizeFractionType">
         <annotation>
