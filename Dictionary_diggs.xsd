@@ -1,0 +1,90 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<schema xmlns:diggs="http://diggsml.org/schemas/2.5.a"
+    xmlns:diggs_geo="http://diggsml.org/schemas/2.5.a/geotechnical"
+    xmlns:g3.3="http://www.opengis.net/gml/3.3/ce" xmlns:glr="http://www.opengis.net/gml/3.3/lr"
+    xmlns:glrov="http://www.opengis.net/gml/3.3/lrov"
+    xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns="http://www.w3.org/2001/XMLSchema"
+    xmlns:xlink="http://www.w3.org/1999/xlink" xmlns:witsml="http://www.witsml.org/schemas/131"
+    xmlns:gml="http://www.opengis.net/gml/3.2"
+    xmlns:vc="http://www.w3.org/2007/XMLSchema-versioning"
+    targetNamespace="http://diggsml.org/schemas/2.5.a" version="2.5.a"
+    elementFormDefault="qualified" vc:maxVersion="1.1" vc:minVersion="1.0">
+    <!--
+ import the gml and xlinks namespaces (original local profiles)  
+-->
+    <include schemaLocation="Kernel.xsd"/>
+    <import namespace="http://www.opengis.net/gml/3.2" schemaLocation="gml3.2Profile_diggs.xsd"/>
+    <import namespace="http://www.w3.org/1999/xlink" schemaLocation="xlinks.xsd"/>
+    <import namespace="http://www.w3.org/XML/1998/namespace" schemaLocation="xml.xsd"/>
+    <import namespace="http://www.opengis.net/gml/3.2" schemaLocation="gml3.2Profile_diggs.xsd"/>
+    <element name="Definition" substitutionGroup="gml:AbstractGML" abstract="false"
+        type="diggs:DefinitionType"> </element>
+    <complexType name="DefinitionType">
+        <complexContent>
+            <extension base="gml:DefinitionType">
+                <sequence>
+                    <element minOccurs="0" name="dataType" type="diggs:PropertyDataTypeEnumType">
+                        <annotation>
+                            <documentation>The data type of the propoerty, eg. integer, string, etc. From an enumerated list</documentation>
+                        </annotation>
+                    </element>
+                    <element minOccurs="0" name="uomType" type="diggs:PropertyUomTypeEnumType">
+                        <annotation>
+                            <documentation>The type or classification of the unit of measure for properties that have numeric values. From an enumerated list.</documentation>
+                        </annotation>
+                    </element>
+                    <element maxOccurs="unbounded" minOccurs="0" name="associatedProcedure"
+                        type="string">
+                        <annotation>
+                            <documentation>The name of the Diggs procedure object that yields this property as a result. Different test procedures can produce the same result property and thus multiple instances of this property are allowed.</documentation>
+                        </annotation>
+                    </element>
+                </sequence>
+            </extension>
+        </complexContent>
+    </complexType>
+    <element name="Dictionary" type="diggs:DictionaryType"/>
+    <complexType name="DictionaryBaseType">
+        <complexContent>
+            <restriction base="gml:DictionaryType">
+                <sequence>
+                    <sequence>
+                        <sequence>
+                            <element minOccurs="0" ref="gml:description"/>
+                            <element minOccurs="0" ref="gml:descriptionReference"/>
+                            <element ref="gml:identifier"/>
+                            <element maxOccurs="unbounded" minOccurs="0" ref="gml:name"/>
+                        </sequence>
+                        <sequence>
+                            <element minOccurs="0" ref="gml:remarks"/>
+                        </sequence>
+                    </sequence>
+                    <choice maxOccurs="unbounded" minOccurs="0"/>
+                </sequence>
+            </restriction>
+        </complexContent>
+    </complexType>
+    <complexType name="DictionaryEntryBaseType">
+        <complexContent>
+            <restriction base="gml:DictionaryEntryType"/>
+        </complexContent>
+    </complexType>
+    <complexType name="DictionaryEntryType">
+        <complexContent>
+            <extension base="diggs:DictionaryEntryBaseType">
+                <sequence minOccurs="0">
+                    <element ref="diggs:Definition"/>
+                </sequence>
+            </extension>
+        </complexContent>
+    </complexType>
+    <complexType name="DictionaryType">
+        <complexContent>
+            <extension base="diggs:DictionaryBaseType">
+                <choice maxOccurs="unbounded" minOccurs="0">
+                    <element name="dictionaryEntry" type="diggs:DictionaryEntryType"/>
+                </choice>
+            </extension>
+        </complexContent>
+    </complexType>
+</schema>
