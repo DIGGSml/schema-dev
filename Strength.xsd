@@ -70,44 +70,6 @@
             </extension>
         </complexContent>
     </complexType>
-    <element abstract="false" name="CompressiveStrengthTest"
-        substitutionGroup="diggs:AbstractLaboratoryTestProcedure"
-        type="diggs_geo:CompressiveStrengthTestType">
-        <annotation>
-            <documentation>The Compressive Strength of a material is that value of uniaxial compressive stress reached when the material fails</documentation>
-        </annotation>
-    </element>
-    <complexType name="CompressiveStrengthTestType">
-        <annotation>
-            <documentation>Base type for CompressiveStrengthTest</documentation>
-        </annotation>
-        <complexContent>
-            <extension base="diggs:AbstractLaboratoryTestProcedureType">
-                <sequence>
-                    <element minOccurs="0" name="waterContent" type="diggs:WaterContentType">
-                        <annotation>
-                            <documentation>Water content of specimen tested</documentation>
-                        </annotation>
-                    </element>
-                    <element minOccurs="0" name="testDuration" type="witsml:timeMeasure">
-                        <annotation>
-                            <documentation>Duration of the test.</documentation>
-                        </annotation>
-                    </element>
-                    <element minOccurs="0" name="stressRate" type="diggs:forcePerTimeMeasure">
-                        <annotation>
-                            <documentation>Stress rate</documentation>
-                        </annotation>
-                    </element>
-                    <element minOccurs="0" name="failureMode" type="gml:CodeType">
-                        <annotation>
-                            <documentation>Mode of failure (eg. shear).</documentation>
-                        </annotation>
-                    </element>
-                </sequence>
-            </extension>
-        </complexContent>
-    </complexType>
     <element abstract="false" name="ConsolidationIncrement"
         substitutionGroup="diggs:AbstractProcedureTrial" type="diggs_geo:ConsolidationIncrementType">
         <annotation>
@@ -531,7 +493,7 @@
         </complexContent>
     </complexType>
     <element abstract="false" name="ShearingIncrement"
-        substitutionGroup="diggs:AbstractProcedureTrial" type="diggs_geo:ShearingnIncrementType">
+        substitutionGroup="diggs:AbstractProcedureTrial" type="diggs_geo:ShearingIncrementType">
         <annotation>
             <documentation/>
         </annotation>
@@ -544,7 +506,7 @@
             <element maxOccurs="1" minOccurs="1" ref="diggs_geo:ShearingIncrement"/>
         </sequence>
     </complexType>
-    <complexType name="ShearingnIncrementType">
+    <complexType name="ShearingIncrementType">
         <annotation>
             <documentation/>
         </annotation>
@@ -603,6 +565,47 @@
                             </element>
                         </sequence>
                     </choice>
+                </sequence>
+            </extension>
+        </complexContent>
+    </complexType>
+    <element abstract="false" name="StressStrainIncrement"
+        substitutionGroup="diggs:AbstractProcedureTrial" type="diggs_geo:StressStrainIncrementType">
+        <annotation>
+            <documentation/>
+        </annotation>
+    </element>
+    <complexType name="StressStrainIncrementPropertyType">
+        <annotation>
+            <documentation>Property for ConsolidationIncrements</documentation>
+        </annotation>
+        <sequence>
+            <element maxOccurs="1" minOccurs="1" ref="diggs_geo:StressStrainIncrement"/>
+        </sequence>
+    </complexType>
+    <complexType name="StressStrainIncrementType">
+        <annotation>
+            <documentation/>
+        </annotation>
+        <complexContent>
+            <extension base="diggs:AbstractProcedureTrialType">
+                <sequence>
+                    <element name="indes" type="positiveInteger"/>
+                    <element minOccurs="0" name="elapsedTime" type="witsml:timeMeasure">
+                        <annotation>
+                            <documentation>Time since the initiation of consolidation stage</documentation>
+                        </annotation>
+                    </element>
+                    <element minOccurs="1" name="compressiveStress" type="witsml:forceMeasure">
+                        <annotation>
+                            <documentation>Load applied to the top of the sample</documentation>
+                        </annotation>
+                    </element>
+                    <element minOccurs="1" name="axialStrain" type="diggs:PercentMeasureType">
+                        <annotation>
+                            <documentation>Strain deflection of sample under load</documentation>
+                        </annotation>
+                    </element>
                 </sequence>
             </extension>
         </complexContent>
@@ -822,7 +825,7 @@
                         </annotation>
                     </element>
                     <element minOccurs="0" name="rateOfAxialStrainDuringShear"
-                        type="diggs:StrainPerTimeMeasureType">
+                        type="diggs:PercentPerTimeMeasureType">
                         <annotation>
                             <documentation>Strain rate during shear stage
 </documentation>
@@ -884,7 +887,7 @@
         <complexContent>
             <extension base="diggs:AbstractProcedureTrialType">
                 <sequence>
-                    <element minOccurs="1" ref="diggs:specimenRef"> </element>
+                    <element minOccurs="0" ref="diggs:specimenRef"> </element>
                     <element minOccurs="0" name="filterInfo" type="diggs_geo:FilterInfoPropertyType">
                         <annotation>
                             <documentation>Information about filters used and parameters used for filter correction.</documentation>
@@ -921,6 +924,46 @@
                     <element maxOccurs="unbounded" minOccurs="0" name="trial"
                         type="diggs_geo:TriaxialTestTrialPropertyType"/>
                     <!-- 2015-05-01 PwD changed from type="diggs_geo:TriaxialTestTrialsType" -->
+                </sequence>
+            </extension>
+        </complexContent>
+    </complexType>
+    <element abstract="false" name="UnconfinedCompressiveStrengthTest"
+        substitutionGroup="diggs:AbstractLaboratoryTestProcedure"
+        type="diggs_geo:UnconfinedCompressiveStrengthTestType">
+        <annotation>
+            <documentation>The Compressive Strength of a material is that value of uniaxial compressive stress reached when the material fails</documentation>
+        </annotation>
+    </element>
+    <complexType name="UnconfinedCompressiveStrengthTestType">
+        <annotation>
+            <documentation>Base type for CompressiveStrengthTest</documentation>
+        </annotation>
+        <complexContent>
+            <extension base="diggs:AbstractLaboratoryTestProcedureType">
+                <sequence>
+                    <element minOccurs="0" name="testDuration" type="witsml:timeMeasure">
+                        <annotation>
+                            <documentation>Duration of the test.</documentation>
+                        </annotation>
+                    </element>
+                    <element minOccurs="0" name="averageRateOfStrain"
+                        type="diggs:PercentPerTimeMeasureType">
+                        <annotation>
+                            <documentation>Stress rate</documentation>
+                        </annotation>
+                    </element>
+                    <element minOccurs="0" name="modeOfFailure" type="gml:CodeType">
+                        <annotation>
+                            <documentation>Failure mode (eg. shear plane, bulging, etc.), Intended to come from a controlled list of terms</documentation>
+                        </annotation>
+                    </element>
+                    <element minOccurs="0" name="slopeOfAngleOfFailureSurface"
+                        type="witsml:planeAngleMeasure"/>
+                    <element minOccurs="0" name="axialStrainAtFailure"
+                        type="diggs:PercentMeasureType"> </element>
+                    <element maxOccurs="unbounded" minOccurs="0" name="stressStrainIncrement"
+                        type="diggs_geo:StressStrainIncrementPropertyType"/>
                 </sequence>
             </extension>
         </complexContent>
