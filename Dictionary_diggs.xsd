@@ -16,7 +16,6 @@
     <import namespace="http://www.opengis.net/gml/3.2" schemaLocation="gml3.2Profile_diggs.xsd"/>
     <import namespace="http://www.w3.org/1999/xlink" schemaLocation="xlinks.xsd"/>
     <import namespace="http://www.w3.org/XML/1998/namespace" schemaLocation="xml.xsd"/>
-    <import namespace="http://www.opengis.net/gml/3.2" schemaLocation="gml3.2Profile_diggs.xsd"/>
     <element name="Definition" substitutionGroup="gml:AbstractGML" abstract="false"
         type="diggs:DefinitionType"> </element>
     <complexType name="DefinitionType">
@@ -25,7 +24,7 @@
                 <sequence>
                     <element minOccurs="0" name="dataType" type="diggs:PropertyDataTypeEnumType">
                         <annotation>
-                            <documentation>The data type of the propoerty, eg. integer, string, etc. From an enumerated list</documentation>
+                            <documentation>The data type of the property, eg. integer, string, etc. From an enumerated list</documentation>
                         </annotation>
                     </element>
                     <element minOccurs="0" name="uomType" type="diggs:PropertyUomTypeEnumType">
@@ -43,27 +42,7 @@
             </extension>
         </complexContent>
     </complexType>
-    <element name="Dictionary" type="diggs:DictionaryType"/>
-    <complexType name="DictionaryBaseType">
-        <complexContent>
-            <restriction base="gml:DictionaryType">
-                <sequence>
-                    <sequence>
-                        <sequence>
-                            <element minOccurs="0" ref="gml:description"/>
-                            <element minOccurs="0" ref="gml:descriptionReference"/>
-                            <element ref="gml:identifier"/>
-                            <element maxOccurs="unbounded" minOccurs="0" ref="gml:name"/>
-                        </sequence>
-                        <sequence>
-                            <element minOccurs="0" ref="gml:remarks"/>
-                        </sequence>
-                    </sequence>
-                    <choice maxOccurs="unbounded" minOccurs="0"/>
-                </sequence>
-            </restriction>
-        </complexContent>
-    </complexType>
+    <element name="Dictionary" type="diggs:DictionaryType" substitutionGroup="diggs:Definition"/>
     <complexType name="DictionaryEntryBaseType">
         <complexContent>
             <restriction base="gml:DictionaryEntryType"/>
@@ -71,16 +50,17 @@
     </complexType>
     <complexType name="DictionaryEntryType">
         <complexContent>
-            <extension base="diggs:DictionaryEntryBaseType">
+            <extension base="gml:AbstractMemberType">
                 <sequence minOccurs="0">
                     <element ref="diggs:Definition"/>
                 </sequence>
+                <attributeGroup ref="gml:AssociationAttributeGroup"/>
             </extension>
         </complexContent>
     </complexType>
     <complexType name="DictionaryType">
         <complexContent>
-            <extension base="diggs:DictionaryBaseType">
+            <extension base="diggs:DefinitionType">
                 <choice maxOccurs="unbounded" minOccurs="0">
                     <element name="dictionaryEntry" type="diggs:DictionaryEntryType"/>
                 </choice>

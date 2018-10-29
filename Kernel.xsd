@@ -1890,6 +1890,11 @@
         <complexContent>
             <extension base="diggs:AbstractEquipmentType">
                 <sequence>
+                    <element minOccurs="0" name="areaRatio" type="diggs:PercentMeasureType">
+                        <annotation>
+                            <documentation>A sample disturbance parameter, defined as the difference of the squares of the outside and inside diameter of the cutting shoe, divided by the square of the inside diameter of the cutting shoe.</documentation>
+                        </annotation>
+                    </element>
                     <element minOccurs="0" name="barrelExtension" type="witsml:lengthMeasure">
                         <annotation>
                             <documentation>Distance that coring device extends beyond drill bit at
@@ -1899,17 +1904,25 @@
                     </element>
                     <element minOccurs="0" name="barrelInnerDiameter" type="witsml:lengthMeasure">
                         <annotation>
-                            <documentation>Diamter of inside of corebarrel</documentation>
+                            <documentation>Diamter of inside of core barrel or sampling tube
+</documentation>
                         </annotation>
                     </element>
-                    <element minOccurs="0" name="barrelOuterDiameter" type="witsml:lengthMeasure">
+                    <element minOccurs="0" name="barrelOuterDiameter"
+                        type="diggs:PercentMeasureType">
                         <annotation>
-                            <documentation>Diameter of outside of core barrel</documentation>
+                            <documentation>Diameter of outside of core barrel or sampling tube</documentation>
                         </annotation>
                     </element>
                     <element minOccurs="0" name="barrelLength" type="witsml:lengthMeasure">
                         <annotation>
-                            <documentation>Length of core barrel</documentation>
+                            <documentation>Length of core barrel or sampling tube</documentation>
+                        </annotation>
+                    </element>
+                    <element minOccurs="0" name="insideClearanceRatio"
+                        type="diggs:PercentMeasureType">
+                        <annotation>
+                            <documentation>The inside sample diameter minus the cutting shoe inside diameter divided by the cutting shoe inside diameter, expressed as a percentage. A sample disturbance parameter.</documentation>
                         </annotation>
                     </element>
                     <element minOccurs="0" name="linerPresent" type="boolean">
@@ -1924,10 +1937,26 @@
                                 tube).</documentation>
                         </annotation>
                     </element>
+                    <element minOccurs="0" name="outsideClearanceRatio"
+                        type="diggs:PercentMeasureType">
+                        <annotation>
+                            <documentation>The outside cutting shoe diameter minus the outside sampler diameter, divided by the outside sampler diameter, expressed as a percentage. A sample disturbance parameter.</documentation>
+                        </annotation>
+                    </element>
+                    <element minOccurs="0" name="shoeInnerDiameter" type="witsml:lengthMeasure">
+                        <annotation>
+                            <documentation>Inner diameter of the cutting shoe</documentation>
+                        </annotation>
+                    </element>
                     <element minOccurs="0" name="shoeLength" type="witsml:lengthMeasure">
                         <annotation>
                             <documentation>Length of the core shoe, eg. the device that fastens onto
                                 the lower end of the main core barrel.</documentation>
+                        </annotation>
+                    </element>
+                    <element minOccurs="0" name="shoeOuterDiameter" type="witsml:lengthMeasure">
+                        <annotation>
+                            <documentation>Inner diameter of the cutting shoe</documentation>
                         </annotation>
                     </element>
                     <element minOccurs="0" name="shoeType" type="gml:CodeType">
@@ -1961,7 +1990,16 @@
     <complexType name="DescriptorCodeType">
         <simpleContent>
             <extension base="gml:CodeType">
-                <attribute name="howDetermined" type="diggs:DescriptorMethodEnumType"/>
+                <attribute name="howDetermined" type="diggs:DescriptorMethodEnumType">
+                    <annotation>
+                        <documentation>A value describing how the classification was determined - from a controlled list.</documentation>
+                    </annotation>
+                </attribute>
+                <attribute name="legendCode" type="NCName">
+                    <annotation>
+                        <documentation>A value used to define a legend pattern; used for graphic display of a lithology. For Unified Soil Classification descriptions, this attribute would typically hold the Group Symbol.</documentation>
+                    </annotation>
+                </attribute>
             </extension>
         </simpleContent>
     </complexType>
@@ -2446,7 +2484,7 @@
                     <element minOccurs="0" name="particleAngularity" type="gml:CodeType">
                         <annotation>
                             <documentation>A descriptive term or phrase to describe the overall
-                                angularity of grains (eg. "well-rounded"). Intended to come from a
+                                angularity of grains (eg. "rounded"). Intended to come from a
                                 controlled list.</documentation>
                         </annotation>
                     </element>
@@ -4845,6 +4883,7 @@ DSB: REMOVED FROM PROFILE
                                 string</documentation>
                         </annotation>
                     </element>
+                    <element minOccurs="0" name="extrusionMethod" type="gml:CodeType"/>
                     <element minOccurs="0" name="initialContainer"
                         type="diggs:ContainerPropertyType">
                         <annotation>
@@ -4864,6 +4903,13 @@ DSB: REMOVED FROM PROFILE
                         <annotation>
                             <documentation>A description of the sample matrix, if applicable. This
                                 is intended to come from a controlled list.</documentation>
+                        </annotation>
+                    </element>
+                    <element minOccurs="0" name="initialPreservationMethod"
+                        type="diggs:DiggsStringType">
+                        <annotation>
+                            <documentation>Description of methods used to preserve integrity of the sample
+</documentation>
                         </annotation>
                     </element>
                     <element minOccurs="0" name="chainOfCustodyEvent"
@@ -4980,9 +5026,14 @@ unknown - used where no information about the sampling activity exists (eg. for 
                     <element maxOccurs="unbounded" minOccurs="0" name="sampleProduced"
                         type="diggs:SampleProducedPropertyType">
                         <annotation>
-                            <documentation>Identifies the samples, the location(s) of samples
-                                (optional) and derived sample type (a controlled list) that are
+                            <documentation>Identifies the samples, and the location(s) of samples
+                                (optional) that are
                                 produced by this sampling activity</documentation>
+                        </annotation>
+                    </element>
+                    <element minOccurs="0" name="samplerInsertionMethod" type="gml:CodeType">
+                        <annotation>
+                            <documentation>For sampling of soil or rock, the means by which the sampler is inserted into the ground. From a controlled list (eg. pushed, driven, etc.</documentation>
                         </annotation>
                     </element>
                     <element minOccurs="0" name="samplingDate" type="diggs:TimeIntervalPropertyType">
@@ -6779,6 +6830,11 @@ unknown - used where no information about the sampling activity exists (eg. for 
                                 instantiated and there are multiple well casings in a borehole. In
                                 this case the borehole itself would be instantiated, and a well
                                 feature instantiated for every casing installed.</documentation>
+                        </annotation>
+                    </element>
+                    <element minOccurs="0" name="aquiferTested" type="gml:CodeType">
+                        <annotation>
+                            <documentation>Name or other identifier for the aquifer being sampled by the well.</documentation>
                         </annotation>
                     </element>
                     <element minOccurs="0" name="wellDepth" type="witsml:lengthMeasure">
