@@ -290,7 +290,7 @@
                         </annotation>
                     </element>
                     <element minOccurs="0" name="strainDialReading" type="diggs:DiggsStringType"/>
-                    <element minOccurs="1" name="totalStrain" type="diggs:PercentMeasureType">
+                    <element minOccurs="1" name="totalStrain" type="witsml:lengthPerLengthMeasure">
                         <annotation>
                             <documentation>Strain deflection of sample under load</documentation>
                         </annotation>
@@ -374,74 +374,6 @@
                 compression of the soil.</documentation>
         </annotation>
     </element>
-    <complexType name="ConsolidationTestType">
-        <annotation>
-            <documentation>Base type for ConsolidationTest</documentation>
-        </annotation>
-        <complexContent>
-            <extension base="diggs:AbstractLaboratoryTestProcedureType">
-                <sequence>
-                    <element default="false" minOccurs="0" name="consolidationTestType"
-                        type="gml:CodeType">
-                        <annotation>
-                            <documentation>Type of consolidation test.</documentation>
-                        </annotation>
-                    </element>
-                    <element minOccurs="0" name="initialWaterContent" type="diggs:WaterContentType">
-                        <annotation>
-                            <documentation>Initial moisture content of specimen</documentation>
-                        </annotation>
-                    </element>
-                    <element minOccurs="0" name="finalWaterContent" type="diggs:WaterContentType">
-                        <annotation>
-                            <documentation>Final moisture content of specimen</documentation>
-                        </annotation>
-                    </element>
-                    <element minOccurs="0" name="initialBulkDensity"
-                        type="diggs:DensityOrUnitWeightMeasureType">
-                        <annotation>
-                            <documentation>Initial bulk density.</documentation>
-                        </annotation>
-                    </element>
-                    <element minOccurs="0" name="initialDryDensity"
-                        type="diggs:DensityOrUnitWeightMeasureType">
-                        <annotation>
-                            <documentation>Initial dry density.</documentation>
-                        </annotation>
-                    </element>
-                    <element minOccurs="0" name="specificGravity" type="double">
-                        <annotation>
-                            <documentation>Specific gravity of solids.</documentation>
-                        </annotation>
-                    </element>
-                    <element minOccurs="0" name="initialSaturation" type="diggs:PercentMeasureType">
-                        <annotation>
-                            <documentation>Initial degree of saturation</documentation>
-                        </annotation>
-                    </element>
-                    <element minOccurs="0" name="swellingPressure" type="witsml:pressureMeasure">
-                        <annotation>
-                            <documentation>Swelling pressure.</documentation>
-                        </annotation>
-                    </element>
-                    <element minOccurs="0" name="heightChange" type="diggs:PercentMeasureType">
-                        <annotation>
-                            <documentation>Height change of specimen on saturation, or flooding as
-                                percentage of original height</documentation>
-                        </annotation>
-                    </element>
-                    <element minOccurs="0" name="initialVoidRatio" type="double">
-                        <annotation>
-                            <documentation>Initial void ratio prior to running
-                                tests.</documentation>
-                        </annotation>
-                    </element>
-                    <element maxOccurs="unbounded" minOccurs="0" name="trial"
-                        type="diggs_geo:ConsolidationTestTrialPropertyType"/>
-                </sequence>
-            </extension>
-        </complexContent>
-    </complexType>
     <element abstract="false" name="ConsolidationTestTrial" substitutionGroup="diggs:AbstractObject"
         type="diggs_geo:ConsolidationTestTrialType">
         <annotation>
@@ -458,39 +390,42 @@
         </sequence>
     </complexType>
     <complexType name="ConsolidationTestTrialType">
-        <annotation>
-            <documentation>Base type for ConsolidationTestTrials</documentation>
-        </annotation>
         <complexContent>
             <extension base="diggs:AbstractProcedureTrialType">
                 <sequence>
-                    <element minOccurs="0" name="trialNo" type="integer">
+                    <element minOccurs="0" name="averageTemperature"
+                        type="witsml:thermodynamicTemperatureMeasure">
                         <annotation>
-                            <documentation>The count of the test cycle</documentation>
+                            <documentation>Average temperature over loading increment</documentation>
                         </annotation>
                     </element>
-                    <element minOccurs="0" name="loadingStress" type="witsml:pressureMeasure">
+                    <element minOccurs="1" name="appliedLoad" type="witsml:pressureMeasure">
                         <annotation>
-                            <documentation>The loading stress increment.</documentation>
+                            <documentation>Load applied for this consolidation loading increment</documentation>
                         </annotation>
                     </element>
-                    <element minOccurs="0" name="initialVoidRatio" type="double">
+                    <element minOccurs="1" name="loadingStess" type="witsml:pressureMeasure">
                         <annotation>
-                            <documentation>Initial void ratio prior at start of
-                                increment.</documentation>
+                            <documentation>Load applied for this consolidation loading increment</documentation>
                         </annotation>
                     </element>
-                    <element minOccurs="0" name="finalVoidRatio" type="double">
+                    <element maxOccurs="unbounded" minOccurs="0" name="consolidationIncrement"
+                        type="diggs_geo:DSConConsoiidationIncrementType">
                         <annotation>
-                            <documentation>Final void ratio at end of increment.</documentation>
+                            <documentation>Elapsed time and deformation recorded during this loading increment</documentation>
                         </annotation>
                     </element>
-                    <element minOccurs="0" name="endingStress" type="witsml:pressureMeasure">
+                    <element minOccurs="1" name="finalaxialDeformation" type="witsml:lengthMeasure">
                         <annotation>
-                            <documentation>Stress at end of stress
-                                increment/decrement</documentation>
+                            <documentation>Normal deformation of the sample at the end of the loading increment</documentation>
                         </annotation>
                     </element>
+                    <element minOccurs="0" name="finalStess" type="witsml:pressureMeasure">
+                        <annotation>
+                            <documentation>Loading stress measured at end of loading increment</documentation>
+                        </annotation>
+                    </element>
+                    <element minOccurs="0" ref="diggs_geo:timeInterval"/>
                     <element minOccurs="0" name="coefficientOfConsolidation" type="double">
                         <annotation>
                             <documentation>Coefficient of consolidation for this stress
@@ -503,8 +438,7 @@
                                 increment</documentation>
                         </annotation>
                     </element>
-                    <element minOccurs="0" name="coefficientTertiaryCompressionIncrement"
-                        type="double">
+                    <element minOccurs="0" name="coefficientTertiaryCompression" type="double">
                         <annotation>
                             <documentation>Coefficient of tertiary compression over stress
                                 increment</documentation>
@@ -516,23 +450,106 @@
                                 stress increment</documentation>
                         </annotation>
                     </element>
-                    <element minOccurs="0" name="averageTemperature"
-                        type="witsml:thermodynamicTemperatureMeasure">
+                </sequence>
+            </extension>
+        </complexContent>
+    </complexType>
+    <complexType name="ConsolidationTestType">
+        <annotation>
+            <documentation>Base type for ConsolidationTest</documentation>
+        </annotation>
+        <complexContent>
+            <extension base="diggs:AbstractLaboratoryTestProcedureType">
+                <sequence>
+                    <element default="false" minOccurs="0" name="consolidationTestType"
+                        type="gml:CodeType">
                         <annotation>
-                            <documentation>Average temperature over stress increment</documentation>
+                            <documentation>Type of consolidation test. (eg. Method A or Method B); intended to come from a controlled list of terms.</documentation>
+                        </annotation>
+                    </element>
+                    <element minOccurs="0" name="estimatedPreConsolidationStress"
+                        type="witsml:pressureMeasure"/>
+                    <element minOccurs="0" name="initialHeightChange"
+                        type="witsml:lengthPerLengthMeasure">
+                        <annotation>
+                            <documentation>Height change of specimen on saturation, or flooding as
+                                percentage of original height</documentation>
+                        </annotation>
+                    </element>
+                    <element default="false" minOccurs="0" name="interpretationProcedure"
+                        type="gml:CodeType">
+                        <annotation>
+                            <documentation>Interpretation procedure (1 or 2 or both) used to compute coefficient of consolidation; intended to come from a controlled list.</documentation>
+                        </annotation>
+                    </element>
+                    <element minOccurs="0" name="swellingPressure" type="witsml:pressureMeasure">
+                        <annotation>
+                            <documentation>Swelling pressure.</documentation>
+                        </annotation>
+                    </element>
+                    <element maxOccurs="unbounded" minOccurs="0" name="loadingIncrement"
+                        type="diggs_geo:ConsolidationTestTrialPropertyType"/>
+                </sequence>
+            </extension>
+        </complexContent>
+    </complexType>
+    <element name="DsConConsolidationIncrement" type="diggs_geo:DSConConsoiidationIncrementType"/>
+    <complexType name="DSConConsolidationIncrementPropertyType">
+        <sequence>
+            <element ref="diggs_geo:DsConConsolidationIncrement"/>
+        </sequence>
+    </complexType>
+    <complexType block="" name="DSConConsoiidationIncrementType">
+        <complexContent>
+            <extension base="diggs:AbstractProcedureTrialType">
+                <sequence>
+                    <element minOccurs="1" name="elapsedTime" type="witsml:timeMeasure">
+                        <annotation>
+                            <documentation>Elapsed time since the beginning of the loading increment</documentation>
+                        </annotation>
+                    </element>
+                    <element minOccurs="1" name="axialDeformation" type="witsml:lengthMeasure">
+                        <annotation>
+                            <documentation>Deformation of sample as recorded on the deformation monitor</documentation>
                         </annotation>
                     </element>
                 </sequence>
             </extension>
         </complexContent>
     </complexType>
-    <element name="DirectShearConsolidationTrial" type="diggs_geo:DirectShearConsolidationTrialType"/>
-    <complexType name="DirectShearConsolidationTrialPropertyType">
+    <element name="DirectShearConsolidationLoadingIncrement"
+        type="diggs_geo:DirectShearConsolidationTrialType"/>
+    <complexType name="ConsolidationLoadingIncrementPropertyType">
+        <sequence>
+            <element ref="diggs_geo:DirectShearConsolidationLoadingIncrement"/>
+        </sequence>
+    </complexType>
+    <complexType name="DirectShearConsolidationTrialType">
         <complexContent>
-            <extension base="diggs:AbstractProcedureTrialType"/>
+            <extension base="diggs:AbstractProcedureTrialType">
+                <sequence>
+                    <element minOccurs="1" name="appliedLoad" type="witsml:forceMeasure">
+                        <annotation>
+                            <documentation>Load applied for this consolidation loading increment</documentation>
+                        </annotation>
+                    </element>
+                    <element maxOccurs="unbounded" minOccurs="0" name="consolidationIncrement"
+                        type="diggs_geo:DSConConsolidationIncrementPropertyType">
+                        <annotation>
+                            <documentation>Elapsed time and deformation recorded during this loading increment</documentation>
+                        </annotation>
+                    </element>
+                    <element minOccurs="1" name="finalNormalDisplacement"
+                        type="witsml:lengthMeasure">
+                        <annotation>
+                            <documentation>Normal deformation of the sample at the end of the loading increment</documentation>
+                        </annotation>
+                    </element>
+                    <element minOccurs="1" ref="diggs_geo:timeInterval"/>
+                </sequence>
+            </extension>
         </complexContent>
     </complexType>
-    <complexType name="DirectShearConsolidationTrialType"/>
     <element abstract="false" name="DirectShearTest"
         substitutionGroup="diggs:AbstractLaboratoryTestProcedure"
         type="diggs_geo:DirectShearTestType">
@@ -543,8 +560,8 @@
                 single shear plane.</documentation>
         </annotation>
     </element>
-    <element abstract="false" name="DirectShearTestTrial" substitutionGroup="diggs:AbstractObject"
-        type="diggs_geo:DirectShearTestTrialType">
+    <element abstract="false" name="DirectShearTestIncrement"
+        substitutionGroup="diggs:AbstractObject" type="diggs_geo:DirectShearTestIncrementType">
         <annotation>
             <documentation>Results for each trial in DirectShearTest</documentation>
         </annotation>
@@ -555,7 +572,7 @@
                 the multiple trials.</documentation>
         </annotation>
         <sequence>
-            <element maxOccurs="1" minOccurs="1" ref="diggs_geo:DirectShearTestTrial"/>
+            <element maxOccurs="1" minOccurs="1" ref="diggs_geo:DirectShearTestIncrement"/>
         </sequence>
     </complexType>
     <complexType name="DirectShearTestType">
@@ -565,87 +582,117 @@
         <complexContent>
             <extension base="diggs:AbstractLaboratoryTestProcedureType">
                 <sequence>
-                    <element maxOccurs="unbounded" minOccurs="0" name="consolidationTrial"/>
+                    <element minOccurs="0" name="areaShearBox" type="witsml:areaMeasure">
+                        <annotation>
+                            <documentation>Cross-sectional area of the shear box</documentation>
+                        </annotation>
+                    </element>
+                    <element maxOccurs="unbounded" minOccurs="0"
+                        name="consolidationLoadingIncrement"
+                        type="diggs_geo:ConsolidationLoadingIncrementPropertyType"/>
                     <element default="false" minOccurs="0" name="directShearTestType"
                         type="gml:CodeType">
                         <annotation>
-                            <documentation>Type of shear box test.</documentation>
-                        </annotation>
-                    </element>
-                    <element maxOccurs="unbounded" minOccurs="0" name="trial"
-                        type="diggs_geo:DirectShearTestTrialPropertyType"/>
-                </sequence>
-            </extension>
-        </complexContent>
-    </complexType>
-    <complexType name="DirectShearTestTrialType">
-        <annotation>
-            <documentation>Base type for DirectShearTestTrials</documentation>
-        </annotation>
-        <complexContent>
-            <extension base="diggs:AbstractObjectType">
-                <sequence>
-                    <element minOccurs="0" name="trialNo" type="integer">
-                        <annotation>
-                            <documentation>The count of the test cycle</documentation>
-                        </annotation>
-                    </element>
-                    <element minOccurs="0" name="normalStressApplied" type="witsml:pressureMeasure">
-                        <annotation>
-                            <documentation>Normal stress applied to specimen.</documentation>
+                            <documentation>Type of shear box test; intended to come from a controlled list.</documentation>
                         </annotation>
                     </element>
                     <element minOccurs="0" name="displacementRatePeakStressStage"
                         type="witsml:velocityMeasure">
                         <annotation>
-                            <documentation>Displacement rate for peak stress stage.</documentation>
+                            <documentation>Displacement rate during the peak stress stage of shearing.</documentation>
                         </annotation>
                     </element>
                     <element minOccurs="0" name="displacementRateResidualStressStage"
                         type="witsml:velocityMeasure">
                         <annotation>
-                            <documentation>Displacement rate for residual stress
-                                stage.</documentation>
-                        </annotation>
-                    </element>
-                    <element minOccurs="0" name="peakShearStress" type="witsml:pressureMeasure">
-                        <annotation>
-                            <documentation>Peak shear stress during this trial.</documentation>
-                        </annotation>
-                    </element>
-                    <element minOccurs="0" name="residualShearStress" type="witsml:pressureMeasure">
-                        <annotation>
-                            <documentation>Residual shear stress during this trial.</documentation>
-                        </annotation>
-                    </element>
-                    <element minOccurs="0" name="HorizDisplPeakShear" type="witsml:lengthMeasure">
-                        <annotation>
-                            <documentation>Horizontal displacement at peak shear
-                                stress.</documentation>
-                        </annotation>
-                    </element>
-                    <element minOccurs="0" name="VertDisplPeakShear" type="witsml:lengthMeasure">
-                        <annotation>
-                            <documentation>Vertical displacement at peak shear
-                                stress.</documentation>
-                        </annotation>
-                    </element>
-                    <element minOccurs="0" name="HorizDisplResidualShear"
-                        type="witsml:lengthMeasure">
-                        <annotation>
-                            <documentation>Horizontal displacement at residual shear
-                                stress.</documentation>
-                        </annotation>
-                    </element>
-                    <element minOccurs="0" name="VertDisplResidualShear" type="witsml:lengthMeasure">
-                        <annotation>
-                            <documentation>Vertical displacement at residual shear
-                                stress.</documentation>
+                            <documentation>Displacement rate during the residual stress stage of shearing.</documentation>
                         </annotation>
                     </element>
                     <element minOccurs="0" name="failureCriteria" type="gml:CodeType">
                         <annotation>
                             <documentation>Failure/residual strength criterion used.</documentation>
+                        </annotation>
+                    </element>
+                    <element minOccurs="0" name="normalForcePriorToShearing"
+                        type="witsml:forceMeasure">
+                        <annotation>
+                            <documentation>Normal (or axial) load on specimen following final consolidation increment prior to shearing.</documentation>
+                        </annotation>
+                    </element>
+                    <element minOccurs="0" name="relativeLaterallDisplacementPriorToShearing"
+                        type="witsml:lengthPerLengthMeasure">
+                        <annotation>
+                            <documentation>Relative lateral displacement (as a percentage of specimen diameter) of specimen following final consolidation increment prior to shearing.</documentation>
+                        </annotation>
+                    </element>
+                    <element minOccurs="0" name="shearForcePriorToShearing"
+                        type="witsml:forceMeasure">
+                        <annotation>
+                            <documentation>Initial shear force on specimen following final consolidation increment prior to shearing.</documentation>
+                        </annotation>
+                    </element>
+                    <element maxOccurs="unbounded" minOccurs="0"
+                        name="shearingIncrementPeakStressStage"
+                        type="diggs_geo:DirectShearTestTrialPropertyType"/>
+                    <element maxOccurs="unbounded" minOccurs="0"
+                        name="shearingIncrementResidualStressStage"
+                        type="diggs_geo:DirectShearTestTrialPropertyType"/>
+                    <element minOccurs="0" name="verticalDisplacementPriorToShearing"
+                        type="witsml:lengthMeasure">
+                        <annotation>
+                            <documentation>Normal displacement of specimen following final consolidation increment prior to shearing</documentation>
+                        </annotation>
+                    </element>
+                </sequence>
+            </extension>
+        </complexContent>
+    </complexType>
+    <complexType name="DirectShearTestIncrementType">
+        <annotation>
+            <documentation/>
+        </annotation>
+        <complexContent>
+            <extension base="diggs:AbstractProcedureTrialType">
+                <sequence>
+                    <element minOccurs="1" name="elapsedTime" type="witsml:timeMeasure">
+                        <annotation>
+                            <documentation>Shear force applied for shearing increment.</documentation>
+                        </annotation>
+                    </element>
+                    <element minOccurs="0" name="normalForce" type="witsml:forceMeasure">
+                        <annotation>
+                            <documentation>Normal force measured.</documentation>
+                        </annotation>
+                    </element>
+                    <element minOccurs="0" name="normalStress" type="witsml:pressureMeasure">
+                        <annotation>
+                            <documentation>Normal stress computed.</documentation>
+                        </annotation>
+                    </element>
+                    <element minOccurs="0" name="shearForce" type="witsml:forceMeasure">
+                        <annotation>
+                            <documentation>Shear force applied for shearing increment.</documentation>
+                        </annotation>
+                    </element>
+                    <element minOccurs="0" name="shearStress" type="witsml:pressureMeasure">
+                        <annotation>
+                            <documentation>Shear stress computed for shearing increment.</documentation>
+                        </annotation>
+                    </element>
+                    <element minOccurs="0" name="lateralDisplacement" type="witsml:lengthMeasure">
+                        <annotation>
+                            <documentation>Lateral displacement of specimen.</documentation>
+                        </annotation>
+                    </element>
+                    <element minOccurs="0" name="relativeLateralDisplacement"
+                        type="witsml:lengthPerLengthMeasure">
+                        <annotation>
+                            <documentation>Relative lateral displacement expressed as a percentage of the specimen. diameter</documentation>
+                        </annotation>
+                    </element>
+                    <element minOccurs="0" name="verticalDisplacement" type="witsml:lengthMeasure">
+                        <annotation>
+                            <documentation>Vertical displacement of the specimen</documentation>
                         </annotation>
                     </element>
                 </sequence>
@@ -693,7 +740,8 @@
                             <documentation>The hammer drop height.</documentation>
                         </annotation>
                     </element>
-                    <element name="hammerEfficiency" type="diggs:PercentMeasureType" minOccurs="0">
+                    <element name="hammerEfficiency" type="witsml:dimensionlessMeasure"
+                        minOccurs="0">
                         <annotation>
                             <documentation>A description of the energy efficiency of the
                                 hammer.</documentation>
@@ -1411,8 +1459,7 @@
                                     trial.</documentation>
                             </annotation>
                         </element>
-                        <element minOccurs="0" name="timeInterval"
-                            type="diggs:TimeIntervalPropertyType">
+                        <element minOccurs="0" ref="diggs_geo:timeInterval">
                             <annotation>
                                 <documentation>Time at the beginning and end of the trial and/or
                                     duration of the trial.</documentation>
@@ -1577,14 +1624,16 @@
                                 analyses)</documentation>
                         </annotation>
                     </element>
-                    <element name="percentPassing" type="diggs:PercentMeasureType" minOccurs="0">
+                    <element name="percentPassing" type="witsml:massConcentrationMeasure"
+                        minOccurs="0">
                         <annotation>
                             <documentation>The amount of the total sample "passing" (that has
                                 particle size smaller than) this size fraction. Expressed as a
                                 weight percent.</documentation>
                         </annotation>
                     </element>
-                    <element name="percentRetained" type="diggs:PercentMeasureType" minOccurs="0">
+                    <element name="percentRetained" type="witsml:massConcentrationMeasure"
+                        minOccurs="0">
                         <annotation>
                             <documentation>The amount of the total sample "retained" at this size
                                 fraction (that has particle size greater or equal to the
@@ -1643,8 +1692,7 @@
                                 list.</documentation>
                         </annotation>
                     </element>
-                    <element minOccurs="0" name="dispersionDuration"
-                        type="diggs:TimeIntervalPropertyType">
+                    <element minOccurs="0" name="dispersionDuration" type="witsml:timeMeasure">
                         <annotation>
                             <documentation>Duration of dispersion</documentation>
                         </annotation>
@@ -1681,14 +1729,15 @@
         <complexContent>
             <extension base="diggs:AbstractObjectType">
                 <sequence>
-                    <element minOccurs="0" name="percentLoss" type="diggs:PercentMeasureType">
+                    <element minOccurs="0" name="percentLoss" type="witsml:massConcentrationMeasure">
                         <annotation>
                             <documentation>Percent of the sample lost as a result of the sieve
                                 analysis. This is equal to 1- (final weight (cumulative weights of
                                 all particle sizes) / initial sample weight)* 100</documentation>
                         </annotation>
                     </element>
-                    <element name="percentRetained" type="diggs:PercentMeasureType" minOccurs="0">
+                    <element name="percentRetained" type="witsml:massConcentrationMeasure"
+                        minOccurs="0">
                         <annotation>
                             <documentation>The amount of the cumulative soil sample "retained" on
                                 the pan. Expressed as a weight percent.</documentation>
@@ -1776,7 +1825,8 @@
                             <documentation>Particle size computed from Stoke's Law</documentation>
                         </annotation>
                     </element>
-                    <element minOccurs="0" name="percentPassing" type="diggs:PercentMeasureType">
+                    <element minOccurs="0" name="percentPassing"
+                        type="witsml:massConcentrationMeasure">
                         <annotation>
                             <documentation>Percent of sediment smaller than particle
                                 diameter</documentation>
@@ -2256,8 +2306,8 @@
                     <element maxOccurs="unbounded" minOccurs="0" name="backPressureIncrement"
                         type="diggs_geo:BackPressureIncrementPropertyType"/>
                     <element minOccurs="0" name="bValueEndOfSaturation" type="double"/>
-                    <element minOccurs="0" name="initialPercentSaturation"
-                        type="diggs:PercentMeasureType">
+                    <element minOccurs="0" name="initialSaturation"
+                        type="witsml:volumePerVolumeMeasurePercent">
                         <annotation>
                             <documentation>Initial saturation prior to testing</documentation>
                         </annotation>
@@ -2300,7 +2350,7 @@
             <extension base="diggs:AbstractProcedureTrialType">
                 <sequence>
                     <element minOccurs="0" name="axialStrainAtFailure"
-                        type="diggs:PercentMeasureType"> </element>
+                        type="witsml:lengthPerLengthMeasure"> </element>
                     <element minOccurs="0" name="deviatorStressAtFailure"
                         type="witsml:pressureMeasure">
                         <annotation>
@@ -2371,7 +2421,7 @@
                         </annotation>
                     </element>
                     <element minOccurs="0" name="volumetricStrainAtFailureDrainedOnly"
-                        type="diggs:PercentMeasureType">
+                        type="witsml:volumePerVolumeMeasurePercent">
                         <annotation>
                             <documentation>Volumetric strain for drained tests only</documentation>
                         </annotation>
@@ -2660,7 +2710,7 @@
                             </element>
                         </sequence>
                     </choice>
-                    <element minOccurs="1" name="axialStrain" type="diggs:PercentMeasureType">
+                    <element minOccurs="1" name="axialStrain" type="witsml:lengthPerLengthMeasure">
                         <annotation>
                             <documentation>Strain deflection of sample under load</documentation>
                         </annotation>
@@ -2735,7 +2785,7 @@
                     <element minOccurs="0" name="slopeOfAngleOfFailureSurface"
                         type="witsml:planeAngleMeasure"/>
                     <element minOccurs="0" name="axialStrainAtFailure"
-                        type="diggs:PercentMeasureType"> </element>
+                        type="witsml:lengthPerLengthMeasure"> </element>
                     <element maxOccurs="unbounded" minOccurs="0" name="compressionIncrement"
                         type="diggs_geo:CompressionIncrementPropertyType"/>
                 </sequence>
@@ -2780,7 +2830,7 @@
                         </annotation>
                     </element>
                     <element minOccurs="0" name="calciumCarbonateGasPressureMoistureReading"
-                        type="diggs:PercentMeasureType">
+                        type="witsml:volumePerVolumeMeasurePercent">
                         <annotation>
                             <documentation>Reading if using a calcium carbonate gas pressure
                                 moisture tester</documentation>
@@ -2895,4 +2945,9 @@
                 value="constant volume-falling head (by mercury), rising tailwater elevation"/>
         </restriction>
     </simpleType>
+    <element name="timeInterval" type="diggs:TimeIntervalPropertyType">
+        <annotation>
+            <documentation>Time at the beginning and end of the trial or test increment, and/or duration</documentation>
+        </annotation>
+    </element>
 </schema>
