@@ -1,3 +1,3 @@
 # The Official DIGGSML Schema Repository
 
-![alt text](http://diggsml.org/sites/default/files/users/rschweinfurth/DIGGS%20Interoperability.png "DIGGSML Diagram")
+![alt text](https://www.geoinstitute.org/sites/default/files/inline-images/DIGGS%20use%20case.png "DIGGSml Use Case Diagram")
