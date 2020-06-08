@@ -13,7 +13,7 @@ includes:
 **Note:** instance documents that use new 2.5.b elements or list
 items will **NOT** validate under 2.5.a.
 
-##Changes/addtions under 2.5.b
+## Changes/addtions under 2.5.b
 
 1. Now incorporates unit symbology from WITSML 2.0 schema. This adds a singificant number of new quantity classes and units symbols to DIGGS.
     1. **Note:** need to check for deprecated symbols in WITSML that have been removed in 2.0 and add these back in DIGGS namespace lists for compatibility.
