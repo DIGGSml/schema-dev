@@ -1,7 +1,7 @@
 # 2.5.b Development Branch
 
 This is a branch for proposed nominal object/property updates to 
-2.5.a schema changes in this branch are designed such that 
+2.5.a. Schema changes in this branch are designed such that 
 instance documents validated against the 2.5.a schema will also be valid under 2.5.b. This
 includes:
 
