@@ -1,0 +1,179 @@
+<?xml version="1.0" encoding="utf-8"?>
+<xs:schema targetNamespace="http://www.energistics.org/energyml/data/commonv2"
+	xmlns:xs="http://www.w3.org/2001/XMLSchema"
+	xmlns:eml="http://www.energistics.org/energyml/data/commonv2" elementFormDefault="qualified"
+	version="2.1">
+	<!--														-->
+	<xs:include schemaLocation="QuantityClass.xsd"/>
+	<!--														-->
+	<xs:include schemaLocation="CommonEnumerations.xsd"/>
+	<xs:include schemaLocation="MeasureType.xsd"/>
+	<xs:include schemaLocation="BaseTypes.xsd"/>
+	<xs:complexType name="AbstractTemperaturePressure" abstract="true">
+		<xs:annotation>
+			<xs:documentation>The Abstract base type of standard pressure and temperature</xs:documentation>
+		</xs:annotation>
+		<xs:choice minOccurs="0"/>
+	</xs:complexType>
+	<xs:complexType name="FlowRateValue">
+		<xs:annotation>
+			<xs:documentation>A possibly temperature and pressure corrected flow rate value.</xs:documentation>
+		</xs:annotation>
+		<xs:sequence>
+			<xs:element name="FlowRate" type="eml:VolumePerTimeMeasure" minOccurs="1" maxOccurs="1">
+				<xs:annotation>
+					<xs:documentation>The flow rate of the product. If the 'status' attribute is absent and the value is not "NaN", the data value can be assumed to be good with no restrictions. A value of "NaN" should be interpreted as null and should be not be given unless a status is also specified to explain why it is null.</xs:documentation>
+				</xs:annotation>
+			</xs:element>
+			<xs:element name="MeasurementPressureTemperature" type="eml:AbstractTemperaturePressure"
+				minOccurs="1" maxOccurs="1"/>
+		</xs:sequence>
+	</xs:complexType>
+	<xs:complexType name="DensityValue">
+		<xs:annotation>
+			<xs:documentation>A possibly temperature and pressure corrected desity value.</xs:documentation>
+		</xs:annotation>
+		<xs:sequence>
+			<xs:element name="Density" type="eml:MassPerVolumeMeasure" minOccurs="1" maxOccurs="1">
+				<xs:annotation>
+					<xs:documentation>The density of the product.</xs:documentation>
+				</xs:annotation>
+			</xs:element>
+			<xs:element name="MeasurementPressureTemperature" type="eml:AbstractTemperaturePressure"
+				minOccurs="1" maxOccurs="1"/>
+		</xs:sequence>
+	</xs:complexType>
+	<xs:simpleType name="ReferencePressureKind">
+		<xs:annotation>
+			<xs:documentation>ReferencePressureKind</xs:documentation>
+		</xs:annotation>
+		<xs:restriction base="eml:TypeEnum">
+			<xs:enumeration value="absolute">
+				<xs:annotation>
+					<xs:documentation>absolute</xs:documentation>
+				</xs:annotation>
+			</xs:enumeration>
+			<xs:enumeration value="ambient">
+				<xs:annotation>
+					<xs:documentation>ambient</xs:documentation>
+				</xs:annotation>
+			</xs:enumeration>
+			<xs:enumeration value="legal"/>
+		</xs:restriction>
+	</xs:simpleType>
+	<xs:complexType name="VolumeValue">
+		<xs:annotation>
+			<xs:documentation>A possibly temperature and pressure corrected volume value.</xs:documentation>
+		</xs:annotation>
+		<xs:sequence>
+			<xs:element name="Volume" type="eml:VolumeMeasure" minOccurs="1" maxOccurs="1">
+				<xs:annotation>
+					<xs:documentation>The volume of the product. If the 'status' attribute is absent and the value is not "NaN", the data value can be assumed to be good with no restrictions. A value of "NaN" should be interpreted as null and should be not be given unless a status is also specified to explain why it is null.</xs:documentation>
+				</xs:annotation>
+			</xs:element>
+			<xs:element name="MeasurementPressureTemperature" type="eml:AbstractTemperaturePressure"
+				minOccurs="1" maxOccurs="1"/>
+		</xs:sequence>
+	</xs:complexType>
+	<xs:complexType name="ReferenceTemperaturePressure">
+		<xs:annotation>
+			<xs:documentation>StdTempPress</xs:documentation>
+		</xs:annotation>
+		<xs:complexContent>
+			<xs:extension base="eml:AbstractTemperaturePressure">
+				<xs:choice minOccurs="0">
+					<xs:element name="ReferenceTempPres" type="eml:ReferenceConditionExt"
+						minOccurs="1" maxOccurs="1">
+						<xs:annotation>
+							<xs:documentation>Defines the reference temperature and pressure to which the density has been corrected. If neither standardTempPres nor temp,pres are specified then the standard condition is defined by standardTempPres at the procuctVolume root.</xs:documentation>
+						</xs:annotation>
+					</xs:element>
+				</xs:choice>
+			</xs:extension>
+		</xs:complexContent>
+	</xs:complexType>
+	<xs:complexType name="AbstractPressureValue" abstract="true">
+		<xs:sequence/>
+	</xs:complexType>
+	<xs:complexType name="AbsolutePressure">
+		<xs:complexContent>
+			<xs:extension base="eml:AbstractPressureValue">
+				<xs:sequence>
+					<xs:element name="AbsolutePressure" type="eml:PressureMeasureExt" minOccurs="1"
+						maxOccurs="1"/>
+				</xs:sequence>
+			</xs:extension>
+		</xs:complexContent>
+	</xs:complexType>
+	<xs:complexType name="RelativePressure">
+		<xs:complexContent>
+			<xs:extension base="eml:AbstractPressureValue">
+				<xs:sequence>
+					<xs:element name="RelativePressure" type="eml:PressureMeasure" minOccurs="1"
+						maxOccurs="1"/>
+					<xs:element name="ReferencePressure" type="eml:ReferencePressure" minOccurs="1"
+						maxOccurs="1"/>
+				</xs:sequence>
+			</xs:extension>
+		</xs:complexContent>
+	</xs:complexType>
+	<xs:complexType name="PressureValue">
+		<xs:sequence>
+			<xs:element name="AbstractPressureValue" type="eml:AbstractPressureValue" minOccurs="1"
+				maxOccurs="1"/>
+		</xs:sequence>
+	</xs:complexType>
+	<xs:complexType name="GaugePressure">
+		<xs:complexContent>
+			<xs:extension base="eml:AbstractPressureValue">
+				<xs:sequence>
+					<xs:element name="GaugePressure" type="eml:PressureMeasureExt" minOccurs="1"
+						maxOccurs="1"/>
+					<xs:element name="ReferencePressure" type="eml:ReferencePressure" minOccurs="0"
+						maxOccurs="1"/>
+				</xs:sequence>
+			</xs:extension>
+		</xs:complexContent>
+	</xs:complexType>
+	<xs:complexType name="TemperaturePressure">
+		<xs:annotation>
+			<xs:documentation>temperature and pressure</xs:documentation>
+		</xs:annotation>
+		<xs:complexContent>
+			<xs:extension base="eml:AbstractTemperaturePressure">
+				<xs:sequence>
+					<xs:element name="Temperature" type="eml:ThermodynamicTemperatureMeasure"
+						minOccurs="1" maxOccurs="1">
+						<xs:annotation>
+							<xs:documentation>The temperature to which the density has been corrected. If given, then a pressure must also be given. Common standard temperatures are: 0 degC, 15 degC, 60 degF. If neither standardTempPres nor temp,pres are specified then the standard condition is defined by standardTempPres at the productVolume root.</xs:documentation>
+						</xs:annotation>
+					</xs:element>
+					<xs:element name="Pressure" type="eml:PressureMeasure" minOccurs="1"
+						maxOccurs="1">
+						<xs:annotation>
+							<xs:documentation>The pressure to which the density has been corrected. If given, then a temperature must also be given. Common standard pressures are: 1 atm and 14.696 psi (which are equivalent). If neither standardTempPres nor temp,pres are specified then the standard condition is defined by standardTempPres at the productVolume root.</xs:documentation>
+						</xs:annotation>
+					</xs:element>
+				</xs:sequence>
+			</xs:extension>
+		</xs:complexContent>
+	</xs:complexType>
+	<xs:complexType name="ReferencePressure">
+		<xs:simpleContent>
+			<xs:extension base="eml:AbstractMeasure">
+				<xs:attribute name="uom" use="required" type="eml:PressureUom"/>
+				<xs:attribute name="referencePressureKind" use="optional"
+					type="eml:ReferencePressureKind"/>
+			</xs:extension>
+		</xs:simpleContent>
+	</xs:complexType>
+	<!--														-->
+	<!-- Energistics License Agreement
+			This file is distributed under the Energistics Product License Agreement at
+			http://www.energistics.org/product-license-agreement
+			Use of this file constitutes agreement with the Energistics Product License Agreement.
+			Copyright (c) 2016 Energistics. All rights reserved.
+			Energistics, WITSML, PRODML and RESQML are trademarks or registered trademarks of Energistics.
+			-->
+	<!--														-->
+</xs:schema>

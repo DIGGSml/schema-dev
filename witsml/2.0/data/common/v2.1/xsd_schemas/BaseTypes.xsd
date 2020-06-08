@@ -1,0 +1,505 @@
+<?xml version="1.0" encoding="utf-8"?>
+<xs:schema targetNamespace="http://www.energistics.org/energyml/data/commonv2"
+	xmlns:xs="http://www.w3.org/2001/XMLSchema"
+	xmlns:eml="http://www.energistics.org/energyml/data/commonv2" elementFormDefault="qualified"
+	version="2.1">
+	<!--														-->
+	<!-- Energistics License Agreement
+			This file is distributed under the Energistics Product License Agreement at
+			http://www.energistics.org/product-license-agreement
+			Use of this file constitutes agreement with the Energistics Product License Agreement.
+			Copyright (c) 2016 Energistics. All rights reserved.
+			Energistics, WITSML, PRODML and RESQML are trademarks or registered trademarks of Energistics.
+			-->
+	<!--														-->
+	<xs:annotation>
+		<xs:documentation>This Package contains the common re-usable structures and types commonly used by EnergyML Schemas. EML 2.1 Profile for DIGGS</xs:documentation>
+	</xs:annotation>
+	<!--														-->
+	<!--														-->
+	<xs:include schemaLocation="CommonEnumerations.xsd"/>
+	<xs:include schemaLocation="MeasureType.xsd"/>
+	<xs:include schemaLocation="ObjectReference.xsd"/>
+	<xs:simpleType name="UuidString">
+		<xs:restriction base="eml:AbstractString">
+			<xs:pattern
+				value="[a-fA-F0-9]{8}-[a-fA-F0-9]{4}-[a-fA-F0-9]{4}-[a-fA-F0-9]{4}-[a-fA-F0-9]{12}"
+			/>
+		</xs:restriction>
+	</xs:simpleType>
+	<xs:simpleType name="NonNegativeLong">
+		<xs:restriction base="xs:long">
+			<xs:minInclusive value="0"/>
+		</xs:restriction>
+	</xs:simpleType>
+	<xs:complexType name="AbstractFloatingPointArray" abstract="true">
+		<xs:annotation>
+			<xs:documentation>Generic representation of an array of double values. Each derived element provides specialized implementation to allow specific optimization of the representation.</xs:documentation>
+		</xs:annotation>
+		<xs:complexContent>
+			<xs:extension base="eml:AbstractNumericArray">
+				<xs:sequence/>
+			</xs:extension>
+		</xs:complexContent>
+	</xs:complexType>
+	<xs:simpleType name="TimeZone">
+		<xs:annotation>
+			<xs:documentation>A time zone conforming to the XSD:dateTime specification.</xs:documentation>
+		</xs:annotation>
+		<xs:restriction base="eml:String64">
+			<xs:pattern value="[Z]|([\-+](([01][0-9])|(2[0-3])):[0-5][0-9])"/>
+		</xs:restriction>
+	</xs:simpleType>
+	<xs:simpleType name="TypeEnum">
+		<xs:annotation>
+			<xs:documentation>The intended abstract supertype of all enumerated "types". This abstract type allows the maximum length of a type enumeration to be centrally defined. This type should not be used directly except to derive another type. It should also be used for uncontrolled strings which are candidates to become enumerations at a future date.</xs:documentation>
+		</xs:annotation>
+		<xs:restriction base="eml:String64"/>
+	</xs:simpleType>
+	<xs:simpleType name="AbstractMeasure">
+		<xs:annotation>
+			<xs:documentation>The intended abstract supertype of all quantities that have a value with a unit of measure. The unit of measure is in the uom attribute of the subtypes. 
+
+This type allows all quantities to be profiled to be a 'float' instead of a 'double'.</xs:documentation>
+		</xs:annotation>
+		<xs:restriction base="xs:double"/>
+	</xs:simpleType>
+	<xs:complexType name="FloatingPointExternalArray">
+		<xs:annotation>
+			<xs:documentation>An array of double values provided explicitly by an HDF5 dataset.
+By convention, the null value is NaN.</xs:documentation>
+		</xs:annotation>
+		<xs:complexContent>
+			<xs:extension base="eml:AbstractFloatingPointArray">
+				<xs:sequence>
+					<xs:element name="Values" type="eml:ExternalDataset" minOccurs="1" maxOccurs="1">
+						<xs:annotation>
+							<xs:documentation>Reference to an HDF5 array of doubles.</xs:documentation>
+						</xs:annotation>
+					</xs:element>
+				</xs:sequence>
+			</xs:extension>
+		</xs:complexContent>
+	</xs:complexType>
+	<xs:complexType name="IntegerLatticeArray">
+		<xs:annotation>
+			<xs:documentation>Represents an array of integers based on an origin and a multi-dimensional offset. The offset is based on a linearization of a multi-dimensional offset.
+
+If count(i) is the number of elements in the dimension i and offset(i) is the offset in the dimension i, then:
+globalOffsetInNDimension = startValue+ ni*offset(n) + n_1i*count(n)*offset(n-1) + .... + 0i*count(n)*count(n-1)*....count(1)*offset(0)</xs:documentation>
+		</xs:annotation>
+		<xs:complexContent>
+			<xs:extension base="eml:AbstractIntegerArray">
+				<xs:sequence>
+					<xs:element name="StartValue" type="xs:long" minOccurs="1" maxOccurs="1">
+						<xs:annotation>
+							<xs:documentation>Value representing the global start for the lattice:
+i.e., iStart + jStart*ni + kStart*ni*nj</xs:documentation>
+						</xs:annotation>
+					</xs:element>
+					<xs:element name="Offset" type="eml:IntegerConstantArray" minOccurs="1"
+						maxOccurs="unbounded"/>
+				</xs:sequence>
+			</xs:extension>
+		</xs:complexContent>
+	</xs:complexType>
+	<xs:complexType name="FloatingPointConstantArray">
+		<xs:annotation>
+			<xs:documentation>Represents an array of double values where all values are identical. This an optimization for which an array of explicit double values is not required.</xs:documentation>
+		</xs:annotation>
+		<xs:complexContent>
+			<xs:extension base="eml:AbstractFloatingPointArray">
+				<xs:sequence>
+					<xs:element name="Value" type="xs:double" minOccurs="1" maxOccurs="1">
+						<xs:annotation>
+							<xs:documentation>Values inside all the elements of the array.</xs:documentation>
+						</xs:annotation>
+					</xs:element>
+					<xs:element name="Count" type="eml:PositiveLong" minOccurs="1" maxOccurs="1">
+						<xs:annotation>
+							<xs:documentation>Size of the array.</xs:documentation>
+						</xs:annotation>
+					</xs:element>
+				</xs:sequence>
+			</xs:extension>
+		</xs:complexContent>
+	</xs:complexType>
+	<xs:complexType name="IntegerConstantArray">
+		<xs:annotation>
+			<xs:documentation>Represents an array of integer values where all values are identical. This an optimization for which an array of explicit integer values is not required.</xs:documentation>
+		</xs:annotation>
+		<xs:complexContent>
+			<xs:extension base="eml:AbstractIntegerArray">
+				<xs:sequence>
+					<xs:element name="Value" type="xs:long" minOccurs="1" maxOccurs="1">
+						<xs:annotation>
+							<xs:documentation>Values inside all the elements of the array.</xs:documentation>
+						</xs:annotation>
+					</xs:element>
+					<xs:element name="Count" type="eml:PositiveLong" minOccurs="1" maxOccurs="1">
+						<xs:annotation>
+							<xs:documentation>Size of the array.</xs:documentation>
+						</xs:annotation>
+					</xs:element>
+				</xs:sequence>
+			</xs:extension>
+		</xs:complexContent>
+	</xs:complexType>
+	<xs:complexType name="TvdInterval">
+		<xs:sequence>
+			<xs:element name="TvdTop" type="eml:LengthMeasure" minOccurs="1" maxOccurs="1"/>
+			<xs:element name="TvdBase" type="eml:LengthMeasure" minOccurs="1" maxOccurs="1">
+				<xs:annotation>
+					<xs:documentation>True vertical depth at the base of the interval</xs:documentation>
+				</xs:annotation>
+			</xs:element>
+		</xs:sequence>
+		<xs:attribute name="datum" use="required" type="eml:String64"/>
+	</xs:complexType>
+	<xs:complexType name="BooleanConstantArray">
+		<xs:annotation>
+			<xs:documentation>Represents an array of Boolean values where all values are identical. This an optimization for which an array of explicit Boolean values is not required. </xs:documentation>
+		</xs:annotation>
+		<xs:complexContent>
+			<xs:extension base="eml:AbstractBooleanArray">
+				<xs:sequence>
+					<xs:element name="Value" type="xs:boolean" minOccurs="1" maxOccurs="1">
+						<xs:annotation>
+							<xs:documentation>Value inside all the elements of the array.</xs:documentation>
+						</xs:annotation>
+					</xs:element>
+					<xs:element name="Count" type="eml:PositiveLong" minOccurs="1" maxOccurs="1">
+						<xs:annotation>
+							<xs:documentation>Size of the array.</xs:documentation>
+						</xs:annotation>
+					</xs:element>
+				</xs:sequence>
+			</xs:extension>
+		</xs:complexContent>
+	</xs:complexType>
+	<xs:complexType name="BooleanExternalArray">
+		<xs:annotation>
+			<xs:documentation>Array of Boolean values provided explicitly by an HDF5 dataset.</xs:documentation>
+		</xs:annotation>
+		<xs:complexContent>
+			<xs:extension base="eml:AbstractBooleanArray">
+				<xs:sequence>
+					<xs:element name="Values" type="eml:ExternalDataset" minOccurs="1" maxOccurs="1">
+						<xs:annotation>
+							<xs:documentation>Reference to an HDF5 array of values.</xs:documentation>
+						</xs:annotation>
+					</xs:element>
+				</xs:sequence>
+			</xs:extension>
+		</xs:complexContent>
+	</xs:complexType>
+	<xs:complexType name="AbstractBooleanArray" abstract="true">
+		<xs:annotation>
+			<xs:documentation>Generic representation of an array of Boolean values. Each derived element provides a specialized implementation to allow specific optimization of the representation. </xs:documentation>
+		</xs:annotation>
+		<xs:complexContent>
+			<xs:extension base="eml:AbstractValueArray">
+				<xs:sequence/>
+			</xs:extension>
+		</xs:complexContent>
+	</xs:complexType>
+	<xs:simpleType name="AbstractString">
+		<xs:annotation>
+			<xs:documentation>The intended abstract supertype of all strings. This abstract type allows the control over whitespace for all strings to be defined at a high level. This type should not be used directly except to derive another type.</xs:documentation>
+		</xs:annotation>
+		<xs:restriction base="xs:string"/>
+	</xs:simpleType>
+	<xs:simpleType name="String64">
+		<xs:restriction base="eml:AbstractString">
+			<xs:maxLength value="64"/>
+		</xs:restriction>
+	</xs:simpleType>
+	<xs:complexType name="IntegerArrayFromBooleanMaskArray">
+		<xs:annotation>
+			<xs:documentation>One-dimensional array of integer values obtained from the true elements of the Boolean mask.</xs:documentation>
+		</xs:annotation>
+		<xs:complexContent>
+			<xs:extension base="eml:AbstractIntegerArray">
+				<xs:sequence>
+					<xs:element name="TotalIndexCount" type="eml:PositiveLong" minOccurs="1"
+						maxOccurs="1">
+						<xs:annotation>
+							<xs:documentation>Total number of integer elements in the array. This number is different from the number of Boolean mask values used to represent the array.</xs:documentation>
+						</xs:annotation>
+					</xs:element>
+					<xs:element name="Mask" type="eml:AbstractBooleanArray" minOccurs="1"
+						maxOccurs="1">
+						<xs:annotation>
+							<xs:documentation>Boolean mask. A true element indicates that the index is included on the list of integer values.</xs:documentation>
+						</xs:annotation>
+					</xs:element>
+				</xs:sequence>
+			</xs:extension>
+		</xs:complexContent>
+	</xs:complexType>
+	<xs:simpleType name="EnumExtensionPattern">
+		<xs:restriction base="eml:AbstractString">
+			<xs:pattern value=".*:.*"/>
+		</xs:restriction>
+	</xs:simpleType>
+	<xs:complexType name="AbstractIntegerArray" abstract="true">
+		<xs:annotation>
+			<xs:documentation>Generic representation of an array of integer values. Each derived element provides specialized implementation to allow specific optimization of the representation.</xs:documentation>
+		</xs:annotation>
+		<xs:complexContent>
+			<xs:extension base="eml:AbstractNumericArray">
+				<xs:sequence/>
+			</xs:extension>
+		</xs:complexContent>
+	</xs:complexType>
+	<xs:complexType name="MdInterval">
+		<xs:sequence>
+			<xs:element name="MdTop" type="eml:LengthMeasure" minOccurs="1" maxOccurs="1"/>
+			<xs:element name="MdBase" type="eml:LengthMeasure" minOccurs="1" maxOccurs="1"/>
+		</xs:sequence>
+		<xs:attribute name="datum" use="required" type="eml:String64"/>
+	</xs:complexType>
+	<xs:complexType name="JaggedArray">
+		<xs:annotation>
+			<xs:documentation>Data storage object for an array of variable length 1D sub-arrays. The jagged array object consists of these two arrays: 
+
+	- An aggregation of all the variable length sub-arrays into a single 1D array.   
+	- The offsets into the single 1D array, given by the sum of all the sub-array lengths up to and including the current sub-array.  
+
+Often referred to as a "list-of-lists" or "array-of-arrays" construction.
+
+For example to store the following three arrays as a jagged array:
+(a b c)
+(d e f g)
+(h)
+Elements = (a b c d e f g h)
+Cumulative Length = (3 7 8)</xs:documentation>
+		</xs:annotation>
+		<xs:sequence>
+			<xs:element name="Elements" type="eml:AbstractValueArray" minOccurs="1" maxOccurs="1">
+				<xs:annotation>
+					<xs:documentation>1D array of elements containing the aggregation of individual array data.</xs:documentation>
+				</xs:annotation>
+			</xs:element>
+			<xs:element name="CumulativeLength" type="eml:AbstractIntegerArray" minOccurs="1"
+				maxOccurs="1">
+				<xs:annotation>
+					<xs:documentation>1D array of cumulative lengths to the end of the current sub-array. Each cumulative length is also equal to the index of the first element of the next sub-array, i.e., the index in the elements array for which the next variable length sub-array begins.</xs:documentation>
+				</xs:annotation>
+			</xs:element>
+		</xs:sequence>
+	</xs:complexType>
+	<xs:complexType name="StringMeasure">
+		<xs:simpleContent>
+			<xs:extension base="eml:String64">
+				<xs:attribute name="uom" use="optional" type="eml:UnitOfMeasure"/>
+			</xs:extension>
+		</xs:simpleContent>
+	</xs:complexType>
+	<xs:complexType name="GenericMeasure">
+		<xs:annotation>
+			<xs:documentation>A generic measure type.
+This should not be used except in situations where the underlying class of data is 
+captured elsewhere. For example, for a log curve.</xs:documentation>
+		</xs:annotation>
+		<xs:simpleContent>
+			<xs:extension base="eml:AbstractMeasure">
+				<xs:attribute name="uom" use="required" type="eml:UomEnum"/>
+			</xs:extension>
+		</xs:simpleContent>
+	</xs:complexType>
+	<xs:complexType name="FloatExternalArray">
+		<xs:complexContent>
+			<xs:extension base="eml:FloatingPointExternalArray">
+				<xs:sequence/>
+			</xs:extension>
+		</xs:complexContent>
+	</xs:complexType>
+	<xs:complexType name="StringExternalArray">
+		<xs:annotation>
+			<xs:documentation>Used to store explicit string values, i.e., values that are not double, boolean or integers. The datatype of the values will be identified by means of the HDF5 API.</xs:documentation>
+		</xs:annotation>
+		<xs:complexContent>
+			<xs:extension base="eml:AbstractStringArray">
+				<xs:sequence>
+					<xs:element name="Values" type="eml:ExternalDataset" minOccurs="1" maxOccurs="1">
+						<xs:annotation>
+							<xs:documentation>Reference to HDF5 array of integer or double</xs:documentation>
+						</xs:annotation>
+					</xs:element>
+				</xs:sequence>
+			</xs:extension>
+		</xs:complexContent>
+	</xs:complexType>
+	<xs:complexType name="AbstractNumericArray" abstract="true">
+		<xs:complexContent>
+			<xs:extension base="eml:AbstractValueArray">
+				<xs:sequence/>
+			</xs:extension>
+		</xs:complexContent>
+	</xs:complexType>
+	<xs:complexType name="AbstractValueArray" abstract="true">
+		<xs:annotation>
+			<xs:documentation>Generic representation of an array of numeric, Boolean, and string values. Each derived element provides specialized implementation for specific content types or for optimization of the representation.</xs:documentation>
+		</xs:annotation>
+		<xs:sequence/>
+	</xs:complexType>
+	<xs:complexType name="AuthorityQualifiedName">
+		<xs:simpleContent>
+			<xs:extension base="eml:String64">
+				<xs:attribute name="authority" use="required" type="eml:String64"/>
+				<xs:attribute name="code" use="optional" type="eml:String64"/>
+			</xs:extension>
+		</xs:simpleContent>
+	</xs:complexType>
+	<xs:complexType name="StringConstantArray">
+		<xs:annotation>
+			<xs:documentation>Represents an array of Boolean values where all values are identical. This an optimization for which an array of explicit Boolean values is not required. </xs:documentation>
+		</xs:annotation>
+		<xs:complexContent>
+			<xs:extension base="eml:AbstractStringArray">
+				<xs:sequence>
+					<xs:element name="Value" type="eml:String2000" minOccurs="1" maxOccurs="1">
+						<xs:annotation>
+							<xs:documentation>Value inside all the elements of the array.</xs:documentation>
+						</xs:annotation>
+					</xs:element>
+					<xs:element name="Count" type="eml:PositiveLong" minOccurs="1" maxOccurs="1">
+						<xs:annotation>
+							<xs:documentation>Size of the array.</xs:documentation>
+						</xs:annotation>
+					</xs:element>
+				</xs:sequence>
+			</xs:extension>
+		</xs:complexContent>
+	</xs:complexType>
+	<xs:simpleType name="String2000">
+		<xs:restriction base="eml:AbstractString">
+			<xs:maxLength value="2000"/>
+		</xs:restriction>
+	</xs:simpleType>
+	<xs:complexType name="BooleanArrayFromIndexArray">
+		<xs:annotation>
+			<xs:documentation>An array of Boolean values defined by specifying explicitly which indices in the array are either true or false. This class is used to represent very sparse true or false data.</xs:documentation>
+		</xs:annotation>
+		<xs:complexContent>
+			<xs:extension base="eml:AbstractBooleanArray">
+				<xs:sequence>
+					<xs:element name="Count" type="eml:PositiveLong" minOccurs="1" maxOccurs="1">
+						<xs:annotation>
+							<xs:documentation>Total number of Boolean elements in the array. This number is different from the number of indices used to represent the array.</xs:documentation>
+						</xs:annotation>
+					</xs:element>
+					<xs:element name="Indices" type="eml:AbstractIntegerArray" minOccurs="1"
+						maxOccurs="1">
+						<xs:annotation>
+							<xs:documentation>Array of integer indices.
+
+BUSINESS RULE: Must be non-negative.</xs:documentation>
+						</xs:annotation>
+					</xs:element>
+					<xs:element name="IndexIsTrue" type="xs:boolean" minOccurs="1" maxOccurs="1">
+						<xs:annotation>
+							<xs:documentation>Indicates whether the specified elements are true or false.</xs:documentation>
+						</xs:annotation>
+					</xs:element>
+				</xs:sequence>
+			</xs:extension>
+		</xs:complexContent>
+	</xs:complexType>
+	<xs:complexType name="IntegerExternalArray">
+		<xs:annotation>
+			<xs:documentation>Array of integer values provided explicitly by an HDF5 dataset. The null value must be  explicitly provided in the NullValue attribute of this class.</xs:documentation>
+		</xs:annotation>
+		<xs:complexContent>
+			<xs:extension base="eml:AbstractIntegerArray">
+				<xs:sequence>
+					<xs:element name="NullValue" type="xs:long" minOccurs="1" maxOccurs="1"/>
+					<xs:element name="Values" type="eml:ExternalDataset" minOccurs="1" maxOccurs="1">
+						<xs:annotation>
+							<xs:documentation>Reference to an HDF5 array of integers or doubles.</xs:documentation>
+						</xs:annotation>
+					</xs:element>
+				</xs:sequence>
+			</xs:extension>
+		</xs:complexContent>
+	</xs:complexType>
+	<xs:complexType name="FloatingPointLatticeArray">
+		<xs:annotation>
+			<xs:documentation>Represents an array of doubles based on an origin and a multi-dimensional offset. The offset is based on a linearization of a multi-dimensional offset.
+
+If count(i) is the number of elements in the dimension i and offset(i) is the offset in the dimension i, then:
+globalOffsetInNDimension = startValue+ ni*offset(n) + n_1i*count(n)*offset(n-1) + .... + 0i*count(n)*count(n-1)*....count(1)*offset(0)</xs:documentation>
+		</xs:annotation>
+		<xs:complexContent>
+			<xs:extension base="eml:AbstractFloatingPointArray">
+				<xs:sequence>
+					<xs:element name="StartValue" type="xs:double" minOccurs="1" maxOccurs="1">
+						<xs:annotation>
+							<xs:documentation>Value representing the global start for the lattice.</xs:documentation>
+						</xs:annotation>
+					</xs:element>
+					<xs:element name="Offset" type="eml:FloatingPointConstantArray" minOccurs="1"
+						maxOccurs="unbounded"/>
+				</xs:sequence>
+			</xs:extension>
+		</xs:complexContent>
+	</xs:complexType>
+	<xs:simpleType name="PositiveLong">
+		<xs:restriction base="xs:long">
+			<xs:minInclusive value="1"/>
+		</xs:restriction>
+	</xs:simpleType>
+	<xs:complexType name="IntegerRangeArray">
+		<xs:annotation>
+			<xs:documentation>Defines an array as a range of integers. The range is defined by an initial value and a count defining the size of the range.</xs:documentation>
+		</xs:annotation>
+		<xs:complexContent>
+			<xs:extension base="eml:AbstractIntegerArray">
+				<xs:sequence>
+					<xs:element name="Count" type="eml:PositiveLong" minOccurs="1" maxOccurs="1">
+						<xs:annotation>
+							<xs:documentation>Size of the array.</xs:documentation>
+						</xs:annotation>
+					</xs:element>
+					<xs:element name="Value" type="xs:long" minOccurs="1" maxOccurs="1">
+						<xs:annotation>
+							<xs:documentation>Start value for the range.
+End value is start+count-1.</xs:documentation>
+						</xs:annotation>
+					</xs:element>
+				</xs:sequence>
+			</xs:extension>
+		</xs:complexContent>
+	</xs:complexType>
+	<xs:complexType name="DoubleExternalArray">
+		<xs:complexContent>
+			<xs:extension base="eml:FloatingPointExternalArray">
+				<xs:sequence/>
+			</xs:extension>
+		</xs:complexContent>
+	</xs:complexType>
+	<xs:simpleType name="TimeStamp">
+		<xs:restriction base="eml:AbstractString">
+			<xs:pattern value=".+T.+[Z+\-].*"/>
+		</xs:restriction>
+	</xs:simpleType>
+	<xs:complexType name="AbstractStringArray" abstract="true">
+		<xs:complexContent>
+			<xs:extension base="eml:AbstractValueArray">
+				<xs:sequence/>
+			</xs:extension>
+		</xs:complexContent>
+	</xs:complexType>
+	<xs:simpleType name="UomEnum">
+		<xs:annotation>
+			<xs:documentation>The intended abstract supertype of all "units of measure".
+			This abstract type allows the maximum length of a UOM enumeration to be centrally defined. 
+			This type is abstract in the sense that it should not be used directly 
+			except to derive another type.</xs:documentation>
+		</xs:annotation>
+		<xs:restriction base="eml:AbstractString">
+			<xs:maxLength value="32"/>
+		</xs:restriction>
+	</xs:simpleType>
+</xs:schema>

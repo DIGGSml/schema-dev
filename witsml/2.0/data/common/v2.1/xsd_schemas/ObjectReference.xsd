@@ -1,0 +1,112 @@
+<?xml version="1.0" encoding="utf-8"?>
+<xs:schema targetNamespace="http://www.energistics.org/energyml/data/commonv2"
+	xmlns:xs="http://www.w3.org/2001/XMLSchema"
+	xmlns:eml="http://www.energistics.org/energyml/data/commonv2" elementFormDefault="qualified"
+	version="2.1">
+	<!--														-->
+	<!-- Energistics License Agreement
+			This file is distributed under the Energistics Product License Agreement at
+			http://www.energistics.org/product-license-agreement
+			Use of this file constitutes agreement with the Energistics Product License Agreement.
+			Copyright (c) 2016 Energistics. All rights reserved.
+			Energistics, WITSML, PRODML and RESQML are trademarks or registered trademarks of Energistics.
+			-->
+	<!--														-->
+	<xs:annotation>
+		<xs:documentation>This package contains the types and elements to allow an EnergyML Data Object to refer to another EnergyML Data Object (i.e. External References). EML 2.1 Profile for DIGGS</xs:documentation>
+	</xs:annotation>
+	<!--														-->
+	<!--														-->
+	<xs:include schemaLocation="BaseTypes.xsd"/>
+	<xs:include schemaLocation="Abstract.xsd"/>
+	<xs:complexType name="ExternalDataset">
+		<xs:sequence>
+			<xs:element name="ExternalFileProxy" type="eml:ExternalDatasetPart" minOccurs="1"
+				maxOccurs="unbounded"/>
+		</xs:sequence>
+	</xs:complexType>
+	<xs:element name="EpcExternalPartReference" type="eml:EpcExternalPartReference"
+		substitutionGroup="eml:AbstractDataObject"/>
+	<xs:complexType name="EpcExternalPartReference">
+		<xs:annotation>
+			<xs:documentation>It defines a proxy for external part of the EPC package. It must be used at least for external HDF parts.
+
+Each EpcExternalPartReference represents a single operating system file</xs:documentation>
+		</xs:annotation>
+		<xs:complexContent>
+			<xs:extension base="eml:AbstractObject">
+				<xs:sequence>
+					<xs:element name="Filename" type="eml:String2000" minOccurs="0" maxOccurs="1"/>
+					<xs:element name="MimeType" type="eml:String2000" minOccurs="0" maxOccurs="1">
+						<xs:annotation>
+							<xs:documentation>IAMF registered, if one exists, or a free text field. Needs documentation on seismic especially.
+
+MIME type for HDF proxy is : application/x-hdf5 (by convention). </xs:documentation>
+						</xs:annotation>
+					</xs:element>
+				</xs:sequence>
+			</xs:extension>
+		</xs:complexContent>
+	</xs:complexType>
+	<xs:complexType name="ExternalDatasetPart">
+		<xs:sequence>
+			<xs:element name="Count" type="eml:PositiveLong" minOccurs="1" maxOccurs="1"/>
+			<xs:element name="PathInExternalFile" type="eml:String2000" minOccurs="1" maxOccurs="1">
+				<xs:annotation>
+					<xs:documentation>A string which is meaningful to the API which will store and retrieve data from the external file.
+
+For an HDF file this is the path of the referenced dataset in the external file. The separator between groups and final dataset is a slash '/' in an hdf file.
+
+For a LAS file this could be the list of mnemonics in the ~A block.
+
+For a SEG-Y file this could be a list of trace headers.</xs:documentation>
+				</xs:annotation>
+			</xs:element>
+			<xs:element name="StartIndex" type="eml:NonNegativeLong" minOccurs="1" maxOccurs="1"/>
+			<xs:element name="EpcExternalPartReference" type="eml:DataObjectReference" minOccurs="1"
+				maxOccurs="1"/>
+		</xs:sequence>
+	</xs:complexType>
+	<xs:complexType name="DataObjectReference">
+		<xs:annotation>
+			<xs:documentation>It only applies for Energistics data object.</xs:documentation>
+		</xs:annotation>
+		<xs:sequence>
+			<xs:element name="ContentType" type="eml:String2000" minOccurs="1" maxOccurs="1">
+				<xs:annotation>
+					<xs:documentation>The content type of the referenced element.</xs:documentation>
+				</xs:annotation>
+			</xs:element>
+			<xs:element name="Title" type="eml:String2000" minOccurs="1" maxOccurs="1">
+				<xs:annotation>
+					<xs:documentation>The Title of the referenced object. The Title of a top level element would be inherited from AbstractObject and must be present on any referenced object. </xs:documentation>
+				</xs:annotation>
+			</xs:element>
+			<xs:element name="Uuid" type="eml:UuidString" minOccurs="1" maxOccurs="1">
+				<xs:annotation>
+					<xs:documentation>Reference to an object using its global UID.</xs:documentation>
+				</xs:annotation>
+			</xs:element>
+			<xs:element name="UuidAuthority" type="eml:String64" minOccurs="0" maxOccurs="1">
+				<xs:annotation>
+					<xs:documentation>The authority that issued and maintains the uuid of the referenced object.
+Used mainly in alias context.</xs:documentation>
+				</xs:annotation>
+			</xs:element>
+			<xs:element name="Uri" type="xs:anyURI" minOccurs="0" maxOccurs="1">
+				<xs:annotation>
+					<xs:documentation>This is the URI of a referenced object. 
+
+Do not use this to store the path and file names of an external object - that is done through the External Dataset machinery.
+
+This element is intended for use with the Energistics Transfer Protocol.</xs:documentation>
+				</xs:annotation>
+			</xs:element>
+			<xs:element name="VersionString" type="eml:String64" minOccurs="0" maxOccurs="1">
+				<xs:annotation>
+					<xs:documentation>Indicates the version of the object which is referenced.</xs:documentation>
+				</xs:annotation>
+			</xs:element>
+		</xs:sequence>
+	</xs:complexType>
+</xs:schema>

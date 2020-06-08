@@ -1,0 +1,781 @@
+<?xml version="1.0" encoding="utf-8"?>
+<xs:schema targetNamespace="http://www.energistics.org/energyml/data/witsmlv2" xmlns:xs="http://www.w3.org/2001/XMLSchema" xmlns:eml="http://www.energistics.org/energyml/data/commonv2" xmlns:witsml="http://www.energistics.org/energyml/data/witsmlv2" elementFormDefault="qualified" version="2.0">
+	<!--														-->
+	<!-- Energistics License Agreement
+			This file is distributed under the Energistics Product License Agreement at
+			http://www.energistics.org/product-license-agreement
+			Use of this file constitutes agreement with the Energistics Product License Agreement.
+			Copyright (c) 2016 Energistics. All rights reserved.
+			Energistics, WITSML, PRODML and RESQML are trademarks or registered trademarks of Energistics.
+			-->
+	<!--														-->
+	<xs:annotation>
+		<xs:documentation>The mud log report (MudLogReport) data object can be used to create a report of geological, hydrocarbon evaluation, and drilling parameters observed while drilling a wellbore. The report represents the activities typically performed by mudlogging or wellsite geological personnel at a drilling location. The data from this object can be used to generate the graphical mud log or wellsite geology log that is the service product from these wellsite operations. 
+The mud log report object uses the objects from wellbore geology object (described above) to carry the detail of specific intervals of cuttings geology, interpreted geology, and hydrocarbon show but, the mud log report object also adds the capability to describe other associated data including:
+
+	- Information about the service company and its personnel
+	- Gas readings (mud gas, gas peaks)
+	- Chromatographic analysis of gas content
+	- Drilling parameters
+
+
+	- Links to other wellbore information, such as drilling reports and log data
+
+The mud log report is a growing object. As drilling progresses along the wellbore, new instances of the mud log report interval are generated and added to the object. These intervals may be transferred in real-time via ETP using the part_MudLogReportInterval object.</xs:documentation>
+	</xs:annotation>
+	<!--														-->
+	<xs:import namespace="http://www.energistics.org/energyml/data/commonv2" schemaLocation="../../../common/v2.1/xsd_schemas/EmlAllObjects.xsd"/>
+	<!--														-->
+	<xs:include schemaLocation="DrillReport.xsd"/>
+	<xs:include schemaLocation="Log.xsd"/>
+	<xs:include schemaLocation="Wellbore.xsd"/>
+	<xs:include schemaLocation="WellboreGeology.xsd"/>
+	<xs:complexType name="MudlogReportInterval">
+		<xs:annotation>
+			<xs:documentation>The interval at which the report on the mud log was taken, detailing cuttings, interpreted geology, and show evaluation.</xs:documentation>
+		</xs:annotation>
+		<xs:sequence>
+			<xs:element name="MdInterval" type="eml:MdInterval" minOccurs="1" maxOccurs="1">
+				<xs:annotation>
+					<xs:documentation>Measured depth interval.</xs:documentation>
+				</xs:annotation>
+			</xs:element>
+			<xs:element name="CuttingsGeologyInterval" type="eml:DataObjectReference" minOccurs="0" maxOccurs="1">
+				<xs:annotation>
+					<xs:documentation>The cuttings geology interval that is part of this mud log report.</xs:documentation>
+				</xs:annotation>
+			</xs:element>
+			<xs:element name="InterpretedGeologyInterval" type="eml:DataObjectReference" minOccurs="0" maxOccurs="1">
+				<xs:annotation>
+					<xs:documentation>The interpreted geology interval that is part of this mud log report.</xs:documentation>
+				</xs:annotation>
+			</xs:element>
+			<xs:element name="ShowEvaluationInterval" type="eml:DataObjectReference" minOccurs="0" maxOccurs="1">
+				<xs:annotation>
+					<xs:documentation>The show evaluation interval that is part of this mud log report.</xs:documentation>
+				</xs:annotation>
+			</xs:element>
+			<xs:element name="Chromatograph" type="witsml:Chromatograph" minOccurs="0" maxOccurs="1"/>
+			<xs:element name="DrillingParameters" type="witsml:DrillingParameters" minOccurs="0" maxOccurs="unbounded"/>
+			<xs:element name="MudGas" type="witsml:MudGas" minOccurs="0" maxOccurs="unbounded"/>
+		</xs:sequence>
+		<xs:attribute name="uid" use="required" type="eml:String64">
+			<xs:annotation>
+				<xs:documentation>Unique identifier for this instance of MudLogReportInterval.</xs:documentation>
+			</xs:annotation>
+		</xs:attribute>
+	</xs:complexType>
+	<xs:complexType name="MudLogParameter" abstract="true">
+		<xs:annotation>
+			<xs:documentation>Information around the mud log: type, time taken, top and bottom depth, pressure gradient, etc.</xs:documentation>
+		</xs:annotation>
+		<xs:sequence>
+			<xs:element name="MdInterval" type="eml:MdInterval" minOccurs="0" maxOccurs="1">
+				<xs:annotation>
+					<xs:documentation>Measured depth interval that is the focus of this parameter.</xs:documentation>
+				</xs:annotation>
+			</xs:element>
+			<xs:element name="Citation" type="eml:Citation" minOccurs="1" maxOccurs="1">
+				<xs:annotation>
+					<xs:documentation>An ISO 19115 EIP-derived set of metadata attached to ensure the traceability of the MudLogParameter.</xs:documentation>
+				</xs:annotation>
+			</xs:element>
+			<xs:element name="Comments" type="eml:String2000" minOccurs="1" maxOccurs="1">
+				<xs:annotation>
+					<xs:documentation>Description or secondary qualifier pertaining to MudlogParameter or to Value attribute.</xs:documentation>
+				</xs:annotation>
+			</xs:element>
+		</xs:sequence>
+		<xs:attribute name="uid" use="required" type="eml:String64">
+			<xs:annotation>
+				<xs:documentation>Unique identifier for this instance of MudLogParameter.</xs:documentation>
+			</xs:annotation>
+		</xs:attribute>
+	</xs:complexType>
+	<xs:complexType name="TorqueStatistics">
+		<xs:annotation>
+			<xs:documentation>Measurement of average torque and the channel from which the data was calculated.</xs:documentation>
+		</xs:annotation>
+		<xs:sequence minOccurs="0" maxOccurs="1">
+			<xs:element name="Average" type="eml:MomentOfForceMeasure" minOccurs="1" maxOccurs="1">
+				<xs:annotation>
+					<xs:documentation>Average torque through the interval.</xs:documentation>
+				</xs:annotation>
+			</xs:element>
+			<xs:element name="Channel" type="eml:DataObjectReference" minOccurs="0" maxOccurs="1">
+				<xs:annotation>
+					<xs:documentation>Log channel from which the torque statistics were calculated.</xs:documentation>
+				</xs:annotation>
+			</xs:element>
+		</xs:sequence>
+	</xs:complexType>
+	<xs:complexType name="MudLogForceParameter">
+		<xs:complexContent>
+			<xs:extension base="witsml:MudLogParameter">
+				<xs:sequence>
+					<xs:element name="Value" type="eml:ForceMeasureExt" minOccurs="1" maxOccurs="1"/>
+					<xs:element name="ForceParameterKind" type="witsml:ForceParameterKind" minOccurs="1" maxOccurs="1"/>
+				</xs:sequence>
+			</xs:extension>
+		</xs:complexContent>
+	</xs:complexType>
+	<xs:complexType name="MudLogPressureParameter">
+		<xs:annotation>
+			<xs:documentation>Describes the kind and value of mud log parameters that are expressed in units of pressure.</xs:documentation>
+		</xs:annotation>
+		<xs:complexContent>
+			<xs:extension base="witsml:MudLogParameter">
+				<xs:sequence>
+					<xs:element name="Value" type="eml:PressureMeasureExt" minOccurs="1" maxOccurs="1">
+						<xs:annotation>
+							<xs:documentation>The value of the parameter in pressure units.</xs:documentation>
+						</xs:annotation>
+					</xs:element>
+					<xs:element name="PressureParameterKind" type="witsml:PressureParameterKind" minOccurs="1" maxOccurs="1"/>
+				</xs:sequence>
+			</xs:extension>
+		</xs:complexContent>
+	</xs:complexType>
+	<xs:complexType name="MudLogPressureGradientParameter">
+		<xs:annotation>
+			<xs:documentation>Describes the kind and value of mud log parameters that are expressed in units of pressure gradient.</xs:documentation>
+		</xs:annotation>
+		<xs:complexContent>
+			<xs:extension base="witsml:MudLogParameter">
+				<xs:sequence>
+					<xs:element name="Value" type="eml:ForcePerVolumeMeasureExt" minOccurs="1" maxOccurs="1">
+						<xs:annotation>
+							<xs:documentation>The value of the parameter in pressure gradient units.</xs:documentation>
+						</xs:annotation>
+					</xs:element>
+					<xs:element name="PressureGradientParameterKind" type="witsml:PressureGradientParameterKind" minOccurs="1" maxOccurs="1"/>
+				</xs:sequence>
+			</xs:extension>
+		</xs:complexContent>
+	</xs:complexType>
+	<xs:simpleType name="PressureParameterKind">
+		<xs:annotation>
+			<xs:documentation>Specifies values for mud log parameters that are measured in units of pressure.</xs:documentation>
+		</xs:annotation>
+		<xs:restriction base="eml:TypeEnum">
+			<xs:enumeration value="direct fracture pressure measurement"/>
+			<xs:enumeration value="pore pressure estimate while drilling"/>
+		</xs:restriction>
+	</xs:simpleType>
+	<xs:complexType name="DxcStatistics">
+		<xs:annotation>
+			<xs:documentation>Information on corrected drilling exponents.</xs:documentation>
+		</xs:annotation>
+		<xs:sequence minOccurs="0" maxOccurs="1">
+			<xs:element name="Average" type="eml:DimensionlessMeasure" minOccurs="1" maxOccurs="1">
+				<xs:annotation>
+					<xs:documentation>Corrected drilling exponent calculated for the interval.</xs:documentation>
+				</xs:annotation>
+			</xs:element>
+			<xs:element name="Channel" type="eml:DataObjectReference" minOccurs="0" maxOccurs="1">
+				<xs:annotation>
+					<xs:documentation>Log channel from which the drilling coefficient statistics were calculated.</xs:documentation>
+				</xs:annotation>
+			</xs:element>
+		</xs:sequence>
+	</xs:complexType>
+	<xs:complexType name="MudDensityStatistics">
+		<xs:annotation>
+			<xs:documentation>Mud density readings at average or channel.</xs:documentation>
+		</xs:annotation>
+		<xs:sequence minOccurs="0" maxOccurs="1">
+			<xs:element name="Average" type="eml:MassPerVolumeMeasure" minOccurs="1" maxOccurs="1">
+				<xs:annotation>
+					<xs:documentation>Average mud density through the interval.</xs:documentation>
+				</xs:annotation>
+			</xs:element>
+			<xs:element name="Channel" type="eml:DataObjectReference" minOccurs="0" maxOccurs="1">
+				<xs:annotation>
+					<xs:documentation>Log channel from which the mud density statistics were calculated.</xs:documentation>
+				</xs:annotation>
+			</xs:element>
+		</xs:sequence>
+	</xs:complexType>
+	<xs:complexType name="EcdStatistics">
+		<xs:annotation>
+			<xs:documentation>Information on equivalent circulating density statistics.</xs:documentation>
+		</xs:annotation>
+		<xs:sequence minOccurs="0" maxOccurs="1">
+			<xs:element name="Average" type="eml:MassPerVolumeMeasure" minOccurs="1" maxOccurs="1">
+				<xs:annotation>
+					<xs:documentation>Average equivalent circulating density at TD through the interval.</xs:documentation>
+				</xs:annotation>
+			</xs:element>
+			<xs:element name="Channel" type="eml:DataObjectReference" minOccurs="0" maxOccurs="1">
+				<xs:annotation>
+					<xs:documentation>Log channel from which the equivalent circulating density at TD statistics were calculated.</xs:documentation>
+				</xs:annotation>
+			</xs:element>
+		</xs:sequence>
+	</xs:complexType>
+	<xs:complexType name="WobStatistics">
+		<xs:annotation>
+			<xs:documentation>Measurement of average weight on bit and channel from which the data was calculated.</xs:documentation>
+		</xs:annotation>
+		<xs:sequence minOccurs="0" maxOccurs="1">
+			<xs:element name="Average" type="eml:ForceMeasure" minOccurs="1" maxOccurs="1">
+				<xs:annotation>
+					<xs:documentation>Average weight on bit through the interval.</xs:documentation>
+				</xs:annotation>
+			</xs:element>
+			<xs:element name="Channel" type="eml:DataObjectReference" minOccurs="0" maxOccurs="1">
+				<xs:annotation>
+					<xs:documentation>Log channel from which the WOB statistics were calculated.</xs:documentation>
+				</xs:annotation>
+			</xs:element>
+		</xs:sequence>
+	</xs:complexType>
+	<xs:complexType name="MudLogStringParameter">
+		<xs:annotation>
+			<xs:documentation>Stores the values of parameters that are described by character strings.</xs:documentation>
+		</xs:annotation>
+		<xs:complexContent>
+			<xs:extension base="witsml:MudLogParameter">
+				<xs:sequence>
+					<xs:element name="Value" type="eml:String64" minOccurs="1" maxOccurs="1">
+						<xs:annotation>
+							<xs:documentation>The value of the parameter as a character string.</xs:documentation>
+						</xs:annotation>
+					</xs:element>
+					<xs:element name="MudLogStringParameterKind" type="witsml:MudLogStringParameterKind" minOccurs="1" maxOccurs="1"/>
+				</xs:sequence>
+			</xs:extension>
+		</xs:complexContent>
+	</xs:complexType>
+	<xs:simpleType name="MudLogStringParameterKind">
+		<xs:annotation>
+			<xs:documentation>Specifies values for mud log parameters that are described by character strings. </xs:documentation>
+		</xs:annotation>
+		<xs:restriction base="eml:TypeEnum">
+			<xs:enumeration value="bit parameters"/>
+			<xs:enumeration value="bit type comment"/>
+			<xs:enumeration value="casing point comment"/>
+			<xs:enumeration value="chromatograph comment"/>
+			<xs:enumeration value="circulation system comment"/>
+			<xs:enumeration value="core interval comment"/>
+			<xs:enumeration value="drilling data comment"/>
+			<xs:enumeration value="gas peaks comment"/>
+			<xs:enumeration value="gas ratio comment"/>
+			<xs:enumeration value="general engineering comment"/>
+			<xs:enumeration value="lithlog comment"/>
+			<xs:enumeration value="LWD comment"/>
+			<xs:enumeration value="marker or formation top comment"/>
+			<xs:enumeration value="midnight depth date"/>
+			<xs:enumeration value="mud check comment"/>
+			<xs:enumeration value="mud data comment"/>
+			<xs:enumeration value="mudlog comment"/>
+			<xs:enumeration value="pressure data comment"/>
+			<xs:enumeration value="shale density comment"/>
+			<xs:enumeration value="short trip comment"/>
+			<xs:enumeration value="show report comment"/>
+			<xs:enumeration value="sidewall core comment"/>
+			<xs:enumeration value="sliding Interval"/>
+			<xs:enumeration value="steam still results comment"/>
+			<xs:enumeration value="survey comment"/>
+			<xs:enumeration value="temperature data comment"/>
+			<xs:enumeration value="temperature trend comment"/>
+			<xs:enumeration value="unknown"/>
+			<xs:enumeration value="wireline log comment"/>
+		</xs:restriction>
+	</xs:simpleType>
+	<xs:element name="MudLogReport" type="witsml:MudLogReport" substitutionGroup="eml:AbstractDataObject"/>
+	<xs:complexType name="MudLogReport">
+		<xs:annotation>
+			<xs:documentation>Details of wellbore geology intervals, drilling parameters, chromatograph, mud gas, etc., data within an MD interval.</xs:documentation>
+		</xs:annotation>
+		<xs:complexContent>
+			<xs:extension base="eml:AbstractObject">
+				<xs:sequence>
+					<xs:element name="MudLogCompany" type="eml:String64" minOccurs="0" maxOccurs="1">
+						<xs:annotation>
+							<xs:documentation>Name of the company recording the information.</xs:documentation>
+						</xs:annotation>
+					</xs:element>
+					<xs:element name="MudLogEngineers" type="eml:String2000" minOccurs="0" maxOccurs="1">
+						<xs:annotation>
+							<xs:documentation>Concatenated names of the mudloggers constructing the log.</xs:documentation>
+						</xs:annotation>
+					</xs:element>
+					<xs:element name="MudLogGeologists" type="eml:String2000" minOccurs="0" maxOccurs="1">
+						<xs:annotation>
+							<xs:documentation>Concatenated names of the geologists constructing the log.</xs:documentation>
+						</xs:annotation>
+					</xs:element>
+					<xs:element name="ReportMdInterval" type="eml:MdInterval" minOccurs="0" maxOccurs="1">
+						<xs:annotation>
+							<xs:documentation>[maintained by the server] The interval between the minimum and maximum measured depths contained in this MudLog report.</xs:documentation>
+						</xs:annotation>
+					</xs:element>
+					<xs:element name="GrowingStatus" type="witsml:ChannelStatus" minOccurs="1" maxOccurs="1">
+						<xs:annotation>
+							<xs:documentation>The growing state of the mudlog,. Valid Values: active, inactive or closed.</xs:documentation>
+						</xs:annotation>
+					</xs:element>
+					<xs:element name="Wellbore" type="eml:DataObjectReference" minOccurs="1" maxOccurs="1"/>
+					<xs:element name="WellboreGeology" type="eml:DataObjectReference" minOccurs="0" maxOccurs="1"/>
+					<xs:element name="MudlogIntervals" type="witsml:MudlogReportInterval" minOccurs="0" maxOccurs="unbounded"/>
+					<xs:element name="RelatedLogs" type="eml:DataObjectReference" minOccurs="0" maxOccurs="unbounded"/>
+					<xs:element name="Parameter" type="witsml:MudLogParameter" minOccurs="0" maxOccurs="unbounded"/>
+				</xs:sequence>
+			</xs:extension>
+		</xs:complexContent>
+	</xs:complexType>
+	<xs:complexType name="DrillingParameters">
+		<xs:annotation>
+			<xs:documentation>Information regarding drilling: ROP, WOB, torque, etc.</xs:documentation>
+		</xs:annotation>
+		<xs:sequence minOccurs="0" maxOccurs="1">
+			<xs:element name="Rop" type="witsml:RopStatistics" minOccurs="0" maxOccurs="1">
+				<xs:annotation>
+					<xs:documentation>Rate of penetration through the interval.</xs:documentation>
+				</xs:annotation>
+			</xs:element>
+			<xs:element name="AverageWeightOnBit" type="witsml:WobStatistics" minOccurs="0" maxOccurs="1">
+				<xs:annotation>
+					<xs:documentation>Surface weight on bit: average through the interval.</xs:documentation>
+				</xs:annotation>
+			</xs:element>
+			<xs:element name="AverageTorque" type="witsml:TorqueStatistics" minOccurs="0" maxOccurs="1">
+				<xs:annotation>
+					<xs:documentation>Average torque through the interval.</xs:documentation>
+				</xs:annotation>
+			</xs:element>
+			<xs:element name="AverageTorqueCurrent" type="witsml:TorqueCurrentStatistics" minOccurs="0" maxOccurs="1">
+				<xs:annotation>
+					<xs:documentation>Average torque current through the interval. This is the raw measurement from which the average torque can be calculated.</xs:documentation>
+				</xs:annotation>
+			</xs:element>
+			<xs:element name="AverageTurnRate" type="witsml:RpmStatistics" minOccurs="0" maxOccurs="1">
+				<xs:annotation>
+					<xs:documentation>Average turn rate through the interval (commonly in rpm).</xs:documentation>
+				</xs:annotation>
+			</xs:element>
+			<xs:element name="AverageMudDensity" type="witsml:MudDensityStatistics" minOccurs="0" maxOccurs="1">
+				<xs:annotation>
+					<xs:documentation>Average mud density through the interval.</xs:documentation>
+				</xs:annotation>
+			</xs:element>
+			<xs:element name="AverageEcdAtTd" type="witsml:EcdStatistics" minOccurs="0" maxOccurs="1">
+				<xs:annotation>
+					<xs:documentation>Average effective circulating density at TD through the interval.</xs:documentation>
+				</xs:annotation>
+			</xs:element>
+			<xs:element name="AverageDrillingCoefficient" type="witsml:DxcStatistics" minOccurs="0" maxOccurs="1">
+				<xs:annotation>
+					<xs:documentation>Average drilling exponent through the interval.</xs:documentation>
+				</xs:annotation>
+			</xs:element>
+		</xs:sequence>
+	</xs:complexType>
+	<xs:complexType name="MudGas">
+		<xs:annotation>
+			<xs:documentation>Information on gas in the mud and gas peak.</xs:documentation>
+		</xs:annotation>
+		<xs:sequence minOccurs="0">
+			<xs:element name="GasInMud" type="witsml:GasInMud" minOccurs="0" maxOccurs="1"/>
+			<xs:element name="GasPeak" type="witsml:GasPeak" minOccurs="0" maxOccurs="unbounded"/>
+		</xs:sequence>
+	</xs:complexType>
+	<xs:complexType name="GasInMud">
+		<xs:annotation>
+			<xs:documentation>Information on amount of gas in the mud.</xs:documentation>
+		</xs:annotation>
+		<xs:sequence>
+			<xs:element name="Average" type="eml:VolumePerVolumeMeasure" minOccurs="0" maxOccurs="1">
+				<xs:annotation>
+					<xs:documentation>Average percentage of gas in the mud.</xs:documentation>
+				</xs:annotation>
+			</xs:element>
+			<xs:element name="Maximum" type="eml:VolumePerVolumeMeasure" minOccurs="0" maxOccurs="1">
+				<xs:annotation>
+					<xs:documentation>Maximum percentage of gas in the mud.</xs:documentation>
+				</xs:annotation>
+			</xs:element>
+			<xs:element name="Channel" type="eml:DataObjectReference" minOccurs="1" maxOccurs="1"/>
+		</xs:sequence>
+	</xs:complexType>
+	<xs:complexType name="GasPeak">
+		<xs:annotation>
+			<xs:documentation>Readings at maximum gas production.</xs:documentation>
+		</xs:annotation>
+		<xs:sequence>
+			<xs:element name="PeakType" type="witsml:GasPeakType" minOccurs="1" maxOccurs="1">
+				<xs:annotation>
+					<xs:documentation>Type of gas peak</xs:documentation>
+				</xs:annotation>
+			</xs:element>
+			<xs:element name="MdPeak" type="eml:LengthMeasure" minOccurs="0" maxOccurs="1">
+				<xs:annotation>
+					<xs:documentation>Measured depth at which the gas reading was taken.</xs:documentation>
+				</xs:annotation>
+			</xs:element>
+			<xs:element name="AverageGas" type="eml:VolumePerVolumeMeasure" minOccurs="0" maxOccurs="1">
+				<xs:annotation>
+					<xs:documentation>Average total gas.</xs:documentation>
+				</xs:annotation>
+			</xs:element>
+			<xs:element name="PeakGas" type="eml:VolumePerVolumeMeasure" minOccurs="0" maxOccurs="1">
+				<xs:annotation>
+					<xs:documentation>Peak gas reading.</xs:documentation>
+				</xs:annotation>
+			</xs:element>
+			<xs:element name="BackgroundGas" type="eml:VolumePerVolumeMeasure" minOccurs="0" maxOccurs="1">
+				<xs:annotation>
+					<xs:documentation>Background gas reading.</xs:documentation>
+				</xs:annotation>
+			</xs:element>
+			<xs:element name="Channel" type="eml:DataObjectReference" minOccurs="1" maxOccurs="1"/>
+		</xs:sequence>
+	</xs:complexType>
+	<xs:simpleType name="PressureGradientParameterKind">
+		<xs:annotation>
+			<xs:documentation>Specifies values for mud log parameters that are measured in units of pressure gradient. </xs:documentation>
+		</xs:annotation>
+		<xs:restriction base="eml:TypeEnum">
+			<xs:enumeration value="direct pore pressure gradient measurement"/>
+			<xs:enumeration value="fracture pressure gradient estimate"/>
+			<xs:enumeration value="kick pressure gradient"/>
+			<xs:enumeration value="lost returns"/>
+			<xs:enumeration value="overburden gradient"/>
+			<xs:enumeration value="pore pressure gradient estimate"/>
+		</xs:restriction>
+	</xs:simpleType>
+	<xs:element name="part_MudLogReportInterval" type="witsml:MudlogReportInterval">
+		<xs:annotation>
+			<xs:documentation>Wrapper for sending individual MudLogReportIntervals using ETP.</xs:documentation>
+		</xs:annotation>
+	</xs:element>
+	<xs:complexType name="MudLogConcentrationParameter">
+		<xs:complexContent>
+			<xs:extension base="witsml:MudLogParameter">
+				<xs:sequence>
+					<xs:element name="Value" type="eml:VolumePerVolumeMeasureExt" minOccurs="1" maxOccurs="1"/>
+					<xs:element name="ConcentrationParameterKind" type="witsml:ConcentrationParameterKind" minOccurs="1" maxOccurs="1"/>
+				</xs:sequence>
+			</xs:extension>
+		</xs:complexContent>
+	</xs:complexType>
+	<xs:simpleType name="ConcentrationParameterKind">
+		<xs:annotation>
+			<xs:documentation>Specifies the values for mud log parameters that are measured in units of concentration.</xs:documentation>
+		</xs:annotation>
+		<xs:restriction base="eml:TypeEnum">
+			<xs:enumeration value="cuttings gas">
+				<xs:annotation>
+					<xs:documentation>The cuttings gas concentration averaged over the interval.</xs:documentation>
+				</xs:annotation>
+			</xs:enumeration>
+		</xs:restriction>
+	</xs:simpleType>
+	<xs:simpleType name="ForceParameterKind">
+		<xs:annotation>
+			<xs:documentation>Specifies the values for mud log parameters that are measured in units of force.</xs:documentation>
+		</xs:annotation>
+		<xs:restriction base="eml:TypeEnum">
+			<xs:enumeration value="overpull on connection">
+				<xs:annotation>
+					<xs:documentation>Additional hookload recorded in excess of static drill string weight when making a connection.</xs:documentation>
+				</xs:annotation>
+			</xs:enumeration>
+			<xs:enumeration value="overpull on trip">
+				<xs:annotation>
+					<xs:documentation>Additional hookload recorded in excess of static drill string weight when making a trip.</xs:documentation>
+				</xs:annotation>
+			</xs:enumeration>
+		</xs:restriction>
+	</xs:simpleType>
+	<xs:complexType name="RpmStatistics">
+		<xs:annotation>
+			<xs:documentation>Measurement of the average turn rate and the channel from which the data was calculated.</xs:documentation>
+		</xs:annotation>
+		<xs:sequence minOccurs="0" maxOccurs="1">
+			<xs:element name="Average" type="eml:AngularVelocityMeasure" minOccurs="1" maxOccurs="1">
+				<xs:annotation>
+					<xs:documentation>Average bit turn rate through the interval.</xs:documentation>
+				</xs:annotation>
+			</xs:element>
+			<xs:element name="Channel" type="eml:DataObjectReference" minOccurs="0" maxOccurs="1">
+				<xs:annotation>
+					<xs:documentation>Log channel from which the turn rate statistics were calculated.</xs:documentation>
+				</xs:annotation>
+			</xs:element>
+		</xs:sequence>
+	</xs:complexType>
+	<xs:complexType name="TorqueCurrentStatistics">
+		<xs:annotation>
+			<xs:documentation>Measurement of the  average electric current and the channel from which the data was calculated.</xs:documentation>
+		</xs:annotation>
+		<xs:sequence minOccurs="0" maxOccurs="1">
+			<xs:element name="Average" type="eml:ElectricCurrentMeasure" minOccurs="1" maxOccurs="1">
+				<xs:annotation>
+					<xs:documentation>Average electric current through the interval</xs:documentation>
+				</xs:annotation>
+			</xs:element>
+			<xs:element name="Channel" type="eml:DataObjectReference" minOccurs="0" maxOccurs="1">
+				<xs:annotation>
+					<xs:documentation>Log channel from which the electric current statistics were calculated.</xs:documentation>
+				</xs:annotation>
+			</xs:element>
+		</xs:sequence>
+	</xs:complexType>
+	<xs:complexType name="RopStatistics">
+		<xs:annotation>
+			<xs:documentation>Measurements on minimum, average and maximum rates of penetration (ROP) and the channel from which this data was calculated.</xs:documentation>
+		</xs:annotation>
+		<xs:sequence minOccurs="0" maxOccurs="1">
+			<xs:element name="Average" type="eml:LengthPerTimeMeasure" minOccurs="0" maxOccurs="1">
+				<xs:annotation>
+					<xs:documentation>Average rate of penetration through the interval.</xs:documentation>
+				</xs:annotation>
+			</xs:element>
+			<xs:element name="Minimum" type="eml:LengthPerTimeMeasure" minOccurs="0" maxOccurs="1">
+				<xs:annotation>
+					<xs:documentation>Minimum rate of penetration through the interval.</xs:documentation>
+				</xs:annotation>
+			</xs:element>
+			<xs:element name="Maximum" type="eml:LengthPerTimeMeasure" minOccurs="0" maxOccurs="1">
+				<xs:annotation>
+					<xs:documentation>Maximum rate of penetration through the interval.</xs:documentation>
+				</xs:annotation>
+			</xs:element>
+			<xs:element name="Channel" type="eml:DataObjectReference" minOccurs="0" maxOccurs="1">
+				<xs:annotation>
+					<xs:documentation>Log channel from which the ROP statistics were calculated.</xs:documentation>
+				</xs:annotation>
+			</xs:element>
+		</xs:sequence>
+	</xs:complexType>
+	<xs:complexType name="Chromatograph">
+		<xs:annotation>
+			<xs:documentation>Analysis done to determine the components in a show.</xs:documentation>
+		</xs:annotation>
+		<xs:sequence>
+			<xs:element name="ChromatographMdInterval" type="eml:MdInterval" minOccurs="0" maxOccurs="1">
+				<xs:annotation>
+					<xs:documentation>Measured interval related to the chromatograph results.</xs:documentation>
+				</xs:annotation>
+			</xs:element>
+			<xs:element name="DateTimeGasSampleProcessed" type="eml:TimeStamp" minOccurs="0" maxOccurs="1">
+				<xs:annotation>
+					<xs:documentation>The date and time at which the gas sample was processed.</xs:documentation>
+				</xs:annotation>
+			</xs:element>
+			<xs:element name="ChromatographType" type="eml:String64" minOccurs="0" maxOccurs="1">
+				<xs:annotation>
+					<xs:documentation>Chromatograph type.</xs:documentation>
+				</xs:annotation>
+			</xs:element>
+			<xs:element name="ETimChromCycle" type="eml:TimeMeasure" minOccurs="0" maxOccurs="1">
+				<xs:annotation>
+					<xs:documentation>Chromatograph cycle time. Commonly in seconds.</xs:documentation>
+				</xs:annotation>
+			</xs:element>
+			<xs:element name="ChromReportTime" type="eml:TimeStamp" minOccurs="0" maxOccurs="1">
+				<xs:annotation>
+					<xs:documentation>Chromatograph integrator report time; format may be variable due to recording equipment.</xs:documentation>
+				</xs:annotation>
+			</xs:element>
+			<xs:element name="MudWeightIn" type="eml:MassPerVolumeMeasure" minOccurs="0" maxOccurs="1">
+				<xs:annotation>
+					<xs:documentation>Mud density in (active pits).</xs:documentation>
+				</xs:annotation>
+			</xs:element>
+			<xs:element name="MudWeightOut" type="eml:MassPerVolumeMeasure" minOccurs="0" maxOccurs="1">
+				<xs:annotation>
+					<xs:documentation>Mud density out (flowline).</xs:documentation>
+				</xs:annotation>
+			</xs:element>
+			<xs:element name="MethAv" type="eml:VolumePerVolumeMeasure" minOccurs="0" maxOccurs="1">
+				<xs:annotation>
+					<xs:documentation>Methane (C1) ppm (average).</xs:documentation>
+				</xs:annotation>
+			</xs:element>
+			<xs:element name="MethMn" type="eml:VolumePerVolumeMeasure" minOccurs="0" maxOccurs="1">
+				<xs:annotation>
+					<xs:documentation>Methane (C1) ppm (minimum).</xs:documentation>
+				</xs:annotation>
+			</xs:element>
+			<xs:element name="MethMx" type="eml:VolumePerVolumeMeasure" minOccurs="0" maxOccurs="1">
+				<xs:annotation>
+					<xs:documentation>Methane (C1) ppm (maximum).</xs:documentation>
+				</xs:annotation>
+			</xs:element>
+			<xs:element name="EthAv" type="eml:VolumePerVolumeMeasure" minOccurs="0" maxOccurs="1">
+				<xs:annotation>
+					<xs:documentation>Ethane (C2) ppm (average).</xs:documentation>
+				</xs:annotation>
+			</xs:element>
+			<xs:element name="EthMn" type="eml:VolumePerVolumeMeasure" minOccurs="0" maxOccurs="1">
+				<xs:annotation>
+					<xs:documentation>Ethane (C2) ppm (minimum).</xs:documentation>
+				</xs:annotation>
+			</xs:element>
+			<xs:element name="EthMx" type="eml:VolumePerVolumeMeasure" minOccurs="0" maxOccurs="1">
+				<xs:annotation>
+					<xs:documentation>Ethane (C2) ppm (maximum).</xs:documentation>
+				</xs:annotation>
+			</xs:element>
+			<xs:element name="PropAv" type="eml:VolumePerVolumeMeasure" minOccurs="0" maxOccurs="1">
+				<xs:annotation>
+					<xs:documentation>Propane (C3) ppm (average).</xs:documentation>
+				</xs:annotation>
+			</xs:element>
+			<xs:element name="PropMn" type="eml:VolumePerVolumeMeasure" minOccurs="0" maxOccurs="1">
+				<xs:annotation>
+					<xs:documentation>Propane (C3) ppm (minimum).</xs:documentation>
+				</xs:annotation>
+			</xs:element>
+			<xs:element name="PropMx" type="eml:VolumePerVolumeMeasure" minOccurs="0" maxOccurs="1">
+				<xs:annotation>
+					<xs:documentation>Propane (C3) ppm (maximum).</xs:documentation>
+				</xs:annotation>
+			</xs:element>
+			<xs:element name="IbutAv" type="eml:VolumePerVolumeMeasure" minOccurs="0" maxOccurs="1">
+				<xs:annotation>
+					<xs:documentation>iso-Butane (iC4) ppm (average).</xs:documentation>
+				</xs:annotation>
+			</xs:element>
+			<xs:element name="IbutMn" type="eml:VolumePerVolumeMeasure" minOccurs="0" maxOccurs="1">
+				<xs:annotation>
+					<xs:documentation>iso-Butane (iC4) ppm (minimum).</xs:documentation>
+				</xs:annotation>
+			</xs:element>
+			<xs:element name="IbutMx" type="eml:VolumePerVolumeMeasure" minOccurs="0" maxOccurs="1">
+				<xs:annotation>
+					<xs:documentation>iso-Butane (iC4) ppm (maximum).</xs:documentation>
+				</xs:annotation>
+			</xs:element>
+			<xs:element name="NbutAv" type="eml:VolumePerVolumeMeasure" minOccurs="0" maxOccurs="1">
+				<xs:annotation>
+					<xs:documentation>nor-Butane (nC4) ppm (average).</xs:documentation>
+				</xs:annotation>
+			</xs:element>
+			<xs:element name="NbutMn" type="eml:VolumePerVolumeMeasure" minOccurs="0" maxOccurs="1">
+				<xs:annotation>
+					<xs:documentation>nor-Butane (nC4) ppm (minimum).</xs:documentation>
+				</xs:annotation>
+			</xs:element>
+			<xs:element name="NbutMx" type="eml:VolumePerVolumeMeasure" minOccurs="0" maxOccurs="1">
+				<xs:annotation>
+					<xs:documentation>nor-Butane (nC4) ppm (maximum).</xs:documentation>
+				</xs:annotation>
+			</xs:element>
+			<xs:element name="IpentAv" type="eml:VolumePerVolumeMeasure" minOccurs="0" maxOccurs="1">
+				<xs:annotation>
+					<xs:documentation>iso-Pentane (iC5) ppm (average).</xs:documentation>
+				</xs:annotation>
+			</xs:element>
+			<xs:element name="IpentMn" type="eml:VolumePerVolumeMeasure" minOccurs="0" maxOccurs="1">
+				<xs:annotation>
+					<xs:documentation>iso-Pentane (iC5) ppm (minimum).</xs:documentation>
+				</xs:annotation>
+			</xs:element>
+			<xs:element name="IpentMx" type="eml:VolumePerVolumeMeasure" minOccurs="0" maxOccurs="1">
+				<xs:annotation>
+					<xs:documentation>iso-Pentane (iC5) ppm (maximum).</xs:documentation>
+				</xs:annotation>
+			</xs:element>
+			<xs:element name="NpentAv" type="eml:VolumePerVolumeMeasure" minOccurs="0" maxOccurs="1">
+				<xs:annotation>
+					<xs:documentation>nor-Pentane (nC5) ppm (average).</xs:documentation>
+				</xs:annotation>
+			</xs:element>
+			<xs:element name="NpentMn" type="eml:VolumePerVolumeMeasure" minOccurs="0" maxOccurs="1">
+				<xs:annotation>
+					<xs:documentation>nor-Pentane (nC5) ppm (minimum).</xs:documentation>
+				</xs:annotation>
+			</xs:element>
+			<xs:element name="NpentMx" type="eml:VolumePerVolumeMeasure" minOccurs="0" maxOccurs="1">
+				<xs:annotation>
+					<xs:documentation>nor-Pentane (nC5) ppm (maximum).</xs:documentation>
+				</xs:annotation>
+			</xs:element>
+			<xs:element name="EpentAv" type="eml:VolumePerVolumeMeasure" minOccurs="0" maxOccurs="1">
+				<xs:annotation>
+					<xs:documentation>neo-Pentane (eC5) ppm (average).</xs:documentation>
+				</xs:annotation>
+			</xs:element>
+			<xs:element name="EpentMn" type="eml:VolumePerVolumeMeasure" minOccurs="0" maxOccurs="1">
+				<xs:annotation>
+					<xs:documentation>neo-Pentane (eC5) ppm (minimum).</xs:documentation>
+				</xs:annotation>
+			</xs:element>
+			<xs:element name="EpentMx" type="eml:VolumePerVolumeMeasure" minOccurs="0" maxOccurs="1">
+				<xs:annotation>
+					<xs:documentation>neo-Pentane (eC5) ppm (maximum).</xs:documentation>
+				</xs:annotation>
+			</xs:element>
+			<xs:element name="IhexAv" type="eml:VolumePerVolumeMeasure" minOccurs="0" maxOccurs="1">
+				<xs:annotation>
+					<xs:documentation>iso-Hexane (iC6) ppm (average).</xs:documentation>
+				</xs:annotation>
+			</xs:element>
+			<xs:element name="IhexMn" type="eml:VolumePerVolumeMeasure" minOccurs="0" maxOccurs="1">
+				<xs:annotation>
+					<xs:documentation>iso-Hexane (iC6) ppm (minimum).</xs:documentation>
+				</xs:annotation>
+			</xs:element>
+			<xs:element name="IhexMx" type="eml:VolumePerVolumeMeasure" minOccurs="0" maxOccurs="1">
+				<xs:annotation>
+					<xs:documentation>iso-Hexane (iC6) ppm (maximum).</xs:documentation>
+				</xs:annotation>
+			</xs:element>
+			<xs:element name="NhexAv" type="eml:VolumePerVolumeMeasure" minOccurs="0" maxOccurs="1">
+				<xs:annotation>
+					<xs:documentation>nor-Hexane (nC6) ppm (average).</xs:documentation>
+				</xs:annotation>
+			</xs:element>
+			<xs:element name="NhexMn" type="eml:VolumePerVolumeMeasure" minOccurs="0" maxOccurs="1">
+				<xs:annotation>
+					<xs:documentation>nor-Hexane (nC6) ppm (minimum).</xs:documentation>
+				</xs:annotation>
+			</xs:element>
+			<xs:element name="NhexMx" type="eml:VolumePerVolumeMeasure" minOccurs="0" maxOccurs="1">
+				<xs:annotation>
+					<xs:documentation>nor-Hexane (nC6) ppm (maximum).</xs:documentation>
+				</xs:annotation>
+			</xs:element>
+			<xs:element name="Co2Av" type="eml:VolumePerVolumeMeasure" minOccurs="0" maxOccurs="1">
+				<xs:annotation>
+					<xs:documentation>Carbon Dioxide ppm (average).</xs:documentation>
+				</xs:annotation>
+			</xs:element>
+			<xs:element name="Co2Mn" type="eml:VolumePerVolumeMeasure" minOccurs="0" maxOccurs="1">
+				<xs:annotation>
+					<xs:documentation>Carbon Dioxide ppm (minimum).</xs:documentation>
+				</xs:annotation>
+			</xs:element>
+			<xs:element name="Co2Mx" type="eml:VolumePerVolumeMeasure" minOccurs="0" maxOccurs="1">
+				<xs:annotation>
+					<xs:documentation>Carbon Dioxide ppm (maximum).</xs:documentation>
+				</xs:annotation>
+			</xs:element>
+			<xs:element name="H2sAv" type="eml:VolumePerVolumeMeasure" minOccurs="0" maxOccurs="1">
+				<xs:annotation>
+					<xs:documentation>Hydrogen Sulfide (average) ppm.</xs:documentation>
+				</xs:annotation>
+			</xs:element>
+			<xs:element name="H2sMn" type="eml:VolumePerVolumeMeasure" minOccurs="0" maxOccurs="1">
+				<xs:annotation>
+					<xs:documentation>Hydrogen Sulfide (minimum) ppm.</xs:documentation>
+				</xs:annotation>
+			</xs:element>
+			<xs:element name="H2sMx" type="eml:VolumePerVolumeMeasure" minOccurs="0" maxOccurs="1">
+				<xs:annotation>
+					<xs:documentation>Hydrogen Sulfide (maximum) ppm.</xs:documentation>
+				</xs:annotation>
+			</xs:element>
+			<xs:element name="Acetylene" type="eml:VolumePerVolumeMeasure" minOccurs="0" maxOccurs="1">
+				<xs:annotation>
+					<xs:documentation>Acetylene.</xs:documentation>
+				</xs:annotation>
+			</xs:element>
+			<xs:element name="Channel" type="eml:DataObjectReference" minOccurs="0" maxOccurs="1"/>
+		</xs:sequence>
+	</xs:complexType>
+</xs:schema>

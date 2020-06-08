@@ -1,0 +1,78 @@
+<?xml version="1.0" encoding="utf-8"?>
+<xs:schema targetNamespace="http://www.energistics.org/energyml/data/witsmlv2" xmlns:xs="http://www.w3.org/2001/XMLSchema" xmlns:witsml="http://www.energistics.org/energyml/data/witsmlv2" xmlns:eml="http://www.energistics.org/energyml/data/commonv2" elementFormDefault="qualified" version="2.0">
+	<!--														-->
+	<!-- Energistics License Agreement
+			This file is distributed under the Energistics Product License Agreement at
+			http://www.energistics.org/product-license-agreement
+			Use of this file constitutes agreement with the Energistics Product License Agreement.
+			Copyright (c) 2016 Energistics. All rights reserved.
+			Energistics, WITSML, PRODML and RESQML are trademarks or registered trademarks of Energistics.
+			-->
+	<!--														-->
+	<xs:annotation>
+		<xs:documentation>Attachment Schema.</xs:documentation>
+	</xs:annotation>
+	<!--														-->
+	<xs:import namespace="http://www.energistics.org/energyml/data/commonv2" schemaLocation="../../../common/v2.1/xsd_schemas/EmlAllObjects.xsd"/>
+	<!--														-->
+	<xs:include schemaLocation="WitsmlCommon.xsd"/>
+	<xs:include schemaLocation="Wellbore.xsd"/>
+	<xs:element name="Attachment" type="witsml:Attachment" substitutionGroup="eml:AbstractDataObject"/>
+	<xs:complexType name="Attachment">
+		<xs:annotation>
+			<xs:documentation>A dedicated object used to attach digital supplemental data (for example, a graphic or PDF file) to another data object. The attachment is captured as a base 64 binary type.</xs:documentation>
+		</xs:annotation>
+		<xs:complexContent>
+			<xs:extension base="eml:AbstractObject">
+				<xs:sequence>
+					<xs:element name="Category" type="eml:String64" minOccurs="0" maxOccurs="1">
+						<xs:annotation>
+							<xs:documentation>Used to tell what the object is when you have multiple attachments of the same file type. E.g., if you have attached a picture of cuttings on a specific depth, you can tag it with Category="CuttingsPicture".</xs:documentation>
+						</xs:annotation>
+					</xs:element>
+					<xs:element name="Md" type="witsml:MeasuredDepthCoord" minOccurs="0" maxOccurs="1">
+						<xs:annotation>
+							<xs:documentation>The along-hole measured depth represented by the attachment.</xs:documentation>
+						</xs:annotation>
+					</xs:element>
+					<xs:element name="Param" type="eml:ExtensionNameValue" minOccurs="0" maxOccurs="unbounded">
+						<xs:annotation>
+							<xs:documentation>Any extra numeric data. For this usage, the name attribute MUST be specified because it represents the meaning of the data. While the index attribute is mandatory, it is only significant if the same name repeats.</xs:documentation>
+						</xs:annotation>
+					</xs:element>
+					<xs:element name="MdBit" type="witsml:MeasuredDepthCoord" minOccurs="0" maxOccurs="1">
+						<xs:annotation>
+							<xs:documentation>The along-hole measured depth of the bit.</xs:documentation>
+						</xs:annotation>
+					</xs:element>
+					<xs:element name="FileName" type="eml:String64" minOccurs="0" maxOccurs="1">
+						<xs:annotation>
+							<xs:documentation>A file name associated with the attachment. Note this is NOT a file path and should contain a name only.</xs:documentation>
+						</xs:annotation>
+					</xs:element>
+					<xs:element name="FileType" type="eml:String64" minOccurs="0" maxOccurs="1">
+						<xs:annotation>
+							<xs:documentation>The file type. This field SHOULD be a registered mime type as cataloged at http://www.iana.org/assignments/media-types/media-types.xhtml.</xs:documentation>
+						</xs:annotation>
+					</xs:element>
+					<xs:element name="Content" type="xs:base64Binary" minOccurs="1" maxOccurs="1">
+						<xs:annotation>
+							<xs:documentation>The actual attachment content.</xs:documentation>
+						</xs:annotation>
+					</xs:element>
+					<xs:element name="ObjectReference" type="eml:DataObjectReference" minOccurs="0" maxOccurs="1">
+						<xs:annotation>
+							<xs:documentation>A reference to an object that is defined within the context of the specified wellbore.</xs:documentation>
+						</xs:annotation>
+					</xs:element>
+					<xs:element name="SubObjectReference" type="eml:String64" minOccurs="0" maxOccurs="1">
+						<xs:annotation>
+							<xs:documentation>A reference to a sub-object that is defined within the context of the object referenced by objectReference. This should only refer to recurring components of a growing object. The content is the UID of the sub-object.</xs:documentation>
+						</xs:annotation>
+					</xs:element>
+					<xs:element name="Wellbore" type="eml:DataObjectReference" minOccurs="1" maxOccurs="1"/>
+				</xs:sequence>
+			</xs:extension>
+		</xs:complexContent>
+	</xs:complexType>
+</xs:schema>

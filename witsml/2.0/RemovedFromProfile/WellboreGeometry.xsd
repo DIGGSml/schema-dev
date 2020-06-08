@@ -1,0 +1,151 @@
+<?xml version="1.0" encoding="utf-8"?>
+<xs:schema targetNamespace="http://www.energistics.org/energyml/data/witsmlv2" xmlns:xs="http://www.w3.org/2001/XMLSchema" xmlns:eml="http://www.energistics.org/energyml/data/commonv2" xmlns:witsml="http://www.energistics.org/energyml/data/witsmlv2" elementFormDefault="qualified" version="2.0">
+	<!--														-->
+	<!-- Energistics License Agreement
+			This file is distributed under the Energistics Product License Agreement at
+			http://www.energistics.org/product-license-agreement
+			Use of this file constitutes agreement with the Energistics Product License Agreement.
+			Copyright (c) 2016 Energistics. All rights reserved.
+			Energistics, WITSML, PRODML and RESQML are trademarks or registered trademarks of Energistics.
+			-->
+	<!--														-->
+	<xs:annotation>
+		<xs:documentation>Wellbore Geometry Schema. Captures information about the configuration of the permanently installed components in a wellbore. It does not define the transient drilling strings (see the Tubular object) or the hanging production components (see the Completion object).</xs:documentation>
+	</xs:annotation>
+	<!--														-->
+	<xs:import namespace="http://www.energistics.org/energyml/data/commonv2" schemaLocation="../../../common/v2.1/xsd_schemas/EmlAllObjects.xsd"/>
+	<!--														-->
+	<xs:include schemaLocation="Log.xsd"/>
+	<xs:include schemaLocation="WitsmlCommon.xsd"/>
+	<xs:include schemaLocation="BhaRun.xsd"/>
+	<xs:include schemaLocation="Wellbore.xsd"/>
+	<xs:element name="part_WellboreGeometrySection" type="witsml:WellboreGeometrySection">
+		<xs:annotation>
+			<xs:documentation>Wrapper for sending individual sections using ETP.</xs:documentation>
+		</xs:annotation>
+	</xs:element>
+	<xs:element name="WellboreGeometry" type="witsml:WellboreGeometry" substitutionGroup="eml:AbstractDataObject"/>
+	<xs:complexType name="WellboreGeometry">
+		<xs:annotation>
+			<xs:documentation>Used to capture information about the configuration of the permanently installed components in a wellbore. This object is uniquely identified within the context of one wellbore object.</xs:documentation>
+		</xs:annotation>
+		<xs:complexContent>
+			<xs:extension base="eml:AbstractObject">
+				<xs:sequence>
+					<xs:element name="MdBase" type="witsml:MeasuredDepthCoord" minOccurs="0" maxOccurs="1">
+						<xs:annotation>
+							<xs:documentation>Measured depth at bottom, at the time this report was made.</xs:documentation>
+						</xs:annotation>
+					</xs:element>
+					<xs:element name="GapAir" type="eml:LengthMeasure" minOccurs="0" maxOccurs="1">
+						<xs:annotation>
+							<xs:documentation>Air gap.</xs:documentation>
+						</xs:annotation>
+					</xs:element>
+					<xs:element name="DepthWaterMean" type="eml:LengthMeasure" minOccurs="0" maxOccurs="1">
+						<xs:annotation>
+							<xs:documentation>Water depth.</xs:documentation>
+						</xs:annotation>
+					</xs:element>
+					<xs:element name="GrowingStatus" type="witsml:ChannelStatus" minOccurs="1" maxOccurs="1">
+						<xs:annotation>
+							<xs:documentation>Describes the growing status of the wellbore geometry, whether active, inactive or closed.</xs:documentation>
+						</xs:annotation>
+					</xs:element>
+					<xs:element name="WellboreGeometrySection" type="witsml:WellboreGeometrySection" minOccurs="0" maxOccurs="unbounded"/>
+					<xs:element name="Wellbore" type="eml:DataObjectReference" minOccurs="1" maxOccurs="1"/>
+					<xs:element name="BhaRun" type="eml:DataObjectReference" minOccurs="0" maxOccurs="unbounded"/>
+				</xs:sequence>
+			</xs:extension>
+		</xs:complexContent>
+	</xs:complexType>
+	<xs:complexType name="WellboreGeometrySection">
+		<xs:annotation>
+			<xs:documentation>Wellbore Geometry Component Schema. Defines the "fixed" components in a wellbore. It does not define the "transient" drilling strings or the "hanging" production components.</xs:documentation>
+		</xs:annotation>
+		<xs:sequence>
+			<xs:element name="Citation" type="eml:Citation" minOccurs="0" maxOccurs="1">
+				<xs:annotation>
+					<xs:documentation>An ISO 19115 EIP-derived set of metadata attached to ensure the traceability of the WellGeometrySection.</xs:documentation>
+				</xs:annotation>
+			</xs:element>
+			<xs:element name="TypeHoleCasing" type="witsml:HoleCasingType" minOccurs="0" maxOccurs="1">
+				<xs:annotation>
+					<xs:documentation>Type of fixed component.</xs:documentation>
+				</xs:annotation>
+			</xs:element>
+			<xs:element name="SectionMdInterval" type="eml:MdInterval" minOccurs="0" maxOccurs="1">
+				<xs:annotation>
+					<xs:documentation>Measured depth interval for this wellbore geometry section.</xs:documentation>
+				</xs:annotation>
+			</xs:element>
+			<xs:element name="SectionTvdInterval" type="eml:TvdInterval" minOccurs="0" maxOccurs="1">
+				<xs:annotation>
+					<xs:documentation>True vertical depth interval for this wellbore geometry section.</xs:documentation>
+				</xs:annotation>
+			</xs:element>
+			<xs:element name="IdSection" type="eml:LengthMeasure" minOccurs="0" maxOccurs="1">
+				<xs:annotation>
+					<xs:documentation>Inner diameter.</xs:documentation>
+				</xs:annotation>
+			</xs:element>
+			<xs:element name="OdSection" type="eml:LengthMeasure" minOccurs="0" maxOccurs="1">
+				<xs:annotation>
+					<xs:documentation>Outer diameter. Only for casings and risers.</xs:documentation>
+				</xs:annotation>
+			</xs:element>
+			<xs:element name="WtPerLen" type="eml:MassPerLengthMeasure" minOccurs="0" maxOccurs="1">
+				<xs:annotation>
+					<xs:documentation>Weight per unit length for casing sections.</xs:documentation>
+				</xs:annotation>
+			</xs:element>
+			<xs:element name="Grade" type="eml:String64" minOccurs="0" maxOccurs="1">
+				<xs:annotation>
+					<xs:documentation>Material grade for the tubular section.</xs:documentation>
+				</xs:annotation>
+			</xs:element>
+			<xs:element name="CurveConductor" type="xs:boolean" minOccurs="0" maxOccurs="1">
+				<xs:annotation>
+					<xs:documentation>Curved conductor? Values are "true" (or "1") and "false" (or "0").</xs:documentation>
+				</xs:annotation>
+			</xs:element>
+			<xs:element name="DiaDrift" type="eml:LengthMeasure" minOccurs="0" maxOccurs="1">
+				<xs:annotation>
+					<xs:documentation>The drift diameter is the inside diameter (ID) that the pipe manufacturer guarantees per specifications. Note that the nominal inside diameter is not the same as the drift diameter, but is always slightly larger. The drift diameter is used by the well planner to determine what size tools or casing strings can later be run through the casing, whereas the nominal inside diameter is used for fluid volume calculations, such as mud circulating times and cement slurry placement calculations.
+Source: www.glossary.oilfield.slb.com</xs:documentation>
+				</xs:annotation>
+			</xs:element>
+			<xs:element name="FactFric" type="xs:double" minOccurs="0" maxOccurs="1">
+				<xs:annotation>
+					<xs:documentation>Friction factor.</xs:documentation>
+				</xs:annotation>
+			</xs:element>
+			<xs:element name="ExtensionNameValue" type="eml:ExtensionNameValue" minOccurs="0" maxOccurs="unbounded">
+				<xs:annotation>
+					<xs:documentation>Extensions to the schema based on a name-value construct.</xs:documentation>
+				</xs:annotation>
+			</xs:element>
+			<xs:element name="BhaRun" type="eml:DataObjectReference" minOccurs="0" maxOccurs="unbounded"/>
+		</xs:sequence>
+		<xs:attribute name="uid" use="required" type="eml:String64">
+			<xs:annotation>
+				<xs:documentation>Unique identifier of this WbGeometrySection within the WbGeometry object.</xs:documentation>
+			</xs:annotation>
+		</xs:attribute>
+	</xs:complexType>
+	<xs:simpleType name="HoleCasingType">
+		<xs:annotation>
+			<xs:documentation>Specifies values for the types of hole casing.</xs:documentation>
+		</xs:annotation>
+		<xs:restriction base="eml:TypeEnum">
+			<xs:enumeration value="blow out preventer"/>
+			<xs:enumeration value="casing"/>
+			<xs:enumeration value="conductor"/>
+			<xs:enumeration value="curved conductor"/>
+			<xs:enumeration value="liner"/>
+			<xs:enumeration value="open hole"/>
+			<xs:enumeration value="riser"/>
+			<xs:enumeration value="tubing"/>
+		</xs:restriction>
+	</xs:simpleType>
+</xs:schema>

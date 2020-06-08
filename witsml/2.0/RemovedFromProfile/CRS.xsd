@@ -1,0 +1,310 @@
+<?xml version="1.0" encoding="utf-8"?>
+<xs:schema targetNamespace="http://www.energistics.org/energyml/data/commonv2"
+	xmlns:xs="http://www.w3.org/2001/XMLSchema" xmlns:gml="http://www.opengis.net/gml/3.2"
+	xmlns:eml="http://www.energistics.org/energyml/data/commonv2" elementFormDefault="qualified"
+	version="2.1">
+	<!--														-->
+	<xs:include schemaLocation="QuantityClass.xsd"/>
+	<!--														-->
+	<xs:include schemaLocation="BaseTypes.xsd"/>
+	<xs:include schemaLocation="Abstract.xsd"/>
+	<xs:complexType name="ProjectedEpsgCrs">
+		<xs:annotation>
+			<xs:documentation>This class contains the EPSG code for a projected CRS.</xs:documentation>
+		</xs:annotation>
+		<xs:complexContent>
+			<xs:extension base="eml:AbstractProjectedCrs">
+				<xs:sequence>
+					<xs:element name="EpsgCode" type="eml:PositiveLong" minOccurs="1" maxOccurs="1"
+					/>
+				</xs:sequence>
+			</xs:extension>
+		</xs:complexContent>
+	</xs:complexType>
+	<xs:complexType name="VerticalCrs">
+		<xs:complexContent>
+			<xs:extension base="eml:AbstractObject">
+				<xs:sequence>
+					<xs:element name="Direction" type="eml:VerticalDirection" minOccurs="1"
+						maxOccurs="1"/>
+					<xs:element name="AbstractVerticalCrs" type="eml:AbstractVerticalCrs"
+						minOccurs="1" maxOccurs="1"/>
+				</xs:sequence>
+				<xs:attribute name="uom" use="required" type="eml:LengthUomExt"/>
+			</xs:extension>
+		</xs:complexContent>
+	</xs:complexType>
+	<xs:complexType name="AbstractGeodeticCrs" abstract="true">
+		<xs:sequence/>
+	</xs:complexType>
+	<xs:complexType name="VerticalUnknownCrs">
+		<xs:annotation>
+			<xs:documentation>This class is used in a case where the coordinate reference system is either unknown or is intentionally not being transferred. In this case, the uom and Direction need to be provided on the VerticalCrs class.</xs:documentation>
+		</xs:annotation>
+		<xs:complexContent>
+			<xs:extension base="eml:AbstractVerticalCrs">
+				<xs:sequence>
+					<xs:element name="Unknown" type="eml:String2000" minOccurs="1" maxOccurs="1"/>
+				</xs:sequence>
+			</xs:extension>
+		</xs:complexContent>
+	</xs:complexType>
+	<xs:complexType name="ProjectedCrs">
+		<xs:annotation>
+			<xs:documentation>This is the Energistics encapsulation of the ProjectedCrs type from GML.</xs:documentation>
+		</xs:annotation>
+		<xs:complexContent>
+			<xs:extension base="eml:AbstractObject">
+				<xs:sequence>
+					<xs:element name="AxisOrder" type="eml:AxisOrder2d" minOccurs="1" maxOccurs="1"/>
+					<xs:element name="AbstractProjectedCrs" type="eml:AbstractProjectedCrs"
+						minOccurs="1" maxOccurs="1"/>
+				</xs:sequence>
+				<xs:attribute name="uom" use="optional" type="eml:LengthUomExt"/>
+			</xs:extension>
+		</xs:complexContent>
+	</xs:complexType>
+	<xs:complexType name="GeodeticUnknownCrs">
+		<xs:annotation>
+			<xs:documentation>This class is used in a case where the coordinate reference system is either unknown or is intentionally not being transferred.</xs:documentation>
+		</xs:annotation>
+		<xs:complexContent>
+			<xs:extension base="eml:AbstractGeodeticCrs">
+				<xs:sequence>
+					<xs:element name="Unknown" type="eml:String2000" minOccurs="1" maxOccurs="1"/>
+				</xs:sequence>
+			</xs:extension>
+		</xs:complexContent>
+	</xs:complexType>
+	<xs:complexType name="AbstractProjectedCrs" abstract="true">
+		<xs:sequence/>
+	</xs:complexType>
+	<xs:complexType name="ProjectedWktCrs">
+		<xs:annotation>
+			<xs:documentation>ISO 19162-compliant well-known text for the projected CRS</xs:documentation>
+		</xs:annotation>
+		<xs:complexContent>
+			<xs:extension base="eml:AbstractProjectedCrs">
+				<xs:sequence>
+					<xs:element name="WellKnownText" type="xs:string" minOccurs="1" maxOccurs="1">
+						<xs:annotation>
+							<xs:documentation>ISO 19162 compliant well known text of the CRS</xs:documentation>
+						</xs:annotation>
+					</xs:element>
+				</xs:sequence>
+			</xs:extension>
+		</xs:complexContent>
+	</xs:complexType>
+	<xs:complexType name="VerticalEpsgCrs">
+		<xs:annotation>
+			<xs:documentation>This class contains the EPSG code for a vertical CRS.</xs:documentation>
+		</xs:annotation>
+		<xs:complexContent>
+			<xs:extension base="eml:AbstractVerticalCrs">
+				<xs:sequence>
+					<xs:element name="EpsgCode" type="eml:PositiveLong" minOccurs="1" maxOccurs="1"
+					/>
+				</xs:sequence>
+			</xs:extension>
+		</xs:complexContent>
+	</xs:complexType>
+	<xs:complexType name="VerticalLocalAuthorityCrs">
+		<xs:annotation>
+			<xs:documentation>This class contains a code for a vertical CRS according to a local authority. This would be used in a case where a company or regulatory regime has chosen not to use EPSG codes. </xs:documentation>
+		</xs:annotation>
+		<xs:complexContent>
+			<xs:extension base="eml:AbstractVerticalCrs">
+				<xs:sequence>
+					<xs:element name="LocalAuthorityCrsName" type="eml:AuthorityQualifiedName"
+						minOccurs="1" maxOccurs="1"/>
+				</xs:sequence>
+			</xs:extension>
+		</xs:complexContent>
+	</xs:complexType>
+	<xs:complexType name="VerticalGmlCrs">
+		<xs:annotation>
+			<xs:documentation>This is the Energistics encapsulation of the VerticalCrs type from GML. </xs:documentation>
+		</xs:annotation>
+		<xs:complexContent>
+			<xs:extension base="eml:AbstractVerticalCrs">
+				<xs:sequence> </xs:sequence>
+			</xs:extension>
+		</xs:complexContent>
+	</xs:complexType>
+	<xs:complexType name="GeodeticLocalAuthorityCrs">
+		<xs:annotation>
+			<xs:documentation>This class contains a code for a geodetic CRS according to a local authority. This would be used in a case where a company or regulatory regime has chosen not to use EPSG codes.</xs:documentation>
+		</xs:annotation>
+		<xs:complexContent>
+			<xs:extension base="eml:AbstractGeodeticCrs">
+				<xs:sequence>
+					<xs:element name="LocalAuthorityCrsName" type="eml:AuthorityQualifiedName"
+						minOccurs="1" maxOccurs="1"/>
+				</xs:sequence>
+			</xs:extension>
+		</xs:complexContent>
+	</xs:complexType>
+	<xs:complexType name="ProjectedUnknownCrs">
+		<xs:annotation>
+			<xs:documentation>This class is used in a case where the coordinate reference system is either unknown or is intentionally not being transferred. In this case, the uom and AxisOrder need to be provided on the ProjectedCrs class.</xs:documentation>
+		</xs:annotation>
+		<xs:complexContent>
+			<xs:extension base="eml:AbstractProjectedCrs">
+				<xs:sequence>
+					<xs:element name="Unknown" type="eml:String2000" minOccurs="1" maxOccurs="1"/>
+				</xs:sequence>
+			</xs:extension>
+		</xs:complexContent>
+	</xs:complexType>
+	<xs:complexType name="GeodeticEpsgCrs">
+		<xs:annotation>
+			<xs:documentation>This class contains the EPSG code for a geodetic CRS. </xs:documentation>
+		</xs:annotation>
+		<xs:complexContent>
+			<xs:extension base="eml:AbstractGeodeticCrs">
+				<xs:sequence>
+					<xs:element name="EpsgCode" type="eml:PositiveLong" minOccurs="1" maxOccurs="1"
+					/>
+				</xs:sequence>
+			</xs:extension>
+		</xs:complexContent>
+	</xs:complexType>
+	<xs:complexType name="GeodeticGmlCrs">
+		<xs:annotation>
+			<xs:documentation>This is the Energistics encapsulation of the GeodeticCrs type from GML. </xs:documentation>
+		</xs:annotation>
+		<xs:complexContent>
+			<xs:extension base="eml:AbstractGeodeticCrs">
+				<xs:sequence> </xs:sequence>
+			</xs:extension>
+		</xs:complexContent>
+	</xs:complexType>
+	<xs:complexType name="ProjectedGmlCrs">
+		<xs:annotation>
+			<xs:documentation>This is the Energistics encapsulation of the ProjectedCrs type from GML. </xs:documentation>
+		</xs:annotation>
+		<xs:complexContent>
+			<xs:extension base="eml:AbstractProjectedCrs">
+				<xs:sequence> </xs:sequence>
+			</xs:extension>
+		</xs:complexContent>
+	</xs:complexType>
+	<xs:complexType name="ProjectedLocalAuthorityCrs">
+		<xs:annotation>
+			<xs:documentation>This class contains a code for a projected CRS according to a local authority. This would be used in a case where a company or regulatory regime has chosen not to use EPSG codes.</xs:documentation>
+		</xs:annotation>
+		<xs:complexContent>
+			<xs:extension base="eml:AbstractProjectedCrs">
+				<xs:sequence>
+					<xs:element name="LocalAuthorityCrsName" type="eml:AuthorityQualifiedName"
+						minOccurs="1" maxOccurs="1"/>
+				</xs:sequence>
+			</xs:extension>
+		</xs:complexContent>
+	</xs:complexType>
+	<xs:complexType name="GeodeticWktCrs">
+		<xs:annotation>
+			<xs:documentation>ISO 19162-compliant well-known text for the Geodetic CRS.</xs:documentation>
+		</xs:annotation>
+		<xs:complexContent>
+			<xs:extension base="eml:AbstractGeodeticCrs">
+				<xs:sequence>
+					<xs:element name="WellKnownText" type="xs:string" minOccurs="1" maxOccurs="1">
+						<xs:annotation>
+							<xs:documentation>ISO 19162 compliant well known text of the CRS</xs:documentation>
+						</xs:annotation>
+					</xs:element>
+				</xs:sequence>
+			</xs:extension>
+		</xs:complexContent>
+	</xs:complexType>
+	<xs:simpleType name="AxisOrder2d">
+		<xs:annotation>
+			<xs:documentation>Defines the coordinate system axis order of the global CRS using the axis names (from EPSG database).</xs:documentation>
+		</xs:annotation>
+		<xs:restriction base="xs:string">
+			<xs:enumeration value="easting northing">
+				<xs:annotation>
+					<xs:documentation>The first axis is easting and the second axis is northing.</xs:documentation>
+				</xs:annotation>
+			</xs:enumeration>
+			<xs:enumeration value="northing easting">
+				<xs:annotation>
+					<xs:documentation>The first axis is northing and the second asis is easting.</xs:documentation>
+				</xs:annotation>
+			</xs:enumeration>
+			<xs:enumeration value="westing southing">
+				<xs:annotation>
+					<xs:documentation>The first axis is westing and the second axis is southing.</xs:documentation>
+				</xs:annotation>
+			</xs:enumeration>
+			<xs:enumeration value="southing westing">
+				<xs:annotation>
+					<xs:documentation>The first axis is southing and the second axis is westing.</xs:documentation>
+				</xs:annotation>
+			</xs:enumeration>
+			<xs:enumeration value="northing westing">
+				<xs:annotation>
+					<xs:documentation>the first axis is northing and the second axis is westing.</xs:documentation>
+				</xs:annotation>
+			</xs:enumeration>
+			<xs:enumeration value="westing northing">
+				<xs:annotation>
+					<xs:documentation>the first axis is westing and the second axis is northing.</xs:documentation>
+				</xs:annotation>
+			</xs:enumeration>
+		</xs:restriction>
+	</xs:simpleType>
+	<xs:complexType name="GeodeticCrs">
+		<xs:complexContent>
+			<xs:extension base="eml:AbstractObject">
+				<xs:sequence>
+					<xs:element name="AbstractGeodeticCrs" type="eml:AbstractGeodeticCrs"
+						minOccurs="1" maxOccurs="1"/>
+				</xs:sequence>
+			</xs:extension>
+		</xs:complexContent>
+	</xs:complexType>
+	<xs:simpleType name="VerticalDirection">
+		<xs:restriction base="xs:string">
+			<xs:enumeration value="up">
+				<xs:annotation>
+					<xs:documentation>Values are positive when moving away from the center of the Earth.</xs:documentation>
+				</xs:annotation>
+			</xs:enumeration>
+			<xs:enumeration value="down">
+				<xs:annotation>
+					<xs:documentation>Values are positive when moving toward the center of the Earth.</xs:documentation>
+				</xs:annotation>
+			</xs:enumeration>
+		</xs:restriction>
+	</xs:simpleType>
+	<xs:complexType name="AbstractVerticalCrs" abstract="true">
+		<xs:sequence/>
+	</xs:complexType>
+	<xs:complexType name="VerticalWktCrs">
+		<xs:annotation>
+			<xs:documentation>ISO 19162-compliant well-known text for the vertical CRS</xs:documentation>
+		</xs:annotation>
+		<xs:complexContent>
+			<xs:extension base="eml:AbstractVerticalCrs">
+				<xs:sequence>
+					<xs:element name="WellKnownText" type="xs:string" minOccurs="1" maxOccurs="1">
+						<xs:annotation>
+							<xs:documentation>ISO 19162 compliant well known text of the CRS</xs:documentation>
+						</xs:annotation>
+					</xs:element>
+				</xs:sequence>
+			</xs:extension>
+		</xs:complexContent>
+	</xs:complexType>
+	<!--														-->
+	<!-- Energistics License Agreement
+			This file is distributed under the Energistics Product License Agreement at
+			http://www.energistics.org/product-license-agreement
+			Use of this file constitutes agreement with the Energistics Product License Agreement.
+			Copyright (c) 2016 Energistics. All rights reserved.
+			Energistics, WITSML, PRODML and RESQML are trademarks or registered trademarks of Energistics.
+			-->
+	<!--														-->
+</xs:schema>

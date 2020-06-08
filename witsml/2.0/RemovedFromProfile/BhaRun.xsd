@@ -1,0 +1,468 @@
+<?xml version="1.0" encoding="utf-8"?>
+<xs:schema targetNamespace="http://www.energistics.org/energyml/data/witsmlv2" xmlns:xs="http://www.w3.org/2001/XMLSchema" xmlns:eml="http://www.energistics.org/energyml/data/commonv2" xmlns:witsml="http://www.energistics.org/energyml/data/witsmlv2" elementFormDefault="qualified" version="2.0">
+	<!--														-->
+	<!-- Energistics License Agreement
+			This file is distributed under the Energistics Product License Agreement at
+			http://www.energistics.org/product-license-agreement
+			Use of this file constitutes agreement with the Energistics Product License Agreement.
+			Copyright (c) 2016 Energistics. All rights reserved.
+			Energistics, WITSML, PRODML and RESQML are trademarks or registered trademarks of Energistics.
+			-->
+	<!--														-->
+	<xs:annotation>
+		<xs:documentation>BhaRun Schema.</xs:documentation>
+	</xs:annotation>
+	<!--														-->
+	<xs:import namespace="http://www.energistics.org/energyml/data/commonv2" schemaLocation="../../../common/v2.1/xsd_schemas/EmlAllObjects.xsd"/>
+	<!--														-->
+	<xs:include schemaLocation="FluidsReport.xsd"/>
+	<xs:include schemaLocation="WitsmlCommon.xsd"/>
+	<xs:include schemaLocation="Tubular.xsd"/>
+	<xs:include schemaLocation="Wellbore.xsd"/>
+	<xs:element name="BhaRun" type="witsml:BhaRun" substitutionGroup="eml:AbstractDataObject"/>
+	<xs:complexType name="BhaRun">
+		<xs:annotation>
+			<xs:documentation>The object used to capture information about one run of the drill string into and out of the hole. The drill string configuration is described in the Tubular object. That is, one drill string configuration may be used for many runs.</xs:documentation>
+		</xs:annotation>
+		<xs:complexContent>
+			<xs:extension base="eml:AbstractObject">
+				<xs:sequence>
+					<xs:element name="DTimStart" type="eml:TimeStamp" minOccurs="0" maxOccurs="1">
+						<xs:annotation>
+							<xs:documentation>Date and time that activities for this run started.</xs:documentation>
+						</xs:annotation>
+					</xs:element>
+					<xs:element name="DTimStop" type="eml:TimeStamp" minOccurs="0" maxOccurs="1">
+						<xs:annotation>
+							<xs:documentation>Date and time that activities for this run stopped.</xs:documentation>
+						</xs:annotation>
+					</xs:element>
+					<xs:element name="DTimStartDrilling" type="eml:TimeStamp" minOccurs="0" maxOccurs="1">
+						<xs:annotation>
+							<xs:documentation>Start on bottom: date and time.</xs:documentation>
+						</xs:annotation>
+					</xs:element>
+					<xs:element name="DTimStopDrilling" type="eml:TimeStamp" minOccurs="0" maxOccurs="1">
+						<xs:annotation>
+							<xs:documentation>Stop off bottom: date and time.</xs:documentation>
+						</xs:annotation>
+					</xs:element>
+					<xs:element name="PlanDogleg" type="eml:AnglePerLengthMeasure" minOccurs="0" maxOccurs="1">
+						<xs:annotation>
+							<xs:documentation>Planned dogleg severity.</xs:documentation>
+						</xs:annotation>
+					</xs:element>
+					<xs:element name="ActDogleg" type="eml:AnglePerLengthMeasure" minOccurs="0" maxOccurs="1">
+						<xs:annotation>
+							<xs:documentation>Actual dogleg severity.</xs:documentation>
+						</xs:annotation>
+					</xs:element>
+					<xs:element name="ActDoglegMx" type="eml:AnglePerLengthMeasure" minOccurs="0" maxOccurs="1">
+						<xs:annotation>
+							<xs:documentation>Actual dogleg severity: maximum.</xs:documentation>
+						</xs:annotation>
+					</xs:element>
+					<xs:element name="StatusBha" type="witsml:BhaStatus" minOccurs="0" maxOccurs="1">
+						<xs:annotation>
+							<xs:documentation>Bottomhole assembly status.</xs:documentation>
+						</xs:annotation>
+					</xs:element>
+					<xs:element name="NumBitRun" type="xs:int" minOccurs="0" maxOccurs="1">
+						<xs:annotation>
+							<xs:documentation>Bit run number.</xs:documentation>
+						</xs:annotation>
+					</xs:element>
+					<xs:element name="NumStringRun" type="xs:int" minOccurs="0" maxOccurs="1">
+						<xs:annotation>
+							<xs:documentation>The BHA (drilling string) run number.</xs:documentation>
+						</xs:annotation>
+					</xs:element>
+					<xs:element name="ReasonTrip" type="eml:String2000" minOccurs="0" maxOccurs="1">
+						<xs:annotation>
+							<xs:documentation>Reason for a trip.</xs:documentation>
+						</xs:annotation>
+					</xs:element>
+					<xs:element name="ObjectiveBha" type="eml:String2000" minOccurs="0" maxOccurs="1">
+						<xs:annotation>
+							<xs:documentation>Objective of the bottomhole assembly.</xs:documentation>
+						</xs:annotation>
+					</xs:element>
+					<xs:element name="DrillingParams" type="witsml:DrillingParams" minOccurs="0" maxOccurs="unbounded"/>
+					<xs:element name="Wellbore" type="eml:DataObjectReference" minOccurs="1" maxOccurs="1"/>
+					<xs:element name="Tubular" type="eml:DataObjectReference" minOccurs="0" maxOccurs="1"/>
+				</xs:sequence>
+			</xs:extension>
+		</xs:complexContent>
+	</xs:complexType>
+	<xs:simpleType name="BhaStatus">
+		<xs:annotation>
+			<xs:documentation>Stage of the BHA (plan, progress, final)</xs:documentation>
+		</xs:annotation>
+		<xs:restriction base="eml:TypeEnum">
+			<xs:enumeration value="final"/>
+			<xs:enumeration value="progress"/>
+			<xs:enumeration value="plan"/>
+		</xs:restriction>
+	</xs:simpleType>
+	<xs:complexType name="DrillingParams">
+		<xs:annotation>
+			<xs:documentation>The bottomhole assembly drilling parameters schema, which contains statistical and calculated operations data for the run, related to depths, activities, temperature, pressure, flow rates, torque, etc.</xs:documentation>
+		</xs:annotation>
+		<xs:sequence>
+			<xs:element name="ETimOpBit" type="eml:TimeMeasure" minOccurs="0" maxOccurs="1">
+				<xs:annotation>
+					<xs:documentation>Operating time spent by bit for run.
+
+BUSINESS RULE: When reporting an actual as opposed to design, this is required.</xs:documentation>
+				</xs:annotation>
+			</xs:element>
+			<xs:element name="MdHoleStart" type="witsml:MeasuredDepthCoord" minOccurs="0" maxOccurs="1">
+				<xs:annotation>
+					<xs:documentation>Measured depth at start of the run. </xs:documentation>
+				</xs:annotation>
+			</xs:element>
+			<xs:element name="MdHoleStop" type="witsml:MeasuredDepthCoord" minOccurs="1" maxOccurs="1">
+				<xs:annotation>
+					<xs:documentation>Measured depth at the end of the run.</xs:documentation>
+				</xs:annotation>
+			</xs:element>
+			<xs:element name="Tubular" type="eml:String64" minOccurs="0" maxOccurs="1">
+				<xs:annotation>
+					<xs:documentation>A pointer to the tubular assembly.</xs:documentation>
+				</xs:annotation>
+			</xs:element>
+			<xs:element name="HkldRot" type="eml:ForceMeasure" minOccurs="0" maxOccurs="1">
+				<xs:annotation>
+					<xs:documentation>Hookload: rotating.</xs:documentation>
+				</xs:annotation>
+			</xs:element>
+			<xs:element name="OverPull" type="eml:ForceMeasure" minOccurs="0" maxOccurs="1">
+				<xs:annotation>
+					<xs:documentation>Overpull = HkldUp - HkldRot</xs:documentation>
+				</xs:annotation>
+			</xs:element>
+			<xs:element name="SlackOff" type="eml:ForceMeasure" minOccurs="0" maxOccurs="1">
+				<xs:annotation>
+					<xs:documentation>Slackoff = HkldRot  - HkdDown.</xs:documentation>
+				</xs:annotation>
+			</xs:element>
+			<xs:element name="HkldUp" type="eml:ForceMeasure" minOccurs="0" maxOccurs="1">
+				<xs:annotation>
+					<xs:documentation>Hookload when the string is moving up.</xs:documentation>
+				</xs:annotation>
+			</xs:element>
+			<xs:element name="HkldDn" type="eml:ForceMeasure" minOccurs="0" maxOccurs="1">
+				<xs:annotation>
+					<xs:documentation>Hookload when the string is moving down.</xs:documentation>
+				</xs:annotation>
+			</xs:element>
+			<xs:element name="TqOnBotAv" type="eml:MomentOfForceMeasure" minOccurs="0" maxOccurs="1">
+				<xs:annotation>
+					<xs:documentation>Average Torque: on bottom.</xs:documentation>
+				</xs:annotation>
+			</xs:element>
+			<xs:element name="TqOnBotMx" type="eml:MomentOfForceMeasure" minOccurs="0" maxOccurs="1">
+				<xs:annotation>
+					<xs:documentation>Maximum torque: on bottom.</xs:documentation>
+				</xs:annotation>
+			</xs:element>
+			<xs:element name="TqOnBotMn" type="eml:MomentOfForceMeasure" minOccurs="0" maxOccurs="1">
+				<xs:annotation>
+					<xs:documentation>Minimum torque: on bottom.</xs:documentation>
+				</xs:annotation>
+			</xs:element>
+			<xs:element name="TqOffBotAv" type="eml:MomentOfForceMeasure" minOccurs="0" maxOccurs="1">
+				<xs:annotation>
+					<xs:documentation>Average torque: off bottom.</xs:documentation>
+				</xs:annotation>
+			</xs:element>
+			<xs:element name="TqDhAv" type="eml:MomentOfForceMeasure" minOccurs="0" maxOccurs="1">
+				<xs:annotation>
+					<xs:documentation>Average torque: downhole.</xs:documentation>
+				</xs:annotation>
+			</xs:element>
+			<xs:element name="WtAboveJar" type="eml:ForceMeasure" minOccurs="0" maxOccurs="1">
+				<xs:annotation>
+					<xs:documentation>Weight of the string above the jars.</xs:documentation>
+				</xs:annotation>
+			</xs:element>
+			<xs:element name="WtBelowJar" type="eml:ForceMeasure" minOccurs="0" maxOccurs="1">
+				<xs:annotation>
+					<xs:documentation>Weight  of the string below the jars.</xs:documentation>
+				</xs:annotation>
+			</xs:element>
+			<xs:element name="WtMud" type="eml:MassPerVolumeMeasure" minOccurs="0" maxOccurs="1">
+				<xs:annotation>
+					<xs:documentation>Drilling fluid density.</xs:documentation>
+				</xs:annotation>
+			</xs:element>
+			<xs:element name="FlowratePumpAv" type="eml:VolumePerTimeMeasure" minOccurs="0" maxOccurs="1">
+				<xs:annotation>
+					<xs:documentation>Average mud pump flow rate.</xs:documentation>
+				</xs:annotation>
+			</xs:element>
+			<xs:element name="FlowratePumpMx" type="eml:VolumePerTimeMeasure" minOccurs="0" maxOccurs="1">
+				<xs:annotation>
+					<xs:documentation>Maximum mud pump flow rate.</xs:documentation>
+				</xs:annotation>
+			</xs:element>
+			<xs:element name="FlowratePumpMn" type="eml:VolumePerTimeMeasure" minOccurs="0" maxOccurs="1">
+				<xs:annotation>
+					<xs:documentation>Minimum mud pump flow rate.</xs:documentation>
+				</xs:annotation>
+			</xs:element>
+			<xs:element name="VelNozzleAv" type="eml:LengthPerTimeMeasure" minOccurs="0" maxOccurs="1">
+				<xs:annotation>
+					<xs:documentation>Bit nozzle average velocity.</xs:documentation>
+				</xs:annotation>
+			</xs:element>
+			<xs:element name="PowBit" type="eml:PowerMeasure" minOccurs="0" maxOccurs="1">
+				<xs:annotation>
+					<xs:documentation>Bit hydraulic.</xs:documentation>
+				</xs:annotation>
+			</xs:element>
+			<xs:element name="PresDropBit" type="eml:PressureMeasure" minOccurs="0" maxOccurs="1">
+				<xs:annotation>
+					<xs:documentation>Pressure drop in bit.</xs:documentation>
+				</xs:annotation>
+			</xs:element>
+			<xs:element name="CTimHold" type="eml:TimeMeasure" minOccurs="0" maxOccurs="1">
+				<xs:annotation>
+					<xs:documentation>Time spent on hold from start of bit run.</xs:documentation>
+				</xs:annotation>
+			</xs:element>
+			<xs:element name="CTimSteering" type="eml:TimeMeasure" minOccurs="0" maxOccurs="1">
+				<xs:annotation>
+					<xs:documentation>Time spent steering from start of bit run.</xs:documentation>
+				</xs:annotation>
+			</xs:element>
+			<xs:element name="CTimDrillRot" type="eml:TimeMeasure" minOccurs="0" maxOccurs="1">
+				<xs:annotation>
+					<xs:documentation>Time spent rotary drilling from start of bit run.</xs:documentation>
+				</xs:annotation>
+			</xs:element>
+			<xs:element name="CTimDrillSlid" type="eml:TimeMeasure" minOccurs="0" maxOccurs="1">
+				<xs:annotation>
+					<xs:documentation>Time spent slide drilling from start of bit run.</xs:documentation>
+				</xs:annotation>
+			</xs:element>
+			<xs:element name="CTimCirc" type="eml:TimeMeasure" minOccurs="0" maxOccurs="1">
+				<xs:annotation>
+					<xs:documentation>Time spent circulating from start of bit run.</xs:documentation>
+				</xs:annotation>
+			</xs:element>
+			<xs:element name="CTimReam" type="eml:TimeMeasure" minOccurs="0" maxOccurs="1">
+				<xs:annotation>
+					<xs:documentation>Time spent reaming from start of bit run.</xs:documentation>
+				</xs:annotation>
+			</xs:element>
+			<xs:element name="DistDrillRot" type="eml:LengthMeasure" minOccurs="0" maxOccurs="1">
+				<xs:annotation>
+					<xs:documentation>Distance drilled - rotating.</xs:documentation>
+				</xs:annotation>
+			</xs:element>
+			<xs:element name="DistDrillSlid" type="eml:LengthMeasure" minOccurs="0" maxOccurs="1">
+				<xs:annotation>
+					<xs:documentation>Distance drilled - sliding</xs:documentation>
+				</xs:annotation>
+			</xs:element>
+			<xs:element name="DistReam" type="eml:LengthMeasure" minOccurs="0" maxOccurs="1">
+				<xs:annotation>
+					<xs:documentation>Distance reamed.</xs:documentation>
+				</xs:annotation>
+			</xs:element>
+			<xs:element name="DistHold" type="eml:LengthMeasure" minOccurs="0" maxOccurs="1">
+				<xs:annotation>
+					<xs:documentation>Distance covered while holding angle with a steerable drilling assembly.</xs:documentation>
+				</xs:annotation>
+			</xs:element>
+			<xs:element name="DistSteering" type="eml:LengthMeasure" minOccurs="0" maxOccurs="1">
+				<xs:annotation>
+					<xs:documentation>Distance covered while actively steering with a steerable drilling assembly.</xs:documentation>
+				</xs:annotation>
+			</xs:element>
+			<xs:element name="RpmAv" type="eml:AngularVelocityMeasure" minOccurs="0" maxOccurs="1">
+				<xs:annotation>
+					<xs:documentation>Average turn rate (commonly in rpm) through Interval.</xs:documentation>
+				</xs:annotation>
+			</xs:element>
+			<xs:element name="RpmMx" type="eml:AngularVelocityMeasure" minOccurs="0" maxOccurs="1">
+				<xs:annotation>
+					<xs:documentation>Maximum turn rate (commonly in rpm).</xs:documentation>
+				</xs:annotation>
+			</xs:element>
+			<xs:element name="RpmMn" type="eml:AngularVelocityMeasure" minOccurs="0" maxOccurs="1">
+				<xs:annotation>
+					<xs:documentation>Minimum turn rate (commonly in rpm).</xs:documentation>
+				</xs:annotation>
+			</xs:element>
+			<xs:element name="RpmAvDh" type="eml:AngularVelocityMeasure" minOccurs="0" maxOccurs="1">
+				<xs:annotation>
+					<xs:documentation>Average turn rate (commonly in rpm) downhole.</xs:documentation>
+				</xs:annotation>
+			</xs:element>
+			<xs:element name="RopAv" type="eml:LengthPerTimeMeasure" minOccurs="0" maxOccurs="1">
+				<xs:annotation>
+					<xs:documentation>Average rate of penetration through Interval.</xs:documentation>
+				</xs:annotation>
+			</xs:element>
+			<xs:element name="RopMx" type="eml:LengthPerTimeMeasure" minOccurs="0" maxOccurs="1">
+				<xs:annotation>
+					<xs:documentation>Maximum rate of penetration through Interval.</xs:documentation>
+				</xs:annotation>
+			</xs:element>
+			<xs:element name="RopMn" type="eml:LengthPerTimeMeasure" minOccurs="0" maxOccurs="1">
+				<xs:annotation>
+					<xs:documentation>Minimum rate of penetration through Interval.</xs:documentation>
+				</xs:annotation>
+			</xs:element>
+			<xs:element name="WobAv" type="eml:ForceMeasure" minOccurs="0" maxOccurs="1">
+				<xs:annotation>
+					<xs:documentation>Surface weight on bit - average through interval.</xs:documentation>
+				</xs:annotation>
+			</xs:element>
+			<xs:element name="WobMx" type="eml:ForceMeasure" minOccurs="0" maxOccurs="1">
+				<xs:annotation>
+					<xs:documentation>Weight on bit - maximum.</xs:documentation>
+				</xs:annotation>
+			</xs:element>
+			<xs:element name="WobMn" type="eml:ForceMeasure" minOccurs="0" maxOccurs="1">
+				<xs:annotation>
+					<xs:documentation>Weight on bit - minimum.</xs:documentation>
+				</xs:annotation>
+			</xs:element>
+			<xs:element name="WobAvDh" type="eml:ForceMeasure" minOccurs="0" maxOccurs="1">
+				<xs:annotation>
+					<xs:documentation>Weight on bit - average downhole.</xs:documentation>
+				</xs:annotation>
+			</xs:element>
+			<xs:element name="ReasonTrip" type="eml:String2000" minOccurs="0" maxOccurs="1">
+				<xs:annotation>
+					<xs:documentation>Reason for trip.</xs:documentation>
+				</xs:annotation>
+			</xs:element>
+			<xs:element name="ObjectiveBha" type="eml:String2000" minOccurs="0" maxOccurs="1">
+				<xs:annotation>
+					<xs:documentation>Objective of bottom hole assembly.</xs:documentation>
+				</xs:annotation>
+			</xs:element>
+			<xs:element name="AziTop" type="eml:PlaneAngleMeasure" minOccurs="0" maxOccurs="1">
+				<xs:annotation>
+					<xs:documentation>Azimuth at start measured depth.</xs:documentation>
+				</xs:annotation>
+			</xs:element>
+			<xs:element name="AziBottom" type="eml:PlaneAngleMeasure" minOccurs="0" maxOccurs="1">
+				<xs:annotation>
+					<xs:documentation>Azimuth at stop measured depth.</xs:documentation>
+				</xs:annotation>
+			</xs:element>
+			<xs:element name="InclStart" type="eml:PlaneAngleMeasure" minOccurs="0" maxOccurs="1">
+				<xs:annotation>
+					<xs:documentation>Inclination at start measured depth.</xs:documentation>
+				</xs:annotation>
+			</xs:element>
+			<xs:element name="InclMx" type="eml:PlaneAngleMeasure" minOccurs="0" maxOccurs="1">
+				<xs:annotation>
+					<xs:documentation>Maximum inclination.</xs:documentation>
+				</xs:annotation>
+			</xs:element>
+			<xs:element name="InclMn" type="eml:PlaneAngleMeasure" minOccurs="0" maxOccurs="1">
+				<xs:annotation>
+					<xs:documentation>Minimum inclination.</xs:documentation>
+				</xs:annotation>
+			</xs:element>
+			<xs:element name="InclStop" type="eml:PlaneAngleMeasure" minOccurs="0" maxOccurs="1">
+				<xs:annotation>
+					<xs:documentation>Inclination at stop measured depth.</xs:documentation>
+				</xs:annotation>
+			</xs:element>
+			<xs:element name="TempMudDhMx" type="eml:ThermodynamicTemperatureMeasure" minOccurs="0" maxOccurs="1">
+				<xs:annotation>
+					<xs:documentation>Maximum mud temperature downhole during run.</xs:documentation>
+				</xs:annotation>
+			</xs:element>
+			<xs:element name="PresPumpAv" type="eml:PressureMeasure" minOccurs="0" maxOccurs="1">
+				<xs:annotation>
+					<xs:documentation>Average pump pressure.</xs:documentation>
+				</xs:annotation>
+			</xs:element>
+			<xs:element name="FlowrateBit" type="eml:VolumePerTimeMeasure" minOccurs="0" maxOccurs="1">
+				<xs:annotation>
+					<xs:documentation>Flow rate at bit.</xs:documentation>
+				</xs:annotation>
+			</xs:element>
+			<xs:element name="MudClass" type="witsml:MudClass" minOccurs="0" maxOccurs="1">
+				<xs:annotation>
+					<xs:documentation>The class of the drilling fluid.</xs:documentation>
+				</xs:annotation>
+			</xs:element>
+			<xs:element name="MudSubClass" type="witsml:MudSubClass" minOccurs="0" maxOccurs="1">
+				<xs:annotation>
+					<xs:documentation>Mud Subtype at event occurrence.</xs:documentation>
+				</xs:annotation>
+			</xs:element>
+			<xs:element name="Comments" type="eml:String2000" minOccurs="0" maxOccurs="1">
+				<xs:annotation>
+					<xs:documentation>Comments and remarks.</xs:documentation>
+				</xs:annotation>
+			</xs:element>
+			<xs:element name="ExtensionNameValue" type="eml:ExtensionNameValue" minOccurs="0" maxOccurs="unbounded">
+				<xs:annotation>
+					<xs:documentation>Extensions to the schema based on a name-value construct.</xs:documentation>
+				</xs:annotation>
+			</xs:element>
+		</xs:sequence>
+		<xs:attribute name="uid" use="required" type="eml:String64">
+			<xs:annotation>
+				<xs:documentation>Unique identifier for the parameters</xs:documentation>
+			</xs:annotation>
+		</xs:attribute>
+	</xs:complexType>
+	<xs:simpleType name="MudSubClass">
+		<xs:annotation>
+			<xs:documentation>The name of a data extension. </xs:documentation>
+		</xs:annotation>
+		<xs:restriction base="eml:TypeEnum">
+			<xs:enumeration value="aerated mud"/>
+			<xs:enumeration value="air"/>
+			<xs:enumeration value="brackish water"/>
+			<xs:enumeration value="brine"/>
+			<xs:enumeration value="caesium formate"/>
+			<xs:enumeration value="diesel oil-based"/>
+			<xs:enumeration value="ester synthetic-based"/>
+			<xs:enumeration value="freshwater"/>
+			<xs:enumeration value="glycol mud"/>
+			<xs:enumeration value="gyp mud"/>
+			<xs:enumeration value="internal-olefin synthetic-based"/>
+			<xs:enumeration value="lightly treated non-dispersed"/>
+			<xs:enumeration value="lignite/lignosulfonate mud"/>
+			<xs:enumeration value="lime mud"/>
+			<xs:enumeration value="linear paraffin synthetic-based"/>
+			<xs:enumeration value="linear-alpha-olefin synthetic-based"/>
+			<xs:enumeration value="low solids"/>
+			<xs:enumeration value="low toxicity mineral oil-based"/>
+			<xs:enumeration value="mineral oil-based"/>
+			<xs:enumeration value="mist"/>
+			<xs:enumeration value="mixed-metal oxide mud"/>
+			<xs:enumeration value="native/natural mud"/>
+			<xs:enumeration value="natural gas"/>
+			<xs:enumeration value="nitrogen-aerated mud"/>
+			<xs:enumeration value="non-aqueous (invert emulsion) drilling fluids"/>
+			<xs:enumeration value="non-dispersed"/>
+			<xs:enumeration value="pneumatic (gaseous) drilling fluids"/>
+			<xs:enumeration value="polymer mud"/>
+			<xs:enumeration value="potassium formate"/>
+			<xs:enumeration value="potassium-treated mud"/>
+			<xs:enumeration value="salt water mud"/>
+			<xs:enumeration value="saturated salt mud"/>
+			<xs:enumeration value="sea water"/>
+			<xs:enumeration value="seawater mud"/>
+			<xs:enumeration value="silicate mud"/>
+			<xs:enumeration value="sodium formate"/>
+			<xs:enumeration value="spud mud"/>
+			<xs:enumeration value="stable foam"/>
+			<xs:enumeration value="stiff foam"/>
+			<xs:enumeration value="water-based drilling fluids"/>
+		</xs:restriction>
+	</xs:simpleType>
+</xs:schema>

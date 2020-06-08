@@ -1,0 +1,165 @@
+<?xml version="1.0" encoding="utf-8"?>
+<xs:schema targetNamespace="http://www.energistics.org/energyml/data/witsmlv2" xmlns:xs="http://www.w3.org/2001/XMLSchema" xmlns:witsml="http://www.energistics.org/energyml/data/witsmlv2" xmlns:eml="http://www.energistics.org/energyml/data/commonv2" elementFormDefault="qualified" version="2.0">
+	<!--														-->
+	<!-- Energistics License Agreement
+			This file is distributed under the Energistics Product License Agreement at
+			http://www.energistics.org/product-license-agreement
+			Use of this file constitutes agreement with the Energistics Product License Agreement.
+			Copyright (c) 2016 Energistics. All rights reserved.
+			Energistics, WITSML, PRODML and RESQML are trademarks or registered trademarks of Energistics.
+			-->
+	<!--														-->
+	<xs:annotation>
+		<xs:documentation>Common data object types for WITSML.</xs:documentation>
+	</xs:annotation>
+	<!--														-->
+	<xs:import namespace="http://www.energistics.org/energyml/data/commonv2" schemaLocation="../../../common/v2.1/xsd_schemas/EmlAllObjects.xsd"/>
+	<xs:complexType name="WellVerticalDepthCoord">
+		<xs:annotation>
+			<xs:documentation>A vertical (gravity-based) depth coordinate within the context of a well. Positive moving downward from the reference datum. All coordinates with the same datum (and same UOM) can be considered to be in the same coordinate reference system (CRS) and are thus directly comparable.</xs:documentation>
+		</xs:annotation>
+		<xs:simpleContent>
+			<xs:extension base="eml:AbstractMeasure">
+				<xs:attribute name="uom" use="required" type="eml:LengthUom">
+					<xs:annotation>
+						<xs:documentation>Unit of measure used by this vertical depth coordinate</xs:documentation>
+					</xs:annotation>
+				</xs:attribute>
+				<xs:attribute name="datum" use="required" type="eml:String64">
+					<xs:annotation>
+						<xs:documentation>Defines the vertical datums associated with elevation, vertical depth and measured depth coordinates</xs:documentation>
+					</xs:annotation>
+				</xs:attribute>
+			</xs:extension>
+		</xs:simpleContent>
+	</xs:complexType>
+	<xs:complexType name="NameTag">
+		<xs:annotation>
+			<xs:documentation>WITSML - Equipment NameTag Schema.</xs:documentation>
+		</xs:annotation>
+		<xs:sequence>
+			<xs:element name="Name" type="eml:String64" minOccurs="1" maxOccurs="1">
+				<xs:annotation>
+					<xs:documentation>The physical identification string of the equipment tag.</xs:documentation>
+				</xs:annotation>
+			</xs:element>
+			<xs:element name="NumberingScheme" type="witsml:NameTagNumberingScheme" minOccurs="1" maxOccurs="1">
+				<xs:annotation>
+					<xs:documentation>The format or encoding specification of the equipment tag. The tag may contain different pieces of information and knowledge of that information is inherent in the specification. The "identification string" is a mandatory part of the information in a tag.</xs:documentation>
+				</xs:annotation>
+			</xs:element>
+			<xs:element name="Technology" type="witsml:NameTagTechnology" minOccurs="0" maxOccurs="1">
+				<xs:annotation>
+					<xs:documentation>Identifies the general type of identifier on an item.  If multiple identifiers exist on an item, a separate description set for each identifier should be created.  For example, a joint of casing may have a barcode label on it along with a painted-on code and an RFID tag attached or embedded into the coupling.  The barcode label may in turn be an RFID-equipped label. This particular scenario would require populating five nameTags to fully describe and decode all the possible identifiers as follows: 'tagged' - RFID tag embedded in the coupling, 'label'  - Serial number printed on the label, 'tagged' - RFID tag embedded into the label, 'label'  - Barcode printed on the label, 'painted'- Mill number painted on the pipe body.</xs:documentation>
+				</xs:annotation>
+			</xs:element>
+			<xs:element name="Location" type="witsml:NameTagLocation" minOccurs="0" maxOccurs="1">
+				<xs:annotation>
+					<xs:documentation>An indicator of where the tag is attached to the item. This is used to assist the user in finding where an identifier is located on an item.  This optional field also helps to differentiate where an identifier is located when multiple identifiers exist on an item. Most downhole components have a box (female thread) and pin (male thread) end as well as a pipe body in between the ends. Where multiple identifiers are used on an item, it is convenient to have a reference as to which end, or somewhere in the middle, an identifier may be closer to. Some items may have an identifier on a non-standard location, such as on the arm of a hole opener.  'other', by exclusion, tells a user to look elsewhere than on the body or near the ends of an item.  Most non-downhole tools use either 'body', 'other' or not specified because the location tends to lose value with smaller or non threaded items.</xs:documentation>
+				</xs:annotation>
+			</xs:element>
+			<xs:element name="InstallationDate" type="eml:TimeStamp" minOccurs="0" maxOccurs="1">
+				<xs:annotation>
+					<xs:documentation>When the tag was installed in or on the item.</xs:documentation>
+				</xs:annotation>
+			</xs:element>
+			<xs:element name="InstallationCompany" type="eml:String64" minOccurs="0" maxOccurs="1">
+				<xs:annotation>
+					<xs:documentation>The name of the company that installed the tag.</xs:documentation>
+				</xs:annotation>
+			</xs:element>
+			<xs:element name="MountingCode" type="eml:String64" minOccurs="0" maxOccurs="1">
+				<xs:annotation>
+					<xs:documentation>Reference to a manufacturer's or installer's installation description, code, or method.</xs:documentation>
+				</xs:annotation>
+			</xs:element>
+			<xs:element name="Comment" type="eml:String2000" minOccurs="0" maxOccurs="1">
+				<xs:annotation>
+					<xs:documentation>A comment or remark about the tag.</xs:documentation>
+				</xs:annotation>
+			</xs:element>
+			<xs:element name="ExtensionNameValue" type="eml:ExtensionNameValue" minOccurs="0" maxOccurs="unbounded">
+				<xs:annotation>
+					<xs:documentation>Extensions to the schema based on a name-value construct.</xs:documentation>
+				</xs:annotation>
+			</xs:element>
+		</xs:sequence>
+		<xs:attribute name="uid" use="required" type="eml:String64">
+			<xs:annotation>
+				<xs:documentation>Unique identifier for this instance of NameTag.</xs:documentation>
+			</xs:annotation>
+		</xs:attribute>
+	</xs:complexType>
+	<xs:simpleType name="NameTagNumberingScheme">
+		<xs:annotation>
+			<xs:documentation>Specifies the values of the specifications for creating equipment tags. </xs:documentation>
+		</xs:annotation>
+		<xs:restriction base="eml:TypeEnum">
+			<xs:enumeration value="ANSI/AIM-BC10"/>
+			<xs:enumeration value="ANSI/AIM-BC2"/>
+			<xs:enumeration value="ANSI/AIM-BC6"/>
+			<xs:enumeration value="EAN.UCC"/>
+			<xs:enumeration value="EPC64"/>
+			<xs:enumeration value="EPC96"/>
+			<xs:enumeration value="F2F"/>
+			<xs:enumeration value="MFM"/>
+			<xs:enumeration value="MSRCID"/>
+			<xs:enumeration value="serial number"/>
+		</xs:restriction>
+	</xs:simpleType>
+	<xs:simpleType name="NameTagTechnology">
+		<xs:annotation>
+			<xs:documentation>Specifies the values for the mechanisms for attaching an equipment tag to an item. </xs:documentation>
+		</xs:annotation>
+		<xs:restriction base="eml:TypeEnum">
+			<xs:enumeration value="intrinsic"/>
+			<xs:enumeration value="labeled"/>
+			<xs:enumeration value="painted"/>
+			<xs:enumeration value="stamped"/>
+			<xs:enumeration value="tagged"/>
+			<xs:enumeration value="temporary"/>
+		</xs:restriction>
+	</xs:simpleType>
+	<xs:simpleType name="NameTagLocation">
+		<xs:annotation>
+			<xs:documentation>Specifies the values for the locations where an equipment tag might be found. </xs:documentation>
+		</xs:annotation>
+		<xs:restriction base="eml:TypeEnum">
+			<xs:enumeration value="body"/>
+			<xs:enumeration value="box"/>
+			<xs:enumeration value="other"/>
+			<xs:enumeration value="pin"/>
+		</xs:restriction>
+	</xs:simpleType>
+	<xs:complexType name="Cost">
+		<xs:annotation>
+			<xs:documentation>The price of an item, with a currency indication.</xs:documentation>
+		</xs:annotation>
+		<xs:sequence/>
+		<xs:attribute name="currency" use="required" type="eml:String64">
+			<xs:annotation>
+				<xs:documentation>Currency used for this Cost.</xs:documentation>
+			</xs:annotation>
+		</xs:attribute>
+	</xs:complexType>
+	<xs:complexType name="MeasuredDepthCoord">
+		<xs:annotation>
+			<xs:documentation>A measured depth coordinate in a wellbore. Positive moving from the reference datum toward the bottomhole. All coordinates with the same datum (and same UOM) can be considered to be in the same coordinate reference system (CRS) and are thus directly comparable.</xs:documentation>
+		</xs:annotation>
+		<xs:simpleContent>
+			<xs:extension base="eml:AbstractMeasure">
+				<xs:attribute name="uom" use="required" type="eml:LengthUom">
+					<xs:annotation>
+						<xs:documentation>Unit of measure used by this measured depth coordinate.</xs:documentation>
+					</xs:annotation>
+				</xs:attribute>
+				<xs:attribute name="datum" use="required" type="eml:String64">
+					<xs:annotation>
+						<xs:documentation>Defines the vertical datums associated with elevation, vertical depth, and measured depth coordinates.</xs:documentation>
+					</xs:annotation>
+				</xs:attribute>
+			</xs:extension>
+		</xs:simpleContent>
+	</xs:complexType>
+	<!--														-->
+	</xs:schema>

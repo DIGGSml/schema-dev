@@ -1,0 +1,132 @@
+<?xml version="1.0" encoding="utf-8"?>
+<xs:schema targetNamespace="http://www.energistics.org/energyml/data/commonv2"
+	xmlns:xs="http://www.w3.org/2001/XMLSchema"
+	xmlns:eml="http://www.energistics.org/energyml/data/commonv2" elementFormDefault="qualified"
+	version="2.1">
+	<!--														-->
+	<xs:annotation>
+		<xs:documentation>EML 2.1 Profile for DIGGS</xs:documentation>
+	</xs:annotation>
+	<xs:include schemaLocation="BaseTypes.xsd"/>
+	<!--														-->
+	<xs:include schemaLocation="ObjectReference.xsd"/>
+	<xs:include schemaLocation="Abstract.xsd"/>
+	<xs:complexType name="IndexRange">
+		<xs:annotation>
+			<xs:documentation>In the case that the ReferencedData is indexed and the conformance with the DataAssurance policy applies to a range within that index space, this class represents that range.
+
+The elements are string types because the index could be of numerous data types, including integer, float and date.</xs:documentation>
+		</xs:annotation>
+		<xs:sequence>
+			<xs:element name="IndexMinimum" type="eml:String64" minOccurs="1" maxOccurs="1">
+				<xs:annotation>
+					<xs:documentation>The minimum index for the range over which the referenced data's conformance with the policy is being assessed.</xs:documentation>
+				</xs:annotation>
+			</xs:element>
+			<xs:element name="IndexMaximum" type="eml:String64" minOccurs="1" maxOccurs="1">
+				<xs:annotation>
+					<xs:documentation>The maximum index for the range over which the referenced data's conformance with the policy is being assessed.</xs:documentation>
+				</xs:annotation>
+			</xs:element>
+		</xs:sequence>
+	</xs:complexType>
+	<xs:element name="DataAssuranceRecord" type="eml:DataAssuranceRecord"
+		substitutionGroup="eml:AbstractDataObject"/>
+	<xs:complexType name="DataAssuranceRecord">
+		<xs:annotation>
+			<xs:documentation>A little XML document describing whether or not a particular data object conforms with a pre-defined policy which consists of at least one rule.</xs:documentation>
+		</xs:annotation>
+		<xs:complexContent>
+			<xs:extension base="eml:AbstractObject">
+				<xs:sequence>
+					<xs:element name="PolicyId" type="eml:String64" minOccurs="1" maxOccurs="1">
+						<xs:annotation>
+							<xs:documentation>Identifier of the policy whose conformance is being described.</xs:documentation>
+						</xs:annotation>
+					</xs:element>
+					<xs:element name="PolicyName" type="eml:String2000" minOccurs="0" maxOccurs="1">
+						<xs:annotation>
+							<xs:documentation>Human-readable name of the policy</xs:documentation>
+						</xs:annotation>
+					</xs:element>
+					<xs:element name="ReferencedElementName" type="eml:String64" minOccurs="0"
+						maxOccurs="1">
+						<xs:annotation>
+							<xs:documentation>If the Policy applies to a single element within the referenced data object this attribute holds its element name.</xs:documentation>
+						</xs:annotation>
+					</xs:element>
+					<xs:element name="ReferencedElementUid" type="eml:String64" minOccurs="0"
+						maxOccurs="1">
+						<xs:annotation>
+							<xs:documentation>If the Policy applies to a single occurrence of a recurring element within the referenced data object this attribute holds its uid.
+
+The name of the recurring element would be in the ReferencedElementName.</xs:documentation>
+						</xs:annotation>
+					</xs:element>
+					<xs:element name="Origin" type="xs:string" minOccurs="1" maxOccurs="1">
+						<xs:annotation>
+							<xs:documentation>Agent which checked the data for conformance with the policy. This could be a person or an automated computer process or any number of other things.</xs:documentation>
+						</xs:annotation>
+					</xs:element>
+					<xs:element name="Conformance" type="xs:boolean" minOccurs="1" maxOccurs="1">
+						<xs:annotation>
+							<xs:documentation>Yes/no flag indicating whether this particular data ???? conforms with the policy or not.</xs:documentation>
+						</xs:annotation>
+					</xs:element>
+					<xs:element name="Date" type="eml:TimeStamp" minOccurs="1" maxOccurs="1">
+						<xs:annotation>
+							<xs:documentation>Date the policy was last checked. This is the date for which the Conformance value is valid.</xs:documentation>
+						</xs:annotation>
+					</xs:element>
+					<xs:element name="Comment" type="xs:string" minOccurs="0" maxOccurs="1"/>
+					<xs:element name="FailingRules" type="eml:FailingRule" minOccurs="0"
+						maxOccurs="unbounded"/>
+					<xs:element name="IndexRange" type="eml:IndexRange" minOccurs="0" maxOccurs="1"/>
+					<xs:element name="ReferencedData" type="eml:DataObjectReference" minOccurs="1"
+						maxOccurs="1"/>
+				</xs:sequence>
+			</xs:extension>
+		</xs:complexContent>
+	</xs:complexType>
+	<xs:complexType name="FailingRule">
+		<xs:annotation>
+			<xs:documentation>The FailingRule class holds summary information on which of the rules within a policy failed.</xs:documentation>
+		</xs:annotation>
+		<xs:sequence>
+			<xs:element name="RuleId" type="eml:String64" minOccurs="1" maxOccurs="1">
+				<xs:annotation>
+					<xs:documentation>Identifier of the atomic rule being checked against the data.</xs:documentation>
+				</xs:annotation>
+			</xs:element>
+			<xs:element name="RuleName" type="eml:String2000" minOccurs="0" maxOccurs="1">
+				<xs:annotation>
+					<xs:documentation>Human-readable name of the atomic rule being checked against the data.</xs:documentation>
+				</xs:annotation>
+			</xs:element>
+			<xs:element name="Severity" type="eml:String64" minOccurs="0" maxOccurs="1">
+				<xs:annotation>
+					<xs:documentation>Severity of the failure. This could be used to indicate that a rule is a high-priority rule whose failure is considered as severe or could be used to indicate just how badly a rule was contravened.
+
+The meaning of this field should be standardized within a company to maximize its utility.</xs:documentation>
+				</xs:annotation>
+			</xs:element>
+			<xs:element name="FailingRuleExtensions" type="eml:ExtensionNameValue" minOccurs="0"
+				maxOccurs="unbounded">
+				<xs:annotation>
+					<xs:documentation>This allows extending the FailingRule class with as many arbitrary name-value pairs as is required at run-time.
+
+Uses for this might include why the rule failed or by how much.</xs:documentation>
+				</xs:annotation>
+			</xs:element>
+		</xs:sequence>
+	</xs:complexType>
+	<!--														-->
+	<!-- Energistics License Agreement
+			This file is distributed under the Energistics Product License Agreement at
+			http://www.energistics.org/product-license-agreement
+			Use of this file constitutes agreement with the Energistics Product License Agreement.
+			Copyright (c) 2016 Energistics. All rights reserved.
+			Energistics, WITSML, PRODML and RESQML are trademarks or registered trademarks of Energistics.
+			-->
+	<!--														-->
+</xs:schema>

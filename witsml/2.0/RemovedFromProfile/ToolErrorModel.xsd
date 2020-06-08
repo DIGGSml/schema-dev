@@ -1,0 +1,355 @@
+<?xml version="1.0" encoding="utf-8"?>
+<xs:schema targetNamespace="http://www.energistics.org/energyml/data/witsmlv2" xmlns:xs="http://www.w3.org/2001/XMLSchema" xmlns:witsml="http://www.energistics.org/energyml/data/witsmlv2" xmlns:eml="http://www.energistics.org/energyml/data/commonv2" elementFormDefault="qualified" version="2.0">
+	<!--														-->
+	<!-- Energistics License Agreement
+			This file is distributed under the Energistics Product License Agreement at
+			http://www.energistics.org/product-license-agreement
+			Use of this file constitutes agreement with the Energistics Product License Agreement.
+			Copyright (c) 2016 Energistics. All rights reserved.
+			Energistics, WITSML, PRODML and RESQML are trademarks or registered trademarks of Energistics.
+			-->
+	<!--														-->
+	<xs:annotation>
+		<xs:documentation>Tool Error Model Schema.</xs:documentation>
+	</xs:annotation>
+	<!--														-->
+	<xs:import namespace="http://www.energistics.org/energyml/data/commonv2" schemaLocation="../../../common/v2.1/xsd_schemas/EmlAllObjects.xsd"/>
+	<!--														-->
+	<xs:include schemaLocation="Trajectory.xsd"/>
+	<xs:complexType name="IscwsaSurveyToolOperatingCondition">
+		<xs:annotation>
+			<xs:documentation>Describes the survey acquisition context in which an error model is valid as a sequence of constraints.</xs:documentation>
+		</xs:annotation>
+		<xs:sequence>
+			<xs:element name="Parameter" type="eml:String64" minOccurs="0" maxOccurs="1">
+				<xs:annotation>
+					<xs:documentation>A particular constraint.</xs:documentation>
+				</xs:annotation>
+			</xs:element>
+			<xs:element name="Min" type="eml:GenericMeasure" minOccurs="0" maxOccurs="1">
+				<xs:annotation>
+					<xs:documentation>The least value the constraint may take.</xs:documentation>
+				</xs:annotation>
+			</xs:element>
+			<xs:element name="Max" type="eml:GenericMeasure" minOccurs="0" maxOccurs="1">
+				<xs:annotation>
+					<xs:documentation>The greatest value the constraint may take.</xs:documentation>
+				</xs:annotation>
+			</xs:element>
+			<xs:element name="Value" type="eml:String64" minOccurs="0" maxOccurs="1">
+				<xs:annotation>
+					<xs:documentation>A fixed value that the constraint must take.</xs:documentation>
+				</xs:annotation>
+			</xs:element>
+			<xs:element name="ExtensionNameValue" type="eml:ExtensionNameValue" minOccurs="0" maxOccurs="unbounded">
+				<xs:annotation>
+					<xs:documentation>Extensions to the schema based on a name-value construct.</xs:documentation>
+				</xs:annotation>
+			</xs:element>
+		</xs:sequence>
+		<xs:attribute name="uid" use="required" type="eml:String64">
+			<xs:annotation>
+				<xs:documentation>Unique identifier for this instance of IscwsaSurveyToolOperatingCondition.</xs:documentation>
+			</xs:annotation>
+		</xs:attribute>
+	</xs:complexType>
+	<xs:complexType name="IscwsaSurveyToolOperatingInterval">
+		<xs:annotation>
+			<xs:documentation>Inclination interval for a particular operating mode.
+Intervals may overlap to suppress mode flip-flopping, but should cover
+the entire valid range of the tool.</xs:documentation>
+		</xs:annotation>
+		<xs:sequence>
+			<xs:element name="Mode" type="witsml:SurveyToolOperatingMode" minOccurs="1" maxOccurs="1">
+				<xs:annotation>
+					<xs:documentation>Tool operating mode over this interval.</xs:documentation>
+				</xs:annotation>
+			</xs:element>
+			<xs:element name="Start" type="eml:PlaneAngleMeasure" minOccurs="1" maxOccurs="1">
+				<xs:annotation>
+					<xs:documentation>Inclination at which the mode begins.</xs:documentation>
+				</xs:annotation>
+			</xs:element>
+			<xs:element name="End" type="eml:PlaneAngleMeasure" minOccurs="1" maxOccurs="1">
+				<xs:annotation>
+					<xs:documentation>Inclination at which the mode terminates.</xs:documentation>
+				</xs:annotation>
+			</xs:element>
+			<xs:element name="Speed" type="eml:LengthPerTimeMeasure" minOccurs="0" maxOccurs="1">
+				<xs:annotation>
+					<xs:documentation>Running speed for continuous surveys.</xs:documentation>
+				</xs:annotation>
+			</xs:element>
+			<xs:element name="SampleRate" type="eml:TimeMeasure" minOccurs="0" maxOccurs="1">
+				<xs:annotation>
+					<xs:documentation>Time between survey samples for continuous surveys.</xs:documentation>
+				</xs:annotation>
+			</xs:element>
+			<xs:element name="ExtensionNameValue" type="eml:ExtensionNameValue" minOccurs="0" maxOccurs="unbounded">
+				<xs:annotation>
+					<xs:documentation>Extensions to the schema based on a name-value construct.</xs:documentation>
+				</xs:annotation>
+			</xs:element>
+		</xs:sequence>
+		<xs:attribute name="uid" use="required" type="eml:String64">
+			<xs:annotation>
+				<xs:documentation>Unique identifier for this instance of IscwsaSurveyToolOperatingInterval.</xs:documentation>
+			</xs:annotation>
+		</xs:attribute>
+	</xs:complexType>
+	<xs:simpleType name="SurveyToolOperatingMode">
+		<xs:annotation>
+			<xs:documentation>Specifies the codes for the ISCWSA survey tool operating modes.</xs:documentation>
+		</xs:annotation>
+		<xs:restriction base="eml:TypeEnum">
+			<xs:enumeration value="continuous xy"/>
+			<xs:enumeration value="continuous xyz"/>
+			<xs:enumeration value="continuous z"/>
+			<xs:enumeration value="unknown"/>
+			<xs:enumeration value="stationary">
+				<xs:annotation>
+					<xs:documentation>Tool is operating in a stationary mode.</xs:documentation>
+				</xs:annotation>
+			</xs:enumeration>
+		</xs:restriction>
+	</xs:simpleType>
+	<xs:complexType name="IscwsaModelParameters">
+		<xs:annotation>
+			<xs:documentation>Various parameters controlling the generation of the survey variance.</xs:documentation>
+		</xs:annotation>
+		<xs:sequence>
+			<xs:element name="MisalignmentMode" type="witsml:ErrorModelMisalignmentMode" minOccurs="1" maxOccurs="1">
+				<xs:annotation>
+					<xs:documentation>Choice of mathmatical modelling of misalignment.</xs:documentation>
+				</xs:annotation>
+			</xs:element>
+			<xs:element name="GyroInitialization" type="eml:PlaneAngleMeasure" minOccurs="0" maxOccurs="1">
+				<xs:annotation>
+					<xs:documentation>Inclination at which gyro initialization occurs.</xs:documentation>
+				</xs:annotation>
+			</xs:element>
+			<xs:element name="GyroReinitializationDistance" type="eml:LengthMeasure" minOccurs="0" maxOccurs="1">
+				<xs:annotation>
+					<xs:documentation>Maximum length of continuous survey before re-initialization.</xs:documentation>
+				</xs:annotation>
+			</xs:element>
+			<xs:element name="Switching" type="xs:boolean" minOccurs="0" maxOccurs="1">
+				<xs:annotation>
+					<xs:documentation>True if the survey tool is rotated at inclinations greater than 90 degrees.</xs:documentation>
+				</xs:annotation>
+			</xs:element>
+			<xs:element name="NoiseReductionFactor" type="xs:double" minOccurs="0" maxOccurs="1">
+				<xs:annotation>
+					<xs:documentation>Factor applied to random noise error terms, depending on the mode of gyro initialization. Values must be greater than zero and less than or equal to 1.</xs:documentation>
+				</xs:annotation>
+			</xs:element>
+			<xs:element name="GyroRunningSpeed" type="eml:LengthPerTimeMeasure" minOccurs="0" maxOccurs="1">
+				<xs:annotation>
+					<xs:documentation>Speed at which the tool traverses the wellbore during a continuous survey.</xs:documentation>
+				</xs:annotation>
+			</xs:element>
+		</xs:sequence>
+	</xs:complexType>
+	<xs:simpleType name="ErrorModelMisalignmentMode">
+		<xs:annotation>
+			<xs:documentation>Specifies the various misalignment maths.</xs:documentation>
+		</xs:annotation>
+		<xs:restriction base="eml:TypeEnum">
+			<xs:enumeration value="unknown"/>
+			<xs:enumeration value="1">
+				<xs:annotation>
+					<xs:documentation>Alternative 1 as described in SPE 90408.</xs:documentation>
+				</xs:annotation>
+			</xs:enumeration>
+			<xs:enumeration value="2">
+				<xs:annotation>
+					<xs:documentation>Alternative 2 as described in SPE 90408.</xs:documentation>
+				</xs:annotation>
+			</xs:enumeration>
+			<xs:enumeration value="3">
+				<xs:annotation>
+					<xs:documentation>Alternative 3 as described in SPE 90408.</xs:documentation>
+				</xs:annotation>
+			</xs:enumeration>
+		</xs:restriction>
+	</xs:simpleType>
+	<xs:complexType name="IscwsaErrorTermValue">
+		<xs:annotation>
+			<xs:documentation>The instantiation of an error term in an error model.The content of this element (a number) is the variance scaling factor of the term in the model.</xs:documentation>
+		</xs:annotation>
+		<xs:sequence>
+			<xs:element name="Term" type="eml:String64" minOccurs="1" maxOccurs="1">
+				<xs:annotation>
+					<xs:documentation>A pointer to the errorTerm represented by this value.
+This term must exist in the toolErrorTermSet referenced by the parent of this node.
+The same term may only be referenced once in the model.</xs:documentation>
+				</xs:annotation>
+			</xs:element>
+			<xs:element name="Prop" type="witsml:ErrorPropagationMode" minOccurs="1" maxOccurs="1">
+				<xs:annotation>
+					<xs:documentation>The propagation mode for this term in this model.</xs:documentation>
+				</xs:annotation>
+			</xs:element>
+			<xs:element name="Bias" type="xs:double" minOccurs="0" maxOccurs="1">
+				<xs:annotation>
+					<xs:documentation>The mean or expected value of the variance.</xs:documentation>
+				</xs:annotation>
+			</xs:element>
+			<xs:element name="Comment" type="eml:String2000" minOccurs="0" maxOccurs="1">
+				<xs:annotation>
+					<xs:documentation>A textual comment about this error term value.</xs:documentation>
+				</xs:annotation>
+			</xs:element>
+			<xs:element name="ExtensionNameValue" type="eml:ExtensionNameValue" minOccurs="0" maxOccurs="unbounded">
+				<xs:annotation>
+					<xs:documentation>Extensions to the schema based on a name-value construct.</xs:documentation>
+				</xs:annotation>
+			</xs:element>
+			<xs:element name="Value" type="witsml:MeasureOrQuantity" minOccurs="1" maxOccurs="1"/>
+		</xs:sequence>
+		<xs:attribute name="uid" use="required" type="eml:String64">
+			<xs:annotation>
+				<xs:documentation>Unique identifier for this instance of IscwsaErrorTermValue.</xs:documentation>
+			</xs:annotation>
+		</xs:attribute>
+	</xs:complexType>
+	<xs:simpleType name="ErrorPropagationMode">
+		<xs:annotation>
+			<xs:documentation>Specifies the codes for the various propagation modes.</xs:documentation>
+		</xs:annotation>
+		<xs:restriction base="eml:TypeEnum">
+			<xs:enumeration value="B">
+				<xs:annotation>
+					<xs:documentation>Bias.</xs:documentation>
+				</xs:annotation>
+			</xs:enumeration>
+			<xs:enumeration value="R">
+				<xs:annotation>
+					<xs:documentation>Random.</xs:documentation>
+				</xs:annotation>
+			</xs:enumeration>
+			<xs:enumeration value="S">
+				<xs:annotation>
+					<xs:documentation>Systematic.</xs:documentation>
+				</xs:annotation>
+			</xs:enumeration>
+			<xs:enumeration value="W">
+				<xs:annotation>
+					<xs:documentation>Well.</xs:documentation>
+				</xs:annotation>
+			</xs:enumeration>
+			<xs:enumeration value="G">
+				<xs:annotation>
+					<xs:documentation>Global.</xs:documentation>
+				</xs:annotation>
+			</xs:enumeration>
+		</xs:restriction>
+	</xs:simpleType>
+	<xs:complexType name="MeasureOrQuantity">
+		<xs:annotation>
+			<xs:documentation>A measure with a UOM or a quantity (without a UOM). This should not be used except in situations where the underlying class of data is captured elsewhere, e.g., in a measure class.</xs:documentation>
+		</xs:annotation>
+		<xs:simpleContent>
+			<xs:extension base="eml:AbstractMeasure">
+				<xs:attribute name="uom" use="required" type="eml:UomEnum">
+					<xs:annotation>
+						<xs:documentation>A measure with a UOM or a quantity (without a UOM). This should not be used except in situations where the underlying class of data is captured elsewhere, e.g., in a measure class.</xs:documentation>
+					</xs:annotation>
+				</xs:attribute>
+			</xs:extension>
+		</xs:simpleContent>
+	</xs:complexType>
+	<xs:element name="ToolErrorModel" type="witsml:ToolErrorModel" substitutionGroup="eml:AbstractDataObject"/>
+	<xs:complexType name="ToolErrorModel">
+		<xs:annotation>
+			<xs:documentation>Used to define a surveying tool error model. This object is globally unique.</xs:documentation>
+		</xs:annotation>
+		<xs:complexContent>
+			<xs:extension base="eml:AbstractObject">
+				<xs:sequence>
+					<xs:element name="TypeSurveyTool" type="witsml:TypeSurveyTool" minOccurs="0" maxOccurs="1">
+						<xs:annotation>
+							<xs:documentation>The type of tool used for the measurements. This is the same list as defined for a trajectoryStation.</xs:documentation>
+						</xs:annotation>
+					</xs:element>
+					<xs:element name="UseErrorTermSet" type="eml:String64" minOccurs="0" maxOccurs="1">
+						<xs:annotation>
+							<xs:documentation>Reference to the toolErrorTermSet object that 
+contains the error terms used in this model.</xs:documentation>
+						</xs:annotation>
+					</xs:element>
+					<xs:element name="Authorization" type="witsml:IscwsaAuthorizationData" minOccurs="0" maxOccurs="1"/>
+					<xs:element name="OperatingCondition" type="witsml:IscwsaSurveyToolOperatingCondition" minOccurs="0" maxOccurs="unbounded"/>
+					<xs:element name="OperatingInterval" type="witsml:IscwsaSurveyToolOperatingInterval" minOccurs="0" maxOccurs="unbounded"/>
+					<xs:element name="ModelParameters" type="witsml:IscwsaModelParameters" minOccurs="0" maxOccurs="1"/>
+					<xs:element name="ErrorTermValue" type="witsml:IscwsaErrorTermValue" minOccurs="1" maxOccurs="unbounded"/>
+				</xs:sequence>
+			</xs:extension>
+		</xs:complexContent>
+	</xs:complexType>
+	<xs:complexType name="IscwsaAuthorizationData">
+		<xs:annotation>
+			<xs:documentation>Authorization state of some entity. The main goal of the Industry Steering Committee on Wellbore Survey Accuracy (ISCWSA) is to to produce and maintain standards for the industry relating to wellbore survey accuracy.</xs:documentation>
+		</xs:annotation>
+		<xs:sequence>
+			<xs:element name="Author" type="eml:String64" minOccurs="0" maxOccurs="1">
+				<xs:annotation>
+					<xs:documentation>Person responsible for the information.</xs:documentation>
+				</xs:annotation>
+			</xs:element>
+			<xs:element name="Source" type="eml:String64" minOccurs="0" maxOccurs="1">
+				<xs:annotation>
+					<xs:documentation>Source from which the information is derived.</xs:documentation>
+				</xs:annotation>
+			</xs:element>
+			<xs:element name="Authority" type="eml:String64" minOccurs="1" maxOccurs="1">
+				<xs:annotation>
+					<xs:documentation>Person or collective body responsible for authorizing the information.</xs:documentation>
+				</xs:annotation>
+			</xs:element>
+			<xs:element name="Status" type="witsml:AuthorizationStatus" minOccurs="1" maxOccurs="1">
+				<xs:annotation>
+					<xs:documentation>Authorization state of the information.</xs:documentation>
+				</xs:annotation>
+			</xs:element>
+			<xs:element name="Version" type="eml:String64" minOccurs="0" maxOccurs="1">
+				<xs:annotation>
+					<xs:documentation>Version name or number.</xs:documentation>
+				</xs:annotation>
+			</xs:element>
+			<xs:element name="Comment" type="eml:String2000" minOccurs="0" maxOccurs="1">
+				<xs:annotation>
+					<xs:documentation>A comment about the object. 
+This should include information regarding the derivation of the information.</xs:documentation>
+				</xs:annotation>
+			</xs:element>
+		</xs:sequence>
+	</xs:complexType>
+	<xs:simpleType name="AuthorizationStatus">
+		<xs:annotation>
+			<xs:documentation>Specifies the status of the current tool error model. </xs:documentation>
+		</xs:annotation>
+		<xs:restriction base="eml:TypeEnum">
+			<xs:enumeration value="draft">
+				<xs:annotation>
+					<xs:documentation>Not yet approved.</xs:documentation>
+				</xs:annotation>
+			</xs:enumeration>
+			<xs:enumeration value="authorized">
+				<xs:annotation>
+					<xs:documentation>Approved for use.</xs:documentation>
+				</xs:annotation>
+			</xs:enumeration>
+			<xs:enumeration value="superseded">
+				<xs:annotation>
+					<xs:documentation>Obsolete; a newer version is available.</xs:documentation>
+				</xs:annotation>
+			</xs:enumeration>
+			<xs:enumeration value="withdrawn">
+				<xs:annotation>
+					<xs:documentation>No longer approved in this or any other version.</xs:documentation>
+				</xs:annotation>
+			</xs:enumeration>
+		</xs:restriction>
+	</xs:simpleType>
+</xs:schema>

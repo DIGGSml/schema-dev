@@ -1,0 +1,183 @@
+<?xml version="1.0" encoding="utf-8"?>
+<xs:schema targetNamespace="http://www.energistics.org/energyml/data/commonv2"
+	xmlns:xs="http://www.w3.org/2001/XMLSchema"
+	xmlns:eml="http://www.energistics.org/energyml/data/commonv2" elementFormDefault="qualified"
+	version="2.1">
+	<!--														-->
+	<xs:annotation>
+		<xs:documentation>EML 2.1 Profile for DIGGS</xs:documentation>
+	</xs:annotation>
+	<xs:include schemaLocation="CommonEnumerations.xsd"/>
+	<!--														-->
+	<xs:include schemaLocation="BaseTypes.xsd"/>
+	<xs:include schemaLocation="Abstract.xsd"/>
+	<xs:element name="PropertyKindDictionary" type="eml:PropertyKindDictionary"
+		substitutionGroup="eml:AbstractDataObject"/>
+	<xs:complexType name="PropertyKindDictionary">
+		<xs:annotation>
+			<xs:documentation>This dictionary defines property kind which is intended to handle the requirements of the upstream oil and gas industry. </xs:documentation>
+		</xs:annotation>
+		<xs:complexContent>
+			<xs:extension base="eml:AbstractObject">
+				<xs:sequence>
+					<xs:element name="PropertyKind" type="eml:PropertyKind" minOccurs="2"
+						maxOccurs="unbounded">
+						<xs:annotation>
+							<xs:documentation>Defines which property kind are contained into a property kind dictionary.</xs:documentation>
+						</xs:annotation>
+					</xs:element>
+				</xs:sequence>
+			</xs:extension>
+		</xs:complexContent>
+	</xs:complexType>
+	<xs:complexType name="TimeIndex">
+		<xs:annotation>
+			<xs:documentation>Index into a time series. Used to specify time. (Not to be confused with time step.)</xs:documentation>
+		</xs:annotation>
+		<xs:sequence>
+			<xs:element name="Index" type="eml:NonNegativeLong" minOccurs="1" maxOccurs="1">
+				<xs:annotation>
+					<xs:documentation>The index of the time in the time series.</xs:documentation>
+				</xs:annotation>
+			</xs:element>
+			<xs:element name="TimeSeries" type="eml:DataObjectReference" minOccurs="1" maxOccurs="1"
+			/>
+		</xs:sequence>
+	</xs:complexType>
+	<xs:complexType name="GeologicTime">
+		<xs:annotation>
+			<xs:documentation>This class is used to represent a time at several scales: 
+
+	- A mandatory and precise DateTime used to characterize a TimeStep in a TimeSeries
+
+
+	- An optional Age Offset (corresponding to a geological event occurrence) in  years. This age offset must be positive when it represents a GeologicalEvent occurrence in the past. This Age Offset is not required to be positive, to allow for the case of simulating future geological events.  
+
+
+When geological time is used to represent a geological event cccurrence, the DateTime must be set by the software writer at a date no earlier than 01/01/1950. Any DateTime (even the creation DateTime of the instance) can be set in this attribute field.</xs:documentation>
+		</xs:annotation>
+		<xs:sequence>
+			<xs:element name="AgeOffsetAttribute" type="xs:long" minOccurs="0" maxOccurs="1">
+				<xs:annotation>
+					<xs:documentation>A Value in Years of the Age Offset between the DateTime Attribute value and the DateTime of a GeologicalEvent Occurrence. This value must be POSITIVE when it represents a Geological Event in The past.</xs:documentation>
+				</xs:annotation>
+			</xs:element>
+			<xs:element name="DateTime" type="xs:dateTime" minOccurs="1" maxOccurs="1">
+				<xs:annotation>
+					<xs:documentation>A date, which can be represented according to the W3CDTF format.</xs:documentation>
+				</xs:annotation>
+			</xs:element>
+		</xs:sequence>
+	</xs:complexType>
+	<xs:complexType name="TimeIndices">
+		<xs:annotation>
+			<xs:documentation>Indices
+into a time series. Used to specify time. (Not to be confused with time step.)</xs:documentation>
+		</xs:annotation>
+		<xs:sequence>
+			<xs:element name="TimeIndexCount" type="eml:PositiveLong" minOccurs="1" maxOccurs="1"/>
+			<xs:element name="TimeIndexStart" type="eml:NonNegativeLong" minOccurs="0" maxOccurs="1">
+				<xs:annotation>
+					<xs:documentation>The index of the start time in the time series, if not zero.</xs:documentation>
+				</xs:annotation>
+			</xs:element>
+			<xs:element name="SimulatorTimeStep" type="eml:AbstractIntegerArray" minOccurs="0"
+				maxOccurs="1">
+				<xs:annotation>
+					<xs:documentation>Simulation time step for each time index</xs:documentation>
+				</xs:annotation>
+			</xs:element>
+			<xs:element name="UseInterval" type="xs:boolean" minOccurs="1" maxOccurs="1">
+				<xs:annotation>
+					<xs:documentation>When UseInterval is true, the values are associated with each time intervals between two consecutive time entries instead of each individual time entry. As a consequence the dimension of the value array corresponding to the time series is the number of entry in the series minus one.</xs:documentation>
+				</xs:annotation>
+			</xs:element>
+			<xs:element name="TimeSeries" type="eml:DataObjectReference" minOccurs="1" maxOccurs="1"
+			/>
+		</xs:sequence>
+	</xs:complexType>
+	<xs:element name="TimeSeries" type="eml:TimeSeries" substitutionGroup="eml:AbstractDataObject"/>
+	<xs:complexType name="TimeSeries">
+		<xs:annotation>
+			<xs:documentation>Stores an ordered list of times, for example, for time-dependent properties, geometries, or representations. It is used in conjunction with the time index to specify times for RESQML.</xs:documentation>
+		</xs:annotation>
+		<xs:complexContent>
+			<xs:extension base="eml:AbstractObject">
+				<xs:sequence>
+					<xs:element name="Time" type="eml:GeologicTime" minOccurs="1"
+						maxOccurs="unbounded">
+						<xs:annotation>
+							<xs:documentation>Individual times composing the series. The list ordering is used by the time index.</xs:documentation>
+						</xs:annotation>
+					</xs:element>
+					<xs:element name="TimeSeriesParentage" type="eml:TimeSeriesParentage"
+						minOccurs="0" maxOccurs="1"/>
+				</xs:sequence>
+			</xs:extension>
+		</xs:complexContent>
+	</xs:complexType>
+	<xs:complexType name="TimeSeriesParentage">
+		<xs:annotation>
+			<xs:documentation>Indicates that a time series has the associated time series as a parent, i.e., that the series continues from the parent time series.</xs:documentation>
+		</xs:annotation>
+		<xs:sequence>
+			<xs:element name="HasOverlap" type="xs:boolean" minOccurs="1" maxOccurs="1">
+				<xs:annotation>
+					<xs:documentation>Used to indicate that a time series overlaps with its parent time series, e.g., as may be done for simulation studies, where the end state of one calculation is the initial state of the next.</xs:documentation>
+				</xs:annotation>
+			</xs:element>
+			<xs:element name="ParentTimeIndex" type="eml:TimeIndex" minOccurs="1" maxOccurs="1"/>
+		</xs:sequence>
+	</xs:complexType>
+	<xs:element name="PropertyKind" type="eml:PropertyKind"
+		substitutionGroup="eml:AbstractDataObject"/>
+	<xs:complexType name="PropertyKind">
+		<xs:annotation>
+			<xs:documentation>Property kinds carry the semantics of property values. They are used to identify if the values are, for example, representing porosity, length, stress tensor, etc. Energistics provides a list of standard property kind that represent the basis for the commonly used properties in the E&amp;P subsurface workflow.</xs:documentation>
+		</xs:annotation>
+		<xs:complexContent>
+			<xs:extension base="eml:AbstractObject">
+				<xs:sequence>
+					<xs:element name="IsAbstract" type="xs:boolean" minOccurs="1" maxOccurs="1">
+						<xs:annotation>
+							<xs:documentation>This boolean indicates whether the PropertyKind should be used as a real property or not.
+
+If the Is Abstract flag is set, then this entry should be used only as the parent of a real property. For example, the PropertyKind of "force per length" shouldn't be used directly, as it is really just a description of some units of measure. This entry should only be used as the parent of the real physical property "surface tension".</xs:documentation>
+						</xs:annotation>
+					</xs:element>
+					<xs:element name="DeprecationDate" type="eml:TimeStamp" minOccurs="0"
+						maxOccurs="1">
+						<xs:annotation>
+							<xs:documentation>Date at which this property dictionary entry must no longer be used. Files generated before this date would have used this entry so it is left here for reference. 
+
+A null value means the property kind is still valid.</xs:documentation>
+						</xs:annotation>
+					</xs:element>
+					<xs:element name="QuantityClass" type="eml:QuantityClassKindExt" minOccurs="1"
+						maxOccurs="1">
+						<xs:annotation>
+							<xs:documentation>A reference to the name of a quantity class in the Energistics Unit of Measure Dictionary.
+If there is no match in the Energistics Unit of Measure Dictionary, then this attribute is purely for human information.</xs:documentation>
+						</xs:annotation>
+					</xs:element>
+					<xs:element name="Parent" type="eml:DataObjectReference" minOccurs="0"
+						maxOccurs="1">
+						<xs:annotation>
+							<xs:documentation>Indicates the parent of this property kind.
+BUSINESS RULE : Only the top root abstract property kind has not to define a parent property kind.</xs:documentation>
+						</xs:annotation>
+					</xs:element>
+				</xs:sequence>
+			</xs:extension>
+		</xs:complexContent>
+	</xs:complexType>
+	<!--														-->
+	<!-- Energistics License Agreement
+			This file is distributed under the Energistics Product License Agreement at
+			http://www.energistics.org/product-license-agreement
+			Use of this file constitutes agreement with the Energistics Product License Agreement.
+			Copyright (c) 2016 Energistics. All rights reserved.
+			Energistics, WITSML, PRODML and RESQML are trademarks or registered trademarks of Energistics.
+			-->
+	<!--														-->
+</xs:schema>

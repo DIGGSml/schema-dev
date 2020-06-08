@@ -1,0 +1,85 @@
+<?xml version="1.0" encoding="utf-8"?>
+<xs:schema targetNamespace="http://www.energistics.org/energyml/data/witsmlv2" xmlns:xs="http://www.w3.org/2001/XMLSchema" xmlns:eml="http://www.energistics.org/energyml/data/commonv2" xmlns:witsml="http://www.energistics.org/energyml/data/witsmlv2" elementFormDefault="qualified" version="2.0">
+	<!--														-->
+	<!-- Energistics License Agreement
+			This file is distributed under the Energistics Product License Agreement at
+			http://www.energistics.org/product-license-agreement
+			Use of this file constitutes agreement with the Energistics Product License Agreement.
+			Copyright (c) 2016 Energistics. All rights reserved.
+			Energistics, WITSML, PRODML and RESQML are trademarks or registered trademarks of Energistics.
+			-->
+	<!--														-->
+	<xs:annotation>
+		<xs:documentation>WellboreMarkers Schema. The WellboreMarkers object (which was Formation Marker in WITSML v1.4.1) is used to capture information about geologic formations that were encountered in a wellbore. This data is typically captured during drilling using logging while drilling (LWD) tools.</xs:documentation>
+	</xs:annotation>
+	<!--														-->
+	<xs:import namespace="http://www.energistics.org/energyml/data/commonv2" schemaLocation="../../../common/v2.1/xsd_schemas/EmlAllObjects.xsd"/>
+	<!--														-->
+	<xs:include schemaLocation="WitsmlCommon.xsd"/>
+	<xs:include schemaLocation="WellboreGeology.xsd"/>
+	<xs:include schemaLocation="Trajectory.xsd"/>
+	<xs:include schemaLocation="Wellbore.xsd"/>
+	<xs:element name="WellboreMarker" type="witsml:WellboreMarker" substitutionGroup="eml:AbstractDataObject"/>
+	<xs:complexType name="WellboreMarker">
+		<xs:annotation>
+			<xs:documentation>Used to capture information about a geologic formation that was encountered in a wellbore. This object is uniquely identified within the context of one wellbore object.</xs:documentation>
+		</xs:annotation>
+		<xs:complexContent>
+			<xs:extension base="eml:AbstractObject">
+				<xs:sequence>
+					<xs:element name="ChronostratigraphicTop" type="witsml:GeochronologicalUnit" minOccurs="0" maxOccurs="1">
+						<xs:annotation>
+							<xs:documentation>The name of a geochronology for this marker, with the "kind" attribute specifying the geochronological time span.</xs:documentation>
+						</xs:annotation>
+					</xs:element>
+					<xs:element name="LithostratigraphicTop" type="witsml:LithostratigraphicUnit" minOccurs="0" maxOccurs="1">
+						<xs:annotation>
+							<xs:documentation>Specifies the unit of lithostratigraphy.</xs:documentation>
+						</xs:annotation>
+					</xs:element>
+					<xs:element name="Md" type="witsml:MeasuredDepthCoord" minOccurs="1" maxOccurs="1">
+						<xs:annotation>
+							<xs:documentation>Logged measured depth at the top of marker.</xs:documentation>
+						</xs:annotation>
+					</xs:element>
+					<xs:element name="Tvd" type="witsml:WellVerticalDepthCoord" minOccurs="0" maxOccurs="1">
+						<xs:annotation>
+							<xs:documentation>Logged true vertical depth at top of marker.</xs:documentation>
+						</xs:annotation>
+					</xs:element>
+					<xs:element name="DipAngle" type="eml:PlaneAngleMeasure" minOccurs="0" maxOccurs="1">
+						<xs:annotation>
+							<xs:documentation>Angle of dip with respect to horizontal.</xs:documentation>
+						</xs:annotation>
+					</xs:element>
+					<xs:element name="DipDirection" type="eml:PlaneAngleMeasure" minOccurs="0" maxOccurs="1">
+						<xs:annotation>
+							<xs:documentation>Interpreted downdip direction.</xs:documentation>
+						</xs:annotation>
+					</xs:element>
+					<xs:element name="Trajectory" type="eml:DataObjectReference" minOccurs="0" maxOccurs="1"/>
+					<xs:element name="Wellbore" type="eml:DataObjectReference" minOccurs="0" maxOccurs="1"/>
+				</xs:sequence>
+			</xs:extension>
+		</xs:complexContent>
+	</xs:complexType>
+	<xs:element name="WellboreMarkerSet" type="witsml:WellboreMarkerSet" substitutionGroup="eml:AbstractDataObject"/>
+	<xs:complexType name="WellboreMarkerSet">
+		<xs:annotation>
+			<xs:documentation>A collection of wellbore markers.</xs:documentation>
+		</xs:annotation>
+		<xs:complexContent>
+			<xs:extension base="eml:AbstractObject">
+				<xs:sequence>
+					<xs:element name="MarkerSetInterval" type="eml:MdInterval" minOccurs="1" maxOccurs="1">
+						<xs:annotation>
+							<xs:documentation>Measured depth interval that contains the shallowest and deepest formation markers. This is computed by the server and is read only.</xs:documentation>
+						</xs:annotation>
+					</xs:element>
+					<xs:element name="Wellbore" type="eml:DataObjectReference" minOccurs="0" maxOccurs="1"/>
+					<xs:element name="FormationMarker" type="witsml:WellboreMarker" minOccurs="0" maxOccurs="unbounded"/>
+				</xs:sequence>
+			</xs:extension>
+		</xs:complexContent>
+	</xs:complexType>
+</xs:schema>

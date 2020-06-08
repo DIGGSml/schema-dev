@@ -1,0 +1,217 @@
+<?xml version="1.0" encoding="utf-8"?>
+<xs:schema targetNamespace="http://www.energistics.org/energyml/data/commonv2"
+	xmlns:xs="http://www.w3.org/2001/XMLSchema"
+	xmlns:eml="http://www.energistics.org/energyml/data/commonv2" elementFormDefault="qualified"
+	version="2.1">
+	<!--														-->
+	<!-- Energistics License Agreement
+			This file is distributed under the Energistics Product License Agreement at
+			http://www.energistics.org/product-license-agreement
+			Use of this file constitutes agreement with the Energistics Product License Agreement.
+			Copyright (c) 2016 Energistics. All rights reserved.
+			Energistics, WITSML, PRODML and RESQML are trademarks or registered trademarks of Energistics.
+			-->
+	<!--														-->
+	<xs:annotation>
+		<xs:documentation>The Abstract package contains the base XSD types from which all EnergyML Data Objects are derived. EML 2.1 Profile for DIGGS</xs:documentation>
+	</xs:annotation>
+	<!--														-->
+	<!--														-->
+	<xs:include schemaLocation="CommonEnumerations.xsd"/>
+	<xs:include schemaLocation="BaseTypes.xsd"/>
+	<xs:complexType name="ExtensionNameValue">
+		<xs:annotation>
+			<xs:documentation>WITSML - Extension values Schema. The intent is to allow standard WITSML "named" 
+extensions without having to modify the schema. A client or server can ignore any name that it 
+does not recognize but certain meta data is required in order to allow 
+generic clients or servers to process the value.</xs:documentation>
+		</xs:annotation>
+		<xs:sequence>
+			<xs:element name="Name" type="eml:String64" minOccurs="1" maxOccurs="1">
+				<xs:annotation>
+					<xs:documentation>The name of the extension.
+Each standard name should document the expected measure class.
+Each standard name should document the expected maximum size. 
+For numeric values the size should be in terms of xsd types
+such as int, long, short, byte, float or double.
+For strings, the maximum length should be defined in number of characters.
+Local extensions to the list of standard names are allowed but it is strongly
+recommended that the names and definitions be approved by the 
+respective SIG Technical Team before use.</xs:documentation>
+				</xs:annotation>
+			</xs:element>
+			<xs:element name="Value" type="eml:StringMeasure" minOccurs="1" maxOccurs="1">
+				<xs:annotation>
+					<xs:documentation>The value of the extension. This may also include a uom attribute. The content should conform to constraints defined by the data type.</xs:documentation>
+				</xs:annotation>
+			</xs:element>
+			<xs:element name="MeasureClass" type="eml:MeasureClass" minOccurs="0" maxOccurs="1">
+				<xs:annotation>
+					<xs:documentation>The kind of the measure. For example, "length".
+This should be specified if the value requires a unit of measure.</xs:documentation>
+				</xs:annotation>
+			</xs:element>
+			<xs:element name="DTim" type="eml:TimeStamp" minOccurs="0" maxOccurs="1">
+				<xs:annotation>
+					<xs:documentation>The date-time associated with the value.</xs:documentation>
+				</xs:annotation>
+			</xs:element>
+			<xs:element name="Index" type="xs:int" minOccurs="0" maxOccurs="1">
+				<xs:annotation>
+					<xs:documentation>Indexes things with the same name. 
+That is, 1 indicates the first one, 2 indicates the second one, etc.</xs:documentation>
+				</xs:annotation>
+			</xs:element>
+			<xs:element name="Description" type="eml:String2000" minOccurs="0" maxOccurs="1">
+				<xs:annotation>
+					<xs:documentation>A textual description of the extension.</xs:documentation>
+				</xs:annotation>
+			</xs:element>
+		</xs:sequence>
+	</xs:complexType>
+	<xs:element name="AbstractDataObject" type="eml:AbstractObject">
+		<xs:annotation>
+			<xs:documentation>Substitution group for normative data objects.</xs:documentation>
+		</xs:annotation>
+	</xs:element>
+	<xs:element name="AbstractContextualObject" type="eml:AbstractObject">
+		<xs:annotation>
+			<xs:documentation>Substitution group for contextual data objects.</xs:documentation>
+		</xs:annotation>
+	</xs:element>
+	<xs:complexType name="AbstractObject" abstract="true">
+		<xs:annotation>
+			<xs:documentation>The parent class for all top-level elements across the Energistics MLs. </xs:documentation>
+		</xs:annotation>
+		<xs:sequence>
+			<xs:element name="Aliases" type="eml:ObjectAlias" minOccurs="0" maxOccurs="unbounded"/>
+			<xs:element name="Citation" type="eml:Citation" minOccurs="1" maxOccurs="1"/>
+			<xs:element name="CustomData" type="eml:CustomData" minOccurs="0" maxOccurs="1"/>
+			<xs:element name="ExtensionNameValue" type="eml:ExtensionNameValue" minOccurs="0"
+				maxOccurs="unbounded"/>
+		</xs:sequence>
+		<xs:attribute name="objectVersion" use="optional" type="eml:String64"/>
+		<xs:attribute name="schemaVersion" use="required" type="eml:String64"/>
+		<xs:attribute name="uuid" use="required" type="eml:UuidString"/>
+		<xs:attribute name="existenceKind" use="optional" type="eml:ExistenceKind">
+			<xs:annotation>
+				<xs:documentation>A lifecycle state like actual, required, planned, predicted, etc. This is used to qualify any top-level element (from Epicentre 2.1).</xs:documentation>
+			</xs:annotation>
+		</xs:attribute>
+	</xs:complexType>
+	<xs:complexType name="CustomData">
+		<xs:annotation>
+			<xs:documentation>WITSML - Custom or User Defined Element and Attributes Component Schema.
+                                                Specify custom element, attributes, and types in the custom data area.</xs:documentation>
+		</xs:annotation>
+		<xs:sequence>
+			<xs:any namespace="##any" processContents="lax" minOccurs="0" maxOccurs="unbounded">
+				<xs:annotation>
+					<xs:documentation>Any element or attribute in any namespace.  
+					It is strongly recommended that all custom data definitions be added to a unique namespace.
+					</xs:documentation>
+				</xs:annotation>
+			</xs:any>
+		</xs:sequence>
+	</xs:complexType>
+	<xs:complexType name="Citation">
+		<xs:annotation>
+			<xs:documentation>An ISO 19115 EIP-derived set of metadata attached to all specializations of AbstractObject to ensure the traceability of each individual independent (top level) element.</xs:documentation>
+		</xs:annotation>
+		<xs:sequence>
+			<xs:element name="Title" type="eml:String2000" minOccurs="1" maxOccurs="1">
+				<xs:annotation>
+					<xs:documentation>One line description/name of the object.
+
+This is the equivalent in ISO 19115 of CI_Citation.title
+
+Legacy DCGroup - title</xs:documentation>
+				</xs:annotation>
+			</xs:element>
+			<xs:element name="Originator" type="eml:String64" minOccurs="1" maxOccurs="1">
+				<xs:annotation>
+					<xs:documentation>Name (or other human-readable identifier) of the person who initially originated the object or document in the source application. If that information is not available, then this is the user who created the format file. The originator remains the same as the object is subsequently edited. 
+
+This is the equivalent in ISO 19115 to the CI_Individual.name or the CI_Organization.name of the citedResponsibleParty whose role is "originator".
+
+Legacy DCGroup - author</xs:documentation>
+				</xs:annotation>
+			</xs:element>
+			<xs:element name="Creation" type="xs:dateTime" minOccurs="1" maxOccurs="1">
+				<xs:annotation>
+					<xs:documentation>Date and time the document was created in the source application or, if that information is not available, when it was saved to the file.
+
+This is the equivalent of the ISO 19115 CI_Date where the CI_DateTypeCode = ”creation"
+
+Format:
+YYYY-MM-DDThh:mm:ssZ[+/-]hh:mm
+
+Legacy DCGroup - created</xs:documentation>
+				</xs:annotation>
+			</xs:element>
+			<xs:element name="Format" type="eml:String2000" minOccurs="1" maxOccurs="1">
+				<xs:annotation>
+					<xs:documentation>Software or service that was used to originate the object and the file format created. Must be human and machine readable and unambiguously identify the software by including the company name, software name and software version. This is the equivalent in ISO 19115 to the distributionFormat.MD_Format.
+
+The ISO format for this is [vendor:applicationName]/fileExtension where the application name includes the version number of the application.
+
+SIG Implementation Notes
+- Legacy DCGroup from v1.1 - publisher
+- fileExtension is not relevant and will be ignored if present.
+- vendor and applicationName are mandatory.</xs:documentation>
+				</xs:annotation>
+			</xs:element>
+			<xs:element name="Editor" type="eml:String64" minOccurs="0" maxOccurs="1">
+				<xs:annotation>
+					<xs:documentation>Name (or other human-readable identifier) of the last person who updated the object. 
+
+This is the equivalent in ISO 19115 to the CI_Individual.name or the CI_Organization.name of the citedResponsibleParty whose role is "editor".
+
+Legacy DCGroup - contributor </xs:documentation>
+				</xs:annotation>
+			</xs:element>
+			<xs:element name="LastUpdate" type="xs:dateTime" minOccurs="0" maxOccurs="1">
+				<xs:annotation>
+					<xs:documentation>Date and time the document was last modified in the source application or, if that information is not available, when it was last saved to the RESQML format file.
+
+This is the equivalent of the ISO 19115 CI_Date where the CI_DateTypeCode = ”lastUpdate"
+
+
+Format:
+YYYY-MM-DDThh:mm:ssZ[+/-]hh:mm
+
+Legacy DCGroup - modified </xs:documentation>
+				</xs:annotation>
+			</xs:element>
+			<xs:element name="VersionString" type="eml:String64" minOccurs="0" maxOccurs="1"/>
+			<xs:element name="Description" type="eml:String2000" minOccurs="0" maxOccurs="1">
+				<xs:annotation>
+					<xs:documentation>User descriptive comments about the object. Intended for end-user use (human readable); not necessarily meant to be used by software.
+
+This is the equivalent of the ISO 19115 abstract.CharacterString
+
+Legacy DCGroup - description</xs:documentation>
+				</xs:annotation>
+			</xs:element>
+			<xs:element name="DescriptiveKeywords" type="eml:String2000" minOccurs="0" maxOccurs="1">
+				<xs:annotation>
+					<xs:documentation>Key words to describe the activity, for example, history match or volumetric calculations, relevant to this object. Intended to be used in a search function by software.
+
+This is the equivalent in ISO 19115 of descriptiveKeywords.MD_Keywords
+
+Legacy DCGroup - subject</xs:documentation>
+				</xs:annotation>
+			</xs:element>
+		</xs:sequence>
+	</xs:complexType>
+	<xs:complexType name="ObjectAlias">
+		<xs:annotation>
+			<xs:documentation>Use this to create multiple aliases for any object instance. Note that an Authority is required for each alias.</xs:documentation>
+		</xs:annotation>
+		<xs:sequence>
+			<xs:element name="Identifier" type="eml:String64" minOccurs="1" maxOccurs="1"/>
+			<xs:element name="Description" type="eml:String2000" minOccurs="0" maxOccurs="1"/>
+		</xs:sequence>
+		<xs:attribute name="authority" use="required" type="eml:String64"/>
+	</xs:complexType>
+</xs:schema>
