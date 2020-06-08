@@ -17,7 +17,8 @@ items will **NOT** validate under 2.5.a.
 
 1. Now incorporates unit symbology from WITSML 2.0 schema. This adds a significant number of new quantity classes and units symbols to DIGGS.
     1. **Note:** need to check for deprecated symbols in WITSML that have been removed in 2.0 and add these back in DIGGS namespace lists for compatibility.
-    1. Most WITSML 1.3 measure types have moved to a new namespace (eml). A few WITSML 1.3 types used in DIGGS 2.5.a still remain in the WITSML namespace.
+    1. Also need to check if new WITSML unit symbology duplicates DIGGS symbols and clean up.
+    1. Most WITSML 1.3 measure types have moved to a new namespace (eml). A few WITSML 1.3 types used in DIGGS 2.5.a still remain in the WITSML namespace. This does not affect instance documents.
 1. **In Geotechnical schema:**
     1. added estimatedWaterDepth property to StaticConePenetrationTest test procedure object
     1. added PorePressureDissipationTest prodedure object (initial proposal) for review.
