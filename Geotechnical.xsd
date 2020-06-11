@@ -1778,28 +1778,49 @@ consolidation (ch) and in situ horizontal coefficient of permeability (kh)</docu
         <complexContent>
             <extension base="diggs:AbstractInsituTestProcedureType">
                 <sequence>
-                    <element maxOccurs="unbounded" minOccurs="0" name="dissipationIncrement"
-                        type="diggs_geo:PorePressureDissipationIncrementPropertyType"/>
+                    <element minOccurs="0" name="estimatedIr"
+                        type="eml:PressurePerPressureMeasureExt">
+                        <annotation>
+                            <documentation>Estimated rigidity index used to compute horizontal coefficient of consolidation</documentation>
+                        </annotation>
+                    </element>
+                    <element minOccurs="0" name="estimatedU0" type="eml:PressureMeasure">
+                        <annotation>
+                            <documentation>A value for the equilibrium pore pressure (u0) estimated prior to conducting the test and where u0 is not determined directly.</documentation>
+                        </annotation>
+                    </element>
+                    <element minOccurs="0" name="estimatedU50" type="eml:PressureMeasure">
+                        <annotation>
+                            <documentation>A value for the U50 pore pressure computed from the estimated U0 value and the starting pore pressure. Used for determining T50 value.</documentation>
+                        </annotation>
+                    </element>
+                    <element minOccurs="0" name="estimatedWaterDepth" type="eml:LengthMeasure">
+                        <annotation>
+                            <documentation>Estimated dapth from land surface to the hydrostatic water table; used for estimating U0.
+</documentation>
+                        </annotation>
+                    </element>
+                    <element maxOccurs="unbounded" minOccurs="0" name="dissipationTimeSeries"
+                        type="diggs_geo:DissipationTimeSeriesPropertyType"/>
                 </sequence>
             </extension>
         </complexContent>
     </complexType>
-    <element abstract="false" name="PorePressureDissipationIncrement"
-        substitutionGroup="diggs:AbstractProcedureTrial"
-        type="diggs_geo:PorePressureDissipationIncrementType">
+    <element abstract="false" name="DissipationTimeSeries"
+        substitutionGroup="diggs:AbstractProcedureTrial" type="diggs_geo:DissipationTimeSeriesType">
         <annotation>
-            <documentation>An object containing properties of a single time increment during a dissipation test</documentation>
+            <documentation>An object containing a dissipation test time series.</documentation>
         </annotation>
     </element>
-    <complexType name="PorePressureDissipationIncrementPropertyType">
+    <complexType name="DissipationTimeSeriesPropertyType">
         <annotation>
             <documentation>Property for PorePressureDissipationIncrements</documentation>
         </annotation>
         <sequence>
-            <element maxOccurs="1" minOccurs="1" ref="diggs_geo:PorePressureDissipationIncrement"/>
+            <element maxOccurs="1" minOccurs="1" ref="diggs_geo:TimeSeriesResult"/>
         </sequence>
     </complexType>
-    <complexType name="PorePressureDissipationIncrementType">
+    <complexType name="DissipationTimeSeriesType">
         <annotation>
             <documentation/>
         </annotation>
@@ -1826,10 +1847,293 @@ consolidation (ch) and in situ horizontal coefficient of permeability (kh)</docu
                             <documentation>Pore pressure reading at the observed elapsed time.</documentation>
                         </annotation>
                     </element>
+                    <element minOccurs="0" name="tipPressure" type="eml:PressureMeasure"/>
+                    <element minOccurs="0" name="calculatedHead" type="eml:LengthMeasure"/>
                 </sequence>
             </extension>
         </complexContent>
     </complexType>
+    <element abstract="false" name="TimeSeriesResult" substitutionGroup="gml:AbstractCoverage"
+        type="diggs_geo:TimeSeriesResultType">
+        <annotation>
+            <documentation>An object containing a dissipation test time series.</documentation>
+        </annotation>
+    </element>
+    <complexType name="TimeSeriesResultType">
+        <complexContent>
+            <restriction base="gml:AbstractCoverageType">
+                <sequence>
+                    <element ref="diggs:timeDomain"/>
+                    <element ref="diggs_geo:ppdresults"/>
+                </sequence>
+            </restriction>
+        </complexContent>
+    </complexType>
+
+    <element name="ppdresults" substitutionGroup="gml:rangeSet" type="diggs_geo:ResultsPropertyType">
+        <annotation>
+            <documentation>A property that holds a PpdResultSet object</documentation>
+        </annotation>
+    </element>
+    <element name="PpdResultSet" substitutionGroup="gml:DataBlock" type="diggs_geo:PpdResultSetType">
+        <annotation>
+            <documentation>An object that contains properites describing the parameters and data values of a measurement result.</documentation>
+        </annotation>
+    </element>
+    <complexType name="PpdResultSetType">
+        <complexContent>
+            <restriction base="gml:DataBlockType">
+                <sequence>
+                    <element ref="diggs_geo:parameters"/>
+                    <choice>
+                        <element ref="diggs:dataValues"/>
+                    </choice>
+                </sequence>
+            </restriction>
+        </complexContent>
+    </complexType>
+    <complexType name="ResultsPropertyType">
+        <complexContent>
+            <restriction base="gml:RangeSetType">
+                <choice>
+                    <element ref="diggs_geo:PpdResultSet" minOccurs="1"/>
+                </choice>
+            </restriction>
+        </complexContent>
+    </complexType>
+    <element name="parameters" substitutionGroup="gml:rangeParameters"
+        type="diggs_geo:PpdPropertyInfoPropertyType">
+        <annotation>
+            <documentation>An object that contains Diggs property parameters.</documentation>
+        </annotation>
+    </element>
+    <complexType name="PpdPropertyInfoPropertyType">
+        <complexContent>
+            <restriction base="gml:AssociationRoleType">
+                <sequence minOccurs="1">
+                    <element ref="diggs_geo:PpdPropertyParameters"/>
+                </sequence>
+            </restriction>
+        </complexContent>
+    </complexType>
+    <element name="PpdPropertyParameters" type="diggs_geo:PpdPropertyParametersType"
+        substitutionGroup="gml:CompositeValue">
+        <annotation>
+            <documentation>An object that contains the properties property of a measurement result.</documentation>
+        </annotation>
+    </element>
+    <complexType name="PpdPropertyParametersType">
+        <complexContent>
+            <restriction base="gml:CompositeValueType">
+                <sequence>
+                    <element ref="diggs_geo:properties" maxOccurs="1" minOccurs="1"/>
+                </sequence>
+            </restriction>
+        </complexContent>
+    </complexType>
+    <element name="properties" substitutionGroup="gml:valueComponents"
+        type="diggs_geo:PpdPropertiesType">
+        <annotation>
+            <documentation>A property that contains a sequence of Property objects defining the results of a test or monitoring activity.</documentation>
+        </annotation>
+    </element>
+
+    <complexType name="PpdPropertiesType">
+        <complexContent>
+            <restriction base="gml:ValueArrayPropertyType">
+                <sequence maxOccurs="unbounded">
+                    <!--DSB: Restricted in this profile
+        <group ref="gml:Value"/>-->
+                    <element ref="gml:AbstractValue"/>
+                </sequence>
+            </restriction>
+        </complexContent>
+    </complexType>
+    <element name="PorePressureDissipationProperty" substitutionGroup="gml:AbstractValue"
+        type="diggs_geo:PorePressureDissipationPropertyType"/>
+    <complexType name="PorePressureDissipationPropertyType">
+        <complexContent>
+            <extension base="diggs:AbstractObjectType">
+                <sequence>
+                    <element maxOccurs="1" minOccurs="0" name="propertyName" type="gml:CodeType">
+                        <annotation>
+                            <documentation>A code or name for the property as used by the data
+                                provider. This value can come from a controlled list of terms or be
+                                an uncontrolled text string. The value would be commonly used to
+                                label a column of a log sheet or provide other local meaning to the
+                                property. The value of mnemonic should be unique for all of the
+                                properties included in the dataValue block transmitted as part of
+                                this measurement.</documentation>
+                        </annotation>
+                    </element>
+                    <element maxOccurs="1" minOccurs="1" name="typeData"
+                        type="diggs:PropertyDataTypeEnumType">
+                        <annotation>
+                            <documentation>The data type for this property (eg. double, long,
+                                string, etc.)</documentation>
+                        </annotation>
+                    </element>
+                    <element maxOccurs="1" minOccurs="1" name="propertyClass"
+                        type="diggs_geo:PpdEnumType">
+                        <annotation>
+                            <documentation>The official name of the pore pressure dissipation time series property, from an enumerated list of terms.</documentation>
+                        </annotation>
+                    </element>
+                    <element maxOccurs="1" minOccurs="0" name="uom" type="diggs:AllUnits">
+                        <annotation>
+                            <documentation>Unit of measurement for the property.</documentation>
+                        </annotation>
+                    </element>
+                    <element maxOccurs="1" minOccurs="0" name="atTemperature"
+                        type="eml:ThermodynamicTemperatureMeasure">
+                        <annotation>
+                            <documentation>Temperature at which property value is valid, eg. for
+                                specific gravity of solids at 20 deg C, this parameter would hold
+                                the temperature value</documentation>
+                        </annotation>
+                    </element>
+                    <element minOccurs="0" name="measurementAxisBearing"
+                        type="eml:PlaneAngleMeasure">
+                        <annotation>
+                            <documentation>Compass bearing direction (relative to true north)
+                                defining the measurement axis direction (for directional
+                                measurements, eg. component of an extensometer, accelerometer,
+                                etc.)</documentation>
+                        </annotation>
+                    </element>
+                    <element minOccurs="0" name="measurementAxisInclination"
+                        type="eml:PlaneAngleMeasure">
+                        <annotation>
+                            <documentation>Inclination of measurement axis (measured positively down
+                                from horizontal); used for directional measurements, eg.
+                                extensometer, accelerometer, etc. </documentation>
+                        </annotation>
+                    </element>
+                    <element maxOccurs="1" minOccurs="0" name="nullValue" type="diggs:NullDataType">
+                        <annotation>
+                            <documentation>An empty string is the default representation of a null
+                                value for a property (i.e. when the null value representation is not
+                                explicitly defined). This value defines a value to be interpreted as
+                                null for this property in the dataValues block. The reason attribute
+                                can be used to define the reason for the null value, (eg. witheld).
+                                This can be customized with an other: qualifier (eg. other:below
+                                detection limit) or reference a URI for a more complete
+                                definition.</documentation>
+                        </annotation>
+                    </element>
+                    <element minOccurs="0" name="context" type="diggs:DiggsStringType">
+                        <annotation>
+                            <documentation>If the property should be interpreted in a particular
+                                context (eg. value is only valid for range of overburden pressures,
+                                etc.), then the context of the property is described
+                                here.</documentation>
+                        </annotation>
+                    </element>
+                    <element minOccurs="0" name="sampleFraction" type="diggs:SampleFractionEnumType">
+                        <annotation>
+                            <documentation>Fraction of total sample analyzed (from enumerated list).
+                                Applies primarily to non-soil type samples </documentation>
+                        </annotation>
+                    </element>
+                    <element minOccurs="0" name="grainsizeFraction"
+                        type="diggs:SizeFractionPropertyType">
+                        <annotation>
+                            <documentation>For properties of soils, the size fraction that this
+                                property pertains to </documentation>
+                        </annotation>
+                    </element>
+                    <element minOccurs="0" maxOccurs="unbounded" name="correctionUsed"
+                        type="gml:CodeType">
+                        <annotation>
+                            <documentation>A description of corrections used to obtain the reported
+                                result. Commonly used to report N-values from SPT tests, or to
+                                describe any other adjustments made to the reported data. Can come
+                                from a controlled list.</documentation>
+                        </annotation>
+                    </element>
+                    <element minOccurs="0" name="measurementTechnique"
+                        type="diggs:DescriptorMethodEnumType">
+                        <annotation>
+                            <documentation>The method by which the property value is obtained. From
+                                an enumerated list.</documentation>
+                        </annotation>
+                    </element>
+                    <element name="detector" type="diggs:DetectorPropertyType" minOccurs="0"
+                        maxOccurs="1">
+                        <annotation>
+                            <documentation>The source tool, or sensor, of a piece of equipment, used
+                                to measure this property, if applicable. Generally used for well
+                                log,downhole logging procedures, or monitoring
+                                equipment.</documentation>
+                        </annotation>
+                    </element>
+                    <element name="detectorRef" type="gml:ReferenceType" minOccurs="0" maxOccurs="1">
+                        <annotation>
+                            <appinfo source="urn:x-gml:targetElement">diggs:Equipment</appinfo>
+                            <documentation>A property element that supports a value by reference
+                                only. The target value is indicated in the appinfo
+                                element.</documentation>
+                            <documentation>A reference to the source tool, or sensor, of a piece of
+                                equipment, used to measure this property, if applicable. Generally
+                                used for well log,downhole logging procedures, or monitoring
+                                equipment.</documentation>
+                        </annotation>
+                    </element>
+                    <element maxOccurs="unbounded" minOccurs="0" name="detectionLimits"
+                        type="diggs:LimitPropertyType">
+                        <annotation>
+                            <documentation>Identifies the detection limits for this property in the
+                                UOM for this property</documentation>
+                        </annotation>
+                    </element>
+                    <element maxOccurs="1" minOccurs="0" name="reportable" type="boolean"
+                        default="true">
+                        <annotation>
+                            <documentation>True or false, indicates whether the value of this
+                                property can be reported outside of the context of transmission via
+                                an xml instance.</documentation>
+                        </annotation>
+                    </element>
+                    <element maxOccurs="unbounded" minOccurs="0" name="qualifier"
+                        type="diggs:QualifierPropertyType"/>
+                    <element maxOccurs="1" minOccurs="0" name="curveState"
+                        type="witsml:MeasurementType">
+                        <annotation>
+                            <documentation>Used for well logging procedures, to define the state or
+                                status of the data described by the well log curve. From an
+                                enumerated list.</documentation>
+                        </annotation>
+                    </element>
+                </sequence>
+                <attribute name="index" use="required">
+                    <simpleType>
+                        <union>
+                            <simpleType>
+                                <restriction base="string">
+                                    <enumeration value=""/>
+                                </restriction>
+                            </simpleType>
+                            <simpleType>
+                                <restriction base="integer"/>
+                            </simpleType>
+                        </union>
+                    </simpleType>
+                </attribute>
+            </extension>
+        </complexContent>
+    </complexType>
+    <simpleType name="PpdEnumType">
+        <restriction base="string">
+            <enumeration value="u1_pore_pressure"/>
+            <enumeration value="u2_pore_pressure"/>
+            <enumeration value="u3_pore_pressure"/>
+            <enumeration value="tip_pressure"/>
+            <enumeration value="calculated_head"/>
+        </restriction>
+    </simpleType>
+    <simpleType name="PpdExtEnumType">
+        <union memberTypes="diggs:OtherNameType diggs_geo:PpdEnumType"/>
+    </simpleType>
     <element abstract="false" name="LabVaneTest"
         substitutionGroup="diggs:AbstractLaboratoryTestProcedure" type="diggs_geo:LabVaneTestType">
         <annotation>
@@ -2410,6 +2714,11 @@ consolidation (ch) and in situ horizontal coefficient of permeability (kh)</docu
                                 attribute.</documentation>
                         </annotation>
                     </element>
+                    <element name="estimatedWaterDepth" type="eml:LengthMeasure" minOccurs="0">
+                        <annotation>
+                            <documentation>Estimated depth to water from land surface at time of test.</documentation>
+                        </annotation>
+                    </element>
                     <element minOccurs="0" name="frictionReducer" type="diggs:DiggsStringType">
                         <annotation>
                             <documentation>A description of the type, size and location of the
@@ -2475,11 +2784,6 @@ consolidation (ch) and in situ horizontal coefficient of permeability (kh)</docu
                         <annotation>
                             <documentation>The conical base area of the penetrometer
                                 tip.</documentation>
-                        </annotation>
-                    </element>
-                    <element name="EstimatedWaterDepth" type="eml:LengthMeasure" minOccurs="0">
-                        <annotation>
-                            <documentation>Estimated depth to water from land surface at time of test.</documentation>
                         </annotation>
                     </element>
                 </sequence>
