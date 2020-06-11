@@ -2479,6 +2479,91 @@ The use of the properties “coordinates” and “pos” has been deprecated. T
     <sequence/>
     <attributeGroup ref="gml:OwnershipAttributeGroup"/>
   </complexType>
+  <group name="timeLength">
+    <annotation>
+      <documentation>The length of a time period.</documentation>
+    </annotation>
+    <choice>
+      <element ref="gml:duration"/>
+      <element ref="gml:timeInterval"/>
+    </choice>
+  </group>
+  <element name="duration" type="duration">
+    <annotation>
+      <documentation>gml:duration conforms to the ISO 8601 syntax for temporal length as implemented by the XML Schema duration type.</documentation>
+    </annotation>
+  </element>
+  <element name="timeInterval" type="gml:TimeIntervalLengthType">
+    <annotation>
+      <documentation> gml:timeInterval conforms to ISO 11404 which is based on floating point values for temporal length.
+        ISO 11404 syntax specifies the use of a positiveInteger together with appropriate values for radix and factor. The resolution of the time interval is to one radix ^(-factor) of the specified time unit.
+        The value of the unit is either selected from the units for time intervals from ISO 31-1:1992, or is another suitable unit.  The encoding is defined for GML in gml:TimeUnitType. The second component of this union type provides a method for indicating time units other than the six standard units given in the enumeration.</documentation>
+    </annotation>
+  </element>
+  <complexType name="TimeIntervalLengthType" final="#all">
+    <simpleContent>
+      <extension base="decimal">
+        <attribute name="unit" type="gml:TimeUnitType" use="required"/>
+        <attribute name="radix" type="positiveInteger"/>
+        <attribute name="factor" type="integer"/>
+      </extension>
+    </simpleContent>
+  </complexType>
+  <simpleType name="TimeUnitType">
+    <union>
+      <simpleType>
+        <restriction base="string">
+          <enumeration value="year"/>
+          <enumeration value="month"/>
+          <enumeration value="day"/>
+          <enumeration value="hour"/>
+          <enumeration value="minute"/>
+          <enumeration value="second"/>
+        </restriction>
+      </simpleType>
+      <simpleType>
+        <restriction base="string">
+          <pattern value="other:\w{2,}"/>
+        </restriction>
+      </simpleType>
+    </union>
+  </simpleType>
+  <element name="TimePeriod" type="gml:TimePeriodType"
+    substitutionGroup="gml:AbstractTimeGeometricPrimitive">
+    <annotation>
+      <documentation>gml:TimePeriod acts as a one-dimensional geometric primitive that represents an identifiable extent in time.
+        The location in of a gml:TimePeriod is described by the temporal positions of the instants at which it begins and ends. The length of the period is equal to the temporal distance between the two bounding temporal positions. 
+        Both beginning and end may be described in terms of their direct position using gml:TimePositionType which is an XML Schema simple content type, or by reference to an indentifiable time instant using gml:TimeInstantPropertyType.
+        Alternatively a limit of a gml:TimePeriod may use the conventional GML property model to make a reference to a time instant described elsewhere, or a limit may be indicated as a direct position.</documentation>
+    </annotation>
+  </element>
+  <complexType name="TimePeriodType">
+    <complexContent>
+      <extension base="gml:AbstractTimeGeometricPrimitiveType">
+        <sequence>
+          <choice>
+            <element name="beginPosition" type="gml:TimePositionType"/>
+            <element name="begin" type="gml:TimeInstantPropertyType"/>
+          </choice>
+          <choice>
+            <element name="endPosition" type="gml:TimePositionType"/>
+            <element name="end" type="gml:TimeInstantPropertyType"/>
+          </choice>
+          <group ref="gml:timeLength" minOccurs="0"/>
+        </sequence>
+      </extension>
+    </complexContent>
+  </complexType>
+  <complexType name="TimePeriodPropertyType">
+    <annotation>
+      <documentation>gml:TimePeriodPropertyType provides for associating a gml:TimePeriod with an object.</documentation>
+    </annotation>
+    <sequence minOccurs="0">
+      <element ref="gml:TimePeriod"/>
+    </sequence>
+    <attributeGroup ref="gml:AssociationAttributeGroup"/>
+    <attributeGroup ref="gml:OwnershipAttributeGroup"/>
+  </complexType>
   <element name="Dictionary" type="gml:DictionaryType" substitutionGroup="gml:Definition">
     <annotation>
       <documentation> Sets of definitions may be collected into dictionaries or collections. A
