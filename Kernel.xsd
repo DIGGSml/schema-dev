@@ -1048,11 +1048,19 @@
             </extension>
         </simpleContent>
     </complexType>
-    <simpleType name="areaPerTimeUom">
+    <simpleType name="areaPerTimeUomExt">
+        <annotation>
+            <documentation>This enumerated list extends eml:AreaPerTimeUom. m2/sec and mm2/min are deprecated. m2/s (eml namespace) and mm2/m should be used in their place.</documentation>
+        </annotation>
         <restriction base="eml:UomEnum">
             <enumeration value="m2/sec"/>
             <enumeration value="mm2/min"/>
+            <enumeration value="cm2/min"/>
+            <enumeration value="m2/min"/>
         </restriction>
+    </simpleType>
+    <simpleType name="areaPerTimeUom">
+        <union memberTypes="diggs:areaPerTimeUomExt eml:AreaPerTimeUom "/>
     </simpleType>
     <element name="AssociatedFile" type="diggs:AssociatedFileType"
         substitutionGroup="diggs:AbstractNamedObject" abstract="false">
@@ -3046,7 +3054,7 @@
             <enumeration value="bar/sec"/>
             <enumeration value="cmH2O(4degC)/sec"/>
             <enumeration value="dyne/cm2/sec"/>
-            <enumeration value="GPa"/>
+            <enumeration value="GPa/sec"/>
             <enumeration value="hbar/sec"/>
             <enumeration value="inH2O(39.2F)/sec"/>
             <enumeration value="inH2O(60F)/sec"/>
@@ -4104,7 +4112,7 @@ DSB: REMOVED FROM PROFILE
     <element name="MultiTimeInstant" type="diggs:MultiTimeInstantType"
         substitutionGroup="diggs:AbstractTimeObject" abstract="false">
         <annotation>
-            <documentation>A Diggs time object that contains a collection of time instances.</documentation>
+            <documentation>A Diggs time object that contains a collection of time instances. Deprecated as of 2.5.b. Use TimePositionInstance instead for time instances expressed in xsd:CalDate format.</documentation>
         </annotation>
     </element>
     <complexType name="MultiTimeInstantType">
@@ -6529,7 +6537,7 @@ DSB: REMOVED FROM PROFILE
             <restriction base="gml:DomainSetType">
                 <sequence minOccurs="0">
                     <choice>
-                        <element ref="diggs:MultiTimeInstant"/>
+                        <element ref="diggs:AbstractTimeObject"/>
                     </choice>
                 </sequence>
             </restriction>
@@ -6579,6 +6587,52 @@ DSB: REMOVED FROM PROFILE
             </extension>
         </complexContent>
     </complexType>
+    <complexType name="TimePositionListType">
+        <complexContent>
+            <extension base="diggs:AbstractTimeObjectType">
+                <sequence>
+                    <element name="timePositionList" type="diggs:TimeListSimpleType"/>
+                </sequence>
+            </extension>
+        </complexContent>
+    </complexType>
+    <element name="TimePositionList" type="diggs:TimePositionListType"
+        substitutionGroup="diggs:AbstractTimeObject">
+        <annotation>
+            <documentation>A GML time object with a property containing a list of time instances expressed as xsd:DateTime values.</documentation>
+        </annotation>
+    </element>
+    <element name="TimeIntervalList" type="diggs:TimeIntervalListType"
+        substitutionGroup="diggs:AbstractTimeObject">
+        <annotation>
+            <documentation>A GML time object with a property that contains a list of time intervals (duration or elapsed time) expressed as xsd:Decimal values. unit attribute provides the time unit for the list</documentation>
+        </annotation>
+    </element>
+    <complexType name="TimeIntervalListType">
+        <complexContent>
+            <extension base="diggs:AbstractTimeObjectType">
+                <sequence>
+                    <element ref="diggs:timeIntervalList"/>
+                </sequence>
+                <attribute name="unit" type="gml:TimeUnitType" use="required"/>
+                <attribute name="radix" type="positiveInteger"/>
+                <attribute name="factor" type="integer"/>
+            </extension>
+        </complexContent>
+    </complexType>
+    <simpleType name="TimeListSimpleType">
+        <annotation>
+            <documentation>A list of dateTime instances</documentation>
+        </annotation>
+        <list itemType="gml:TimePositionUnion"/>
+    </simpleType>
+    <element name="timeIntervalList" type="diggs:TimeIntervalListSimpleType"/>
+    <simpleType name="TimeIntervalListSimpleType">
+        <annotation>
+            <documentation>A list of decimal values representing time intervals (duration or elapsed time) instances.</documentation>
+        </annotation>
+        <list itemType="decimal"/>
+    </simpleType>
     <element abstract="false" name="Transect"
         substitutionGroup="diggs:AbstractLinearSamplingFeature" type="diggs:TransectType">
         <annotation>
