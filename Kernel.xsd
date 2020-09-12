@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
-<schema xmlns:diggs="http://diggsml.org/schemas/2.5.b"
-    xmlns:diggs_geo="http://diggsml.org/schemas/2.5.b/geotechnical"
+<schema xmlns:diggs="http://diggsml.org/schemas/2.6"
+    xmlns:diggs_geo="http://diggsml.org/schemas/2.6/geotechnical"
     xmlns:g3.3="http://www.opengis.net/gml/3.3/ce" xmlns:glr="http://www.opengis.net/gml/3.3/lr"
     xmlns:glrov="http://www.opengis.net/gml/3.3/lrov"
     xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns="http://www.w3.org/2001/XMLSchema"
@@ -10,8 +10,8 @@
     xmlns:gml="http://www.opengis.net/gml/3.2"
     xmlns:vc="http://www.w3.org/2007/XMLSchema-versioning"
     xmlns:xml="http://www.w3.org/XML/1998/namespace"
-    targetNamespace="http://diggsml.org/schemas/2.5.b" version="2.5.b"
-    elementFormDefault="qualified" vc:maxVersion="1.1" vc:minVersion="1.0">
+    targetNamespace="http://diggsml.org/schemas/2.6" version="2.6" elementFormDefault="qualified"
+    vc:maxVersion="1.1" vc:minVersion="1.0">
     <!--
  import the gml and xlinks namespaces (original local profiles)   -->
 
@@ -37,14 +37,47 @@
     schemaLocation="http://www.w3.org/2001/xml.xsd"/> 
 -->
     <!--  include and import other DIGGS schemas -->
-    <import namespace="http://diggsml.org/schemas/2.5.b/geotechnical"
+    <import namespace="http://diggsml.org/schemas/2.6/geotechnical"
         schemaLocation="Geotechnical.xsd"/>
     <!--  import the witsml schemas  -->
     <import namespace="http://www.energistics.org/energyml/data/commonv2"
         schemaLocation="witsml/2.0/data/common/v2.1/xsd_schemas/EmlAllObjects.xsd"/>
     <import namespace="http://www.energistics.org/energyml/data/witsmlv2"
         schemaLocation="witsml/2.0/data/witsml/v2.0/xsd_schemas/WitsmlAllObjects.xsd"/>
-
+    <element name="AbstractConstructionActivity" type="diggs:AbstractConstructionActivityType"
+        abstract="true" substitutionGroup="diggs:AbstractFeature">
+        <!-- 2015-04-10 PwD add substitution gruop -->
+        <annotation>
+            <documentation>Base type for construction activity features - activities that improve or alter ground conditions.</documentation>
+        </annotation>
+    </element>
+    <complexType name="AbstractConstructionActivityPropertyType">
+        <sequence>
+            <element maxOccurs="1" minOccurs="1" ref="diggs:AbstractConstructionActivity"/>
+        </sequence>
+    </complexType>
+    <complexType name="AbstractConstructionActivityType" abstract="false">
+        <complexContent>
+            <extension base="diggs:AbstractFeatureType">
+                <sequence>
+                    <element ref="diggs:investigationTarget"/>
+                    <element ref="diggs:projectRef"/>
+                    <element minOccurs="0" ref="diggs:samplingFeatureRef" maxOccurs="unbounded"/>
+                    <element minOccurs="0" name="otherConstructionActivityProperty"
+                        type="diggs:ParameterPropertyType" maxOccurs="unbounded">
+                        <annotation>
+                            <documentation>This will typically be used to record environmental
+                                parameters, or event-specific parameters that are not tightly bound
+                                to either the earth materials for which properties are being
+                                estimated, or the procedure. Parameters that are tightly bound to
+                                the procedure should be encoded within the procedure
+                                object.</documentation>
+                        </annotation>
+                    </element>
+                </sequence>
+            </extension>
+        </complexContent>
+    </complexType>
     <complexType abstract="true" name="AbstractCurveType">
         <annotation>
             <documentation>diggs:AbstractCurveType is an abstraction of a curve to support the
@@ -79,7 +112,8 @@
     <element name="AbstractEquipment" abstract="true" type="diggs:AbstractEquipmentType"
         substitutionGroup="diggs:AbstractFeature">
         <annotation>
-            <documentation>The base type for Diggs equipment types.</documentation>
+            <documentation>The base type for Diggs equipment types. Equipment is ab object that contains properties of equipment used to construct, test, or monitor objects within the geotechnical and geoenvironmental domains.
+</documentation>
         </annotation>
     </element>
     <complexType name="AbstractEquipmentType" abstract="true">
@@ -991,7 +1025,7 @@
                     </element>
                     <element name="penetrationRate" minOccurs="0" type="eml:LengthPerTimeMeasure">
                         <annotation>
-                            <documentation>Rate of advancement of the drill head</documentation>
+                            <documentation>Rate of advancement of the drill head. Deprecated - use advamcementRate instead</documentation>
                         </annotation>
                     </element>
                     <element name="restrainingForce" minOccurs="0" type="eml:ForceMeasure">
@@ -1362,8 +1396,17 @@
                                 a hole's linear referencing system.</documentation>
                         </annotation>
                     </element>
-                    <element minOccurs="0" name="holeBearing" type="eml:PlaneAngleMeasure"/>
-                    <element minOccurs="0" name="holePlunge" type="eml:PlaneAngleMeasure"/>
+                    <element minOccurs="0" name="holeBearing" type="eml:PlaneAngleMeasure">
+                        <annotation>
+                            <documentation>Deprecated - use bearing property from abstract type</documentation>
+                        </annotation>
+                    </element>
+                    <element minOccurs="0" name="holePlunge" type="eml:PlaneAngleMeasure">
+                        <annotation>
+                            <documentation>Depreated - use plunge property from abstract type
+</documentation>
+                        </annotation>
+                    </element>
                     <element maxOccurs="1" minOccurs="0" name="boreholePurpose" type="gml:CodeType">
                         <annotation>
                             <documentation>A description of the purpose for drilling the hole (eg.
@@ -2501,6 +2544,8 @@
                         maxOccurs="unbounded"/>
                     <element minOccurs="0" name="measurement"
                         type="diggs:AbstractMeasurementPropertyType" maxOccurs="unbounded"/>
+                    <element minOccurs="0" name="constructionActivity"
+                        type="diggs:AbstractConstructionActivityPropertyType" maxOccurs="unbounded"/>
                     <element name="group" type="diggs:GroupPropertyType" minOccurs="0"
                         maxOccurs="unbounded"/>
                 </sequence>
@@ -3428,13 +3473,14 @@
     </simpleType>
     <element name="investigationTarget" type="diggs:investigationTargetEnumType">
         <annotation>
-            <documentation>A controlled list that indicates the target being investigated by this
-                feature: Deep Foundation - investigation of deep foundation elements Earthworks -
-                earth materials excavated and/or emplaced by engineering activity Ground Water -
-                hydrology and chemistry of ground water; Indoor Atmosphere - meteorology and
-                chemistry of air in indoor spaces Natural Ground - earth materials sampled in
-                natural or undisturbed state; Outdoor Atmosphere - meteorology and chemistry of air
-                in outdoor spaces Surface Water - hydrology and chemistry of surface water;
+            <documentation>A controlled list that indicates the target being investigated by this feature: 
+Deep Foundation - investigation of deep foundation elements. Earthworks - earth materials excavated and/or emplaced by engineering activity.
+Ground Improvement - activities designed to alter the characterstics of natural ground.
+Ground Water - hydrology and chemistry of ground water. 
+Indoor Atmosphere - meteorology and chemistry of air in indoor spaces.
+Natural Ground - earth materials sampled in natural or undisturbed state. 
+Outdoor Atmosphere - meteorology and chemistry of air in outdoor spaces.
+Surface Water - hydrology and chemistry of surface water.
             </documentation>
         </annotation>
     </element>
@@ -3444,6 +3490,7 @@
                 <restriction base="string">
                     <enumeration value="Deep Foundation"/>
                     <enumeration value="Earthworks"/>
+                    <enumeration value="Ground Improvement"/>
                     <enumeration value="Ground Water"/>
                     <enumeration value="Indoor Atmosphere"/>
                     <enumeration value="Natural Ground"/>
@@ -4112,7 +4159,7 @@ DSB: REMOVED FROM PROFILE
     <element name="MultiTimeInstant" type="diggs:MultiTimeInstantType"
         substitutionGroup="diggs:AbstractTimeObject" abstract="false">
         <annotation>
-            <documentation>A Diggs time object that contains a collection of time instances. Deprecated as of 2.5.b. Use TimePositionInstance instead for time instances expressed in xsd:CalDate format.</documentation>
+            <documentation>A Diggs time object that contains a collection of time instances. Deprecated as of 2.6. Use TimePositionInstance instead for time instances expressed in xsd:CalDate format.</documentation>
         </annotation>
     </element>
     <complexType name="MultiTimeInstantType">
@@ -5985,7 +6032,7 @@ DSB: REMOVED FROM PROFILE
                 construction. The specification must contain a gml:name, which may be simply a text
                 string that describes the test specification or procedure used. - eg. ASTM 2722 as
                 informative. Non-standardized specifications should be described under the
-                gml:description property</documentation>
+                gml:description property or within the optional properties.</documentation>
         </annotation>
     </element>
     <complexType name="SpecificationPropertyType">
@@ -7667,5 +7714,21 @@ DSB: REMOVED FROM PROFILE
                 </sequence>
             </extension>
         </complexContent>
+    </complexType>
+    <element name="house" type="diggs:houseType"/>
+    <complexType name="houseType">
+        <sequence>
+            <element minOccurs="0" name="noStories" type="integer"/>
+            <element name="address" type="diggs:addressType"/>
+            <element minOccurs="0" name="noBdrms" type="integer"/>
+        </sequence>
+        <attribute name="type" type="string"/>
+    </complexType>
+    <complexType name="addressType">
+        <sequence>
+            <element name="number" type="string"/>
+            <element name="street" type="string"/>
+            <element name="cityState" type="string"/>
+        </sequence>
     </complexType>
 </schema>
