@@ -1,0 +1,854 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<schema xmlns:diggs="http://diggsml.org/schemas/2.6"
+    xmlns:diggs_geo="http://diggsml.org/schemas/2.6/geotechnical"
+    xmlns:eml="http://www.energistics.org/energyml/data/commonv2"
+    xmlns:witsml="http://www.energistics.org/energyml/data/witsmlv2"
+    xmlns:g3.3="http://www.opengis.net/gml/3.3/ce" xmlns:glr="http://www.opengis.net/gml/3.3/lr"
+    xmlns:glrov="http://www.opengis.net/gml/3.3/lrov"
+    xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns="http://www.w3.org/2001/XMLSchema"
+    xmlns:xlink="http://www.w3.org/1999/xlink" xmlns:gml="http://www.opengis.net/gml/3.2"
+    xmlns:vc="http://www.w3.org/2007/XMLSchema-versioning"
+    targetNamespace="http://diggsml.org/schemas/2.6" version="2.6" elementFormDefault="qualified"
+    vc:maxVersion="1.1" vc:minVersion="1.0">
+    <!--
+ import the gml and xlinks namespaces (original local profiles)  
+-->
+    <include schemaLocation="Diggs.xsd"/>
+    <import namespace="http://www.opengis.net/gml/3.2" schemaLocation="gml3.2Profile_diggs.xsd"/>
+    <import namespace="http://www.w3.org/1999/xlink" schemaLocation="xlinks.xsd"/>
+    <import namespace="http://www.energistics.org/energyml/data/commonv2"
+        schemaLocation="witsml/2.0/data/common/v2.1/xsd_schemas/EmlAllObjects.xsd"/>
+    <import namespace="http://www.energistics.org/energyml/data/witsmlv2"
+        schemaLocation="witsml/2.0/data/witsml/v2.0/xsd_schemas/WitsmlAllObjects.xsd"/>
+    <element name="Admixture" type="diggs:groutComponentCharacteristicsType"/>
+    <complexType name="AdmixturePropertyType">
+        <sequence>
+            <element ref="diggs:Admixture"/>
+        </sequence>
+    </complexType>
+    <element name="Binder" type="diggs:groutComponentCharacteristicsType"/>
+    <complexType name="BinderPropertyType">
+        <sequence>
+            <element ref="diggs:Binder"/>
+        </sequence>
+    </complexType>
+    <element name="Cement" type="diggs:groutComponentCharacteristicsType"/>
+    <complexType name="CementPropertyType">
+        <sequence>
+            <element ref="diggs:Cement"/>
+        </sequence>
+    </complexType>
+    <complexType name="groutComponentCharacteristicsType">
+        <complexContent>
+            <extension base="diggs:AbstractNamedObjectType">
+                <sequence>
+                    <element minOccurs="0" name="specificGravity" type="diggs:SpecificGravityType">
+                        <annotation>
+                            <documentation>Specific gravity of grout component </documentation>
+                        </annotation>
+                    </element>
+                    <element minOccurs="0" name="type" type="gml:CodeType">
+                        <annotation>
+                            <documentation>Type of grout component; preferably from a controlled
+                                list</documentation>
+                        </annotation>
+                    </element>
+                    <element minOccurs="0" name="volume" type="eml:VolumeMeasureExt">
+                        <annotation>
+                            <documentation>Volume of grout component used</documentation>
+                        </annotation>
+                    </element>
+                    <element minOccurs="0" name="weight" type="eml:ForceMeasureExt">
+                        <annotation>
+                            <documentation>Weight of grout component used</documentation>
+                        </annotation>
+                    </element>
+                </sequence>
+            </extension>
+        </complexContent>
+    </complexType>
+    <element name="GroutInterval" substitutionGroup="diggs:AbstractObject"
+        type="diggs:GroutIntervalType">
+        <annotation>
+            <documentation>An object that carries properties for an interval of grouting material
+            </documentation>
+        </annotation>
+    </element>
+    <complexType name="GroutIntervalPropertyType">
+        <sequence>
+            <element maxOccurs="1" minOccurs="1" ref="diggs:GroutInterval"/>
+        </sequence>
+    </complexType>
+    <complexType name="GroutIntervalType">
+        <complexContent>
+            <extension base="diggs:AbstractObjectType">
+                <sequence>
+                    <element minOccurs="0" name="groutInterval"
+                        type="diggs:LinearExtentPropertyType">
+                        <annotation>
+                            <documentation>The depth interval in the borehole (measured in a linear
+                                reference system), where the grout material was emplaced.
+                            </documentation>
+                        </annotation>
+                    </element>
+                    <element minOccurs="0" name="startTimeFilling"
+                        type="gml:TimeInstantPropertyType">
+                        <annotation>
+                            <documentation>The time instant when filling starts.</documentation>
+                        </annotation>
+                    </element>
+                    <element minOccurs="0" name="startTimePressurizing"
+                        type="gml:TimeInstantPropertyType">
+                        <annotation>
+                            <documentation>The time instant when pressurizing
+                                starts.</documentation>
+                        </annotation>
+                    </element>
+                    <element minOccurs="0" name="endTime" type="gml:TimeInstantPropertyType">
+                        <annotation>
+                            <documentation>The time when grouting of interval ends </documentation>
+                        </annotation>
+                    </element>
+                    <element name="gageHeight" type="diggs:PointLocationPropertyType" minOccurs="0">
+                        <annotation>
+                            <documentation>Height of gage (H0) </documentation>
+                        </annotation>
+                    </element>
+                    <element name="groutStage" type="diggs:StagePropertyType" maxOccurs="unbounded"
+                        minOccurs="1">
+                        <annotation>
+                            <documentation>Tupe of mix; from a controlled list </documentation>
+                        </annotation>
+                    </element>
+                    <element name="groutVolumeUsed" type="eml:VolumeMeasure" minOccurs="0">
+                        <annotation>
+                            <documentation>Volume used to fill interval </documentation>
+                        </annotation>
+                    </element>
+                    <element name="mixRef" type="gml:ReferenceType" minOccurs="0">
+                        <annotation>
+                            <documentation>Reference to the id of the applicable mix object. Can
+                                vary within a stage. </documentation>
+                        </annotation>
+                    </element>
+                    <element name="typeMix" type="gml:CodeType" minOccurs="0">
+                        <annotation>
+                            <documentation>Tupe of mix; from a controlled list. Can remove here.
+                            </documentation>
+                        </annotation>
+                    </element>
+                </sequence>
+            </extension>
+        </complexContent>
+    </complexType>
+    <element name="Grouting" substitutionGroup="diggs:AbstractConstructionActivity"
+        type="diggs:GroutingType">
+        <annotation>
+            <documentation>An object that contains properites associated with grouting a
+                borehole</documentation>
+        </annotation>
+    </element>
+    <complexType name="GroutingPropertyType">
+        <sequence>
+            <element minOccurs="1" ref="diggs:Grouting"/>
+        </sequence>
+    </complexType>
+    <complexType name="GroutingType">
+        <complexContent>
+            <extension base="diggs:AbstractConstructionActivityType">
+                <sequence>
+                    <element name="distanceToWater" type="diggs:PointLocationPropertyType"
+                        minOccurs="0" form="qualified">
+                        <annotation>
+                            <documentation>Distance to water as measured along the borehole centerline</documentation>
+                        </annotation>
+                    </element>
+                    <element minOccurs="0" name="groutingDateTime"
+                        type="diggs:TimeIntervalPropertyType">
+                        <annotation>
+                            <documentation>The date/time interval over which the entire grouting
+                                operation was conducted. Date/time intervals can also be specified
+                                for the emplacement of individual grouting stages.</documentation>
+                        </annotation>
+                    </element>
+                    <element minOccurs="0" name="distanceToRock"
+                        type="diggs:PointLocationPropertyType">
+                        <annotation>
+                            <documentation>Distance to top of rock as measured along borehole
+                                centerline</documentation>
+                        </annotation>
+                    </element>
+                    <element minOccurs="0" name="distanceToFoundationSoil"
+                        type="diggs:PointLocationPropertyType">
+                        <annotation>
+                            <documentation>Total distance along borehole centerline to foundation
+                                soil</documentation>
+                        </annotation>
+                    </element>
+                    <element minOccurs="0" name="groutingInterval"
+                        type="diggs:LinearExtentPropertyType">
+                        <annotation>
+                            <documentation>Total interval of grout fill within the borehole,
+                                measured along borehole centerline.</documentation>
+                        </annotation>
+                    </element>
+                    <element minOccurs="0" name="lengthOfOSCP" type="eml:LengthMeasure">
+                        <annotation>
+                            <documentation>Length of the overburden casing as sleeve pipe</documentation>
+                        </annotation>
+                    </element>
+                    <element minOccurs="0" name="overburdenInterval"
+                        type="diggs:LinearExtentPropertyType">
+                        <annotation>
+                            <documentation>Total interval of overburden measured along borehole
+                                centerline.</documentation>
+                        </annotation>
+                    </element>
+                    <element minOccurs="0" name="overburdenVerticalThickness"
+                        type="eml:LengthMeasure">
+                        <annotation>
+                            <documentation>Vertical thickness of overburden (eg. vertical depth to
+                                base of overburden).</documentation>
+                        </annotation>
+                    </element>
+                    <element minOccurs="0" name="groutMix" type="diggs:GroutMixPropertyType"
+                        maxOccurs="unbounded">
+                        <annotation>
+                            <documentation>Property type containing information about grout
+                                mixes</documentation>
+                        </annotation>
+                    </element>
+                    <element minOccurs="0" name="groutStage" type="diggs:StagePropertyType"
+                        maxOccurs="unbounded">
+                        <annotation>
+                            <documentation>Property type containing information about individual grout stages
+</documentation>
+                        </annotation>
+                    </element>
+                </sequence>
+            </extension>
+        </complexContent>
+    </complexType>
+    <complexType name="GroutMixPropertyType">
+        <sequence>
+            <element minOccurs="1" ref="diggs:Mix"/>
+        </sequence>
+    </complexType>
+    <element name="FlowReading" substitutionGroup="diggs:AbstractObject"
+        type="diggs:FlowReadingType">
+        <annotation>
+            <documentation>An object that carries properties for a flow reading </documentation>
+        </annotation>
+    </element>
+    <complexType name="FlowReadingPropertyType">
+        <sequence>
+            <element maxOccurs="1" minOccurs="1" ref="diggs:FlowReading"/>
+        </sequence>
+    </complexType>
+    <complexType name="FlowReadingType">
+        <complexContent>
+            <extension base="diggs:AbstractObjectType">
+                <sequence>
+                    <element minOccurs="1" name="time" type="eml:TimeMeasure">
+                        <annotation>
+                            <documentation>Elapsed time from start of stage</documentation>
+                        </annotation>
+                    </element>
+                    <element minOccurs="1" name="flowReading" type="eml:VolumeMeasure">
+                        <annotation>
+                            <documentation/>
+                        </annotation>
+                    </element>
+                    <element name="gaugePressure" type="eml:PressureMeasure" minOccurs="0">
+                        <annotation>
+                            <documentation> </documentation>
+                        </annotation>
+                    </element>
+                </sequence>
+            </extension>
+        </complexContent>
+    </complexType>
+    <element name="LineLossData" type="diggs:LineLossDataType"/>
+    <complexType name="LineLossDataPropertyType">
+        <complexContent>
+            <extension base="gml:AbstractMetadataPropertyType">
+                <sequence>
+                    <element ref="diggs:LineLossData"/>
+                </sequence>
+            </extension>
+        </complexContent>
+    </complexType>
+    <complexType name="LineLossDataType">
+        <complexContent>
+            <extension base="diggs:AbstractSimpleMetadataType">
+                <sequence>
+                    <element name="index" type="eml:PositiveLong">
+                        <annotation>
+                            <documentation>Index value defining order of the flow vs line loss
+                                readings, counting from 1.</documentation>
+                        </annotation>
+                    </element>
+                    <element name="flow" type="eml:VolumePerTimeMeasure"/>
+                    <element minOccurs="0" name="p1" type="eml:PressureMeasure"/>
+                    <element minOccurs="0" name="p2" type="eml:PressureMeasure"/>
+                    <element name="lineLoss" type="eml:PressureMeasure"/>
+                </sequence>
+            </extension>
+        </complexContent>
+    </complexType>
+    <element name="Mix" substitutionGroup="diggs:AbstractNamedObject" type="diggs:MixType">
+        <annotation>
+            <documentation>An object that contains properites associated with grouting a
+                borehole</documentation>
+        </annotation>
+    </element>
+    <complexType name="MixType">
+        <complexContent>
+            <extension base="diggs:AbstractNamedObjectType">
+                <sequence>
+                    <element minOccurs="0" name="admixtures" type="diggs:AdmixturePropertyType"
+                        maxOccurs="unbounded">
+                        <annotation>
+                            <documentation>Property containing information on admixtures used in mix
+                            </documentation>
+                        </annotation>
+                    </element>
+                    <element minOccurs="0" name="binders" type="diggs:BinderPropertyType"
+                        maxOccurs="unbounded">
+                        <annotation>
+                            <documentation>Property containing information on binders used in mix
+                            </documentation>
+                        </annotation>
+                    </element>
+                    <element minOccurs="0" name="cements" type="diggs:CementPropertyType"
+                        maxOccurs="unbounded">
+                        <annotation>
+                            <documentation>Property containing information on cements used in mix
+                            </documentation>
+                        </annotation>
+                    </element>
+                    <element minOccurs="0" name="bleed" type="eml:VolumePerVolumeMeasure">
+                        <annotation>
+                            <documentation>Volume water loss as grout mix dries </documentation>
+                        </annotation>
+                    </element>
+                    <element minOccurs="0" name="flowCone" type="eml:TimeMeasure">
+                        <annotation>
+                            <documentation>Flow cone time</documentation>
+                        </annotation>
+                    </element>
+                    <element minOccurs="0" name="hydrostaticColumnPressure"
+                        type="eml:PressureMeasure">
+                        <annotation>
+                            <documentation>Add definition</documentation>
+                        </annotation>
+                    </element>
+                    <element minOccurs="0" name="lbCementPerGalH20" type="eml:ForceMeasure">
+                        <annotation>
+                            <documentation>Weight of cement used per gallon of
+                                water.</documentation>
+                        </annotation>
+                    </element>
+                    <element minOccurs="0" name="lineLossCoeffA" type="double" maxOccurs="1">
+                        <annotation>
+                            <documentation>Coefficient A computed for line loss regression equation
+                                Ax^2 + Bx + C</documentation>
+                        </annotation>
+                    </element>
+                    <element minOccurs="0" name="lineLossCoeffB" type="double" maxOccurs="1">
+                        <annotation>
+                            <documentation>Coefficient B computed for line loss regression equation
+                                Ax^2 + Bx + C</documentation>
+                        </annotation>
+                    </element>
+                    <element minOccurs="0" name="lineLossCoeffC" type="double" maxOccurs="1">
+                        <annotation>
+                            <documentation>Coefficient C computed for line loss regression equation
+                                Ax^2 + Bx + C</documentation>
+                        </annotation>
+                    </element>
+                    <element minOccurs="0" name="lineLossData" type="diggs:LineLossDataPropertyType"
+                        maxOccurs="unbounded">
+                        <annotation>
+                            <documentation>Property type containing line loss data used to compute
+                                line loss coefficients.</documentation>
+                        </annotation>
+                    </element>
+                    <element minOccurs="0" name="marshFlow" type="eml:TimeMeasure">
+                        <annotation>
+                            <documentation>Marsh cone time </documentation>
+                        </annotation>
+                    </element>
+                    <element minOccurs="0" name="maxHeaderPressureAtZeroFlow"
+                        type="eml:PressureMeasure">
+                        <annotation>
+                            <documentation>Add definition</documentation>
+                        </annotation>
+                    </element>
+                    <element minOccurs="0" name="pressureFiltration" type="eml:VolumePerTimeMeasure">
+                        <annotation>
+                            <documentation>Need definition - check unit type.</documentation>
+                        </annotation>
+                    </element>
+                    <element minOccurs="0" name="specificGravityMix"
+                        type="diggs:SpecificGravityType">
+                        <annotation>
+                            <documentation>The specific gravity of grout mix</documentation>
+                        </annotation>
+                    </element>
+                    <element minOccurs="0" name="specificGravityWater"
+                        type="diggs:SpecificGravityType">
+                        <annotation>
+                            <documentation>The specific gravity of water</documentation>
+                        </annotation>
+                    </element>
+                    <element minOccurs="0" name="staticLineResistanceAtZeroFlow"
+                        type="eml:PressureMeasure">
+                        <annotation>
+                            <documentation>Add definition</documentation>
+                        </annotation>
+                    </element>
+                    <element minOccurs="0" name="theoreticalYield" type="eml:VolumeMeasure">
+                        <annotation>
+                            <documentation>Theoretical volume of mix following mix
+                                formula</documentation>
+                        </annotation>
+                    </element>
+                    <element minOccurs="0" name="totalYield" type="eml:VolumeMeasure">
+                        <annotation>
+                            <documentation>Total volume of mix produced</documentation>
+                        </annotation>
+                    </element>
+                    <element minOccurs="0" name="typeMix" type="gml:CodeType">
+                        <annotation>
+                            <documentation>Type of grout mix; preferably from a controlled
+                                list</documentation>
+                        </annotation>
+                    </element>
+                    <element minOccurs="0" name="volumeWater" type="eml:VolumeMeasureExt">
+                        <annotation>
+                            <documentation>Volume of water used</documentation>
+                        </annotation>
+                    </element>
+                </sequence>
+            </extension>
+        </complexContent>
+    </complexType>
+    <element name="Stage" substitutionGroup="diggs:AbstractObject" type="diggs:StageType">
+        <annotation>
+            <documentation>An object that carries properties for a grout stage</documentation>
+        </annotation>
+    </element>
+    <complexType name="StagePropertyType">
+        <sequence>
+            <element maxOccurs="1" minOccurs="1" ref="diggs:Stage"/>
+        </sequence>
+    </complexType>
+    <complexType name="StageType">
+        <complexContent>
+            <extension base="diggs:AbstractObjectType">
+                <sequence>
+                    <element maxOccurs="unbounded" minOccurs="0" ref="diggs:measurementRef">
+                        <annotation>
+                            <appinfo>diggs:Test, diggs:Monitor</appinfo>
+                            <documentation>If this activity is associated with any measurements, this property references that measurement id</documentation>
+                            <documentation/>
+                        </annotation>
+                    </element>
+                    <element minOccurs="1" name="stageNumber" type="eml:PositiveLong">
+                        <annotation>
+                            <documentation>Stage number </documentation>
+                        </annotation>
+                    </element>
+                    <element name="stageType" minOccurs="0">
+                        <annotation>
+                            <documentation>Restricted string indicating ascending or descending grout stages.</documentation>
+                        </annotation>
+                        <simpleType>
+                            <restriction base="string">
+                                <enumeration value="ascending"/>
+                                <enumeration value="descending"/>
+                            </restriction>
+                        </simpleType>
+                    </element>
+                    <element minOccurs="0" name="stageInterval"
+                        type="diggs:LinearExtentPropertyType">
+                        <annotation>
+                            <documentation>The depth interval for the stage (measured in a linear
+                                reference system), where the grout material was emplaced.
+                            </documentation>
+                        </annotation>
+                    </element>
+                    <element name="gaugeHeight" type="eml:LengthMeasure" minOccurs="0">
+                        <annotation>
+                            <documentation>Height of gage (H0) </documentation>
+                        </annotation>
+                    </element>
+                    <element name="ruleForApplyingPressureSoil" type="eml:ForcePerVolumeMeasure"
+                        minOccurs="0">
+                        <annotation>
+                            <documentation>Needs definition
+</documentation>
+                        </annotation>
+                    </element>
+                    <element name="ruleForApplyingPressureRock" type="eml:ForcePerVolumeMeasure"
+                        minOccurs="0">
+                        <annotation>
+                            <documentation>Needs definition
+</documentation>
+                        </annotation>
+                    </element>
+                    <element name="maxTargetEffectivePressure" minOccurs="0"
+                        type="eml:PressureMeasure">
+                        <annotation>
+                            <documentation>Target effective pressure for this stage
+</documentation>
+                        </annotation>
+                    </element>
+                    <element name="stageVolume" type="eml:VolumeMeasure" minOccurs="0">
+                        <annotation>
+                            <documentation>Volume of hole within stage interval</documentation>
+                        </annotation>
+                    </element>
+                    <element minOccurs="0" name="startTimeFilling"
+                        type="gml:TimeInstantPropertyType">
+                        <annotation>
+                            <documentation>The time instant when filling starts.</documentation>
+                        </annotation>
+                    </element>
+                    <element name="volumeGroutToFillStage" type="eml:VolumeMeasure" minOccurs="0">
+                        <annotation>
+                            <documentation>Volume of hole within stage interval</documentation>
+                        </annotation>
+                    </element>
+                    <element minOccurs="0" name="startTimePressurizing"
+                        type="gml:TimeInstantPropertyType">
+                        <annotation>
+                            <documentation>The time instant when pressurizing
+                                starts.</documentation>
+                        </annotation>
+                    </element>
+                    <element minOccurs="0" name="endTime" type="gml:TimeInstantPropertyType">
+                        <annotation>
+                            <documentation>The time when grouting of interval ends </documentation>
+                        </annotation>
+                    </element>
+                    <element name="trendData" type="diggs:TrendDataPropertyType" minOccurs="0">
+                        <annotation>
+                            <documentation>Needs definition</documentation>
+                        </annotation>
+                    </element>
+                    <element name="totalCement" type="eml:ForceMeasure" minOccurs="0">
+                        <annotation>
+                            <documentation>Volume grout used to fill stage </documentation>
+                        </annotation>
+                    </element>
+                    <element name="totalVolumeTake" type="eml:VolumeMeasure" minOccurs="0">
+                        <annotation>
+                            <documentation>Volume grout used to fill stage </documentation>
+                        </annotation>
+                    </element>
+                    <element name="volumeInjection" type="eml:VolumePerLengthMeasure" minOccurs="0">
+                        <annotation>
+                            <documentation>Needs definition</documentation>
+                        </annotation>
+                    </element>
+                </sequence>
+            </extension>
+        </complexContent>
+    </complexType>
+    <element abstract="false" name="TrendData" substitutionGroup="gml:AbstractCoverage"
+        type="diggs:TrendDataType">
+        <annotation>
+            <documentation>An object containing a grout stage time series.</documentation>
+        </annotation>
+    </element>
+    <complexType name="TrendDataPropertyType">
+        <annotation>
+            <documentation>Property type holding a grout stage time series</documentation>
+        </annotation>
+        <sequence>
+            <element maxOccurs="1" minOccurs="1" ref="diggs:TrendData"/>
+        </sequence>
+    </complexType>
+    <complexType name="TrendDataType">
+        <complexContent>
+            <restriction base="gml:AbstractCoverageType">
+                <sequence>
+                    <element ref="diggs:timeDomain"/>
+                    <element ref="diggs:trendDataResults"/>
+                </sequence>
+            </restriction>
+        </complexContent>
+    </complexType>
+    <element name="trendDataResults" substitutionGroup="gml:rangeSet"
+        type="diggs:TrendDataResultsPropertyType">
+        <annotation>
+            <documentation>A property that holds a PpdResultSet object</documentation>
+        </annotation>
+    </element>
+    <element name="TrendDataResultSet" substitutionGroup="gml:DataBlock"
+        type="diggs:TrendDataResultSetType">
+        <annotation>
+            <documentation>An object that contains properites describing the parameters and data values of a measurement result.</documentation>
+        </annotation>
+    </element>
+    <complexType name="TrendDataResultSetType">
+        <complexContent>
+            <restriction base="gml:DataBlockType">
+                <sequence>
+                    <element ref="diggs:parameters"/>
+                    <choice>
+                        <element ref="diggs:dataValues"/>
+                    </choice>
+                </sequence>
+            </restriction>
+        </complexContent>
+    </complexType>
+    <complexType name="TrendDataResultsPropertyType">
+        <complexContent>
+            <restriction base="gml:RangeSetType">
+                <choice>
+                    <element minOccurs="1" ref="diggs:TrendDataResultSet"/>
+                </choice>
+            </restriction>
+        </complexContent>
+    </complexType>
+    <element name="trendDataParameters" substitutionGroup="gml:rangeParameters"
+        type="diggs:TrendDataPropertyInfoPropertyType">
+        <annotation>
+            <documentation>An object that contains Diggs property parameters.</documentation>
+        </annotation>
+    </element>
+    <complexType name="TrendDataPropertyInfoPropertyType">
+        <complexContent>
+            <restriction base="gml:AssociationRoleType">
+                <sequence minOccurs="1">
+                    <element ref="diggs:TrendDataPropertyParameters"/>
+                </sequence>
+            </restriction>
+        </complexContent>
+    </complexType>
+    <element name="TrendDataPropertyParameters" substitutionGroup="gml:CompositeValue"
+        type="diggs:TrendDataPropertyParametersType">
+        <annotation>
+            <documentation>An object that contains the properties property of a measurement result.</documentation>
+        </annotation>
+    </element>
+    <complexType name="TrendDataPropertyParametersType">
+        <complexContent>
+            <restriction base="gml:CompositeValueType">
+                <sequence>
+                    <element maxOccurs="1" minOccurs="1" ref="diggs:properties"/>
+                </sequence>
+            </restriction>
+        </complexContent>
+    </complexType>
+    <element name="TrendDataProperties" substitutionGroup="gml:valueComponents"
+        type="diggs:TrendDataPropertiesType">
+        <annotation>
+            <documentation>A property that contains a sequence of Property objects defining the results of a test or monitoring activity.</documentation>
+        </annotation>
+    </element>
+    <complexType name="TrendDataPropertiesType">
+        <complexContent>
+            <restriction base="gml:ValueArrayPropertyType">
+                <sequence maxOccurs="unbounded">
+                    <!--DSB: Restricted in this profile
+        <group ref="gml:Value"/>-->
+                    <element ref="gml:AbstractValue"/>
+                </sequence>
+            </restriction>
+        </complexContent>
+    </complexType>
+    <element name="TdProperty" substitutionGroup="gml:AbstractValue" type="diggs:TdPropertyType"/>
+    <complexType name="TdPropertyType">
+        <complexContent>
+            <extension base="diggs:AbstractObjectType">
+                <sequence>
+                    <element maxOccurs="1" minOccurs="0" name="propertyName" type="gml:CodeType">
+                        <annotation>
+                            <documentation>A code or name for the property as used by the data
+                                provider. This value can come from a controlled list of terms or be
+                                an uncontrolled text string. The value would be commonly used to
+                                label a column of a log sheet or provide other local meaning to the
+                                property. The value of mnemonic should be unique for all of the
+                                properties included in the dataValue block transmitted as part of
+                                this measurement.</documentation>
+                        </annotation>
+                    </element>
+                    <element maxOccurs="1" minOccurs="1" name="typeData"
+                        type="diggs:PropertyDataTypeEnumType">
+                        <annotation>
+                            <documentation>The data type for this property (eg. double, long,
+                                string, etc.)</documentation>
+                        </annotation>
+                    </element>
+                    <element maxOccurs="1" minOccurs="1" name="propertyClass"
+                        type="diggs:TrendDataEnumType">
+                        <annotation>
+                            <documentation>The official name of the pore pressure dissipation time series property, from an enumerated list of terms.</documentation>
+                        </annotation>
+                    </element>
+                    <element maxOccurs="1" minOccurs="0" name="uom" type="diggs:AllUnits">
+                        <annotation>
+                            <documentation>Unit of measurement for the property.</documentation>
+                        </annotation>
+                    </element>
+                    <element maxOccurs="1" minOccurs="0" name="atTemperature"
+                        type="eml:ThermodynamicTemperatureMeasure">
+                        <annotation>
+                            <documentation>Temperature at which property value is valid, eg. for
+                                specific gravity of solids at 20 deg C, this parameter would hold
+                                the temperature value</documentation>
+                        </annotation>
+                    </element>
+                    <element minOccurs="0" name="measurementAxisBearing"
+                        type="eml:PlaneAngleMeasure">
+                        <annotation>
+                            <documentation>Compass bearing direction (relative to true north)
+                                defining the measurement axis direction (for directional
+                                measurements, eg. component of an extensometer, accelerometer,
+                                etc.)</documentation>
+                        </annotation>
+                    </element>
+                    <element minOccurs="0" name="measurementAxisInclination"
+                        type="eml:PlaneAngleMeasure">
+                        <annotation>
+                            <documentation>Inclination of measurement axis (measured positively down
+                                from horizontal); used for directional measurements, eg.
+                                extensometer, accelerometer, etc. </documentation>
+                        </annotation>
+                    </element>
+                    <element maxOccurs="1" minOccurs="0" name="nullValue" type="diggs:NullDataType">
+                        <annotation>
+                            <documentation>An empty string is the default representation of a null
+                                value for a property (i.e. when the null value representation is not
+                                explicitly defined). This value defines a value to be interpreted as
+                                null for this property in the dataValues block. The reason attribute
+                                can be used to define the reason for the null value, (eg. witheld).
+                                This can be customized with an other: qualifier (eg. other:below
+                                detection limit) or reference a URI for a more complete
+                                definition.</documentation>
+                        </annotation>
+                    </element>
+                    <element minOccurs="0" name="context" type="diggs:DiggsStringType">
+                        <annotation>
+                            <documentation>If the property should be interpreted in a particular
+                                context (eg. value is only valid for range of overburden pressures,
+                                etc.), then the context of the property is described
+                                here.</documentation>
+                        </annotation>
+                    </element>
+                    <element minOccurs="0" name="sampleFraction" type="diggs:SampleFractionEnumType">
+                        <annotation>
+                            <documentation>Fraction of total sample analyzed (from enumerated list).
+                                Applies primarily to non-soil type samples </documentation>
+                        </annotation>
+                    </element>
+                    <element minOccurs="0" name="grainsizeFraction"
+                        type="diggs:SizeFractionPropertyType">
+                        <annotation>
+                            <documentation>For properties of soils, the size fraction that this
+                                property pertains to </documentation>
+                        </annotation>
+                    </element>
+                    <element maxOccurs="unbounded" minOccurs="0" name="correctionUsed"
+                        type="gml:CodeType">
+                        <annotation>
+                            <documentation>A description of corrections used to obtain the reported
+                                result. Commonly used to report N-values from SPT tests, or to
+                                describe any other adjustments made to the reported data. Can come
+                                from a controlled list.</documentation>
+                        </annotation>
+                    </element>
+                    <element minOccurs="0" name="measurementTechnique"
+                        type="diggs:DescriptorMethodEnumType">
+                        <annotation>
+                            <documentation>The method by which the property value is obtained. From
+                                an enumerated list.</documentation>
+                        </annotation>
+                    </element>
+                    <element maxOccurs="1" minOccurs="0" name="detector"
+                        type="diggs:DetectorPropertyType">
+                        <annotation>
+                            <documentation>The source tool, or sensor, of a piece of equipment, used
+                                to measure this property, if applicable. Generally used for well
+                                log,downhole logging procedures, or monitoring
+                                equipment.</documentation>
+                        </annotation>
+                    </element>
+                    <element maxOccurs="1" minOccurs="0" name="detectorRef" type="gml:ReferenceType">
+                        <annotation>
+                            <appinfo source="urn:x-gml:targetElement">diggs:Equipment</appinfo>
+                            <documentation>A property element that supports a value by reference
+                                only. The target value is indicated in the appinfo
+                                element.</documentation>
+                            <documentation>A reference to the source tool, or sensor, of a piece of
+                                equipment, used to measure this property, if applicable. Generally
+                                used for well log,downhole logging procedures, or monitoring
+                                equipment.</documentation>
+                        </annotation>
+                    </element>
+                    <element maxOccurs="unbounded" minOccurs="0" name="detectionLimits"
+                        type="diggs:LimitPropertyType">
+                        <annotation>
+                            <documentation>Identifies the detection limits for this property in the
+                                UOM for this property</documentation>
+                        </annotation>
+                    </element>
+                    <element default="true" maxOccurs="1" minOccurs="0" name="reportable"
+                        type="boolean">
+                        <annotation>
+                            <documentation>True or false, indicates whether the value of this
+                                property can be reported outside of the context of transmission via
+                                an xml instance.</documentation>
+                        </annotation>
+                    </element>
+                    <element maxOccurs="unbounded" minOccurs="0" name="qualifier"
+                        type="diggs:QualifierPropertyType"/>
+                    <element maxOccurs="1" minOccurs="0" name="curveState"
+                        type="witsml:MeasurementType">
+                        <annotation>
+                            <documentation>Used for well logging procedures, to define the state or
+                                status of the data described by the well log curve. From an
+                                enumerated list.</documentation>
+                        </annotation>
+                    </element>
+                </sequence>
+                <attribute name="index" use="required">
+                    <simpleType>
+                        <union>
+                            <simpleType>
+                                <restriction base="string">
+                                    <enumeration value=""/>
+                                </restriction>
+                            </simpleType>
+                            <simpleType>
+                                <restriction base="integer"/>
+                            </simpleType>
+                        </union>
+                    </simpleType>
+                </attribute>
+            </extension>
+        </complexContent>
+    </complexType>
+    <simpleType name="TrendDataEnumType">
+        <restriction base="string">
+            <enumeration value="column_pressure"/>
+            <enumeration value="effective_pressure"/>
+            <enumeration value="elapsed_time"/>
+            <enumeration value="flow_rate"/>
+            <enumeration value="gauge_pressure"/>
+            <enumeration value="header_pressure"/>
+            <enumeration value="injection_pressure"/>
+            <enumeration value="line_loss"/>
+            <enumeration value="lugeon_value"/>
+            <enumeration value="mix"/>
+            <enumeration value="take"/>
+        </restriction>
+    </simpleType>
+    <simpleType name="TrendDataExtEnumType">
+        <union memberTypes="diggs:OtherNameType diggs:TrendDataEnumType"/>
+    </simpleType>
+</schema>
