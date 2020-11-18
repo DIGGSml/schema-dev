@@ -9,6 +9,8 @@ includes:
 1. Addition of optional objects (eg. new test procedures)
 1. Modifications/additions to object/property annototions
 1. Additions of terms to enumerated lists
+1. Rearrangement of schema objects within various schema files.
+
 
 **Note:** instance documents that use new 2.6 elements or list
 items will **NOT** validate under 2.5.a.
@@ -23,7 +25,8 @@ items will **NOT** validate under 2.5.a.
     1. added estimatedWaterDepth property to StaticConePenetrationTest test procedure object
     2. added PorePressureDissipationTest prodedure object (initial proposal) for review.
     3. added PointLoadTest procedure object for review.
-   
+3. **New Construction.xsd file**
+    1. Added elements to support Rock Grouting activites
     
 ---
 
