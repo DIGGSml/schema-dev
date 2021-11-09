@@ -14,12 +14,7 @@
     <!--
  import the gml and xlinks namespaces (original local profiles)   -->
 
-    <import namespace="http://www.opengis.net/gml/3.2" schemaLocation="gml3.2Profile_diggs.xsd"/>
-    <import namespace="http://www.opengis.net/gml/3.3/ce" schemaLocation="gml3.3Profile_diggs.xsd"/>
-    <import namespace="http://www.opengis.net/gml/3.3/lr" schemaLocation="glrProfile_diggs.xsd"/>
-    <import namespace="http://www.opengis.net/gml/3.3/lrov" schemaLocation="glrovProfile_diggs.xsd"/>
-    <import namespace="http://www.w3.org/1999/xlink" schemaLocation="xlinks.xsd"/>
-    <import namespace="http://www.w3.org/XML/1998/namespace" schemaLocation="xml.xsd"/>
+    <include schemaLocation="Diggs.xsd"/>
     <!--
   (canonical complete schemas for TeamEngine GML validation) 
   <import namespace="http://www.opengis.net/gml/3.2"
@@ -36,9 +31,13 @@
     schemaLocation="http://www.w3.org/2001/xml.xsd"/> 
 -->
     <!--  include and import other DIGGS schemas -->
-    <import namespace="http://diggsml.org/schemas/2.6/geotechnical"
-        schemaLocation="Geotechnical.xsd"/>
     <!--  import the witsml schemas  -->
+    <import namespace="http://www.opengis.net/gml/3.2" schemaLocation="gml3.2Profile_diggs.xsd"/>
+    <import namespace="http://www.opengis.net/gml/3.3/ce" schemaLocation="gml3.3Profile_diggs.xsd"/>
+    <import namespace="http://www.opengis.net/gml/3.3/lr" schemaLocation="glrProfile_diggs.xsd"/>
+    <import namespace="http://www.opengis.net/gml/3.3/lrov" schemaLocation="glrovProfile_diggs.xsd"/>
+    <import namespace="http://www.w3.org/1999/xlink" schemaLocation="xlinks.xsd"/>
+    <import namespace="http://www.w3.org/XML/1998/namespace" schemaLocation="xml.xsd"/>
     <import namespace="http://www.energistics.org/energyml/data/commonv2"
         schemaLocation="witsml/2.0/data/common/v2.1/xsd_schemas/EmlAllObjects.xsd"/>
     <import namespace="http://www.energistics.org/energyml/data/witsmlv2"
@@ -47,7 +46,8 @@
         abstract="true" substitutionGroup="diggs:AbstractFeature">
         <!-- 2015-04-10 PwD add substitution gruop -->
         <annotation>
-            <documentation>Base type for construction activity features - activities that improve or alter ground conditions.</documentation>
+            <documentation>Base type for construction activity features - activities that improve or
+                alter ground conditions.</documentation>
         </annotation>
     </element>
     <complexType name="AbstractConstructionActivityPropertyType">
@@ -62,13 +62,21 @@
                     <element ref="diggs:investigationTarget"/>
                     <element ref="diggs:projectRef"/>
                     <element minOccurs="0" ref="diggs:samplingFeatureRef" maxOccurs="unbounded"/>
-                    <element minOccurs="0" ref="diggs:measurementRef" maxOccurs="unbounded"/>
+                    <element minOccurs="0" ref="diggs:programRef" maxOccurs="1"/>
+                    <element minOccurs="0" ref="diggs:programSpecificationRef" maxOccurs="1"/>
                     <element name="method" type="diggs:SpecificationPropertyType"
                         maxOccurs="unbounded" minOccurs="0">
                         <annotation>
                             <documentation>A property element that contains a Specification object
                                 (or reference to one) detailing the test procedure method
                                 used.</documentation>
+                        </annotation>
+                    </element>
+                    <element name="constructionEnvironment" type="diggs:EquipmentPropertyType"
+                        maxOccurs="unbounded" minOccurs="0">
+                        <annotation>
+                            <documentation>Environmental properties relevant but external to the
+                                construction activity</documentation>
                         </annotation>
                     </element>
                     <element name="equipment" type="diggs:EquipmentPropertyType"
@@ -83,18 +91,16 @@
                     <element minOccurs="0" name="otherConstructionActivityProperty"
                         type="diggs:ParameterPropertyType" maxOccurs="unbounded">
                         <annotation>
-                            <documentation>This will typically be used to record environmental
-                                parameters, or event-specific parameters that are not tightly bound
-                                to either the earth materials for which properties are being
-                                estimated, or the procedure. Parameters that are tightly bound to
-                                the procedure should be encoded within the procedure
-                                object.</documentation>
+                            <documentation>This will typically be used to record properties that
+                                otherwise are not included as a property of the construction
+                                activity.</documentation>
                         </annotation>
                     </element>
                     <element minOccurs="0" name="activityDateTime"
                         type="diggs:TimeIntervalPropertyType">
                         <annotation>
-                            <documentation>The date/time interval over which the entire construction was conducted.</documentation>
+                            <documentation>The date/time interval over which the entire construction
+                                was conducted.</documentation>
                         </annotation>
                     </element>
                 </sequence>
@@ -114,9 +120,9 @@
     <element abstract="true" name="AbstractDescriptionSystem"
         substitutionGroup="diggs:AbstractFeature" type="diggs:AbstractDescriptionSystemType">
         <annotation>
-            <documentation>A system of zones or regions associated with a sampling feature for which as single
-                class of qualitative description is assigned (eg. lithology, color, discontinuity,
-                etc.)</documentation>
+            <documentation>A system of zones or regions associated with a sampling feature or sample for which
+                as single class of qualitative description is assigned (eg. lithology, color,
+                discontinuity, etc.)</documentation>
         </annotation>
     </element>
     <complexType abstract="true" name="AbstractDescriptionSystemType">
@@ -135,8 +141,9 @@
     <element name="AbstractEquipment" abstract="true" type="diggs:AbstractEquipmentType"
         substitutionGroup="diggs:AbstractFeature">
         <annotation>
-            <documentation>The base type for Diggs equipment types. Equipment is an object that contains properties of equipment used to construct, test, or monitor objects within the geotechnical and geoenvironmental domains.
-</documentation>
+            <documentation>The base type for Diggs equipment types. Equipment is an object that
+                contains properties of equipment used to construct, test, or monitor objects within
+                the geotechnical and geoenvironmental domains. </documentation>
         </annotation>
     </element>
     <complexType name="AbstractEquipmentType" abstract="true">
@@ -145,8 +152,8 @@
                 <sequence>
                     <element name="class" type="gml:CodeType" minOccurs="0" maxOccurs="1">
                         <annotation>
-                            <documentation>The class or type of equipment - eg. drill rig, CPT rig, etc. Intended to come from a controlled list.
-</documentation>
+                            <documentation>The class or type of equipment - eg. drill rig, CPT rig,
+                                etc. Intended to come from a controlled list. </documentation>
                         </annotation>
                     </element>
                     <element name="modelNumber" type="diggs:DiggsStringType" minOccurs="0"
@@ -164,7 +171,8 @@
     <element abstract="true" name="AbstractEvent" substitutionGroup="diggs:AbstractObject"
         type="diggs:AbstractEventType">
         <annotation>
-            <documentation>The base type for an event - a time or depth related occurrence associated with the creation or construction of a sampling feature.</documentation>
+            <documentation>The base type for an event - a time or depth related occurrence
+                associated with the creation or construction of a sampling feature.</documentation>
         </annotation>
     </element>
     <complexType mixed="false" name="AbstractEventType" abstract="true">
@@ -197,7 +205,8 @@
     <element abstract="true" name="AbstractFeature" substitutionGroup="diggs:AbstractFeatureBase"
         type="diggs:AbstractFeatureType">
         <annotation>
-            <documentation>The base type for DIGGS features - objects that carry status, associatedFile, role and remark properties</documentation>
+            <documentation>The base type for DIGGS features - objects that carry status,
+                associatedFile, role and remark properties</documentation>
         </annotation>
     </element>
     <element abstract="true" name="AbstractFeatureBase" substitutionGroup="gml:AbstractFeature"
@@ -307,8 +316,7 @@
     <element abstract="true" name="AbstractGeometry" substitutionGroup="gml:AbstractGeometry"
         type="diggs:AbstractGeometryType">
         <annotation>
-            <documentation>Base type for DIGGS geometry objects
-</documentation>
+            <documentation>Base type for DIGGS geometry objects </documentation>
         </annotation>
     </element>
     <complexType name="AbstractGeometryType">
@@ -323,7 +331,8 @@
     <element name="AbstractGroup" type="diggs:AbstractGroupType"
         substitutionGroup="diggs:AbstractFeature" abstract="true">
         <annotation>
-            <documentation>Base type for DIGGS groups - logical associations of projects, sampling features, or samples</documentation>
+            <documentation>Base type for DIGGS groups - logical associations of projects, sampling
+                features, or samples</documentation>
         </annotation>
     </element>
     <complexType name="AbstractGroupType" abstract="true">
@@ -385,7 +394,9 @@
         substitutionGroup="diggs:AbstractSamplingFeature"
         type="diggs:AbstractLinearInstallationType">
         <annotation>
-            <documentation>Base type for installation features with linear geometries. An installation is a sampling feature that is installed within another sampling feature (eg. a well or piezometer inside of a borehole).</documentation>
+            <documentation>Base type for installation features with linear geometries. An
+                installation is a sampling feature that is installed within another sampling feature
+                (eg. a well or piezometer inside of a borehole).</documentation>
         </annotation>
     </element>
     <complexType abstract="false" name="AbstractLinearInstallationType">
@@ -422,16 +433,17 @@
                 <sequence>
                     <element maxOccurs="unbounded" minOccurs="0" ref="diggs:measurementRef">
                         <annotation>
-                            <appinfo>diggs:Test, diggs:Monitor</appinfo>
+                            <appinfo>diggs:Test</appinfo>
+                            <appinfo>diggs:Monitor</appinfo>
+                            <appinfo>diggs:MaterialTest</appinfo>
                             <documentation>If the description derives from a measurement, then this
-                                element can be optionally used to point to the subject Test or
+                                element can be optionally used to point to the subject Test, Materia;Test or
                                 Monitor feature via the xlink:href attribute</documentation>
-                            <documentation/>
                         </annotation>
                     </element>
-                    <element minOccurs="1" ref="diggs:location">
+                    <element minOccurs="0" ref="diggs:location">
                         <annotation>
-                            <documentation>The location of the description</documentation>
+                            <documentation>The location of the description. If not used, observation pertains to the entire sample or sampling feature that is the target of this observation</documentation>
                         </annotation>
                     </element>
                     <element minOccurs="0" name="trueTopObserved" type="boolean">
@@ -456,11 +468,43 @@
             </extension>
         </complexContent>
     </complexType>
+    <element abstract="true" name="AbstractProgram" type="diggs:AbstractProgramType"
+        substitutionGroup="diggs:AbstractNamedFeature">
+        <annotation>
+            <documentation>An abstraction of an object that contains properties about the design,
+                specifications, and (optionally) post-construction performance results from a
+                collection of construction activities that occur within samplingFeatures. While
+                designed to accommodate construction data, this property could also contain program
+                objects that include planning and specification data for exploration efforts.
+            </documentation>
+        </annotation>
+    </element>
+    <complexType abstract="true" name="AbstractProgramType">
+        <annotation>
+            <documentation>The base type for all programs, which extend this type</documentation>
+        </annotation>
+        <complexContent>
+            <extension base="diggs:AbstractNamedFeatureType">
+                <sequence>
+                    <element minOccurs="1" ref="diggs:projectRef">
+                        <annotation>
+                            <documentation>The location of the description</documentation>
+                        </annotation>
+                    </element>
+                </sequence>
+            </extension>
+        </complexContent>
+    </complexType>
+    <complexType name="AbstractProgramPropertyType">
+        <sequence>
+            <element maxOccurs="1" minOccurs="1" ref="diggs:AbstractProgram"/>
+        </sequence>
+    </complexType>
     <element name="AbstractLinearSamplingFeature" type="diggs:AbstractLinearSamplingFeatureType"
         substitutionGroup="diggs:AbstractSamplingFeature" abstract="true">
         <annotation>
-            <documentation>Base type for a sampling feature with a linear geometry (eg. sounding or borehole).
-</documentation>
+            <documentation>Base type for a sampling feature with a linear geometry (eg. sounding or
+                borehole). </documentation>
         </annotation>
     </element>
     <complexType name="AbstractLinearSamplingFeatureType">
@@ -493,16 +537,21 @@
         substitutionGroup="diggs:AbstractFeature">
         <!-- 2015-04-10 PwD add substitution gruop -->
         <annotation>
-            <documentation>Base type for measurement features - tests or monitoring activities that record quantitative information.</documentation>
+            <documentation>Base type for measurement features - tests or monitoring activities that
+                record quantitative information in the context of a sampling feature or sample.</documentation>
         </annotation>
     </element>
+    <element name="constructionActivityRef" type="diggs:FeatureReferenceType"/>
     <complexType name="AbstractMeasurementType">
         <complexContent>
             <extension base="diggs:AbstractFeatureType">
                 <sequence>
                     <element ref="diggs:investigationTarget"/>
                     <element ref="diggs:projectRef"/>
+                    <element minOccurs="0" ref="diggs:programRef" maxOccurs="1"/>
                     <element minOccurs="0" ref="diggs:samplingFeatureRef" maxOccurs="unbounded"/>
+                    <element maxOccurs="unbounded" minOccurs="0" ref="diggs:sampleRef"/>
+                    <element minOccurs="0" ref="diggs:constructionActivityRef"/>
                     <element minOccurs="0" name="otherMeasurementProperty"
                         type="diggs:ParameterPropertyType" maxOccurs="unbounded">
                         <annotation>
@@ -521,7 +570,8 @@
     <element abstract="true" name="AbstractNamedFeature"
         substitutionGroup="diggs:AbstractFeatureBase" type="diggs:AbstractNamedFeatureType">
         <annotation>
-            <documentation>Base type for features that require at least one name property</documentation>
+            <documentation>Base type for features that require at least one name
+                property</documentation>
         </annotation>
     </element>
     <complexType name="AbstractNamedFeatureType">
@@ -599,7 +649,8 @@
     <element abstract="true" name="AbstractNamedObject" substitutionGroup="diggs:AbstractObjectBase"
         type="diggs:AbstractNamedObjectType">
         <annotation>
-            <documentation>Base type for DIGGS objects that require at least one name property.</documentation>
+            <documentation>Base type for DIGGS objects that require at least one name
+                property.</documentation>
         </annotation>
     </element>
     <complexType name="AbstractNamedObjectType">
@@ -630,7 +681,8 @@
     <element abstract="true" name="AbstractObject" substitutionGroup="gml:AbstractGML"
         type="diggs:AbstractObjectType">
         <annotation>
-            <documentation>Base type for DIGGS objects - extension of gml:Object with status and remark properties.</documentation>
+            <documentation>Base type for DIGGS objects - extension of gml:Object with status and
+                remark properties.</documentation>
         </annotation>
     </element>
     <element abstract="true" name="AbstractObjectBase" substitutionGroup="gml:AbstractGML"
@@ -655,6 +707,7 @@
         <complexContent>
             <extension base="diggs:AbstractObjectBaseType">
                 <sequence>
+                    <element maxOccurs="unbounded" minOccurs="0" ref="gml:name"/>
                     <element minOccurs="0" name="status" type="gml:CodeType">
                         <annotation>
                             <documentation>A text string to provide information about the status of
@@ -666,7 +719,11 @@
                     <element name="remark" type="diggs:RemarkPropertyType" minOccurs="0"
                         maxOccurs="unbounded">
                         <annotation>
-                            <documentation>Any comment or remark associated with this specific feature, the person or organization making the comment, and the time comment was made.Any comment or remark associated with this specific feature, the person or organization making the comment, and the time comment was made.</documentation>
+                            <documentation>Any comment or remark associated with this specific
+                                feature, the person or organization making the comment, and the time
+                                comment was made.Any comment or remark associated with this specific
+                                feature, the person or organization making the comment, and the time
+                                comment was made.</documentation>
                         </annotation>
                     </element>
                 </sequence>
@@ -684,7 +741,9 @@
         substitutionGroup="diggs:AbstractSamplingFeature"
         type="diggs:AbstractPlanarInstallationType">
         <annotation>
-            <documentation>Base type for installations with planar (2D) geometries. An installation is a sampling feature that is installed within another sampling feature.</documentation>
+            <documentation>Base type for installations with planar (2D) geometries. An installation
+                is a sampling feature that is installed within another sampling
+                feature.</documentation>
         </annotation>
     </element>
     <complexType abstract="false" name="AbstractPlanarInstallationType">
@@ -695,7 +754,8 @@
     <element name="AbstractPlanarSamplingFeature" type="diggs:AbstractPlanarSamplingFeatureType"
         substitutionGroup="diggs:AbstractSamplingFeature" abstract="true">
         <annotation>
-            <documentation>Base type for sampling features with planar (2D) geometries.</documentation>
+            <documentation>Base type for sampling features with planar (2D)
+                geometries.</documentation>
         </annotation>
     </element>
     <complexType name="AbstractPlanarSamplingFeatureType" abstract="true">
@@ -732,7 +792,9 @@
     <element abstract="true" name="AbstractPointInstallation"
         substitutionGroup="diggs:AbstractSamplingFeature" type="diggs:AbstractPointInstallationType">
         <annotation>
-            <documentation>Base type for installations with point (0D) geometries. An installation is a sampling feature that is installed within another sampling feature.</documentation>
+            <documentation>Base type for installations with point (0D) geometries. An installation
+                is a sampling feature that is installed within another sampling
+                feature.</documentation>
         </annotation>
     </element>
     <complexType abstract="false" name="AbstractPointInstallationType">
@@ -752,6 +814,33 @@
             </extension>
         </complexContent>
     </complexType>
+    <element abstract="true" name="AbstractSample" substitutionGroup="diggs:AbstractNamedFeature"
+        type="diggs:AbstractSampleType"/>
+    <complexType name="AbstractSampleType">
+        <complexContent>
+            <extension base="diggs:AbstractNamedFeatureType">
+                <sequence>
+                    <element name="projectRef" type="diggs:FeatureReferenceType" minOccurs="1">
+                        <annotation>
+                            <documentation/>
+                        </annotation>
+                    </element>
+                    <element minOccurs="0" ref="diggs:programRef"/>
+                    <element ref="diggs:samplingActivityRef"/>
+                    <element ref="diggs:sampleProducedRef">
+                        <annotation>
+                            <documentation/>
+                        </annotation>
+                    </element>
+                </sequence>
+            </extension>
+        </complexContent>
+    </complexType>
+    <element name="sampleProducedRef" type="gml:ReferenceType">
+        <annotation>
+            <documentation>A ponter to the gml:id of  the SampleProduced object contained within the associated SamplingActivity feature that is associated with this feature. The associated SampleProduced object has as its properties the location and specific sampling time for the associated sample.</documentation>
+        </annotation>
+    </element>
     <element abstract="true" name="AbstractPointSamplingFeature"
         substitutionGroup="diggs:AbstractSamplingFeature"
         type="diggs:AbstractPointSamplingFeatureType"/>
@@ -765,7 +854,8 @@
     <element name="AbstractProcedureTrial" type="diggs:AbstractProcedureTrialType"
         substitutionGroup="diggs:AbstractObject" abstract="true">
         <annotation>
-            <documentation>Base type for procedure trial - activities that are repeated as part of a test procedure.</documentation>
+            <documentation>Base type for procedure trial - activities that are repeated as part of a
+                test procedure.</documentation>
         </annotation>
     </element>
     <complexType name="AbstractProcedureTrialType">
@@ -781,7 +871,8 @@
     <element abstract="true" name="AbstractRelativeReferenceSystem"
         type="diggs:AbstractRelativeReferenceSystemType">
         <annotation>
-            <documentation>BAse type for linear or vector linear relative spatial reference systems.</documentation>
+            <documentation>BAse type for linear or vector linear relative spatial reference
+                systems.</documentation>
         </annotation>
     </element>
     <complexType name="AbstractRelativeReferenceSystemPropertyType">
@@ -813,6 +904,13 @@
                     <element ref="diggs:projectRef"/>
                     <element minOccurs="0" ref="diggs:originalProjectRef"/>
                     <element maxOccurs="unbounded" minOccurs="0" ref="diggs:associatedProjectRef"/>
+                    <element minOccurs="0" ref="diggs:programRef"/>
+                    <element maxOccurs="unbounded" minOccurs="0" name="environment"
+                        type="diggs:EnvironmentPropertyType">
+                        <annotation>
+                            <documentation>Environmental parameters recorded during construction of the sampling feaature</documentation>
+                        </annotation>
+                    </element>
                     <element maxOccurs="unbounded" minOccurs="0" name="otherSamplingFeatureProperty"
                         type="diggs:ParameterPropertyType"/>
                     <element name="locality" type="diggs:LocalityPropertyType" minOccurs="0"
@@ -825,12 +923,6 @@
             </extension>
         </complexContent>
     </complexType>
-    <element abstract="true" name="AbstractSimpleMetadata" type="diggs:AbstractSimpleMetadataType">
-        <annotation>
-            <documentation>Base type for DIGGS metadata objects</documentation>
-        </annotation>
-    </element>
-    <complexType abstract="true" name="AbstractSimpleMetadataType"/>
     <element abstract="true" name="AbstractSpecimen" type="diggs:AbstractSpecimenType"/>
     <complexType abstract="true" name="AbstractSpecimenType">
         <annotation>
@@ -842,6 +934,11 @@
             <extension base="diggs:AbstractFeatureType">
                 <sequence>
                     <element maxOccurs="unbounded" ref="diggs:sampleRef"/>
+                    <element minOccurs="0" name="extractionTime" type="gml:TimePositionType">
+                        <annotation>
+                            <documentation>The time instant when this specimen was extracted from the sample for testing. This is equivalent to diggs:MaterialTest/sampleTime and diggs:Test/diggs:samplingTime where only one specimen is used for the test and should generally not be used in that case. Where multiple specimens are used for a test and each was extracted from the host at different times, then this property should be used to record the precise sampling time for each specimen.</documentation>
+                        </annotation>
+                    </element>
                     <element minOccurs="0" name="otherSpecimenProperty"
                         type="diggs:ParameterPropertyType" maxOccurs="unbounded"/>
                 </sequence>
@@ -886,10 +983,12 @@
                         </annotation>
                     </element>
                     <element minOccurs="0" name="testingEnvironment"
-                        type="diggs:EnvironmentPropertyType">
+                        type="diggs:EnvironmentPropertyType" maxOccurs="unbounded">
                         <annotation>
-                            <documentation>Environmental conditions at time of
-                                testing</documentation>
+                            <documentation>Environmental conditions during testing. Values derived
+                                at different times during the test can be specified with multiple
+                                elements and using the Environment/dateTime
+                                property.</documentation>
                         </annotation>
                     </element>
                     <element maxOccurs="unbounded" minOccurs="0" name="otherTestProperty"
@@ -980,10 +1079,9 @@
                                 the borehole. </documentation>
                         </annotation>
                     </element>
-                    <element name="time" type="diggs:TimeIntervalPropertyType" minOccurs="0">
+                    <element name="time" type="eml:TimeMeasure" minOccurs="0">
                         <annotation>
-                            <documentation>Start date/time, end date/time, and duration to advance
-                                the reported section of the borehole.</documentation>
+                            <documentation>The amount of time it took to advance over the reported interval. This can be used with or in lieu of advancementRate</documentation>
                         </annotation>
                     </element>
                     <element name="advancementRate" type="eml:LengthPerTimeMeasure" minOccurs="0"
@@ -1047,7 +1145,8 @@
                     </element>
                     <element name="penetrationRate" minOccurs="0" type="eml:LengthPerTimeMeasure">
                         <annotation>
-                            <documentation>Rate of advancement of the drill head. Deprecated - use advamcementRate instead</documentation>
+                            <documentation>Rate of advancement of the drill head. Deprecated - use
+                                advamcementRate instead</documentation>
                         </annotation>
                     </element>
                     <element name="restrainingForce" minOccurs="0" type="eml:ForceMeasure">
@@ -1106,7 +1205,9 @@
     </complexType>
     <simpleType name="reciprocalSquareRootTimeUom">
         <annotation>
-            <documentation>This enumerated list extends eml:AreaPerTimeUom. m2/sec and mm2/min are deprecated. m2/s (eml namespace) and mm2/m should be used in their place.</documentation>
+            <documentation>This enumerated list extends eml:AreaPerTimeUom. m2/sec and mm2/min are
+                deprecated. m2/s (eml namespace) and mm2/m should be used in their
+                place.</documentation>
         </annotation>
         <restriction base="eml:UomEnum">
             <enumeration value="1/min^-1/2"/>
@@ -1121,7 +1222,9 @@
     </complexType>
     <simpleType name="areaPerTimeUomExt">
         <annotation>
-            <documentation>This enumerated list extends eml:AreaPerTimeUom. m2/sec and mm2/min are deprecated. m2/s (eml namespace) and mm2/m should be used in their place.</documentation>
+            <documentation>This enumerated list extends eml:AreaPerTimeUom. m2/sec and mm2/min are
+                deprecated. m2/s (eml namespace) and mm2/m should be used in their
+                place.</documentation>
         </annotation>
         <restriction base="eml:UomEnum">
             <enumeration value="m2/sec"/>
@@ -1136,8 +1239,8 @@
     <element name="AssociatedFile" type="diggs:AssociatedFileType"
         substitutionGroup="diggs:AbstractNamedObject" abstract="false">
         <annotation>
-            <documentation>An object that provides information about external files or
-                documents associated with other features.</documentation>
+            <documentation>An object that provides information about external files or documents
+                associated with other features.</documentation>
         </annotation>
     </element>
     <complexType name="AssociatedFilePropertyType">
@@ -1152,7 +1255,17 @@
             <extension base="diggs:AbstractNamedObjectType">
                 <sequence>
                     <sequence>
-                        <element minOccurs="0" name="fileURL" type="diggs:DiggsStringType"/>
+                        <element minOccurs="0" name="contact"
+                            type="diggs:BusinessAssociatePropertyType" maxOccurs="unbounded">
+                            <annotation>
+                                <documentation>The person or business to contact about this file. This property should be populated where a fileURL is not provided.</documentation>
+                            </annotation>
+                        </element>
+                        <element minOccurs="0" name="fileURL" type="anyURI">
+                            <annotation>
+                                <documentation>Path to the digital file</documentation>
+                            </annotation>
+                        </element>
                         <element maxOccurs="1" minOccurs="0" name="fileType" type="gml:CodeType">
                             <annotation>
                                 <documentation>Digital file type, typically denoted by the file
@@ -1160,7 +1273,11 @@
                             </annotation>
                         </element>
                         <element maxOccurs="1" minOccurs="0" name="creatingApplication"
-                            type="diggs:SoftwareApplicationPropertyType"/>
+                            type="diggs:SoftwareApplicationPropertyType">
+                            <annotation>
+                                <documentation>Name of the application that created the file, where applicable.</documentation>
+                            </annotation>
+                        </element>
                         <element maxOccurs="1" minOccurs="0" name="documentType" type="gml:CodeType">
                             <annotation>
                                 <documentation>Type of document that the file represents, such as
@@ -1168,7 +1285,11 @@
                             </annotation>
                         </element>
                         <element maxOccurs="1" minOccurs="0" name="fileDate"
-                            type="diggs:UnifiedDateTimeType"/>
+                            type="gml:TimePositionType">
+                            <annotation>
+                                <documentation>Date file created or last modified.</documentation>
+                            </annotation>
+                        </element>
                     </sequence>
                 </sequence>
             </extension>
@@ -1186,14 +1307,15 @@
     </element>
     <element name="Backfill" substitutionGroup="diggs:AbstractObject" type="diggs:BackfillType">
         <annotation>
-            <documentation>An object that contains properites associated with backfilling of a borehole.
-</documentation>
+            <documentation>An object that contains properites associated with backfilling of a
+                borehole. </documentation>
         </annotation>
     </element>
     <element name="BackfillLayer" substitutionGroup="diggs:AbstractObject"
         type="diggs:BackfillLayerType">
         <annotation>
-            <documentation>An object that carries properties for a layer of backfill material.</documentation>
+            <documentation>An object that carries properties for a layer of backfill
+                material.</documentation>
         </annotation>
     </element>
     <complexType name="BackfillLayerPropertyType">
@@ -1229,18 +1351,27 @@
                     </element>
                     <element name="backfillVolume" type="eml:VolumeMeasure" minOccurs="0">
                         <annotation>
-                            <documentation>The total valume of backfill material emplaced in this layer</documentation>
+                            <documentation>The total valume of backfill material emplaced in this
+                                layer</documentation>
                         </annotation>
                     </element>
                     <element minOccurs="0" name="groutingActivityRef"
                         type="diggs:FeatureReferenceType">
                         <annotation>
-                            <documentation>If pressure and flow rate time series are recorded for this backfill layer, this information is stored in a grouting activity feature. This property points to the grouting activity corresponding to emplacement of this layer</documentation>
+                            <appinfo>diggs:GroutingActivity</appinfo>
+                            <documentation>If pressure and flow rate time series are recorded for
+                                this backfill layer, this information is stored in a grouting
+                                activity feature. This property points to the grouting activity
+                                corresponding to emplacement of this layer</documentation>
                         </annotation>
                     </element>
-                    <element minOccurs="0" name="groutMixRef" type="gml:ReferenceType">
+                    <element minOccurs="0" name="groutRef" type="diggs:FeatureReferenceType">
                         <annotation>
-                            <documentation>If information is recorded about components of a grout mix, as part of a RockGroutingActivity feature, this property points to the Mix object corresponding to the grout mix used in this backfill layer.</documentation>
+                            <appinfo>diggs:GroutBatch</appinfo>
+                            <documentation>If information is recorded about components of a Grout
+                                used for backfill or as part of a grouting activity,this property
+                                points to the GroutBatch object corresponding to the grout batch used in
+                                this backfill layer.</documentation>
                         </annotation>
                     </element>
                 </sequence>
@@ -1275,15 +1406,14 @@
                     </element>
                     <element minOccurs="0" name="backfillType" type="diggs:backfillTypeEnumType">
                         <annotation>
-                            <documentation>A controlled list of terms to indicate what type of backfilling is described in the object. Choices are:
-
-annular space within borehole - backfilling occurs within the annular space between the outer casing and the natural borehole wall
-
-annular space between casings - backfilling occurs within the annular space between nested casings
-
-open hole - backfilling occurs within an open hole
-
-within casing - backfilling occurs within the innermost casing</documentation>
+                            <documentation>A controlled list of terms to indicate what type of
+                                backfilling is described in the object. Choices are: annular space
+                                within borehole - backfilling occurs within the annular space
+                                between the outer casing and the natural borehole wall annular space
+                                between casings - backfilling occurs within the annular space
+                                between nested casings open hole - backfilling occurs within an open
+                                hole within casing - backfilling occurs within the innermost
+                                casing</documentation>
                         </annotation>
                     </element>
                 </sequence>
@@ -1317,7 +1447,8 @@ within casing - backfilling occurs within the innermost casing</documentation>
     </element>
     <element name="BoreholeConstructionMethod" type="diggs:BoreholeConstructionMethodType">
         <annotation>
-            <documentation>An object that contains properties of borehole construction.</documentation>
+            <documentation>An object that contains properties of borehole
+                construction.</documentation>
         </annotation>
     </element>
     <complexType name="BoreholeConstructionMethodPropertyType">
@@ -1372,7 +1503,8 @@ within casing - backfilling occurs within the innermost casing</documentation>
     <element name="BoreholeDiameter" substitutionGroup="diggs:AbstractObject"
         type="diggs:BoreholeDiameterType">
         <annotation>
-            <documentation>An object that carries the diameter of a borehole and its location.</documentation>
+            <documentation>An object that carries the diameter of a borehole and its
+                location.</documentation>
         </annotation>
     </element>
     <complexType name="BoreholeDiameterPropertyType">
@@ -1441,12 +1573,12 @@ within casing - backfilling occurs within the innermost casing</documentation>
                         <element minOccurs="0" name="waterDepth"
                             type="diggs:PointLocationPropertyType">
                             <annotation>
-                                <documentation>Depth to Water Surface as measured at this
-                                event time, recorded in the hole's linear referencing
-                                system.</documentation>
+                                <documentation>Depth to Water Surface as measured at this event
+                                    time, recorded in the hole's linear referencing
+                                    system.</documentation>
                             </annotation>
                         </element>
-                        <element default="true" minOccurs="0" name="isDry" type="boolean"/>
+                        <element minOccurs="0" name="isDry" type="boolean" fixed="true"/>
                     </choice>
                 </sequence>
             </extension>
@@ -1472,13 +1604,14 @@ within casing - backfilling occurs within the innermost casing</documentation>
                     </element>
                     <element minOccurs="0" name="holeBearing" type="eml:PlaneAngleMeasure">
                         <annotation>
-                            <documentation>Deprecated - use bearing property from abstract type</documentation>
+                            <documentation>Deprecated - use bearing property from abstract
+                                type</documentation>
                         </annotation>
                     </element>
                     <element minOccurs="0" name="holePlunge" type="eml:PlaneAngleMeasure">
                         <annotation>
                             <documentation>Depreated - use plunge property from abstract type
-</documentation>
+                            </documentation>
                         </annotation>
                     </element>
                     <element maxOccurs="1" minOccurs="0" name="boreholePurpose" type="gml:CodeType">
@@ -1562,7 +1695,8 @@ within casing - backfilling occurs within the innermost casing</documentation>
     </complexType>
     <element name="Boundary" substitutionGroup="diggs:AbstractObject" type="diggs:BoundaryType">
         <annotation>
-            <documentation>An object that contains properties of a layer boundary (eg. dip angle, sharpness, etc.)</documentation>
+            <documentation>An object that contains properties of a layer boundary (eg. dip angle,
+                sharpness, etc.)</documentation>
         </annotation>
     </element>
     <complexType name="BoundaryPropertyType">
@@ -1644,7 +1778,8 @@ within casing - backfilling occurs within the innermost casing</documentation>
     <element name="Calibration" type="diggs:CalibrationType"
         substitutionGroup="diggs:AbstractFeature" abstract="false">
         <annotation>
-            <documentation>An object containing properties pertaining to instrument calibration.</documentation>
+            <documentation>An object containing properties pertaining to instrument
+                calibration.</documentation>
         </annotation>
     </element>
     <complexType name="CalibrationPropertyType">
@@ -1663,8 +1798,7 @@ within casing - backfilling occurs within the innermost casing</documentation>
                                 external file via an xlink:href attribute</documentation>
                         </annotation>
                     </element>
-                    <element name="date" type="diggs:UnifiedDateTimeType" minOccurs="0"
-                        maxOccurs="1">
+                    <element name="date" type="gml:TimePositionType" minOccurs="0" maxOccurs="1">
                         <annotation>
                             <documentation>Date calibration was perfomed</documentation>
                         </annotation>
@@ -1682,7 +1816,8 @@ within casing - backfilling occurs within the innermost casing</documentation>
     </complexType>
     <element name="Casing" type="diggs:CasingType">
         <annotation>
-            <documentation>An object containing properties pertaining to borehole casing.</documentation>
+            <documentation>An object containing properties pertaining to borehole
+                casing.</documentation>
         </annotation>
     </element>
     <complexType name="CasingPropertyType">
@@ -1697,7 +1832,10 @@ within casing - backfilling occurs within the innermost casing</documentation>
                     <element minOccurs="0" name="casingLocation"
                         type="diggs:LinearExtentPropertyType">
                         <annotation>
-                            <documentation>The depth interval of the casing after fully installed and advanced within the borehole. If omitted, it is assumed that the casing information pertains to the entire length of the borehole or well.</documentation>
+                            <documentation>The depth interval of the casing after fully installed
+                                and advanced within the borehole. If omitted, it is assumed that the
+                                casing information pertains to the entire length of the borehole or
+                                well.</documentation>
                         </annotation>
                     </element>
                     <element minOccurs="0" name="casingOutsideDiameter" type="eml:LengthMeasure"/>
@@ -1705,27 +1843,31 @@ within casing - backfilling occurs within the innermost casing</documentation>
                     <element minOccurs="0" name="casingWallThickness" type="eml:LengthMeasure"/>
                     <element minOccurs="0" name="casingMaterial" type="gml:CodeType">
                         <annotation>
-                            <documentation>The material that the casing is made of, eg. PVC, stainless steel, etc. Intended to come from a controlled list of terms.</documentation>
+                            <documentation>The material that the casing is made of, eg. PVC,
+                                stainless steel, etc. Intended to come from a controlled list of
+                                terms.</documentation>
                         </annotation>
                     </element>
                     <element maxOccurs="1" minOccurs="0" name="numberGroutPorts"
                         type="positiveInteger">
                         <annotation>
-                            <documentation>If casing is an overburden casing as sleeve pipe (OCSP) or other casing through which grout is injected, this property records the number of ports in the casing.</documentation>
+                            <documentation>If casing is an overburden casing as sleeve pipe (OCSP)
+                                or other casing through which grout is injected, this property
+                                records the number of ports in the casing.</documentation>
                         </annotation>
                     </element>
                     <element maxOccurs="1" minOccurs="0" name="timeCasingInstalled"
                         type="diggs:TimeIntervalType">
                         <annotation>
                             <documentation>The time interval over which the casing was installed
-</documentation>
+                            </documentation>
                         </annotation>
                     </element>
                     <element maxOccurs="1" minOccurs="0" name="timeCasingRemoved"
                         type="diggs:TimeIntervalType">
                         <annotation>
                             <documentation>The time interval during which the casing was removed
-</documentation>
+                            </documentation>
                         </annotation>
                     </element>
                     <element maxOccurs="unbounded" minOccurs="0" name="casingAdvancement"
@@ -1736,7 +1878,9 @@ within casing - backfilling occurs within the innermost casing</documentation>
     </complexType>
     <element name="CasingAdvancement" type="diggs:CasingAdvancementType">
         <annotation>
-            <documentation>If casing is advanced while drilling, this object records the time interval when advancement occurs, along with the start and end position of the casing bottom.</documentation>
+            <documentation>If casing is advanced while drilling, or retracted during an activity, like grouting, this object records the time
+                interval when casing advancement/retraction occurs, along with the start and end position of the
+                casing bottom.</documentation>
         </annotation>
     </element>
     <complexType name="CasingAdvancementPropertyType">
@@ -1751,21 +1895,29 @@ within casing - backfilling occurs within the innermost casing</documentation>
             <extension base="diggs:AbstractObjectType">
                 <sequence>
                     <element maxOccurs="1" minOccurs="0" name="advancementTime"
-                        type="diggs:TimeIntervalType">
+                        type="diggs:TimeIntervalPropertyType">
                         <annotation>
-                            <documentation>Tima at start and end of the casing advancement interval</documentation>
+                            <documentation>Tima at start and end of the casing advancement
+                                interval</documentation>
                         </annotation>
                     </element>
                     <element minOccurs="0" name="casingBaseAtStart"
                         type="diggs:PointLocationPropertyType">
                         <annotation>
-                            <documentation>The location of the bottom at the casing at the beginning of the casing interval.</documentation>
+                            <documentation>The location of the bottom at the casing at the beginning
+                                of the casing interval.</documentation>
                         </annotation>
                     </element>
                     <element minOccurs="0" name="casingBaseAtEnd"
                         type="diggs:PointLocationPropertyType">
                         <annotation>
-                            <documentation>The location of the bottom at the casing at the end of the casing advancement interval.</documentation>
+                            <documentation>The location of the bottom at the casing at the end of
+                                the casing advancement interval.</documentation>
+                        </annotation>
+                    </element>
+                    <element minOccurs="0" name="casingBlows" type="positiveInteger">
+                        <annotation>
+                            <documentation>If casing is driven, the number of blows to drive the casing the reported distance. Details about the process should be reported in the relevant equipment or construction method object.</documentation>
                         </annotation>
                     </element>
                 </sequence>
@@ -1774,7 +1926,8 @@ within casing - backfilling occurs within the innermost casing</documentation>
     </complexType>
     <element name="ChainOfCustodyEvent" type="diggs:ChainOfCustodyEventType">
         <annotation>
-            <documentation>An object containing properties pertaining to the chain of custody of a sample.</documentation>
+            <documentation>An object containing properties pertaining to the chain of custody of a
+                sample.</documentation>
         </annotation>
     </element>
     <complexType name="ChainOfCustodyEventPropertyType">
@@ -1802,12 +1955,12 @@ within casing - backfilling occurs within the innermost casing</documentation>
                                 receiving custody of the sample.</documentation>
                         </annotation>
                     </element>
-                    <element minOccurs="0" name="dateInitiated" type="diggs:UnifiedDateTimeType">
+                    <element minOccurs="0" name="dateInitiated" type="gml:TimePositionType">
                         <annotation>
                             <documentation><![CDATA[Date that sample was shipped or date that chain of custody event was initiated]]></documentation>
                         </annotation>
                     </element>
-                    <element name="dateCompleted" type="diggs:UnifiedDateTimeType" minOccurs="0">
+                    <element name="dateCompleted" type="gml:TimePositionType" minOccurs="0">
                         <annotation>
                             <documentation><![CDATA[Date that sample was received or date that chain of custody event was completed]]></documentation>
                         </annotation>
@@ -1829,7 +1982,8 @@ within casing - backfilling occurs within the innermost casing</documentation>
     </complexType>
     <element name="Chiseling" substitutionGroup="diggs:AbstractObject" type="diggs:ChiselingType">
         <annotation>
-            <documentation>An object containing properties about chiseling activity as part of advancement of a borehole.</documentation>
+            <documentation>An object containing properties about chiseling activity as part of
+                advancement of a borehole.</documentation>
         </annotation>
     </element>
     <complexType name="ChiselingPropertyType">
@@ -1885,7 +2039,8 @@ within casing - backfilling occurs within the innermost casing</documentation>
     </complexType>
     <element name="dataValues" substitutionGroup="gml:tupleList" type="gml:CoordinatesType">
         <annotation>
-            <documentation>A property that holds a string of data values as part of a measurement result set.</documentation>
+            <documentation>A property that holds a string of data values as part of a measurement
+                result set.</documentation>
         </annotation>
     </element>
     <simpleType name="DescriptivePropertiesEnumType">
@@ -1996,15 +2151,16 @@ within casing - backfilling occurs within the innermost casing</documentation>
     </simpleType>
     <element name="colorCode" type="diggs:DescriptorCodeType">
         <annotation>
-            <documentation>A color property that describes the color of materials encountered.</documentation>
+            <documentation>A color property that describes the color of materials
+                encountered.</documentation>
         </annotation>
     </element>
     <element name="ColorObservation" substitutionGroup="diggs:AbstractObservation"
         type="diggs:ColorObservationType">
         <annotation>
-            <documentation>A color observation describes the color of materials encountered. All layers
-                within a color observation system must not overlap, although multiple colors can be
-                described within a single zone.</documentation>
+            <documentation>A color observation describes the color of materials encountered. All
+                layers within a color observation system must not overlap, although multiple colors
+                can be described within a single zone.</documentation>
         </annotation>
     </element>
     <complexType name="ColorObservationPropertyType">
@@ -2076,9 +2232,9 @@ within casing - backfilling occurs within the innermost casing</documentation>
                     <choice>
                         <element name="abundanceCode" type="gml:CodeType" minOccurs="0">
                             <annotation>
-                                <documentation>A measure of the relative amount of the color present as a
-                                    string type, intended to come from a controlled list (eg. few,
-                                    rare, common, etc.)</documentation>
+                                <documentation>A measure of the relative amount of the color present
+                                    as a string type, intended to come from a controlled list (eg.
+                                    few, rare, common, etc.)</documentation>
                             </annotation>
                         </element>
                         <element name="abundancePercent" type="diggs:Val0-100MeasureType"
@@ -2119,7 +2275,8 @@ within casing - backfilling occurs within the innermost casing</documentation>
     <element name="ComponentLithology" substitutionGroup="diggs:AbstractObject"
         type="diggs:ComponentLithologyType">
         <annotation>
-            <documentation>An object that describes the lithology as a component within a master lithology zone.</documentation>
+            <documentation>An object that describes the lithology as a component within a master
+                lithology zone.</documentation>
         </annotation>
     </element>
     <complexType name="ComponentLithologyPropertyType">
@@ -2136,9 +2293,9 @@ within casing - backfilling occurs within the innermost casing</documentation>
                     <choice>
                         <element name="abundanceCode" type="gml:CodeType" minOccurs="0">
                             <annotation>
-                                <documentation>A measure of the relative amount of the subordinate lithology
-                                    present as a string type, intended to come from a controlled
-                                    list (eg. few, rare, common, etc.)</documentation>
+                                <documentation>A measure of the relative amount of the subordinate
+                                    lithology present as a string type, intended to come from a
+                                    controlled list (eg. few, rare, common, etc.)</documentation>
                             </annotation>
                         </element>
                         <element name="abundancePercent" type="diggs:Val0-100MeasureType"
@@ -2156,7 +2313,8 @@ within casing - backfilling occurs within the innermost casing</documentation>
     </complexType>
     <element name="Constituent" type="diggs:ConstituentType">
         <annotation>
-            <documentation>An object that describes minor constituents within a lithology zone.</documentation>
+            <documentation>An object that describes minor constituents within a lithology
+                zone.</documentation>
         </annotation>
     </element>
     <simpleType name="ConstituentCategoryEnumType">
@@ -2184,9 +2342,10 @@ within casing - backfilling occurs within the innermost casing</documentation>
     <element name="ConstituentObservation" substitutionGroup="diggs:AbstractObservation"
         type="diggs:ConstituentObservationType">
         <annotation>
-            <documentation>Constituent observations describe details of earth materials encountered within
-                a sampling feature. Constituent observations that are restricted to a specific lithologic zone are
-                encoded as constituent properties in the Lithology zones themselves. </documentation>
+            <documentation>Constituent observations describe details of earth materials encountered
+                within a sampling feature. Constituent observations that are restricted to a
+                specific lithologic zone are encoded as constituent properties in the Lithology
+                zones themselves. </documentation>
         </annotation>
     </element>
     <complexType name="ConstituentObservationPropertyType">
@@ -2224,9 +2383,9 @@ within casing - backfilling occurs within the innermost casing</documentation>
     <element name="ConstituentSystem" substitutionGroup="diggs:AbstractDescriptionSystem"
         type="diggs:ConstituentSystemType">
         <annotation>
-            <documentation>An object that contains a system of constituent observations. Observations within a
-                constituent  system need not be continuous and may overlap, but zones with the
-                same named constituents cannot overlap.</documentation>
+            <documentation>An object that contains a system of constituent observations.
+                Observations within a constituent system need not be continuous and may overlap, but
+                zones with the same named constituents cannot overlap.</documentation>
         </annotation>
     </element>
     <complexType name="ConstituentSystemType">
@@ -2260,9 +2419,9 @@ within casing - backfilling occurs within the innermost casing</documentation>
                     <choice>
                         <element name="abundanceCode" type="gml:CodeType" minOccurs="0">
                             <annotation>
-                                <documentation>A measure of the relative amount of the constituent present as
-                                    a string type, intended to come from a controlled list (eg. few,
-                                    rare, common, etc.)</documentation>
+                                <documentation>A measure of the relative amount of the constituent
+                                    present as a string type, intended to come from a controlled
+                                    list (eg. few, rare, common, etc.)</documentation>
                             </annotation>
                         </element>
                         <element name="abundancePercent" type="diggs:Val0-100MeasureType"
@@ -2358,7 +2517,8 @@ within casing - backfilling occurs within the innermost casing</documentation>
     <element name="Contract" type="diggs:ContractType" substitutionGroup="diggs:AbstractFeature"
         abstract="false">
         <annotation>
-            <documentation>An object that contains properties of a business contract.</documentation>
+            <documentation>An object that contains properties of a business
+                contract.</documentation>
         </annotation>
     </element>
     <complexType name="ContractPropertyType">
@@ -2371,8 +2531,8 @@ within casing - backfilling occurs within the innermost casing</documentation>
             <extension base="diggs:AbstractFeatureType">
                 <sequence>
                     <element name="version" type="diggs:DiggsStringType" minOccurs="0" maxOccurs="1"/>
-                    <element minOccurs="0" name="contractDate" type="diggs:UnifiedDateTimeType"/>
-                    <element minOccurs="0" name="revisionDate" type="diggs:UnifiedDateTimeType"
+                    <element minOccurs="0" name="contractDate" type="gml:TimePositionType"/>
+                    <element minOccurs="0" name="revisionDate" type="gml:TimePositionType"
                         maxOccurs="unbounded"/>
                     <element name="type" type="gml:CodeType" minOccurs="0" maxOccurs="1"/>
                     <element name="value" type="witsml:Cost" minOccurs="0" maxOccurs="1">
@@ -2388,7 +2548,8 @@ within casing - backfilling occurs within the innermost casing</documentation>
     <element name="CoringDevice" type="diggs:CoringDeviceType"
         substitutionGroup="diggs:AbstractEquipment" abstract="false">
         <annotation>
-            <documentation>An object that contains properties of a borehole coring device.</documentation>
+            <documentation>An object that contains properties of a borehole coring
+                device.</documentation>
         </annotation>
     </element>
     <complexType name="CoringDeviceType">
@@ -2443,8 +2604,8 @@ within casing - backfilling occurs within the innermost casing</documentation>
                     <element minOccurs="0" name="linerType" type="gml:CodeType">
                         <annotation>
                             <documentation>The type of liner material or the type of coating within
-                                the coring device (eg. porcelain coating on a shelby
-                                tube). Intended to come from a controlled list of terms.</documentation>
+                                the coring device (eg. porcelain coating on a shelby tube). Intended
+                                to come from a controlled list of terms.</documentation>
                         </annotation>
                     </element>
                     <element minOccurs="0" name="outsideClearanceRatio"
@@ -2484,7 +2645,8 @@ within casing - backfilling occurs within the innermost casing</documentation>
     <element name="DelayEvent" type="diggs:DelayEventType" substitutionGroup="diggs:AbstractObject"
         abstract="false">
         <annotation>
-            <documentation>An object that describes the properties of time delay between activities of a driven penetration or vane test procedure.</documentation>
+            <documentation>An object that describes the properties of time delay between activities
+                of a driven penetration or vane test procedure.</documentation>
         </annotation>
     </element>
     <complexType name="DelayEventPropertyType">
@@ -2524,17 +2686,18 @@ within casing - backfilling occurs within the innermost casing</documentation>
     </complexType>
     <simpleType name="DescriptorMethodEnumType">
         <annotation>
-            <documentation>A value that describes the method by which the observation or measurement was determined. Allowed values are: 
-- assigned; value is assigned a priori as a commonly used value or by assumption 
-- calculated; value computed from from other value(s), eg. a water level elevation computed from a depth measurement 
-- graphic; value is a code used for graphic display purposes only - inferred; estimated from some indirect measurement such as a wireline log or transducer 
-- measured; determined from laboratory or in situ test 
-- missing; method known but not reported here 
-- moving average; caculated as a moving average of readings
-- other; method other than the choices in this list. Further information should be provided in the remarks property 
-- reported; description comes from a third party source 
-- unknown; method of description unknown and can likely not be determined 
-- visual; observation comes from visual inspection </documentation>
+            <documentation>A value that describes the method by which the observation or measurement
+                was determined. Allowed values are: - assigned; value is assigned a priori as a
+                commonly used value or by assumption - calculated; value computed from from other
+                value(s), eg. a water level elevation computed from a depth measurement - graphic;
+                value is a code used for graphic display purposes only - inferred; estimated from
+                some indirect measurement such as a wireline log or transducer - measured;
+                determined from laboratory or in situ test - missing; method known but not reported
+                here - moving average; caculated as a moving average of readings - other; method
+                other than the choices in this list. Further information should be provided in the
+                remarks property - reported; description comes from a third party source - unknown;
+                method of description unknown and can likely not be determined - visual; observation
+                comes from visual inspection </documentation>
         </annotation>
         <restriction base="string">
             <enumeration value="assigned"/>
@@ -2545,6 +2708,7 @@ within casing - backfilling occurs within the innermost casing</documentation>
             <enumeration value="measured"/>
             <enumeration value="minimum"/>
             <enumeration value="missing"/>
+            <enumeration value="modeled"/>
             <enumeration value="moving average"/>
             <enumeration value="other"/>
             <enumeration value="reported"/>
@@ -2698,7 +2862,8 @@ within casing - backfilling occurs within the innermost casing</documentation>
     <element name="DiscontinuitySystem" substitutionGroup="diggs:AbstractDescriptionSystem"
         type="diggs:DiscontinuitySystemType">
         <annotation>
-            <documentation>An object that contains a system of discontinuity observations.</documentation>
+            <documentation>An object that contains a system of discontinuity
+                observations.</documentation>
         </annotation>
     </element>
     <complexType name="DiscontinuitySystemType">
@@ -2720,7 +2885,8 @@ within casing - backfilling occurs within the innermost casing</documentation>
     <element name="DocumentInformation" type="diggs:DocumentInformationType"
         substitutionGroup="diggs:AbstractFeatureBase" abstract="false" block="" nillable="false">
         <annotation>
-            <documentation>An object that contains metadata about the specific xml instance.</documentation>
+            <documentation>An object that contains metadata about the specific xml
+                instance.</documentation>
         </annotation>
     </element>
     <complexType name="DocumentInformationPropertyType">
@@ -2736,13 +2902,13 @@ within casing - backfilling occurs within the innermost casing</documentation>
         <complexContent>
             <extension base="diggs:AbstractFeatureBaseType">
                 <sequence>
-                    <element name="creationDate" type="diggs:UnifiedDateTimeType">
+                    <element name="creationDate" type="gml:TimePositionType">
                         <annotation>
                             <documentation>The date that this instance file was
                                 created.</documentation>
                         </annotation>
                     </element>
-                    <element minOccurs="0" name="effectiveDate" type="diggs:UnifiedDateTimeType">
+                    <element minOccurs="0" name="effectiveDate" type="gml:TimePositionType">
                         <annotation>
                             <documentation>The effective date for the data in this XML instance. It
                                 represents the date the information within this instance document
@@ -2750,7 +2916,7 @@ within casing - backfilling occurs within the innermost casing</documentation>
                                 creationDate.</documentation>
                         </annotation>
                     </element>
-                    <element minOccurs="0" name="expirationDate" type="diggs:UnifiedDateTimeType">
+                    <element minOccurs="0" name="expirationDate" type="gml:TimePositionType">
                         <annotation>
                             <documentation>The expiration date for the data in this XML instance. It
                                 represents the date when this information is no longer relevant or
@@ -2875,18 +3041,48 @@ within casing - backfilling occurs within the innermost casing</documentation>
         <complexContent>
             <extension base="diggs:AbstractObjectType">
                 <sequence>
+                    <element minOccurs="0" name="dateTime" type="gml:TimePositionType"/>
                     <element name="ambientTemperature" type="eml:ThermodynamicTemperatureMeasure"
-                        minOccurs="0" maxOccurs="1"/>
+                        minOccurs="0" maxOccurs="1">
+                        <annotation>
+                            <documentation>Ambient air temperature reported as a single value at the time of measurement</documentation>
+                        </annotation>
+                    </element>
                     <element name="barometricPressure" type="diggs:pressureMeasureType"
-                        minOccurs="0" maxOccurs="1"/>
+                        minOccurs="0" maxOccurs="1">
+                        <annotation>
+                            <documentation>Barometric pressure reported as a single value at the time of measurement</documentation>
+                        </annotation>
+                    </element>
                     <element name="gasFlow" type="eml:VolumePerTimeMeasure" minOccurs="0"
-                        maxOccurs="1"/>
+                        maxOccurs="1">
+                        <annotation>
+                            <documentation>Where environmental data of interest is within an experimental chamber, a measure of the gas flow within the chamber. Deprecated; use test procedure specific properties where relevant.</documentation>
+                        </annotation>
+                    </element>
                     <element name="humidity" type="eml:VolumePerVolumeMeasure" minOccurs="0"
-                        maxOccurs="1"/>
+                        maxOccurs="1">
+                        <annotation>
+                            <documentation>Atmospheric humidity reported as a single value at the time of measurement</documentation>
+                        </annotation>
+                    </element>
                     <element name="gasPressure" type="diggs:pressureMeasureType" minOccurs="0"
-                        maxOccurs="1"/>
+                        maxOccurs="1">
+                        <annotation>
+                            <documentation>Where environmental data of interest is within an experimental chamber, a measure of the gas pressure within the chamber. Deprecated; use test procedure specific properties where relevant.</documentation>
+                        </annotation>
+                    </element>
+                    <element name="weather" type="diggs:DiggsStringType" minOccurs="0" maxOccurs="1">
+                        <annotation>
+                            <documentation>General description of the weather (eg. sunny, partly cloudy, etc.)</documentation>
+                        </annotation>
+                    </element>
                     <element name="windSpeed" type="eml:LengthPerTimeMeasure" minOccurs="0"
-                        maxOccurs="1"/>
+                        maxOccurs="1">
+                        <annotation>
+                            <documentation>Wind speed reported as a single value at the time measurement was taken</documentation>
+                        </annotation>
+                    </element>
                     <element minOccurs="0" name="otherEnvironmentalProperty"
                         type="diggs:ParameterPropertyType" maxOccurs="unbounded"/>
                 </sequence>
@@ -2936,7 +3132,8 @@ within casing - backfilling occurs within the innermost casing</documentation>
     </complexType>
     <element name="FieldProperties" type="diggs:FieldPropertiesType">
         <annotation>
-            <documentation>An object that contains soil properties determined by visual/field techniques.</documentation>
+            <documentation>An object that contains soil properties determined by visual/field
+                techniques.</documentation>
         </annotation>
     </element>
     <complexType name="FieldPropertiesPropertyType">
@@ -3138,7 +3335,7 @@ within casing - backfilling occurs within the innermost casing</documentation>
                 <sequence>
                     <element minOccurs="0" name="dilutionFactor" type="eml:UnitlessMeasure"/>
                     <element minOccurs="0" name="leachatePreparationDateTime"
-                        type="diggs:UnifiedDateTimeType"/>
+                        type="gml:TimePositionType"/>
                     <element minOccurs="0" name="leachatePreparationMethod"
                         type="diggs:SpecificationPropertyType"/>
                 </sequence>
@@ -3266,7 +3463,8 @@ within casing - backfilling occurs within the innermost casing</documentation>
     </complexType>
     <element name="FractureObservation" type="diggs:FractureObservationType">
         <annotation>
-            <documentation>An object containing properties of a fracture observation.</documentation>
+            <documentation>An object containing properties of a fracture
+                observation.</documentation>
         </annotation>
     </element>
     <complexType name="FractureObservationPropertyType">
@@ -3392,7 +3590,8 @@ within casing - backfilling occurs within the innermost casing</documentation>
     </complexType>
     <element name="FractureSpacing" type="diggs:FractureSpacingType">
         <annotation>
-            <documentation>An object containing properties describing the spacing between fractures.</documentation>
+            <documentation>An object containing properties describing the spacing between
+                fractures.</documentation>
         </annotation>
     </element>
     <complexType name="FractureSpacingPropertyType">
@@ -3443,7 +3642,8 @@ within casing - backfilling occurs within the innermost casing</documentation>
     </simpleType>
     <element name="GroupGroup" substitutionGroup="diggs:AbstractGroup" type="diggs:GroupGroupType">
         <annotation>
-            <documentation>A Diggs feature containing references to a group of groups.</documentation>
+            <documentation>A Diggs feature containing references to a group of
+                groups.</documentation>
         </annotation>
     </element>
     <complexType name="GroupGroupType">
@@ -3477,22 +3677,12 @@ within casing - backfilling occurs within the innermost casing</documentation>
             <pattern value="urn:diggs:def:fi:[A-Z]{1,8}:[A-z0-9_\.\-]{1,200}"/>
         </restriction>
     </simpleType>
-    <complexType name="IndexedParameterType">
-        <simpleContent>
-            <extension base="string">
-                <attribute name="index" type="eml:PositiveLong" use="required">
-                    <annotation>
-                        <documentation>Indexes things with the same name. That is the first one, the
+    <attribute name="index" type="eml:PositiveLong">
+        <annotation>
+            <documentation>Indexes things with the same name. That is the first one, the
                             second one, etc.</documentation>
-                    </annotation>
-                </attribute>
-                <attribute name="name" type="string" use="required"/>
-                <attribute name="codeSpace" type="anyURI"/>
-                <attribute name="uom" type="diggs:AllUnits" use="optional"/>
-                <attribute name="description" type="string" use="optional"/>
-            </extension>
-        </simpleContent>
-    </complexType>
+        </annotation>
+    </attribute>
     <element name="InSituTestEvent" type="diggs:InSituTestEventType"
         substitutionGroup="diggs:AbstractEvent">
         <annotation>
@@ -3519,7 +3709,8 @@ within casing - backfilling occurs within the innermost casing</documentation>
     </complexType>
     <element name="InstallationEvent" type="diggs:InstallationEventType">
         <annotation>
-            <documentation>An object that contains properties about a time or depth related event occurring in association with creation of an installation feature.</documentation>
+            <documentation>An object that contains properties about a time or depth related event
+                occurring in association with creation of an installation feature.</documentation>
         </annotation>
     </element>
     <complexType name="InstallationEventType">
@@ -3581,16 +3772,15 @@ within casing - backfilling occurs within the innermost casing</documentation>
     </simpleType>
     <element name="investigationTarget" type="diggs:investigationTargetEnumType">
         <annotation>
-            <documentation>A controlled list that indicates the target being investigated by this feature: 
-Deep Foundation - investigation of deep foundation elements. 
-Earthworks - earth materials excavated and/or emplaced by engineering activity.
-Ground Improvement - activities designed to alter the characterstics of natural ground.
-Ground Water - hydrology and chemistry of ground water. 
-Indoor Atmosphere - meteorology and chemistry of air in indoor spaces.
-Natural Ground - earth materials sampled in natural or undisturbed state. 
-Outdoor Atmosphere - meteorology and chemistry of air in outdoor spaces.
-Surface Water - hydrology and chemistry of surface water.
-            </documentation>
+            <documentation>A controlled list that indicates the target being investigated by this
+                feature: Deep Foundation - investigation of deep foundation elements. Earthworks -
+                earth materials excavated and/or emplaced by engineering activity. Ground
+                Improvement - activities designed to alter the characterstics of natural ground.
+                Ground Water - hydrology and chemistry of ground water. Indoor Atmosphere -
+                meteorology and chemistry of air in indoor spaces. Natural Ground - earth materials
+                sampled in natural or undisturbed state. Outdoor Atmosphere - meteorology and
+                chemistry of air in outdoor spaces. Surface Water - hydrology and chemistry of
+                surface water. </documentation>
         </annotation>
     </element>
     <simpleType name="investigationTargetEnumType">
@@ -3610,10 +3800,16 @@ Surface Water - hydrology and chemistry of surface water.
             </simpleType>
         </restriction>
     </simpleType>
+    <complexType name="LaboratoryProcedurePropertyType">
+        <sequence>
+            <element ref="diggs:AbstractLaboratoryTestProcedure"/>
+        </sequence>
+    </complexType>
     <element abstract="false" name="Limit" substitutionGroup="gml:AbstractGML"
         type="diggs:LimitType">
         <annotation>
-            <documentation>An object containing properties of the detection limits of a measurement.</documentation>
+            <documentation>An object containing properties of the detection limits of a
+                measurement.</documentation>
         </annotation>
     </element>
     <simpleType name="LimitEnumType">
@@ -3636,20 +3832,15 @@ Surface Water - hydrology and chemistry of surface water.
                     </element>
                     <element maxOccurs="1" minOccurs="0" name="limitType" type="diggs:LimitEnumType">
                         <annotation>
-                            <documentation>A controlled list of terms that decribe the type of limit reported.  Allowable values are:
-upper
-lower
-method
-quantification
-reporting
-minimum allowable value
-maximum allowable value</documentation>
+                            <documentation>A controlled list of terms that decribe the type of limit
+                                reported. Allowable values are: upper lower method quantification
+                                reporting minimum allowable value maximum allowable
+                                value</documentation>
                         </annotation>
                     </element>
                     <element maxOccurs="1" minOccurs="0" name="value" type="diggs:DiggsStringType">
                         <annotation>
-                            <documentation>The value of the limit.
-</documentation>
+                            <documentation>The value of the limit. </documentation>
                         </annotation>
                     </element>
                 </sequence>
@@ -3659,7 +3850,9 @@ maximum allowable value</documentation>
     <element name="LinearExtent" substitutionGroup="diggs:AbstractGeometry"
         type="diggs:LineStringType">
         <annotation>
-            <documentation>An object that defines a location as a linear extent (eg. from and to), typically associated with a linear sampling feature, such as a borehole.</documentation>
+            <documentation>An object that defines a location as a linear extent (eg. from and to),
+                typically associated with a linear sampling feature, such as a
+                borehole.</documentation>
         </annotation>
     </element>
     <complexType name="LinearExtentPropertyType">
@@ -3683,7 +3876,8 @@ DSB: REMOVED FROM PROFILE
     <element name="LinearSpatialReferenceSystem" type="diggs:LinearSpatialReferenceSystemType"
         substitutionGroup="diggs:AbstractRelativeReferenceSystem">
         <annotation>
-            <documentation>An object describing the linear spatial reference system for a sampling feature.</documentation>
+            <documentation>An object describing the linear spatial reference system for a sampling
+                feature.</documentation>
         </annotation>
     </element>
     <complexType name="LinearSpatialReferenceSystemPropertyType">
@@ -3730,7 +3924,8 @@ DSB: REMOVED FROM PROFILE
     </complexType>
     <element name="Lithology" type="diggs:LithologyType" substitutionGroup="diggs:AbstractObject">
         <annotation>
-            <documentation>An object containing the properties of a lithology description.</documentation>
+            <documentation>An object containing the properties of a lithology
+                description.</documentation>
         </annotation>
     </element>
     <simpleType name="LithologyCharacterEnumType">
@@ -3753,7 +3948,8 @@ DSB: REMOVED FROM PROFILE
     <element name="LithologyObservation" substitutionGroup="diggs:AbstractObservation"
         type="diggs:LithologyObservationType">
         <annotation>
-            <documentation>An object containing properties of a lithology observation (eg. location and description).</documentation>
+            <documentation>An object containing properties of a lithology observation (eg. location
+                and description).</documentation>
         </annotation>
     </element>
     <complexType name="LithologyObservationPropertyType">
@@ -3808,8 +4004,8 @@ DSB: REMOVED FROM PROFILE
                         maxOccurs="unbounded">
                         <annotation>
                             <documentation>Describes the classification system(s) used to define the
-                                lithology classification codes (eg. USCS)
-                                used within this system</documentation>
+                                lithology classification codes (eg. USCS) used within this
+                                system</documentation>
                         </annotation>
                     </element>
                     <element name="lithologyObservation"
@@ -3898,9 +4094,18 @@ DSB: REMOVED FROM PROFILE
                     </element>
                     <element minOccurs="0" name="facies" type="diggs:DiggsStringType">
                         <annotation>
-                            <documentation>In reference to unconsolidated soils or sedimentary rocks, this term describes certain conditions of sedimentation that reflect a particular process or depositional environment. Some examples might be alluvium, dune sand, river terrace deposits, hemipelagic sediment, etc. Facies designations do not imply any order within a stratigraphic column. Facies terms used to define informal geologic units that occur in stratigraphic order (eg. units do not repeat within a stratigraphic column) should be reported in a StratigraphySystem.
-
-For metamorphic rocks, this property is used to describe a set of mineral assemblages that form under similar pressures and temperatures (eg. zeolite facies, blueschist facies).</documentation>
+                            <documentation>In reference to unconsolidated soils or sedimentary
+                                rocks, this term describes certain conditions of sedimentation that
+                                reflect a particular process or depositional environment. Some
+                                examples might be alluvium, dune sand, river terrace deposits,
+                                hemipelagic sediment, etc. Facies designations do not imply any
+                                order within a stratigraphic column. Facies terms used to define
+                                informal geologic units that occur in stratigraphic order (eg. units
+                                do not repeat within a stratigraphic column) should be reported in a
+                                StratigraphySystem. For metamorphic rocks, this property is used to
+                                describe a set of mineral assemblages that form under similar
+                                pressures and temperatures (eg. zeolite facies, blueschist
+                                facies).</documentation>
                         </annotation>
                     </element>
                     <element minOccurs="0" name="fieldProperties"
@@ -3916,8 +4121,7 @@ For metamorphic rocks, this property is used to describe a set of mineral assemb
             </extension>
         </complexContent>
     </complexType>
-    <element abstract="false" name="LocalCoordinate"
-        substitutionGroup="diggs:AbstractSimpleMetadata" type="diggs:LocalCoordinateType">
+    <element abstract="false" name="LocalCoordinate" type="diggs:LocalCoordinateType">
         <annotation>
             <documentation>A metadata object that holds the values of local coordinates for the
                 reference point of the associated feature. This object is used to carry information
@@ -3928,17 +4132,13 @@ For metamorphic rocks, this property is used to describe a set of mineral assemb
         </annotation>
     </element>
     <complexType name="LocalCoordinatePropertyType">
-        <complexContent>
-            <extension base="gml:AbstractMetadataPropertyType">
-                <sequence>
-                    <element ref="diggs:LocalCoordinate"/>
-                </sequence>
-            </extension>
-        </complexContent>
+        <sequence>
+            <element ref="diggs:LocalCoordinate"/>
+        </sequence>
     </complexType>
     <complexType name="LocalCoordinateType">
         <complexContent>
-            <extension base="diggs:AbstractSimpleMetadataType">
+            <extension base="gml:AbstractMetadataPropertyType">
                 <sequence>
                     <element minOccurs="0" name="easting" type="eml:LengthMeasure">
                         <annotation>
@@ -4083,7 +4283,8 @@ For metamorphic rocks, this property is used to describe a set of mineral assemb
     </complexType>
     <element name="location" substitutionGroup="gml:domainSet" type="diggs:LocationPropertyType">
         <annotation>
-            <documentation>A property that contains a geometry object defining a location for a feature or object.</documentation>
+            <documentation>A property that contains a geometry object defining a location for a
+                feature or object.</documentation>
         </annotation>
     </element>
     <complexType name="LocationPropertyType">
@@ -4107,7 +4308,8 @@ DSB: REMOVED FROM PROFILE
     <element name="LocationUncertainty" type="diggs:LocationUncertaintyType"
         substitutionGroup="diggs:AbstractObject" abstract="false">
         <annotation>
-            <documentation>An object that contains properties defining the uncertainty of a location.</documentation>
+            <documentation>An object that contains properties defining the uncertainty of a
+                location.</documentation>
         </annotation>
     </element>
     <complexType name="LocationUncertaintyPropertyType">
@@ -4225,7 +4427,8 @@ DSB: REMOVED FROM PROFILE
     <element name="MonitorResult" type="diggs:MonitorResultType"
         substitutionGroup="gml:AbstractCoverage">
         <annotation>
-            <documentation>An object that contains properties of a monitoring activity result.</documentation>
+            <documentation>An object that contains properties of a monitoring activity
+                result.</documentation>
         </annotation>
     </element>
     <complexType name="MonitorResultPropertyType">
@@ -4256,7 +4459,8 @@ DSB: REMOVED FROM PROFILE
     <element name="MultiCurve" substitutionGroup="diggs:AbstractGeometry"
         type="diggs:MultiCurveType">
         <annotation>
-            <documentation>A Diggs geometry object that holds a collection of curve geometries.</documentation>
+            <documentation>A Diggs geometry object that holds a collection of curve
+                geometries.</documentation>
         </annotation>
     </element>
     <complexType name="MultiCurvePropertyType">
@@ -4278,13 +4482,16 @@ DSB: REMOVED FROM PROFILE
     <element name="MultiPointLocation" substitutionGroup="diggs:AbstractGeometry"
         type="diggs:SimpleMultiPointType">
         <annotation>
-            <documentation>A Diggs geometry object that contains a collection of point locations.</documentation>
+            <documentation>A Diggs geometry object that contains a collection of point
+                locations.</documentation>
         </annotation>
     </element>
     <element name="MultiTimeInstant" type="diggs:MultiTimeInstantType"
         substitutionGroup="diggs:AbstractTimeObject" abstract="false">
         <annotation>
-            <documentation>A Diggs time object that contains a collection of time instances. Deprecated as of 2.6. Use TimePositionInstance instead for time instances expressed in xsd:CalDate format.</documentation>
+            <documentation>A Diggs time object that contains a collection of time instances.
+                Deprecated as of 2.6. Use TimePositionInstance instead for time instances expressed
+                in xsd:CalDate format.</documentation>
         </annotation>
     </element>
     <complexType name="MultiTimeInstantType">
@@ -4352,11 +4559,11 @@ DSB: REMOVED FROM PROFILE
     <element name="OrientationObservation" substitutionGroup="diggs:AbstractObservation"
         type="diggs:OrientationObservationType">
         <annotation>
-            <documentation>Orientation observations describe the geometry of vectors or planar surfaces
-                encountered at a sampling feature, such as bedding, joints, cross-beds, etc. These
-                observations are designed to characterize regions with generalized geometries. Individual
-                measurements of planar geometries of boundaries or faults are recorded in
-                Discontinuity or Lithology observations. </documentation>
+            <documentation>Orientation observations describe the geometry of vectors or planar
+                surfaces encountered at a sampling feature, such as bedding, joints, cross-beds,
+                etc. These observations are designed to characterize regions with generalized
+                geometries. Individual measurements of planar geometries of boundaries or faults are
+                recorded in Discontinuity or Lithology observations. </documentation>
         </annotation>
     </element>
     <simpleType name="OrientationObsPropertyEnumType">
@@ -4400,8 +4607,8 @@ DSB: REMOVED FROM PROFILE
     <element name="OrientationSystem" substitutionGroup="diggs:AbstractDescriptionSystem"
         type="diggs:OrientationSystemType">
         <annotation>
-            <documentation>An object that contains a system of Orientation observations. Observations within an orientation zone system
-                must not overlap.</documentation>
+            <documentation>An object that contains a system of Orientation observations.
+                Observations within an orientation zone system must not overlap.</documentation>
         </annotation>
     </element>
     <complexType name="OrientationSystemType">
@@ -4482,7 +4689,8 @@ DSB: REMOVED FROM PROFILE
     <element name="OtherObservationSystem" substitutionGroup="diggs:AbstractDescriptionSystem"
         type="diggs:OtherObservationSystemType">
         <annotation>
-            <documentation>An object containing a system of OtherObservation objects.</documentation>
+            <documentation>An object containing a system of OtherObservation
+                objects.</documentation>
         </annotation>
     </element>
     <complexType name="OtherObservationType">
@@ -4522,10 +4730,18 @@ DSB: REMOVED FROM PROFILE
             <pattern value="Other: .{2,}"/>
         </restriction>
     </simpleType>
-    <element name="Parameter" substitutionGroup="diggs:AbstractObject" type="diggs:ParameterType">
+    <element name="Parameter" substitutionGroup="diggs:AbstractObject">
         <annotation>
-            <documentation>An object containing the name, value and unit of a measurement parameter or result.</documentation>
+            <documentation>An object containing the name, value and unit of a measurement parameter
+                or result.</documentation>
         </annotation>
+        <complexType>
+            <complexContent>
+                <extension base="diggs:ParameterType">
+                    <attribute ref="diggs:index"/>
+                </extension>
+            </complexContent>
+        </complexType>
     </element>
     <element name="parameters" substitutionGroup="gml:rangeParameters"
         type="diggs:PropertyInfoPropertyType">
@@ -4537,7 +4753,11 @@ DSB: REMOVED FROM PROFILE
         <complexContent>
             <extension base="diggs:AbstractObjectType">
                 <sequence>
-                    <element minOccurs="0" name="index" type="integer"/>
+                    <element minOccurs="0" name="index" type="integer">
+                        <annotation>
+                            <documentation>Deprecated - use index attribute instead</documentation>
+                        </annotation>
+                    </element>
                     <element minOccurs="1" name="parameterName" type="gml:CodeType">
                         <annotation>
                             <documentation>A description or code to what the value property
@@ -4586,7 +4806,8 @@ DSB: REMOVED FROM PROFILE
     </complexType>
     <element name="ParticleSize" type="diggs:ParticleSizeType">
         <annotation>
-            <documentation>An object that contains properties of a particle size measurement.</documentation>
+            <documentation>An object that contains properties of a particle size
+                measurement.</documentation>
         </annotation>
     </element>
     <element name="ParticleSizeDistribution" type="diggs:ParticleSizeDistributionType"/>
@@ -4746,7 +4967,8 @@ DSB: REMOVED FROM PROFILE
     <element name="PlanarObservationRepresentation" type="diggs:PlanarObservationRepresentationType"
         substitutionGroup="diggs:AbstractGeometry">
         <annotation>
-            <documentation>An object that defines the geometry of a planar surface observation.</documentation>
+            <documentation>An object that defines the geometry of a planar surface
+                observation.</documentation>
         </annotation>
     </element>
     <complexType name="PlanarObservationRepresentationType">
@@ -4936,12 +5158,14 @@ DSB: REMOVED FROM PROFILE
     <element name="Project" type="diggs:ProjectType" substitutionGroup="diggs:AbstractNamedFeature"
         abstract="false">
         <annotation>
-            <documentation>A top level Diggs feature defining the business activity associated with the collection of geotechnical and geoenvironmental data.</documentation>
+            <documentation>A top level Diggs feature defining the business activity associated with
+                the collection of geotechnical and geoenvironmental data.</documentation>
         </annotation>
     </element>
     <element name="ProjectEvent" type="diggs:ProjectEventType">
         <annotation>
-            <documentation>An object that contains properties of time or location related events associated with a project.</documentation>
+            <documentation>An object that contains properties of time or location related events
+                associated with a project.</documentation>
         </annotation>
     </element>
     <complexType name="ProjectEventPropertyType">
@@ -4959,7 +5183,8 @@ DSB: REMOVED FROM PROFILE
     <element name="ProjectGroup" substitutionGroup="diggs:AbstractGroup"
         type="diggs:ProjectGroupType">
         <annotation>
-            <documentation>A top level Diggs feature defining a related group of projects.</documentation>
+            <documentation>A top level Diggs feature defining a related group of
+                projects.</documentation>
         </annotation>
     </element>
     <complexType name="ProjectGroupType">
@@ -4975,10 +5200,7 @@ DSB: REMOVED FROM PROFILE
         <sequence>
             <element ref="diggs:Project" minOccurs="1" maxOccurs="1">
                 <annotation>
-                    <documentation>A Project is a collection of sampling features, sampling
-                        activities, samples, and measurements <br/>that constitutes a business
-                        activity. A project may occur at a physical location, in which case it can
-                        optionally contain geometries.</documentation>
+                    <documentation>A Project is a business activity that encompasses a collection of sampling features, activities, samples, measurements, observations and construction activities. A project may occur at a physical location, in which case it can optionally contain geometries. </documentation>
                 </annotation>
             </element>
         </sequence>
@@ -5020,13 +5242,15 @@ DSB: REMOVED FROM PROFILE
     <element name="properties" substitutionGroup="gml:valueComponents"
         type="gml:ValueArrayPropertyType">
         <annotation>
-            <documentation>A property that contains a sequence of Property objects defining the results of a test or monitoring activity.</documentation>
+            <documentation>A property that contains a sequence of Property objects defining the
+                results of a test or monitoring activity.</documentation>
         </annotation>
     </element>
     <element name="Property" type="diggs:PropertyType" substitutionGroup="gml:AbstractValue"
         abstract="false">
         <annotation>
-            <documentation>An object that contains properties of a measurement result.</documentation>
+            <documentation>An object that contains properties of a measurement
+                result.</documentation>
         </annotation>
     </element>
     <simpleType name="PropertyDataTypeEnumType">
@@ -5065,7 +5289,8 @@ DSB: REMOVED FROM PROFILE
     <element name="PropertyParameters" type="diggs:PropertyParametersType"
         substitutionGroup="gml:CompositeValue">
         <annotation>
-            <documentation>An object that contains the properties property of a measurement result.</documentation>
+            <documentation>An object that contains the properties property of a measurement
+                result.</documentation>
         </annotation>
     </element>
     <complexType name="PropertyParametersType">
@@ -5231,15 +5456,24 @@ DSB: REMOVED FROM PROFILE
                     <element maxOccurs="unbounded" minOccurs="0" name="qualifier"
                         type="diggs:QualifierPropertyType"/>
                     <element maxOccurs="1" minOccurs="0" name="curveState"
-                        type="witsml:MeasurementType">
+                        type="witsml:ChannelState">
                         <annotation>
                             <documentation>Used for well logging procedures, to define the state or
                                 status of the data described by the well log curve. From an
                                 enumerated list.</documentation>
                         </annotation>
                     </element>
+                    <element maxOccurs="1" minOccurs="0" name="curveDerivation"
+                        type="witsml:ChannelDerivation">
+                        <annotation>
+                            <documentation>For well logging procedures, defines the source of the data.</documentation>
+                        </annotation>
+                    </element>
                 </sequence>
                 <attribute name="index" use="required">
+                    <annotation>
+                        <documentation>Union allowing a null value for index is deprecated. Integer value only should be used for this mandatory attribute.</documentation>
+                    </annotation>
                     <simpleType>
                         <union>
                             <simpleType>
@@ -5281,8 +5515,8 @@ DSB: REMOVED FROM PROFILE
     </complexType>
     <element name="Reading" type="diggs:ReadingType">
         <annotation>
-            <documentation>An object that contains properties describing the results of a monitoring activity.
-</documentation>
+            <documentation>An object that contains properties describing the results of a monitoring
+                activity. </documentation>
         </annotation>
     </element>
     <complexType name="ReadingGroupPropertyType">
@@ -5331,7 +5565,8 @@ DSB: REMOVED FROM PROFILE
         type="diggs:ReconstitutedSpecimenPreparationInfoType"
         substitutionGroup="diggs:AbstractObject">
         <annotation>
-            <documentation>An object containing properties about a reconsituted specimen for testing.</documentation>
+            <documentation>An object containing properties about a reconsituted specimen for
+                testing.</documentation>
         </annotation>
     </element>
     <complexType name="ReconstitutedSpecimenPreparationInfoPropertyType">
@@ -5385,24 +5620,19 @@ DSB: REMOVED FROM PROFILE
     <simpleType name="ReconstitutedSpecimenCompactorType">
         <union memberTypes="diggs:ReconstitutedSpecimenCompactorEnumType diggs:OtherNameType"/>
     </simpleType>
-    <element name="Remark" type="diggs:RemarkType" substitutionGroup="diggs:AbstractSimpleMetadata"
-        abstract="false">
+    <element name="Remark" type="diggs:RemarkType" abstract="false">
         <annotation>
-            <documentation>An object containing the properties of a remark.</documentation>
+            <documentation>An object containing the properties of a remark, which includes the remark's content, author(s), and date/time</documentation>
         </annotation>
     </element>
     <complexType name="RemarkPropertyType">
-        <complexContent>
-            <extension base="gml:AbstractMetadataPropertyType">
-                <sequence>
-                    <element ref="diggs:Remark" minOccurs="1" maxOccurs="1"/>
-                </sequence>
-            </extension>
-        </complexContent>
+        <sequence>
+            <element ref="diggs:Remark"/>
+        </sequence>
     </complexType>
     <complexType name="RemarkType">
         <complexContent>
-            <extension base="diggs:AbstractSimpleMetadataType">
+            <extension base="gml:AbstractMetadataPropertyType">
                 <sequence>
                     <element name="content" type="diggs:DiggsStringType" minOccurs="1" maxOccurs="1"/>
                     <element name="author" type="diggs:BusinessAssociatePropertyType"
@@ -5414,7 +5644,7 @@ DSB: REMOVED FROM PROFILE
                                 element.</documentation>
                         </annotation>
                     </element>
-                    <element name="remarkDateTime" type="diggs:UnifiedDateTimeType" minOccurs="0"
+                    <element name="remarkDateTime" type="gml:TimePositionType" minOccurs="0"
                         maxOccurs="1"/>
                 </sequence>
             </extension>
@@ -5427,7 +5657,8 @@ DSB: REMOVED FROM PROFILE
     </element>
     <element name="ResultSet" substitutionGroup="gml:DataBlock" type="diggs:ResultSetType">
         <annotation>
-            <documentation>An object that contains properites describing the parameters and data values of a measurement result.</documentation>
+            <documentation>An object that contains properites describing the parameters and data
+                values of a measurement result.</documentation>
         </annotation>
     </element>
     <complexType name="ResultSetType">
@@ -5458,24 +5689,20 @@ DSB: REMOVED FROM PROFILE
             </restriction>
         </complexContent>
     </complexType>
-    <element name="Role" type="diggs:RoleType" substitutionGroup="diggs:AbstractSimpleMetadata"
-        abstract="false">
+    <element name="Role" type="diggs:RoleType" abstract="false">
         <annotation>
-            <documentation>An object that contains properties of a role, which identifies, who what and when a particular job was done or role fulfilled.</documentation>
+            <documentation>An object that contains properties of a role, which identifies, who what
+                and when a particular job was done or role fulfilled.</documentation>
         </annotation>
     </element>
     <complexType name="RolePropertyType">
-        <complexContent>
-            <extension base="gml:AbstractMetadataPropertyType">
-                <sequence>
-                    <element ref="diggs:Role" minOccurs="1" maxOccurs="1"/>
-                </sequence>
-            </extension>
-        </complexContent>
+        <sequence>
+            <element ref="diggs:Role" minOccurs="1" maxOccurs="1"/>
+        </sequence>
     </complexType>
     <complexType name="RoleType">
         <complexContent>
-            <extension base="diggs:AbstractSimpleMetadataType">
+            <extension base="gml:AbstractMetadataPropertyType">
                 <sequence>
                     <element name="rolePerformed" type="gml:CodeType" minOccurs="1" maxOccurs="1"/>
                     <element name="timePerformed" type="diggs:TimeIntervalPropertyType"
@@ -5495,7 +5722,7 @@ DSB: REMOVED FROM PROFILE
             </extension>
         </complexContent>
     </complexType>
-    <element abstract="false" name="Sample" substitutionGroup="diggs:AbstractNamedFeature"
+    <element abstract="false" name="Sample" substitutionGroup="diggs:AbstractSample"
         type="diggs:SampleType">
         <annotation>
             <documentation>A specimen of earth material, fluid, or gas that is obtained as a result
@@ -5515,11 +5742,14 @@ DSB: REMOVED FROM PROFILE
             <enumeration value="Rock"/>
             <enumeration value="Fluid"/>
             <enumeration value="Gas"/>
+            <enumeration value="Grout"/>
+            <pattern value=""/>
         </restriction>
     </simpleType>
     <element name="SampleGroup" substitutionGroup="diggs:AbstractGroup" type="diggs:SampleGroupType">
         <annotation>
-            <documentation>A top level Diggs feature that reference related samples as part of a group.</documentation>
+            <documentation>A top level Diggs feature that reference related samples as part of a
+                group.</documentation>
         </annotation>
     </element>
     <complexType name="SampleGroupType">
@@ -5542,15 +5772,15 @@ DSB: REMOVED FROM PROFILE
     <element name="SampleProduced" type="diggs:SampleProducedType"
         substitutionGroup="diggs:AbstractObject">
         <annotation>
-            <documentation>An object that defines the location of a sample produced by a sampling activity.</documentation>
+            <documentation>An object that defines the location of a sample produced by a sampling
+                activity.</documentation>
         </annotation>
     </element>
     <complexType name="SampleProducedPropertyType">
         <sequence>
             <element maxOccurs="1" ref="diggs:SampleProduced" minOccurs="1">
                 <annotation>
-                    <documentation>An object that contains the reference to a sample, it's derived
-                        type, and location produced by this activity</documentation>
+                    <documentation>An object that contains the time and location of each physical sample produced by this activity</documentation>
                 </annotation>
             </element>
         </sequence>
@@ -5560,30 +5790,24 @@ DSB: REMOVED FROM PROFILE
             <extension base="diggs:AbstractObjectType">
                 <sequence>
                     <element minOccurs="0" ref="diggs:location"/>
+                    <element minOccurs="0" name="sampleTime" type="diggs:TimeIntervalPropertyType">
+                        <annotation>
+                            <documentation>The start and end time (or duration), beginning at the instant of sample collection or creation, until sample is actually obtained or delivered. This might include the time between coring of a sample and delivery to the ground surface for boxing, or the time between creation of a concrete batch until delivery to the job site. This property differs from SamplingActivity/samplingDate insofar as this property only is relevant to this one produced sample.</documentation>
+                        </annotation>
+                    </element>
                 </sequence>
             </extension>
         </complexContent>
     </complexType>
-    <complexType name="SamplePropertyType">
+    <complexType name="AbstractSamplePropertyType">
         <sequence>
-            <element maxOccurs="1" minOccurs="1" ref="diggs:Sample"/>
+            <element maxOccurs="1" minOccurs="1" ref="diggs:AbstractSample"/>
         </sequence>
     </complexType>
     <complexType name="SampleType">
         <complexContent>
-            <extension base="diggs:AbstractNamedFeatureType">
+            <extension base="diggs:AbstractSampleType">
                 <sequence>
-                    <element name="projectRef" type="diggs:FeatureReferenceType" minOccurs="1">
-                        <annotation>
-                            <documentation/>
-                        </annotation>
-                    </element>
-                    <element ref="diggs:samplingActivityRef"/>
-                    <element name="sampleProducedRef" type="gml:ReferenceType" minOccurs="1">
-                        <annotation>
-                            <documentation/>
-                        </annotation>
-                    </element>
                     <element name="relativeReferencingSystem"
                         type="diggs:AbstractRelativeReferenceSystemPropertyType" minOccurs="0"
                         maxOccurs="1">
@@ -5597,11 +5821,14 @@ DSB: REMOVED FROM PROFILE
                                 location instead of the sampling feature's. </documentation>
                         </annotation>
                     </element>
-                    <element minOccurs="0" name="classification" type="diggs:SampClassEnumType">
+                    <element minOccurs="0" name="classification" type="diggs:SampClassEnumType"
+                        maxOccurs="unbounded">
                         <annotation>
                             <documentation>A definition of the class of sample collected, such as
-                                soil, rock, fluid, etc.). Intended to come from a controlled
-                                list.</documentation>
+                                soil, rock, fluid, etc.). From a controlled list of terms/ Aggregate
+                                samples that are created from 2 or more classes of material (eg. a
+                                soil-grout mix) would have multiple classification properties,
+                                identifying the class of component of the mix.</documentation>
                         </annotation>
                     </element>
                     <element minOccurs="0" name="condition" type="diggs:DiggsStringType">
@@ -5670,7 +5897,7 @@ DSB: REMOVED FROM PROFILE
     <element name="samplingActivityRef" type="diggs:FeatureReferenceType">
         <annotation>
             <appinfo source="urn:x-gml:targetElement">Diggs:SamplingActivity</appinfo>
-            <documentation>A reference to a sample activity that is associated with this feature. </documentation>
+            <documentation>A reference to a sampling activity that is associated with this feature. </documentation>
             <documentation>A property element that supports a value by reference only. The target
                 value is indicated in the appinfo element.</documentation>
         </annotation>
@@ -5723,7 +5950,7 @@ DSB: REMOVED FROM PROFILE
                                 sourceSampleRef should be specified for the related Sample(s); test
                                 - activity produced a test, standard or blank sample that does not
                                 relate to any field sample or sampling feature; activity will point
-                                to a project and no sourceSampleRef should be specified for the
+                                to a project but no sourceSampleRef nor samplingFeatureRef should be specified for the
                                 associated Sample(s). none - the sample activity failed to produce
                                 any physical sample; unknown - used where no information about the
                                 sampling activity exists (eg. for legacy data where only sample name
@@ -5761,9 +5988,8 @@ DSB: REMOVED FROM PROFILE
                     <element maxOccurs="unbounded" minOccurs="0" name="sampleProduced"
                         type="diggs:SampleProducedPropertyType">
                         <annotation>
-                            <documentation>Identifies the samples, and the location(s) of samples
-                                (optional) that are produced by this sampling
-                                activity</documentation>
+                            <documentation>Identifies the samples, and the time and location(s) of samples
+(optional) that are produced by this sampling activity</documentation>
                         </annotation>
                     </element>
                     <element minOccurs="0" name="samplerInsertionMethod" type="gml:CodeType">
@@ -5775,11 +6001,11 @@ DSB: REMOVED FROM PROFILE
                     </element>
                     <element minOccurs="0" name="samplingDate" type="diggs:TimeIntervalPropertyType">
                         <annotation>
-                            <documentation>The date/time for this activity</documentation>
+                            <documentation>The date/time that encompasses the entire time over which sampling occurred.</documentation>
                         </annotation>
                     </element>
                     <element minOccurs="0" name="samplingEnvironment"
-                        type="diggs:EnvironmentPropertyType"/>
+                        type="diggs:EnvironmentPropertyType" maxOccurs="unbounded"/>
                     <element name="samplingEquipment" type="diggs:EquipmentPropertyType"
                         maxOccurs="unbounded" minOccurs="0">
                         <annotation>
@@ -5809,7 +6035,11 @@ DSB: REMOVED FROM PROFILE
                         </annotation>
                     </element>
                     <element maxOccurs="unbounded" minOccurs="0"
-                        name="otherSamplingActivityProperty" type="diggs:ParameterPropertyType"/>
+                        name="otherSamplingActivityProperty" type="diggs:ParameterPropertyType">
+                        <annotation>
+                            <documentation>A property that contains a Parameter object whereby ancillary metadata about the sampling activity can be reported</documentation>
+                        </annotation>
+                    </element>
                 </sequence>
             </extension>
         </complexContent>
@@ -5861,7 +6091,8 @@ DSB: REMOVED FROM PROFILE
     <element name="SamplingFeatureGroup" substitutionGroup="diggs:AbstractGroup"
         type="diggs:SamplingFeatureGroupType">
         <annotation>
-            <documentation>A top-level Diggs feature that references associated sampling features within a group</documentation>
+            <documentation>A top-level Diggs feature that references associated sampling features
+                within a group</documentation>
         </annotation>
     </element>
     <complexType name="SamplingFeatureGroupType">
@@ -5876,8 +6107,7 @@ DSB: REMOVED FROM PROFILE
     <element name="samplingFeatureRef" type="diggs:FeatureReferenceType">
         <annotation>
             <appinfo source="urn:x-gml:targetElement">Diggs:AbstractConstructionActivity</appinfo>
-            <documentation>A reference to a sampling feature from which the data associated with this feature is derived.
-</documentation>
+            <documentation>A reference to a sampling feature from which data are obtained   or in which an activity occurs.</documentation>
             <documentation>A property element that supports a value by reference only. The target
                 value is indicated in the appinfo element.</documentation>
         </annotation>
@@ -5885,7 +6115,8 @@ DSB: REMOVED FROM PROFILE
     <element name="Sensor" type="diggs:SensorType" substitutionGroup="diggs:AbstractEquipment"
         abstract="false">
         <annotation>
-            <documentation>An object that contains properties of a sensor that takes readings as part of a monitoring activity.</documentation>
+            <documentation>An object that contains properties of a sensor that takes readings as
+                part of a monitoring activity.</documentation>
         </annotation>
     </element>
     <element name="sensorRef" type="diggs:FeatureReferenceType">
@@ -5963,7 +6194,8 @@ DSB: REMOVED FROM PROFILE
                     <element minOccurs="0" name="minimumGrainSize"
                         type="diggs:ParticleSizeValueType">
                         <annotation>
-                            <documentation>The smallest grain size in the sample fraction used for this procedure</documentation>
+                            <documentation>The smallest grain size in the sample fraction used for
+                                this procedure</documentation>
                         </annotation>
                     </element>
                     <element minOccurs="0" name="maximumGrainSize"
@@ -5988,7 +6220,8 @@ DSB: REMOVED FROM PROFILE
     <element name="SoftwareApplication" type="diggs:SoftwareApplicationType"
         substitutionGroup="diggs:AbstractNamedObject" abstract="false">
         <annotation>
-            <documentation>An object that contains properties of a software application.</documentation>
+            <documentation>An object that contains properties of a software
+                application.</documentation>
         </annotation>
     </element>
     <complexType name="SoftwareApplicationPropertyType">
@@ -6015,7 +6248,8 @@ DSB: REMOVED FROM PROFILE
     </element>
     <element name="SoundingConstructionMethod" type="diggs:SoundingConstructionMethodType">
         <annotation>
-            <documentation>An object that contains properties of the construction of a sounding sampling feature.</documentation>
+            <documentation>An object that contains properties of the construction of a sounding
+                sampling feature.</documentation>
         </annotation>
     </element>
     <complexType name="SoundingConstructionMethodPropertyType">
@@ -6064,7 +6298,9 @@ DSB: REMOVED FROM PROFILE
     <element name="SoundingEvent" type="diggs:SoundingEventType"
         substitutionGroup="diggs:AbstractEvent">
         <annotation>
-            <documentation>An object that contains properties describing a location or time based event that occurs during contstruction of a sounding sampling feature.</documentation>
+            <documentation>An object that contains properties describing a location or time based
+                event that occurs during contstruction of a sounding sampling
+                feature.</documentation>
         </annotation>
     </element>
     <complexType name="SoundingEventPropertyType">
@@ -6317,8 +6553,6 @@ DSB: REMOVED FROM PROFILE
                                 specimen conditions following consolidation stage.</documentation>
                         </annotation>
                     </element>
-                    <element maxOccurs="unbounded" minOccurs="0" name="otherRockSpecimenProperty"
-                        type="diggs:ParameterPropertyType"/>
                 </sequence>
             </extension>
         </complexContent>
@@ -6329,11 +6563,6 @@ DSB: REMOVED FROM PROFILE
                 to testing</documentation>
         </annotation>
     </element>
-    <complexType name="SpecimenConditionsPropertyType">
-        <sequence>
-            <element maxOccurs="1" minOccurs="1" ref="diggs:SpecimenConditions"/>
-        </sequence>
-    </complexType>
     <complexType name="SpecimenConditionsType">
         <complexContent>
             <extension base="diggs:AbstractObjectType">
@@ -6376,7 +6605,8 @@ DSB: REMOVED FROM PROFILE
                     <element minOccurs="0" name="dryUnitWeight"
                         type="diggs:DensityOrUnitWeightMeasureType">
                         <annotation>
-                            <documentation>Initial dry density or unit weight</documentation>
+                            <documentation>Dry density or unit weight of the
+                                specimen</documentation>
                         </annotation>
                     </element>
                     <element minOccurs="0" name="dryWeight" type="eml:ForceMeasure">
@@ -6420,8 +6650,24 @@ DSB: REMOVED FROM PROFILE
                         <annotation>
                             <documentation>The shape of the specimen being tested, defined by the
                                 following controlled terms: 1) cylinder; 2) cube 3) cuboid - a
-                                square cylinder or cube with uneven sides disturbed intact specimen;
-                                4) sphere</documentation>
+                                square cylinder or cube with uneven sides; 4) non-solid - sample is
+                                a paste, liquid, or gas with no defined shape; 5)
+                                sphere</documentation>
+                        </annotation>
+                    </element>
+                    <element minOccurs="0" name="surfaceArea" type="eml:AreaMeasure">
+                        <annotation>
+                            <documentation>The total surface area of the specimen, computed in
+                                various ways dependent on specimen shape.</documentation>
+                        </annotation>
+                    </element>
+                    <element maxOccurs="unbounded" minOccurs="0" name="temperature"
+                        type="diggs:TemperatureMeasurementtPropertyType">
+                        <annotation>
+                            <documentation>Temperature of the specimen, stored in the
+                                TemperatureMeasurement object with optional dateTime that identifies
+                                specific time instant for the measurement. Multiple temperature
+                                measurements are permitted.</documentation>
                         </annotation>
                     </element>
                     <element minOccurs="0" name="volume" type="eml:VolumeMeasure">
@@ -6447,6 +6693,77 @@ DSB: REMOVED FROM PROFILE
             </extension>
         </complexContent>
     </complexType>
+    <complexType name="SpecimenConditionsPropertyType">
+        <sequence>
+            <element maxOccurs="1" minOccurs="1" ref="diggs:SpecimenConditions"/>
+        </sequence>
+    </complexType>
+    <element name="GroutSpecimenConditions" type="diggs:GroutSpecimenConditionsType">
+        <annotation>
+            <documentation>An object that describes the physical conditions of a specimen subjected
+                to testing</documentation>
+        </annotation>
+    </element>
+    <complexType name="GroutSpecimenConditionsType">
+        <complexContent>
+            <extension base="diggs:AbstractObjectType">
+                <sequence>
+                    <element minOccurs="0" name="dateTime" nillable="false"
+                        type="diggs:TimeIntervalPropertyType">
+                        <annotation>
+                            <documentation>Date and (optionally) time or interval of time during
+                                which this specimen condition evaluation was made.</documentation>
+                        </annotation>
+                    </element>
+                    <element minOccurs="0" name="bulkUnitWeight"
+                        type="diggs:DensityOrUnitWeightMeasureType">
+                        <annotation>
+                            <documentation>Initial bulk density or unit weight</documentation>
+                        </annotation>
+                    </element>
+                    <element minOccurs="0" name="specimenPlumb" type="boolean">
+                        <annotation>
+                            <documentation>If true, specimen formed in mold has vertical and/or
+                                horizontal sides. Any slumping of specimen after extracting from
+                                mold should have this property set as false.</documentation>
+                        </annotation>
+                    </element>
+                    <element minOccurs="0" name="surfaceArea" type="eml:AreaMeasure">
+                        <annotation>
+                            <documentation>The total surface area of the specimen, computed in
+                                various ways dependent on specimen shape.</documentation>
+                        </annotation>
+                    </element>
+                    <element maxOccurs="unbounded" minOccurs="0" name="temperature"
+                        type="diggs:TemperatureMeasurementtPropertyType">
+                        <annotation>
+                            <documentation>Temperature of the specimen, stored in the
+                                TemperatureMeasurement object with optional dateTime that identifies
+                                specific time instant for the measurement. Multiple temperature
+                                measurements are permitted.</documentation>
+                        </annotation>
+                    </element>
+                    <element minOccurs="0" name="volume" type="eml:VolumeMeasure">
+                        <annotation>
+                            <documentation>The volume of the specimen.</documentation>
+                        </annotation>
+                    </element>
+                    <element minOccurs="0" name="wetWeight" type="eml:ForceMeasure">
+                        <annotation>
+                            <documentation>The weight of the specimen prior to drying.</documentation>
+                        </annotation>
+                    </element>
+                    <element minOccurs="0" name="otherConditionProperty"
+                        type="diggs:ParameterPropertyType" maxOccurs="unbounded"/>
+                </sequence>
+            </extension>
+        </complexContent>
+    </complexType>
+    <complexType name="GroutSpecimenConditionsPropertyType">
+        <sequence>
+            <element ref="diggs:GroutSpecimenConditions"/>
+        </sequence>
+    </complexType>
     <simpleType name="SpecimenEnumType">
         <restriction base="string">
             <enumeration value="intact"/>
@@ -6464,7 +6781,7 @@ DSB: REMOVED FROM PROFILE
     </complexType>
     <element name="specimenRef" type="diggs:FeatureReferenceType">
         <annotation>
-            <appinfo source="urn:x-gml:targetElement">Diggs:Sample</appinfo>
+            <appinfo source="urn:x-gml:targetElement">diggs:AbstractSpecimen</appinfo>
             <documentation>A reference to a test specimen</documentation>
             <documentation>A property element that supports a value by reference only. The target
                 value is indicated in the appinfo element.</documentation>
@@ -6475,6 +6792,7 @@ DSB: REMOVED FROM PROFILE
             <enumeration value="cylinder"/>
             <enumeration value="cube"/>
             <enumeration value="cuboid"/>
+            <enumeration value="non-solid"/>
             <enumeration value="sphere"/>
         </restriction>
     </simpleType>
@@ -6528,8 +6846,8 @@ DSB: REMOVED FROM PROFILE
     <element name="StratigraphyObservation" substitutionGroup="diggs:AbstractObservation"
         type="diggs:StratigraphyObservationType">
         <annotation>
-            <documentation>Stratigraphy obsrvations are descriptions of ordered bodies of rock or sediment, such as
-                formations, biostratigraphic units or aquifers. </documentation>
+            <documentation>Stratigraphy obsrvations are descriptions of ordered bodies of rock or
+                sediment, such as formations, biostratigraphic units or aquifers. </documentation>
         </annotation>
     </element>
     <complexType name="StratigraphyObservationPropertyType">
@@ -6581,9 +6899,9 @@ DSB: REMOVED FROM PROFILE
     <element name="StratigraphySystem" substitutionGroup="diggs:AbstractDescriptionSystem"
         type="diggs:StratigraphySystemType">
         <annotation>
-            <documentation>An object containing a system of stratrigraphy observations. Observations within a stratigraphy
-                system must not overlap, and stratUnit values within a system cannot repeat (eg.
-                they must be unique within the system. </documentation>
+            <documentation>An object containing a system of stratrigraphy observations. Observations
+                within a stratigraphy system must not overlap, and stratUnit values within a system
+                cannot repeat (eg. they must be unique within the system. </documentation>
         </annotation>
     </element>
     <complexType name="StratigraphySystemType">
@@ -6620,6 +6938,28 @@ DSB: REMOVED FROM PROFILE
             </restriction>
         </complexContent>
     </complexType>
+    <element name="TemperatureMeasurement" substitutionGroup="diggs:AbstractObject"
+        type="diggs:TemperatureMeasurementType">
+        <annotation>
+            <documentation>A temperature measurement optionally taken at a specific time instant.</documentation>
+        </annotation>
+    </element>
+    <complexType name="TemperatureMeasurementtPropertyType">
+        <sequence>
+            <element ref="diggs:TemperatureMeasurement"/>
+        </sequence>
+    </complexType>
+    <complexType name="TemperatureMeasurementType">
+        <complexContent>
+            <extension base="diggs:AbstractObjectType">
+                <sequence>
+                    <element minOccurs="0" name="dateTime" type="gml:TimePositionType"/>
+                    <element minOccurs="1" name="temperature"
+                        type="eml:ThermodynamicTemperatureMeasure"/>
+                </sequence>
+            </extension>
+        </complexContent>
+    </complexType>
     <element name="Test" type="diggs:TestType" substitutionGroup="diggs:AbstractMeasurement">
         <annotation>
             <documentation>An act ("event"), whose results are estimates of the value of a property
@@ -6630,7 +6970,8 @@ DSB: REMOVED FROM PROFILE
     </element>
     <element name="TestResult" substitutionGroup="gml:AbstractCoverage" type="diggs:TestResultType">
         <annotation>
-            <documentation>An object that contains properties that report the results of a test.</documentation>
+            <documentation>An object that contains properties that report the results of a
+                test.</documentation>
         </annotation>
     </element>
     <complexType name="TestResultPropertyType">
@@ -6652,7 +6993,8 @@ DSB: REMOVED FROM PROFILE
         <complexContent>
             <extension base="diggs:AbstractMeasurementType">
                 <sequence>
-                    <element minOccurs="0" name="samplingTime" type="diggs:TimeIntervalPropertyType">
+                    <element minOccurs="0" name="samplingTime"
+                        type="diggs:TimeIntervalOrInstantPropertyType">
                         <annotation>
                             <documentation>Describes the time that the result applies to the
                                 property of the investigation target. This is often the time of
@@ -6660,7 +7002,8 @@ DSB: REMOVED FROM PROFILE
                                 real-world feature. </documentation>
                         </annotation>
                     </element>
-                    <element minOccurs="0" name="resultTime" type="diggs:TimeIntervalPropertyType">
+                    <element minOccurs="0" name="resultTime"
+                        type="diggs:TimeIntervalOrInstantPropertyType">
                         <annotation>
                             <documentation>Describes the time when the result became available,
                                 typically when the procedure associated with the observation was
@@ -6675,7 +7018,8 @@ DSB: REMOVED FROM PROFILE
                                 initial interaction with the world. </documentation>
                         </annotation>
                     </element>
-                    <element minOccurs="0" name="validTime" type="diggs:TimeIntervalPropertyType">
+                    <element minOccurs="0" name="validTime"
+                        type="diggs:TimeIntervalOrInstantPropertyType">
                         <annotation>
                             <documentation>Describes the time period during which the result is
                                 intended to be used.</documentation>
@@ -6695,6 +7039,12 @@ DSB: REMOVED FROM PROFILE
             </extension>
         </complexContent>
     </complexType>
+    <complexType name="TimeIntervalOrInstantPropertyType">
+        <choice>
+            <element minOccurs="1" ref="diggs:TimeInterval"/>
+            <element ref="gml:TimeInstant"/>
+        </choice>
+    </complexType>
     <complexType name="TimeArrayPropertyType">
         <sequence maxOccurs="1" minOccurs="1">
             <element ref="gml:TimeInstant"/>
@@ -6702,7 +7052,8 @@ DSB: REMOVED FROM PROFILE
     </complexType>
     <element name="timeDomain" type="diggs:TimeDomainType" substitutionGroup="gml:domainSet">
         <annotation>
-            <documentation>A property that holds the time instances for the time domain of a monitoring activity.</documentation>
+            <documentation>A property that holds the time instances for the time domain of a
+                monitoring activity.</documentation>
         </annotation>
     </element>
     <complexType name="TimeDomainType">
@@ -6718,7 +7069,8 @@ DSB: REMOVED FROM PROFILE
     </complexType>
     <element name="TimeInterval" type="diggs:TimeIntervalType">
         <annotation>
-            <documentation>An object that contains properties about an interval of time (eg. start, end, duration).</documentation>
+            <documentation>An object that contains properties about an interval of time (eg. start,
+                end, duration).</documentation>
         </annotation>
     </element>
     <complexType name="TimeIntervalPropertyType">
@@ -6733,13 +7085,12 @@ DSB: REMOVED FROM PROFILE
         <complexContent>
             <extension base="diggs:AbstractObjectType">
                 <sequence>
-                    <element name="start" type="diggs:UnifiedDateTimeType" maxOccurs="1"
-                        minOccurs="1">
+                    <element name="start" type="gml:TimePositionType" maxOccurs="1" minOccurs="1">
                         <annotation>
                             <documentation>The date/time that begins the interval </documentation>
                         </annotation>
                     </element>
-                    <element name="end" type="diggs:UnifiedDateTimeType" maxOccurs="1" minOccurs="0">
+                    <element name="end" type="gml:TimePositionType" maxOccurs="1" minOccurs="0">
                         <annotation>
                             <documentation>The date/time that ends the interval. Alternatively, the
                                 duration property may be used to define the time interval of
@@ -6772,13 +7123,16 @@ DSB: REMOVED FROM PROFILE
     <element name="TimePositionList" type="diggs:TimePositionListType"
         substitutionGroup="diggs:AbstractTimeObject">
         <annotation>
-            <documentation>A GML time object with a property containing a list of time instances expressed as xsd:DateTime values.</documentation>
+            <documentation>A GML time object with a property containing a list of time instances
+                expressed as xsd:DateTime values.</documentation>
         </annotation>
     </element>
     <element name="TimeIntervalList" type="diggs:TimeIntervalListType"
         substitutionGroup="diggs:AbstractTimeObject">
         <annotation>
-            <documentation>A GML time object with a property that contains a list of time intervals (duration or elapsed time) expressed as xsd:Decimal values. unit attribute provides the time unit for the list</documentation>
+            <documentation>A GML time object with a property that contains a list of time intervals
+                (duration or elapsed time) expressed as xsd:Decimal values. unit attribute provides
+                the time unit for the list</documentation>
         </annotation>
     </element>
     <complexType name="TimeIntervalListType">
@@ -6802,7 +7156,8 @@ DSB: REMOVED FROM PROFILE
     <element name="timeIntervalList" type="diggs:TimeIntervalListSimpleType"/>
     <simpleType name="TimeIntervalListSimpleType">
         <annotation>
-            <documentation>A list of decimal values representing time intervals (duration or elapsed time) instances.</documentation>
+            <documentation>A list of decimal values representing time intervals (duration or elapsed
+                time) instances.</documentation>
         </annotation>
         <list itemType="decimal"/>
     </simpleType>
@@ -6843,7 +7198,8 @@ DSB: REMOVED FROM PROFILE
     </complexType>
     <element name="TrenchConstructionMethod" type="diggs:TrenchConstructionMethodType">
         <annotation>
-            <documentation>An object that contains properties related to the method of construction of a trench wall or trial pit sampling feature.</documentation>
+            <documentation>An object that contains properties related to the method of construction
+                of a trench wall or trial pit sampling feature.</documentation>
         </annotation>
     </element>
     <complexType name="TrenchConstructionMethodPropertyType">
@@ -6908,7 +7264,8 @@ DSB: REMOVED FROM PROFILE
     <element name="TrenchWallEvent" substitutionGroup="diggs:AbstractEvent"
         type="diggs:TrialPitEventType">
         <annotation>
-            <documentation>An object containing properties describing a time or location related event that occurs during construction of a trial pit or trench wall.</documentation>
+            <documentation>An object containing properties describing a time or location related
+                event that occurs during construction of a trial pit or trench wall.</documentation>
         </annotation>
     </element>
     <complexType name="TrenchWallEventPropertyType">
@@ -7078,7 +7435,8 @@ DSB: REMOVED FROM PROFILE
     <element name="Uncertainty" type="diggs:UncertaintyType"
         substitutionGroup="diggs:AbstractObject" abstract="false">
         <annotation>
-            <documentation>An object containing properties describing location uncertainties.</documentation>
+            <documentation>An object containing properties describing location
+                uncertainties.</documentation>
         </annotation>
     </element>
     <complexType name="UncertaintyPropertyType">
@@ -7120,9 +7478,6 @@ DSB: REMOVED FROM PROFILE
             </extension>
         </complexContent>
     </complexType>
-    <simpleType name="UnifiedDateTimeType">
-        <union memberTypes="dateTime time date gYearMonth gMonthDay gDay gMonth gYear"/>
-    </simpleType>
     <!-- Proposed Role typing to constrain rolePerformed other than by codelist. Not yet implemented
   <simpleType name="RoleEnumType">
     <restriction base="string">
@@ -7172,17 +7527,6 @@ DSB: REMOVED FROM PROFILE
             <maxInclusive value="100"/>
         </restriction>
     </simpleType>
-    <complexType name="ValueAtTimeType">
-        <complexContent>
-            <extension base="diggs:AbstractObjectType">
-                <sequence>
-                    <element name="elapsedTime" type="diggs:TimeIntervalPropertyType" minOccurs="0"
-                        maxOccurs="1"/>
-                    <element name="value" type="eml:GenericMeasure" minOccurs="0" maxOccurs="1"/>
-                </sequence>
-            </extension>
-        </complexContent>
-    </complexType>
     <!--2015-12-14 Deprecated. Property descriptions interpreted from measurements should be managed within the measurements property of DIGGS
   <element name="PropertyDescription" substitutionGroup="diggs:AbstractDescription"
     type="diggs:PropertyDescriptionType">
@@ -7208,7 +7552,8 @@ DSB: REMOVED FROM PROFILE
         type="diggs:VectorLinearSpatialReferenceSystemType"
         substitutionGroup="diggs:AbstractRelativeReferenceSystem">
         <annotation>
-            <documentation>An object containing properties related to a vector linear reference system.</documentation>
+            <documentation>An object containing properties related to a vector linear reference
+                system.</documentation>
         </annotation>
     </element>
     <complexType name="VectorLinearSpatialReferenceSystemPropertyType">
@@ -7297,7 +7642,8 @@ DSB: REMOVED FROM PROFILE
     <element name="WaterStrike" substitutionGroup="diggs:AbstractObject"
         type="diggs:WaterStrikeType">
         <annotation>
-            <documentation>An object containing properties related to encountering the water table or a perched water zone during borehole construction.</documentation>
+            <documentation>An object containing properties related to encountering the water table
+                or a perched water zone during borehole construction.</documentation>
         </annotation>
     </element>
     <complexType name="WaterStrikePropertyType">
@@ -7305,28 +7651,39 @@ DSB: REMOVED FROM PROFILE
             <element maxOccurs="1" minOccurs="1" ref="diggs:WaterStrike"/>
         </sequence>
     </complexType>
-    <element name="WaterStrikeReading" substitutionGroup="diggs:AbstractObject"
-        type="diggs:WaterStrikeReadingType">
+    <element name="WaterLevelReading" substitutionGroup="diggs:AbstractObject"
+        type="diggs:WaterLevelReadingType">
         <annotation>
-            <documentation>An element containing water level reading properties following a water strick.</documentation>
+            <documentation>An element containing water level reading properties following a water
+                strick.</documentation>
         </annotation>
     </element>
-    <complexType name="WaterStrikeReadingPropertyType">
+    <complexType name="WaterLevelReadingPropertyType">
         <sequence maxOccurs="1" minOccurs="1">
-            <element ref="diggs:WaterStrikeReading"/>
+            <element ref="diggs:WaterLevelReading"/>
         </sequence>
     </complexType>
-    <complexType name="WaterStrikeReadingType">
+    <complexType name="WaterLevelReadingType">
         <complexContent>
             <extension base="diggs:AbstractObjectType">
                 <sequence>
                     <choice minOccurs="0">
-                        <element name="time" type="eml:TimeMeasure">
+                        <element name="howMeasured" type="eml:TimeMeasure" minOccurs="0">
                             <annotation>
-                                <documentation><![CDATA[The time following an initial water strike when water level is again measured]]></documentation>
+                                <documentation>A description of how the water level was measured, intended to come from a controlled list of terms</documentation>
                             </annotation>
                         </element>
-                        <element name="dateTime" type="diggs:UnifiedDateTimeType" minOccurs="1">
+                        <element name="elapsedTime" type="eml:TimeMeasure">
+                            <annotation>
+                                <documentation><![CDATA[The elapsed time following an initial water strike when water level is again measured]]></documentation>
+                            </annotation>
+                        </element>
+                        <element name="time" type="eml:TimeMeasure">
+                            <annotation>
+                                <documentation><![CDATA[The elapsed time following an initial water strike when water level is again measured. Deprecated following v. 2.5. Use elapsedTime in the choice instead]]></documentation>
+                            </annotation>
+                        </element>
+                        <element name="dateTime" type="gml:TimePositionType" minOccurs="1">
                             <annotation>
                                 <documentation><![CDATA[DateTime that water strike measurement occurred.]]></documentation>
                             </annotation>
@@ -7362,14 +7719,14 @@ DSB: REMOVED FROM PROFILE
                         </element>
                         <sequence>
                             <element name="initialWaterStrikeReading"
-                                type="diggs:WaterStrikeReadingPropertyType">
+                                type="diggs:WaterLevelReadingPropertyType">
                                 <annotation>
                                     <documentation>Water level information at time of initial water
                                         strike</documentation>
                                 </annotation>
                             </element>
                             <element maxOccurs="unbounded" minOccurs="0" name="postStrikeReading"
-                                type="diggs:WaterStrikeReadingPropertyType">
+                                type="diggs:WaterLevelReadingPropertyType">
                                 <annotation>
                                     <documentation>A series of water level readings that occur at
                                         times following the initial water strike</documentation>
@@ -7686,15 +8043,18 @@ DSB: REMOVED FROM PROFILE
     <element abstract="false" name="Well" substitutionGroup="diggs:AbstractLinearSamplingFeature"
         type="diggs:WellType">
         <annotation>
-            <documentation>A sampling feature that is an installation within a borehole or sounding, used for
-                observing, withdrawing, or injecting fluids. Although wells are discrete sampling
-                features in their own right, they are installed within boreholes or soundings, and must
-                reference the parent borehole or sounding feature within the mandatory samplingFeatureRef property.</documentation>
+            <documentation>A sampling feature that is an installation within a borehole or sounding,
+                used for observing, withdrawing, or injecting fluids. Although wells are discrete
+                sampling features in their own right, they are installed within boreholes or
+                soundings, and must reference the parent borehole or sounding feature within the
+                mandatory samplingFeatureRef property.</documentation>
         </annotation>
     </element>
     <element name="WellOpening" type="diggs:WellOpeningType">
         <annotation>
-            <documentation>An object containing properties that define the location and characteristics of a well screen or perforations within a Well sampling feature.</documentation>
+            <documentation>An object containing properties that define the location and
+                characteristics of a well screen or perforations within a Well sampling
+                feature.</documentation>
         </annotation>
     </element>
     <complexType name="WellOpeningPropertyType">
@@ -7849,11 +8209,13 @@ DSB: REMOVED FROM PROFILE
                         minOccurs="1" maxOccurs="1"/>
                     <element name="project" type="diggs:ProjectPropertyType" minOccurs="0"
                         maxOccurs="unbounded"/>
+                    <element minOccurs="0" name="program" type="diggs:AbstractProgramPropertyType"
+                        maxOccurs="unbounded"/>
                     <element minOccurs="0" name="samplingFeature"
                         type="diggs:AbstractSamplingFeaturePropertyType" maxOccurs="unbounded"/>
                     <element minOccurs="0" name="samplingActivity"
                         type="diggs:SamplingActivityPropertyType" maxOccurs="unbounded"/>
-                    <element name="sample" type="diggs:SamplePropertyType" minOccurs="0"
+                    <element name="sample" type="diggs:AbstractSamplePropertyType" minOccurs="0"
                         maxOccurs="unbounded"/>
                     <element minOccurs="0" name="observation" type="diggs:ObservationPropertyType"
                         maxOccurs="unbounded"/>
@@ -7868,4 +8230,14 @@ DSB: REMOVED FROM PROFILE
             </extension>
         </complexContent>
     </complexType>
+    <element name="programRef" type="diggs:FeatureReferenceType">
+        <annotation>
+            <documentation>A reference to a program that is associated with this feature. </documentation>
+        </annotation>
+    </element>
+    <element name="programSpecificationRef" type="diggs:FeatureReferenceType">
+        <annotation>
+            <documentation>A reference to a specification or design object within the associated program feature that is relevant for this activity</documentation>
+        </annotation>
+    </element>
 </schema>
