@@ -26,7 +26,10 @@ items will **NOT** validate under 2.5.a.
     2. added PorePressureDissipationTest prodedure object (initial proposal) for review.
     3. added PointLoadTest procedure object for review.
 3. **New Construction.xsd file**
-    1. Added elements to support Rock Grouting activites
+    1. Added elements to support Rock, Permeation and Compatcion Grouting activites
+4. **New TestProcedures.xsd file**
+    1. Copied test procedure objects from Geotechnical.xsd to support proposed change to deprecate diggs_geo namespace.
+
     
 ---
 
