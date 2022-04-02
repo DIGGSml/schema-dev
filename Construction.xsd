@@ -19,14 +19,23 @@
     <import namespace="http://www.energistics.org/energyml/data/witsmlv2"
         schemaLocation="witsml/2.0/data/witsml/v2.0/xsd_schemas/WitsmlAllObjects.xsd"/>
     <import namespace="http://www.opengis.net/gml/3.2" schemaLocation="gml3.2Profile_diggs.xsd"/>
-    <element abstract="true" name="AbstractProgramDesign" type="diggs:AbstractProgramDesignType"/>
+    <import namespace="http://www.w3.org/XML/1998/namespace" schemaLocation="xml.xsd"/>
+    <element name="AbstractGroutingEquipment" substitutionGroup="diggs:AbstractEquipment"
+        type="diggs:AbstractGroutingEquipmentType"/>
+    <complexType abstract="true" name="AbstractGroutingEquipmentType">
+        <complexContent>
+            <extension base="diggs:AbstractEquipmentType"/>
+        </complexContent>
+    </complexType>
+    <element abstract="true" name="AbstractProgramDesign"
+        type="diggs:AbstractGroutingProgramDesignType"/>
     <complexType abstract="true" name="AbstractProgramDesignType">
         <complexContent>
             <extension base="diggs:AbstractFeatureType"/>
         </complexContent>
     </complexType>
     <element abstract="true" name="AbstractProgramSpecificaton"
-        type="diggs:AbstractProgramSpecificationType"/>
+        type="diggs:AbstractGroutingProgramSpecificationType"/>
     <complexType abstract="true" name="AbstractProgramSpecificationType">
         <complexContent>
             <extension base="diggs:AbstractFeatureType"/>
@@ -35,17 +44,13 @@
     <element abstract="true" name="AbstractGroutingProgramDesign"
         type="diggs:AbstractGroutingProgramDesignType"
         substitutionGroup="diggs:AbstractProgramDesign"/>
-    <complexType abstract="true" name="AbstractGroutingProgramDesignType">
-        <complexContent>
-            <extension base="diggs:AbstractProgramDesignType"/>
-        </complexContent>
-    </complexType>
+    <complexType abstract="true" name="AbstractGroutingProgramDesignType"> </complexType>
     <element abstract="true" name="AbstractGroutingProgramSpecificaton"
         type="diggs:AbstractGroutingProgramSpecificationType"
-        substitutionGroup="diggs:AbstractProgramSpecificaton"/>
+        substitutionGroup="diggs:AbstractFeature"/>
     <complexType abstract="true" name="AbstractGroutingProgramSpecificationType">
         <complexContent>
-            <extension base="diggs:AbstractProgramSpecificationType"/>
+            <extension base="diggs:AbstractFeatureType"/>
         </complexContent>
     </complexType>
     <complexType name="AbstractGroutingProgramDesignPropertyType">
@@ -60,11 +65,23 @@
     </complexType>
     <element abstract="true" name="AbstractMaterialTestProcedure"
         substitutionGroup="diggs:AbstractTestProcedure"
-        type="diggs:AbstractMaterialTestlProcedureType"/>
+        type="diggs:AbstractMaterialTestlProcedureType">
+        <annotation>
+            <documentation>Base type for all test procedures performed only on manufactured samples -eg. those that are created by aggregation of other samples or materials and where the sample has no location relevance. Material test procedures must reference or describe the samples and/or specimens upon which the test is performed. This category was developed for test procedures developed for characterizing grout samples but could be used for other types of samples where the results of the procedure relate to the characteristics of the sample only, and does not relate to the properties of a geographic feature of interest</documentation>
+        </annotation>
+    </element>
     <complexType name="AbstractMaterialTestlProcedureType" abstract="true">
         <complexContent>
             <extension base="diggs:AbstractTestProcedureType">
-                <sequence> </sequence>
+                <sequence>
+                    <element minOccurs="0" name="testEvent"
+                        type="diggs:LaboratoryTestEventPropertyType"/>
+                    <choice>
+                        <element maxOccurs="unbounded" minOccurs="1" ref="diggs:sampleRef"/>
+                        <element maxOccurs="unbounded" minOccurs="1" name="specimen"
+                            type="diggs:SpecimenPropertyType"/>
+                    </choice>
+                </sequence>
             </extension>
         </complexContent>
     </complexType>
@@ -72,6 +89,8 @@
         <sequence>
             <element ref="diggs:AbstractMaterialTestProcedure"/>
         </sequence>
+        <attributeGroup ref="gml:AssociationAttributeGroup"/>
+        <attributeGroup ref="gml:OwnershipAttributeGroup"/>
     </complexType>
     <element name="MaterialTest" substitutionGroup="diggs:AbstractMeasurement"
         type="diggs:MaterialTestType"/>
@@ -132,26 +151,7 @@
                         </annotation>
                     </element>
                     <element maxOccurs="unbounded" minOccurs="1" name="procedure"
-                        type="diggs:ProcedurePropertyType"/>
-                </sequence>
-            </extension>
-        </complexContent>
-    </complexType>
-    <complexType name="AbstractMaterialTestWithSpecimenProcedureType" abstract="true">
-        <complexContent>
-            <extension base="diggs:AbstractMaterialTestlProcedureType">
-                <sequence>
-                    <element maxOccurs="unbounded" minOccurs="1" name="specimen"
-                        type="diggs:SpecimenPropertyType"/>
-                </sequence>
-            </extension>
-        </complexContent>
-    </complexType>
-    <complexType name="AbstractMaterialTestNoSpecimenProcedureType" abstract="true">
-        <complexContent>
-            <extension base="diggs:AbstractMaterialTestlProcedureType">
-                <sequence>
-                    <element maxOccurs="unbounded" minOccurs="1" ref="diggs:sampleRef"/>
+                        type="diggs:TestProcedurePropertyType"/>
                 </sequence>
             </extension>
         </complexContent>
@@ -194,7 +194,7 @@
     </element>
     <complexType name="BleedTestType">
         <complexContent>
-            <extension base="diggs:AbstractMaterialTestWithSpecimenProcedureType"/>
+            <extension base="diggs:AbstractMaterialTestlProcedureType"/>
         </complexContent>
     </complexType>
     <element name="Cement" type="diggs:groutComponentCharacteristicsType">
@@ -311,7 +311,7 @@
                             </documentation>
                                 </annotation>
                             </element>
-                            <element minOccurs="0" name="wtCementPerGalH20" type="eml:ForceMeasure">
+                            <element minOccurs="0" name="wtCementPerGalH2O" type="eml:ForceMeasure">
                                 <annotation>
                                     <documentation>Weight of cement used per gallon of
                                 water.</documentation>
@@ -383,9 +383,29 @@
             </extension>
         </complexContent>
     </complexType>
-    <complexType name="designGroutMixPropertyType">
+    <complexType name="DesignGroutMixPropertyType">
         <sequence>
             <element ref="diggs:DesignGroutMix"/>
+        </sequence>
+    </complexType>
+    <complexType name="ProgramDesignPropertyType">
+        <sequence>
+            <element ref="diggs:AbstractProgramDesign"/>
+        </sequence>
+    </complexType>
+    <complexType name="ProgramSpecificationPropertyType">
+        <sequence>
+            <element ref="diggs:AbstractProgramSpecificaton"/>
+        </sequence>
+    </complexType>
+    <complexType name="GroutingProgramDesignPropertyType">
+        <sequence>
+            <element ref="diggs:AbstractProgramDesign"/>
+        </sequence>
+    </complexType>
+    <complexType name="GroutingProgramSpecificationPropertyType">
+        <sequence>
+            <element ref="diggs:AbstractProgramSpecificaton"/>
         </sequence>
     </complexType>
     <element name="GroutSpecification" type="diggs:GroutSpecificationType"
@@ -486,11 +506,6 @@
                 </sequence>
             </extension>
         </complexContent>
-    </complexType>
-    <complexType name="GroutingProgramSpecificationPropertyType">
-        <sequence>
-            <element ref="diggs:AbstractGroutingProgramSpecificaton"/>
-        </sequence>
     </complexType>
     <element name="GroutingPerformanceSpecification"
         type="diggs:GroutingPerformanceSpecificationType"
@@ -1164,7 +1179,7 @@
         substitutionGroup="diggs:AbstractMaterialTestProcedure"/>
     <complexType name="FlowConeTestType">
         <complexContent>
-            <extension base="diggs:AbstractMaterialTestWithSpecimenProcedureType"/>
+            <extension base="diggs:AbstractMaterialTestlProcedureType"/>
         </complexContent>
     </complexType>
     <element name="FlowReading" substitutionGroup="diggs:AbstractObject"
@@ -1463,7 +1478,11 @@
     <element abstract="true" name="AbstractTrialGroutBatch" substitutionGroup="diggs:AbstractSample"
         type="diggs:TrialGroutBatchType"/>
     <element name="GroutInjectionEquipment" type="diggs:GroutInjectionEquipmentType"
-        substitutionGroup="diggs:AbstractEquipment"/>
+        substitutionGroup="diggs:AbstractGroutingEquipment">
+        <annotation>
+            <documentation>Extends the generic Equipment object to contain properties for tubes, lancets or manchettes used in grout injection. .</documentation>
+        </annotation>
+    </element>
     <complexType name="GroutInjectionEquipmentPropertyType">
         <sequence>
             <element ref="diggs:GroutInjectionEquipment">
@@ -1475,7 +1494,7 @@
     </complexType>
     <complexType name="GroutInjectionEquipmentType">
         <complexContent>
-            <extension base="diggs:AbstractEquipmentType">
+            <extension base="diggs:AbstractGroutingEquipmentType">
                 <sequence>
                     <element minOccurs="0" name="lanceOuterDiameter" type="eml:LengthMeasure">
                         <annotation>
@@ -1548,7 +1567,11 @@
         </complexContent>
     </complexType>
     <element name="GroutPlant" type="diggs:GroutPlantType"
-        substitutionGroup="diggs:AbstractEquipment"/>
+        substitutionGroup="diggs:AbstractEquipment">
+        <annotation>
+            <documentation>Extends the generic Equipment object to include properties for a grout plant - a combined equipment type containing a grout mixer and a grout pump.</documentation>
+        </annotation>
+    </element>
     <complexType name="GroutPlantPropertyType">
         <sequence>
             <element ref="diggs:GroutPlant">
@@ -1559,8 +1582,11 @@
         </sequence>
     </complexType>
     <complexType name="GroutPlantType">
+        <annotation>
+            <documentation>Extends property type to include properties for a grout plant - a combined equipment type containing a grout mixer and a grout pump.</documentation>
+        </annotation>
         <complexContent>
-            <extension base="diggs:AbstractEquipmentType">
+            <extension base="diggs:AbstractGroutingEquipmentType">
                 <sequence>
                     <element minOccurs="0" name="mixer" type="diggs:GroutMixerPropertyType"/>
                     <element minOccurs="0" name="pump" type="diggs:GroutPumpPropertyType"/>
@@ -1591,7 +1617,12 @@
             <documentation>A pointer to the gml:id of the DesignGroutMix object that serves as the design standard for this grout batch or specification</documentation>
         </annotation>
     </element>
-    <element name="GroutPump" type="diggs:GroutPumpType" substitutionGroup="diggs:AbstractEquipment"/>
+    <element name="GroutPump" type="diggs:GroutPumpType"
+        substitutionGroup="diggs:AbstractGroutingEquipment">
+        <annotation>
+            <documentation>Extends the generic Equipment object to include properties for a grout pump.</documentation>
+        </annotation>
+    </element>
     <complexType name="GroutPumpPropertyType">
         <sequence>
             <element ref="diggs:GroutPump"/>
@@ -1599,7 +1630,7 @@
     </complexType>
     <complexType name="GroutPumpType">
         <complexContent>
-            <extension base="diggs:AbstractEquipmentType">
+            <extension base="diggs:AbstractGroutingEquipmentType">
                 <sequence>
                     <element minOccurs="0" name="inletPipeSize" type="eml:LengthMeasure">
                         <annotation>
@@ -1664,7 +1695,11 @@
         </annotation>
     </element>
     <element name="GroutMixer" type="diggs:GroutMixerType"
-        substitutionGroup="diggs:AbstractEquipment"/>
+        substitutionGroup="diggs:AbstractGroutingEquipment">
+        <annotation>
+            <documentation>Extends the generic Equipment object to contain properties for a grout mixer.</documentation>
+        </annotation>
+    </element>
     <complexType name="GroutMixerPropertyType">
         <sequence>
             <element ref="diggs:GroutMixer">
@@ -1676,7 +1711,7 @@
     </complexType>
     <complexType name="GroutMixerType">
         <complexContent>
-            <extension base="diggs:AbstractEquipmentType">
+            <extension base="diggs:AbstractGroutingEquipmentType">
                 <sequence>
                     <element minOccurs="0" name="outletPressure" type="eml:PressureMeasure">
                         <annotation>
@@ -1788,7 +1823,7 @@
                             </documentation>
                         </annotation>
                     </element>
-                    <element minOccurs="0" name="wtCementPerGalH20" type="eml:ForceMeasure">
+                    <element minOccurs="0" name="wtCementPerGalH2O" type="eml:ForceMeasure">
                         <annotation>
                             <documentation>Weight of cement used per gallon of water.</documentation>
                         </annotation>
@@ -2261,7 +2296,7 @@
     <simpleType name="InjectionDataExtEnumType">
         <union memberTypes="diggs:OtherNameType diggs:InjectionDataEnumType"/>
     </simpleType>
-    <element name="LugeonTest" substitutionGroup="diggs:AbstractTestProcedure"
+    <element name="LugeonTest" substitutionGroup="diggs:AbstractInsituTestProcedure"
         type="diggs:LugeonTestType"/>
     <complexType mixed="false" name="LugeonTestType">
         <complexContent>
@@ -2710,7 +2745,7 @@
     </element>
     <complexType name="MarshFunnelTestType">
         <complexContent>
-            <extension base="diggs:AbstractMaterialTestWithSpecimenProcedureType">
+            <extension base="diggs:AbstractMaterialTestlProcedureType">
                 <sequence>
                     <element name="marshFunnelVolume" type="eml:VolumeMeasure" maxOccurs="1"
                         minOccurs="0">
@@ -2730,7 +2765,7 @@
     </element>
     <complexType name="MudBalanceTestType">
         <complexContent>
-            <extension base="diggs:AbstractMaterialTestWithSpecimenProcedureType"/>
+            <extension base="diggs:AbstractMaterialTestlProcedureType"/>
         </complexContent>
     </complexType>
     <element name="PressureFiltrationTest" type="diggs:PressureFiltrationTestType"
@@ -2741,7 +2776,7 @@
     </element>
     <complexType name="PressureFiltrationTestType">
         <complexContent>
-            <extension base="diggs:AbstractMaterialTestWithSpecimenProcedureType"/>
+            <extension base="diggs:AbstractMaterialTestlProcedureType"/>
         </complexContent>
     </complexType>
     <element name="RotationalViscometer" type="diggs:RotationalViscometerType"/>
@@ -2792,7 +2827,7 @@
     </element>
     <complexType name="TiltCupTestType">
         <complexContent>
-            <extension base="diggs:AbstractMaterialTestWithSpecimenProcedureType">
+            <extension base="diggs:AbstractMaterialTestlProcedureType">
                 <sequence> </sequence>
             </extension>
         </complexContent>
@@ -2805,7 +2840,7 @@
     </element>
     <complexType name="ShrinkageTestType">
         <complexContent>
-            <extension base="diggs:AbstractMaterialTestWithSpecimenProcedureType">
+            <extension base="diggs:AbstractMaterialTestlProcedureType">
                 <sequence> </sequence>
             </extension>
         </complexContent>
@@ -2818,7 +2853,7 @@
     </element>
     <complexType name="SlumpTestType">
         <complexContent>
-            <extension base="diggs:AbstractMaterialTestWithSpecimenProcedureType"> </extension>
+            <extension base="diggs:AbstractMaterialTestlProcedureType"> </extension>
         </complexContent>
     </complexType>
     <element name="GroutingActivity" substitutionGroup="diggs:AbstractConstructionActivity"
@@ -2967,7 +3002,7 @@ Rock - the injection of specially formulated cement-based mixes into the ground 
     </simpleType>
     <complexType name="UnconfinedCompressiveTestType">
         <complexContent>
-            <extension base="diggs:AbstractMaterialTestWithSpecimenProcedureType">
+            <extension base="diggs:AbstractMaterialTestlProcedureType">
                 <sequence>
                     <element minOccurs="0" name="compressiveStrength" type="eml:PressureMeasure">
                         <annotation>
@@ -2986,7 +3021,7 @@ Rock - the injection of specially formulated cement-based mixes into the ground 
     </element>
     <complexType name="ViscometerTestType">
         <complexContent>
-            <extension base="diggs:AbstractMaterialTestWithSpecimenProcedureType">
+            <extension base="diggs:AbstractMaterialTestlProcedureType">
                 <sequence>
                     <element minOccurs="0" name="startingTemperature"
                         type="eml:ThermodynamicTemperatureMeasure">
@@ -3076,7 +3111,7 @@ Rock - the injection of specially formulated cement-based mixes into the ground 
     </element>
     <complexType name="WashoutTestType">
         <complexContent>
-            <extension base="diggs:AbstractMaterialTestWithSpecimenProcedureType">
+            <extension base="diggs:AbstractMaterialTestlProcedureType">
                 <sequence> </sequence>
             </extension>
         </complexContent>
@@ -3090,7 +3125,7 @@ Rock - the injection of specially formulated cement-based mixes into the ground 
         substitutionGroup="diggs:AbstractMaterialTestProcedure"/>
     <complexType name="LineLossTestType">
         <complexContent>
-            <extension base="diggs:AbstractMaterialTestNoSpecimenProcedureType">
+            <extension base="diggs:AbstractMaterialTestlProcedureType">
                 <sequence>
                     <element minOccurs="0" name="lineLength" type="eml:LengthMeasure">
                         <annotation>
@@ -3199,7 +3234,7 @@ Rock - the injection of specially formulated cement-based mixes into the ground 
         type="diggs:SyneresisTestType"/>
     <complexType mixed="false" name="SyneresisTestType">
         <complexContent>
-            <extension base="diggs:AbstractMaterialTestWithSpecimenProcedureType">
+            <extension base="diggs:AbstractMaterialTestlProcedureType">
                 <sequence>
                     <element maxOccurs="unbounded" minOccurs="0" name="timeSeriesTrial"
                         type="diggs:TimeSeriesTrialPropertyType">
@@ -3552,19 +3587,19 @@ Rock - the injection of specially formulated cement-based mixes into the ground 
     <complexType name="GroutPressureMeasureType">
         <complexContent>
             <extension base="diggs:pressureMeasureType">
-                <attribute name="type" use="required" type="diggs:pressureTypeEnumExtType"/>
+                <attribute name="type" use="required" type="diggs:pressureMeasureTypeEnumType"/>
                 <attribute name="sensorLocation" type="string"/>
             </extension>
         </complexContent>
     </complexType>
-    <simpleType name="pressureTypeEnumType">
+    <simpleType name="pressureMeasureTypeEnumType">
         <restriction base="string">
             <enumeration value="effective"/>
             <enumeration value="gauge"/>
             <enumeration value="transducer"/>
         </restriction>
     </simpleType>
-    <simpleType name="pressureTypeEnumExtType">
-        <union memberTypes="diggs:pressureTypeEnumType diggs:OtherNameType"/>
+    <simpleType name="pressureMeasureTypeEnumExtType">
+        <union memberTypes="diggs:pressureMeasureTypeEnumType diggs:OtherNameType"/>
     </simpleType>
 </schema>
