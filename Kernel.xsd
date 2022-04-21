@@ -142,9 +142,7 @@
     <element name="AbstractEquipment" abstract="true" type="diggs:AbstractEquipmentType"
         substitutionGroup="diggs:AbstractFeature">
         <annotation>
-            <documentation>The base type for Diggs equipment types. Equipment is an object that
-                contains properties of equipment used to construct, test, or monitor objects within
-                the geotechnical and geoenvironmental domains. </documentation>
+            <documentation>The base type for Diggs equipment types. Derivations are objects that contains properties of equipment used to construct, test, or monitor objects within the geotechnical and geoenvironmental domains. </documentation>
         </annotation>
     </element>
     <complexType name="AbstractEquipmentType" abstract="true">
@@ -398,11 +396,16 @@
             <extension base="diggs:AbstractTestProcedureType">
                 <sequence>
                     <element minOccurs="0" name="testEvent"
-                        type="diggs:LaboratoryTestEventPropertyType"/>
+                        type="diggs:LaboratoryTestEventPropertyType">
+                        <annotation>
+                            <documentation>An property that contains an object that records qn event observed during a laboratory test. This object is a concrete representation of AbstractEvent with no additional properties.</documentation>
+                        </annotation>
+                    </element>
                     <element name="specimen" type="diggs:SpecimenPropertyType" minOccurs="0"
                         maxOccurs="unbounded">
                         <annotation>
-                            <documentation/>
+                            <documentation>A property that contains a specialization of AbstractSpecimen that describes the properties for a specimen used in the test procedure.
+</documentation>
                         </annotation>
                     </element>
                 </sequence>
@@ -438,8 +441,7 @@
     <element abstract="true" name="AbstractObservation" type="diggs:AbstractObservationType"
         substitutionGroup="diggs:AbstractObject">
         <annotation>
-            <documentation>An interval or region defined at a sampling feature that contains
-                qualitative observations or interpretations.</documentation>
+            <documentation>An interval or region defined at a sampling feature that contains human-derived, generally category-based observations or interpretations.</documentation>
         </annotation>
     </element>
     <complexType abstract="true" name="AbstractObservationType">
@@ -1729,8 +1731,7 @@
     </complexType>
     <element name="Boundary" substitutionGroup="diggs:AbstractObject" type="diggs:BoundaryType">
         <annotation>
-            <documentation>An object that contains properties of a layer boundary (eg. dip angle,
-                sharpness, etc.)</documentation>
+            <documentation>An object that contains properties describing a layer, interval, or zone boundary (eg. dip angle, sharpness, etc.)</documentation>
         </annotation>
     </element>
     <complexType name="BoundaryPropertyType">
@@ -1768,7 +1769,7 @@
                         </annotation>
                     </element>
                 </sequence>
-                <attribute name="howDetermined" type="diggs:DescriptorMethodEnumType"/>
+                <attribute ref="diggs:howDetermined"/>
             </extension>
         </complexContent>
     </complexType>
@@ -2211,10 +2212,9 @@
             <extension base="diggs:AbstractObservationType">
                 <sequence>
                     <element maxOccurs="unbounded" name="color" type="diggs:ColorPropertyType"/>
-                    <element minOccurs="0" name="baseBoundary" type="diggs:BoundaryPropertyType">
+                    <element minOccurs="0" ref="diggs:baseBoundary">
                         <annotation>
-                            <documentation>Description of the boundary at the base of the
-                                layer</documentation>
+                            <documentation>Description of the boundary at the base of the observed zone or interval as defined in the observation's location property</documentation>
                         </annotation>
                     </element>
                     <element minOccurs="0" name="character" type="diggs:ColorCharacterEnumType"/>
@@ -2393,10 +2393,9 @@
                 <sequence>
                     <element name="constituent" type="diggs:ConstituentPropertyType"
                         maxOccurs="unbounded"/>
-                    <element minOccurs="0" name="baseBoundary" type="diggs:BoundaryPropertyType">
+                    <element minOccurs="0" ref="diggs:baseBoundary">
                         <annotation>
-                            <documentation>Description of the boundary at the base of the
-                                layer</documentation>
+                            <documentation>Description of the boundary at the base of the observed zone or interval as defined in the observation's location property</documentation>
                         </annotation>
                     </element>
                 </sequence>
@@ -2702,7 +2701,7 @@
     <complexType name="DescriptorCodeType">
         <simpleContent>
             <extension base="gml:CodeType">
-                <attribute name="howDetermined" type="diggs:DescriptorMethodEnumType">
+                <attribute ref="diggs:howDetermined">
                     <annotation>
                         <documentation>A value describing how the classification was determined -
                             from a controlled list.</documentation>
@@ -2720,24 +2719,31 @@
     </complexType>
     <simpleType name="DescriptorMethodEnumType">
         <annotation>
-            <documentation>A value that describes the method by which the observation or measurement
-                was determined. Allowed values are: - assigned; value is assigned a priori as a
-                commonly used value or by assumption - calculated; value computed from from other
-                value(s), eg. a water level elevation computed from a depth measurement - graphic;
-                value is a code used for graphic display purposes only - inferred; estimated from
-                some indirect measurement such as a wireline log or transducer - measured;
-                determined from laboratory or in situ test - missing; method known but not reported
-                here - moving average; caculated as a moving average of readings - other; method
-                other than the choices in this list. Further information should be provided in the
-                remarks property - reported; description comes from a third party source - unknown;
-                method of description unknown and can likely not be determined - visual; observation
-                comes from visual inspection </documentation>
+            <documentation>A value that describes the method by which the observation or measurement was determined. Allowed values are: 
+ - assigned; value is assigned a priori as a commonly used value or by assumption 
+- calculated; value computed directly from other value(s) 
+- extrapolated; value estimated from trends in the known data
+- graphic; value is manually picked from a graph or visual display
+- inferred; value estimated from some indirect measurements such as from a wireline log or transducer
+- interpolated; value is estimated betweem two known values using some presumed function
+- maximum; value is the largest value inferred for the property
+- measured; determined directly from a laboratory or in situ test 
+- minimum; value is the smallest value inferred for the property
+- missing; method known but not reported here
+- modeled; value estimated from a representation of the measured feature
+- moving average; calculated as a moving average of readings 
+- other; method other than the choices in this list. Further information should be provided in theremarks property 
+- reported; description comes from a third party source 
+- unknown; method of determination unknown and can likely not be determined 
+- visual; value comes from visual inspection </documentation>
         </annotation>
         <restriction base="string">
             <enumeration value="assigned"/>
             <enumeration value="calculated"/>
-            <enumeration value="inferred"/>
+            <enumeration value="extrapolated"/>
             <enumeration value="graphic"/>
+            <enumeration value="inferred"/>
+            <enumeration value="interpolated"/>
             <enumeration value="maximum"/>
             <enumeration value="measured"/>
             <enumeration value="minimum"/>
@@ -2753,7 +2759,7 @@
     <complexType name="DescriptorValueType" abstract="false">
         <simpleContent>
             <extension base="double">
-                <attribute name="howDetermined" type="diggs:DescriptorMethodEnumType"/>
+                <attribute ref="diggs:howDetermined"/>
             </extension>
         </simpleContent>
     </complexType>
@@ -2870,10 +2876,9 @@
                         minOccurs="0"/>
                     <element name="fractureSpacing" minOccurs="0"
                         type="diggs:FractureSpacingPropertyType"/>
-                    <element minOccurs="0" name="baseBoundary" type="diggs:BoundaryPropertyType">
+                    <element minOccurs="0" ref="diggs:baseBoundary">
                         <annotation>
-                            <documentation>Description of the boundary at the base of the
-                                layer</documentation>
+                            <documentation>Description of the boundary at the base of the observed zone or interval as defined in the observation's location property</documentation>
                         </annotation>
                     </element>
                 </sequence>
@@ -3629,8 +3634,7 @@
                         </annotation>
                     </element>
                 </sequence>
-                <attribute form="unqualified" name="howDetermined"
-                    type="diggs:DescriptorMethodEnumType"/>
+                <attribute ref="diggs:howDetermined"/>
             </extension>
         </complexContent>
     </complexType>
@@ -3686,6 +3690,13 @@
             <enumeration value="inH2O(4degC)"/>
         </restriction>
     </simpleType>
+    <complexType name="ObservationPropertyType">
+        <sequence>
+            <element ref="diggs:AbstractObservation"/>
+        </sequence>
+        <attributeGroup ref="gml:AssociationAttributeGroup"/>
+        <attributeGroup ref="gml:OwnershipAttributeGroup"/>
+    </complexType>
     <element name="GroupGroup" substitutionGroup="diggs:AbstractGroup" type="diggs:GroupGroupType">
         <annotation>
             <documentation>A Diggs feature containing references to a group of
@@ -3752,8 +3763,7 @@
     <element abstract="false" name="LaboratoryTestEvent" substitutionGroup="diggs:AbstractObject"
         type="diggs:LaboratoryTestEventType">
         <annotation>
-            <documentation>The base type for an event - a time or depth related occurrence
-                associated with the creation or construction of a sampling feature.</documentation>
+            <documentation>An object that records events observed during a laboratory test. This object is a concrete representation of AbstractEvent with no additional properties.</documentation>
         </annotation>
     </element>
     <complexType name="LaboratoryTestEventPropertyType">
@@ -3986,9 +3996,7 @@ Other terms can be used by prefacing the term with "Other:"</documentation>
     <element name="LinearExtent" substitutionGroup="diggs:AbstractGeometry"
         type="diggs:LineStringType">
         <annotation>
-            <documentation>An object that defines a location as a linear extent (eg. from and to),
-                typically associated with a linear sampling feature, such as a
-                borehole.</documentation>
+            <documentation>An object that defines a location as a linear extent or interval, with the first vertex representing the starting location and the last vertex the end location.</documentation>
         </annotation>
     </element>
     <complexType name="LinearExtentPropertyType">
@@ -4107,7 +4115,7 @@ DSB: REMOVED FROM PROFILE
                                 primarylithology property</documentation>
                         </annotation>
                     </element>
-                    <element minOccurs="0" name="baseBoundary" type="diggs:BoundaryPropertyType"/>
+                    <element minOccurs="0" ref="diggs:baseBoundary"/>
                 </sequence>
             </extension>
         </complexContent>
@@ -4685,7 +4693,7 @@ DSB: REMOVED FROM PROFILE
             </restriction>
         </complexContent>
     </complexType>
-    <complexType name="ObservationPropertyType">
+    <complexType name="ObservationSystemPropertyType">
         <sequence>
             <element ref="diggs:AbstractObservationSystem"/>
         </sequence>
@@ -4729,10 +4737,9 @@ DSB: REMOVED FROM PROFILE
             <extension base="diggs:AbstractObservationType">
                 <sequence>
                     <element name="orientation" type="diggs:OrientationPropertyType"/>
-                    <element minOccurs="0" name="baseBoundary" type="diggs:BoundaryPropertyType">
+                    <element minOccurs="0" ref="diggs:baseBoundary">
                         <annotation>
-                            <documentation>Description of the boundary at the base of the
-                                layer</documentation>
+                            <documentation>Description of the boundary at the base of the observed zone or interval as defined in the observation's location property</documentation>
                         </annotation>
                     </element>
                 </sequence>
@@ -4839,10 +4846,9 @@ DSB: REMOVED FROM PROFILE
                 <sequence>
                     <element name="property" type="diggs:ParameterPropertyType"
                         maxOccurs="unbounded"/>
-                    <element minOccurs="0" name="baseBoundary" type="diggs:BoundaryPropertyType">
+                    <element minOccurs="0" ref="diggs:baseBoundary">
                         <annotation>
-                            <documentation>Description of the boundary at the base of the
-                                layer</documentation>
+                            <documentation>Description of the boundary at the base of the observed zone or interval as defined in the observation's location property</documentation>
                         </annotation>
                     </element>
                 </sequence>
@@ -4872,7 +4878,7 @@ DSB: REMOVED FROM PROFILE
     </simpleType>
     <element name="Parameter" substitutionGroup="diggs:AbstractObject">
         <annotation>
-            <documentation>An object containing the name, value and unit of meassure of a property or a measurement parameter (result).</documentation>
+            <documentation>An object containing the name, value or range of values and unit of measure of a property or a measurement parameter (result).</documentation>
         </annotation>
         <complexType>
             <complexContent>
@@ -4904,11 +4910,27 @@ DSB: REMOVED FROM PROFILE
                                 authority.</documentation>
                         </annotation>
                     </element>
-                    <element minOccurs="1" name="parameterValue" type="diggs:DiggsStringType">
-                        <annotation>
-                            <documentation>A value associated with the name.</documentation>
-                        </annotation>
-                    </element>
+                    <choice>
+                        <element minOccurs="1" name="parameterValue" type="diggs:DiggsStringType">
+                            <annotation>
+                                <documentation>A value associated with the name.</documentation>
+                            </annotation>
+                        </element>
+                        <sequence>
+                            <element name="parameterMinValue" type="double">
+                                <annotation>
+                                    <documentation>For numeric parameter values where a value range is expressed instead of a fixed value, this property contains the minimum value of the range.
+</documentation>
+                                </annotation>
+                            </element>
+                            <element name="parameterMaxValue" type="double">
+                                <annotation>
+                                    <documentation>For numeric parameter values where a value range is expressed instead of a fixed value, this property contains the maximum value of the range.
+</documentation>
+                                </annotation>
+                            </element>
+                        </sequence>
+                    </choice>
                     <element name="parameterUnits" type="diggs:AllUnits" minOccurs="0">
                         <annotation>
                             <documentation>Unit of measure of the parameter.</documentation>
@@ -5003,7 +5025,7 @@ DSB: REMOVED FROM PROFILE
                     <element maxOccurs="unbounded" minOccurs="0" name="otherParticleSizeProperty"
                         type="diggs:ParameterPropertyType"/>
                 </sequence>
-                <attribute name="howDetermined" type="diggs:DescriptorMethodEnumType">
+                <attribute ref="diggs:howDetermined">
                     <annotation>
                         <documentation>A value that describes the method by which the lithology was
                             determined. Allowed values are: - inferred; estimated from some indirect
@@ -7015,17 +7037,22 @@ DSB: REMOVED FROM PROFILE
         <complexContent>
             <extension base="diggs:AbstractObservationType">
                 <sequence>
-                    <element name="stratigraphicUnitName" type="gml:CodeType">
+                    <element name="stratigraphicUnitName" type="gml:CodeType" maxOccurs="unbounded">
                         <annotation>
                             <documentation>The name of the stratigraphic unit (eg. Harold Formation)
                                 assigned to this zone. Should come from a controlled list based on
                                 the subtype of the layer system.</documentation>
                         </annotation>
                     </element>
-                    <element minOccurs="0" name="baseBoundary" type="diggs:BoundaryPropertyType">
+                    <element minOccurs="0" name="stratigraphicUnitDescription"
+                        type="diggs:DiggsStringType">
                         <annotation>
-                            <documentation>Description of the boundary at the base of the
-                                layer</documentation>
+                            <documentation>An optional description of the named stratigraphic unit</documentation>
+                        </annotation>
+                    </element>
+                    <element minOccurs="0" ref="diggs:baseBoundary">
+                        <annotation>
+                            <documentation>Description of the boundary at the base of the observed zone or interval as defined in the observation's location property</documentation>
                         </annotation>
                     </element>
                 </sequence>
@@ -7072,6 +7099,30 @@ DSB: REMOVED FROM PROFILE
                     </element>
                     <element name="stratigraphyObservation"
                         type="diggs:StratigraphyObservationPropertyType" maxOccurs="unbounded"/>
+                </sequence>
+            </extension>
+        </complexContent>
+    </complexType>
+    <element name="GeoUnitSystem" substitutionGroup="diggs:AbstractObservationSystem"
+        type="diggs:GeoUnitSystemType">
+        <annotation>
+            <documentation>An object containing a system of stratrigraphy observations. Observations
+                within a stratigraphy system must not overlap, and stratUnit values within a system
+                cannot repeat (eg. they must be unique within the system. </documentation>
+        </annotation>
+    </element>
+    <complexType name="GeoUnitSystemType">
+        <complexContent>
+            <extension base="diggs:AbstractObservationSystemType">
+                <sequence>
+                    <element name="geoUnitType" type="diggs:StratigraphyObservationEnumType"
+                        minOccurs="0">
+                        <annotation>
+                            <documentation>A type or class designation for the GeoUnit. Optional, intended to come from a controlled list.</documentation>
+                        </annotation>
+                    </element>
+                    <element name="geoUnitObservation" type="diggs:GeoUnitObservationPropertyType"
+                        maxOccurs="unbounded"/>
                 </sequence>
             </extension>
         </complexContent>
@@ -8372,8 +8423,8 @@ DSB: REMOVED FROM PROFILE
                         type="diggs:SamplingActivityPropertyType" maxOccurs="unbounded"/>
                     <element name="sample" type="diggs:AbstractSamplePropertyType" minOccurs="0"
                         maxOccurs="unbounded"/>
-                    <element minOccurs="0" name="observation" type="diggs:ObservationPropertyType"
-                        maxOccurs="unbounded"/>
+                    <element minOccurs="0" name="observation"
+                        type="diggs:ObservationSystemPropertyType" maxOccurs="unbounded"/>
                     <element minOccurs="0" name="measurement"
                         type="diggs:AbstractMeasurementPropertyType" maxOccurs="unbounded"/>
                     <element minOccurs="0" name="constructionActivity"
@@ -8410,4 +8461,10 @@ DSB: REMOVED FROM PROFILE
                 duration</documentation>
         </annotation>
     </element>
+    <element name="baseBoundary" type="diggs:BoundaryPropertyType">
+        <annotation>
+            <documentation>Description of the boundary at the base of the observed zone or interval as defined in the observation's location property</documentation>
+        </annotation>
+    </element>
+    <attribute name="howDetermined" type="diggs:DescriptorMethodEnumType"/>
 </schema>
