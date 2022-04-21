@@ -21,7 +21,11 @@
     <import namespace="http://www.opengis.net/gml/3.2" schemaLocation="gml3.2Profile_diggs.xsd"/>
     <import namespace="http://www.w3.org/XML/1998/namespace" schemaLocation="xml.xsd"/>
     <element name="AbstractGroutingEquipment" substitutionGroup="diggs:AbstractEquipment"
-        type="diggs:AbstractGroutingEquipmentType"/>
+        type="diggs:AbstractGroutingEquipmentType">
+        <annotation>
+            <documentation>The base type for Diggs equipment objects that serves as the head of a substitution group for all specialized equipment used in grouting.</documentation>
+        </annotation>
+    </element>
     <complexType abstract="true" name="AbstractGroutingEquipmentType">
         <complexContent>
             <extension base="diggs:AbstractEquipmentType"/>
@@ -1220,55 +1224,59 @@
             </extension>
         </complexContent>
     </complexType>
-    <element name="GeoUnit" type="diggs:GeoUnitType"/>
-    <complexType name="GeoUnitType">
+    <element name="GeoUnitObservation" type="diggs:GeoUnitObservationType"
+        substitutionGroup="diggs:AbstractObservation">
+        <annotation>
+            <documentation>An observation of a geologic or geotechnical unit where the unit is primarily defined by the value(s) or a value range of one or more physical properties.</documentation>
+        </annotation>
+    </element>
+    <complexType name="GeoUnitObservationType">
         <complexContent>
-            <extension base="diggs:AbstractNamedObjectType">
+            <extension base="diggs:AbstractObservationType">
                 <sequence>
-                    <element minOccurs="0" name="distanceToTopOfUnit"
-                        type="diggs:PointLocationPropertyType">
+                    <element minOccurs="1" name="unitName" type="gml:CodeType" maxOccurs="unbounded">
                         <annotation>
-                            <documentation>Distance to top of unit of interest as measureed along
-                                the borehole centerline. </documentation>
+                            <documentation>The name of the unit (eg. Unit A) assigned to this zone.</documentation>
+                        </annotation>
+                    </element>
+                    <element minOccurs="0" name="unitDescription" type="diggs:DiggsStringType">
+                        <annotation>
+                            <documentation>An optional description of the named unit</documentation>
                         </annotation>
                     </element>
                     <element minOccurs="0" name="verticalDistanceToTopOfUnit"
                         type="eml:LengthMeasure">
                         <annotation>
-                            <documentation>Vertical distance to the top of the unit, measured from
-                                the borehole reference point location. </documentation>
-                        </annotation>
-                    </element>
-                    <element minOccurs="0" name="distanceToBaseOfUnit"
-                        type="diggs:PointLocationPropertyType">
-                        <annotation>
-                            <documentation>Distance to base of unit of interest as measureed along
-                                the borehole centerline. </documentation>
+                            <documentation>When encountered in a linear sampling feature, the vertical distance to the top (or beginning) of the unit, measured from the feature's reference point.</documentation>
                         </annotation>
                     </element>
                     <element minOccurs="0" name="verticalDistanceToBaseOfUnit"
                         type="eml:LengthMeasure">
                         <annotation>
-                            <documentation>Vertical distance to the base of the unit, measured from
-                                the borehole reference point location. </documentation>
+                            <documentation>When encountered in a linear sampling feature, the vertical distance to the base (or end) of the unit, measured from the feature's reference point.</documentation>
                         </annotation>
                     </element>
                     <element minOccurs="0" name="verticallThicknessOfUnit" type="eml:LengthMeasure">
                         <annotation>
-                            <documentation>Thickness of the unit, measureed
-                                vertically.</documentation>
+                            <documentation>Thickness of the unit, measured vertically. This would be the difference between the verticalDistanceToBaseOfUnit - verticalDistanceToTopOfUnit.</documentation>
                         </annotation>
                     </element>
+                    <element maxOccurs="unbounded" minOccurs="0" name="characteristicProperty"
+                        type="diggs:ParameterPropertyType">
+                        <annotation>
+                            <documentation>A Parameter object that describes the name, value, or range of values of a property characteristic of this unit.</documentation>
+                        </annotation>
+                    </element>
+                    <element minOccurs="0" ref="diggs:baseBoundary"/>
                 </sequence>
             </extension>
         </complexContent>
     </complexType>
-    <complexType name="GeoUnitPropertyType">
+    <complexType name="GeoUnitObservationPropertyType">
         <sequence>
-            <element ref="diggs:GeoUnit">
+            <element ref="diggs:GeoUnitObservation">
                 <annotation>
-                    <documentation>A geologic unit of interest to the grouting activity; contains
-                        properties indicating the unit's location, thickness, etc.</documentation>
+                    <documentation>A geotechnical unit defined within a project and generally identified by one or more characteristic physical or engineering properties.</documentation>
                 </annotation>
             </element>
         </sequence>
@@ -1948,7 +1956,7 @@
                     <element maxOccurs="unbounded" minOccurs="0" name="equipment"
                         type="diggs:EquipmentPropertyType">
                         <annotation>
-                            <documentation>For equipment specific to this stage, equipment objects or references can be inserted here. Otherwise, use the equipment property in the GroutingActivity feature to identiy activity-wide equipment</documentation>
+                            <documentation>For equipment specific to this stage, equipment objects or references can be inserted here. Otherwise, use the equipment property in the BoreholeGroutingActivity feature to identiy activity-wide equipment</documentation>
                         </annotation>
                     </element>
                     <element maxOccurs="unbounded" minOccurs="0" ref="diggs:groutRef">
@@ -2022,7 +2030,7 @@
                         </annotation>
                     </element>
                     <element minOccurs="0" name="hydrostaticColumnPressure"
-                        type="eml:PressureMeasure">
+                        type="diggs:pressureMeasureType">
                         <annotation>
                             <documentation>Hydrostatic column pressure determined for the stage.</documentation>
                         </annotation>
@@ -2062,7 +2070,7 @@
                     </element>
                     <element name="totalCement" type="eml:ForceMeasure" minOccurs="0">
                         <annotation>
-                            <documentation>Volume of grout cement used to fill stage.</documentation>
+                            <documentation>Weoght of grout cement used to fill stage.</documentation>
                         </annotation>
                     </element>
                     <element name="totalGroutTake" type="eml:VolumeMeasure" minOccurs="0">
@@ -2104,7 +2112,7 @@
     <element abstract="false" name="InjectionTimeSeries" substitutionGroup="gml:AbstractCoverage"
         type="diggs:InjectionTimeSeriesType">
         <annotation>
-            <documentation>An object containing a grout stage time series.</documentation>
+            <documentation>An object containing a grout stage time series for eachg grout injection event, for recording measurements taken during grouting.</documentation>
         </annotation>
     </element>
     <complexType name="InjectionTimeSeriesPropertyType">
@@ -2860,8 +2868,8 @@
             <extension base="diggs:AbstractMaterialTestlProcedureType"> </extension>
         </complexContent>
     </complexType>
-    <element name="GroutingActivity" substitutionGroup="diggs:AbstractConstructionActivity"
-        type="diggs:GroutingActivityType">
+    <element name="BoreholeGroutingActivity" substitutionGroup="diggs:AbstractConstructionActivity"
+        type="diggs:BoreholeGroutingActivityType">
         <annotation>
             <documentation>A feature that contains properties associated with grouting that occurs within a single sampling feature, typically a borehole or sounding. A grouting activity feature can accommodate all grouting within a
                 sampling feature, where the grouting setup is the same for all grout stages. Otherwise,
@@ -2869,7 +2877,7 @@
                 in grout setup, equipment, mix types, or where there is significant time between various grouting activities.</documentation>
         </annotation>
     </element>
-    <complexType name="GroutingActivityType">
+    <complexType name="BoreholeGroutingActivityType">
         <complexContent>
             <extension base="diggs:AbstractConstructionActivityType">
                 <sequence>
@@ -2893,10 +2901,10 @@ Rock - the injection of specially formulated cement-based mixes into the ground 
                             <documentation>Location of water as measured in the sampling feature's linear reference system</documentation>
                         </annotation>
                     </element>
-                    <element minOccurs="0" name="geoUnit" type="diggs:GeoUnitPropertyType"
-                        maxOccurs="unbounded">
+                    <element minOccurs="0" name="geoUnit"
+                        type="diggs:GeoUnitObservationPropertyType" maxOccurs="unbounded">
                         <annotation>
-                            <documentation>Property type containing objects that describe the geologic units or contacts of interest to the grouting activity.</documentation>
+                            <documentation>Property type containing objects that identify the geologic/geotechnical units or contacts of interest to the grouting activity.</documentation>
                         </annotation>
                     </element>
                     <element minOccurs="0" name="groutingInterval"
@@ -2920,7 +2928,7 @@ Rock - the injection of specially formulated cement-based mixes into the ground 
                     <element minOccurs="0" maxOccurs="unbounded" ref="diggs:groutRef">
                         <annotation>
                             <appinfo>diggs:GroutBatch</appinfo>
-                            <documentation>A property that references GroutBatch objects that are used within this GroutingActivity</documentation>
+                            <documentation>A property that references GroutBatch objects that are used within this BoreholeGroutingActivity</documentation>
                         </annotation>
                     </element>
                     <element minOccurs="0" name="groutStage" type="diggs:GroutStagePropertyType"
@@ -3212,6 +3220,8 @@ Rock - the injection of specially formulated cement-based mixes into the ground 
                 <restriction base="string">
                     <enumeration value="Compaction"/>
                     <enumeration value="Compensation"/>
+                    <enumeration value="Cutter Soil Mixing"/>
+                    <enumeration value="Deep Soil Mixing"/>
                     <enumeration value="Jet"/>
                     <enumeration value="Permeation"/>
                     <enumeration value="Rock"/>
@@ -3592,7 +3602,11 @@ Rock - the injection of specially formulated cement-based mixes into the ground 
         <complexContent>
             <extension base="diggs:pressureMeasureType">
                 <attribute name="type" use="required" type="diggs:pressureMeasureTypeEnumType"/>
-                <attribute name="sensorLocation" type="string"/>
+                <attribute name="sensorLocation" type="string">
+                    <annotation>
+                        <documentation>A text string describing where the pressure sensor is located.</documentation>
+                    </annotation>
+                </attribute>
             </extension>
         </complexContent>
     </complexType>
