@@ -789,27 +789,31 @@
             <extension base="diggs:AbstractSamplingFeatureType">
                 <sequence>
                     <element name="referenceEdge" type="diggs:LinearExtentPropertyType"
-                        minOccurs="1"/>
-                    <element name="featureExtent" type="diggs:SurfacePropertyType" maxOccurs="1"
-                        minOccurs="0">
+                        minOccurs="0" maxOccurs="1">
                         <annotation>
-                            <documentation> This element defines the polygon extent of the planar
-                                feature using a absolute CRS. This element should be used for visual
+                            <documentation>A line, whose vertices are described in the same absolute CRS as the referencePoint, that runs through the referencePoint along one edge of the sampling feature’s surface. It is used to define the x-axis of a 2D relative coordinate reference system.</documentation>
+                        </annotation>
+                    </element>
+                    <element name="featureExtent" type="diggs:AbstractSurfacePropertyType"
+                        maxOccurs="1" minOccurs="0">
+                        <annotation>
+                            <documentation> This element defines the extent of the surface
+                                feature using a absolute CRS. This element can be used for visual
                                 representations using typical/simple mapping software
                             </documentation>
                         </annotation>
                     </element>
-                    <element name="relativeFeatureBoundary" type="diggs:SurfacePropertyType"
+                    <element name="relativeFeatureBoundary" type="diggs:AbstractSurfacePropertyType"
                         maxOccurs="1" minOccurs="0">
                         <annotation>
-                            <documentation> This element defines the polygon extent of the planar
+                            <documentation> This element defines the extent of the surface
                                 feature using a relative planar referencing system (must use
                                 planarReferencing property contents). This element should be used
                                 for software that can handle planar referencing (e.g.
                                 LinearSpatialReferenceSystem in GML 3.3) </documentation>
                         </annotation>
                     </element>
-                    <element name="planarReferencing" minOccurs="1" maxOccurs="unbounded"
+                    <element name="planarReferencing" minOccurs="0" maxOccurs="unbounded"
                         type="diggs:VectorLinearSpatialReferenceSystemPropertyType"/>
                 </sequence>
             </extension>
@@ -981,17 +985,7 @@
             </extension>
         </complexContent>
     </complexType>
-    <complexType abstract="true" name="AbstractSurfaceType">
-        <annotation>
-            <documentation>gml:AbstractSurfaceType is an abstraction of a surface to support the
-                different levels of complexity. A surface is always a continuous region of a
-                plane.</documentation>
-        </annotation>
-        <complexContent>
-            <extension base="diggs:AbstractGeometricPrimitiveType"/>
-        </complexContent>
-    </complexType>
-    <element name="AbstractTestProcedure" type="diggs:AbstractTestProcedureType"
+    <element name="AbstractTestProcedure" type="diggs:AbstractProcedureType"
         substitutionGroup="diggs:AbstractProcedure" abstract="true">
         <annotation>
             <documentation>Base type for all procedures that comprise a Test or MaterialTest. </documentation>
@@ -5116,7 +5110,7 @@ DSB: REMOVED FROM PROFILE
                                 define this basal surface.</documentation>
                         </annotation>
                     </element>
-                    <element name="representativeSurface" type="diggs:SurfacePropertyType"
+                    <element name="representativeSurface" type="diggs:AbstractSurfacePropertyType"
                         maxOccurs="unbounded">
                         <annotation>
                             <documentation>One or more polygons that represent the layer volume in
@@ -5131,12 +5125,6 @@ DSB: REMOVED FROM PROFILE
             </extension>
         </complexContent>
     </complexType>
-    <element name="PlanarSurface" type="diggs:PolygonType"
-        substitutionGroup="diggs:AbstractGeometry">
-        <annotation>
-            <documentation>A Diggs geometry object that represents a planar surface.</documentation>
-        </annotation>
-    </element>
     <element name="PLSS" type="diggs:PlssType" substitutionGroup="diggs:AbstractObject"
         abstract="false">
         <annotation>
@@ -5256,6 +5244,24 @@ DSB: REMOVED FROM PROFILE
             </extension>
         </complexContent>
     </complexType>
+    <complexType name="PolygonPatchType">
+        <complexContent>
+            <extension base="gml:AbstractSurfacePatchType">
+                <sequence>
+                    <element minOccurs="0" ref="gml:exterior"/>
+                    <element maxOccurs="unbounded" minOccurs="0" ref="gml:interior"/>
+                    <element minOccurs="0" name="uncertainty" type="diggs:UncertaintyPropertyType"/>
+                </sequence>
+                <attribute fixed="planar" name="interpolation" type="gml:SurfaceInterpolationType"/>
+            </extension>
+        </complexContent>
+    </complexType>
+    <element name="PolygonPatch" substitutionGroup="gml:AbstractSurfacePatch"
+        type="diggs:PolygonPatchType">
+        <annotation>
+            <documentation>A Diggs geometry object defining a polygon that serves as the definition of a patch comprising a MultiPlanarSurface</documentation>
+        </annotation>
+    </element>
     <complexType name="PolygonType">
         <complexContent>
             <extension base="diggs:AbstractSurfaceType">
@@ -5277,7 +5283,7 @@ DSB: REMOVED FROM PROFILE
     </complexType>
     <complexType name="TestProcedurePropertyType">
         <sequence>
-            <element minOccurs="1" ref="diggs:AbstractTestProcedure" maxOccurs="1"/>
+            <element minOccurs="1" ref="diggs:AbstractProcedure" maxOccurs="1"/>
         </sequence>
         <attributeGroup ref="gml:AssociationAttributeGroup"/>
         <attributeGroup ref="gml:OwnershipAttributeGroup"/>
@@ -5353,8 +5359,8 @@ DSB: REMOVED FROM PROFILE
                         minOccurs="0" maxOccurs="1"/>
                     <element name="linearExtent" type="diggs:LinearExtentPropertyType" minOccurs="0"
                         maxOccurs="unbounded"/>
-                    <element name="arealExtent" type="diggs:SurfacePropertyType" minOccurs="0"
-                        maxOccurs="unbounded"/>
+                    <element name="arealExtent" type="diggs:AbstractSurfacePropertyType"
+                        minOccurs="0" maxOccurs="unbounded"/>
                     <element name="projectDateTimeSpan" type="diggs:TimeIntervalPropertyType"
                         minOccurs="0" maxOccurs="1"/>
                     <element name="locality" type="diggs:LocalityPropertyType" minOccurs="0"
@@ -7119,24 +7125,6 @@ DSB: REMOVED FROM PROFILE
             </extension>
         </complexContent>
     </complexType>
-    <complexType name="SurfacePropertyType">
-        <complexContent>
-            <restriction base="gml:DomainSetType">
-                <sequence minOccurs="0">
-                    <choice>
-                        <element ref="diggs:PlanarSurface"/>
-                        <!--
-DSB: REMOVED FROM PROFILE
-        <element ref="gml:AbstractTimeObject"/>
-        
--->
-                    </choice>
-                </sequence>
-                <attributeGroup ref="gml:OwnershipAttributeGroup"/>
-                <attributeGroup ref="gml:AssociationAttributeGroup"/>
-            </restriction>
-        </complexContent>
-    </complexType>
     <element name="TemperatureMeasurement" substitutionGroup="diggs:AbstractObject"
         type="diggs:TemperatureMeasurementType">
         <annotation>
@@ -7178,7 +7166,7 @@ DSB: REMOVED FROM PROFILE
             <element ref="diggs:TestResult"/>
         </sequence>
     </complexType>
-    <complexType name="TestResultType">
+    <complexType name="TestResultBaseType">
         <complexContent>
             <restriction base="gml:AbstractCoverageType">
                 <sequence>
@@ -7186,6 +7174,15 @@ DSB: REMOVED FROM PROFILE
                     <element minOccurs="1" ref="diggs:results"/>
                 </sequence>
             </restriction>
+        </complexContent>
+    </complexType>
+    <complexType name="TestResultType">
+        <complexContent>
+            <extension base="diggs:TestResultBaseType">
+                <sequence>
+                    <element minOccurs="0" ref="diggs:gridMappingFunction"/>
+                </sequence>
+            </extension>
         </complexContent>
     </complexType>
     <complexType name="TestType">
@@ -7750,8 +7747,8 @@ DSB: REMOVED FROM PROFILE
         type="diggs:VectorLinearSpatialReferenceSystemType"
         substitutionGroup="diggs:AbstractRelativeReferenceSystem">
         <annotation>
-            <documentation>An object containing properties related to a vector linear reference
-                system.</documentation>
+            <documentation>An object extending glr:LinearSRS to add an offset vector to fix a planar orientation, this fixing a planar relative spatial reference system
+</documentation>
         </annotation>
     </element>
     <complexType name="VectorLinearSpatialReferenceSystemPropertyType">
@@ -7763,7 +7760,11 @@ DSB: REMOVED FROM PROFILE
         <complexContent>
             <extension base="diggs:AbstractRelativeReferenceSystemType">
                 <sequence>
-                    <element name="offsetVector" type="glrov:VectorType" maxOccurs="3"/>
+                    <element name="offsetVector" type="glrov:VectorType" maxOccurs="3" minOccurs="1">
+                        <annotation>
+                            <documentation>A unit vector that defines the orientation of the planar surface extending from the planar surface's reference edge.</documentation>
+                        </annotation>
+                    </element>
                     <!-- glrov:VectorType add uom attribute to gml:VectorType -->
                     <element minOccurs="0" name="linearReferencingMethodUncertainty"
                         type="diggs:UncertaintyPropertyType">

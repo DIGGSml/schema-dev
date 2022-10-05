@@ -2615,5 +2615,177 @@ The use of the properties “coordinates” and “pos” has been deprecated. T
       </extension>
     </complexContent>
   </complexType>
+  <complexType name="AbstractSolidType">
+    <annotation>
+      <documentation>gml:AbstractSolidType is an abstraction of a solid to support the different levels of complexity. The solid may always be viewed as a geometric primitive, i.e. is contiguous.</documentation>
+    </annotation>
+    <complexContent>
+      <extension base="gml:AbstractGeometricPrimitiveType"/>
+    </complexContent>
+  </complexType>
+  <element name="AbstractSolid" type="gml:AbstractSolidType" abstract="true"
+    substitutionGroup="gml:AbstractGeometricPrimitive">
+    <annotation>
+      <documentation>The AbstractSolid element is the abstract head of the substituition group for all (continuous) solid elements.</documentation>
+    </annotation>
+  </element>
+  <complexType name="SolidPropertyType">
+    <annotation>
+      <documentation>A property that has a solid as its value domain may either be an appropriate geometry element encapsulated in an element of this type or an XLink reference to a remote geometry element (where remote includes geometry elements located elsewhere in the same document). Either the reference or the contained element shall be given, but neither both nor none.</documentation>
+    </annotation>
+    <sequence minOccurs="0">
+      <element ref="gml:AbstractSolid"/>
+    </sequence>
+    <attributeGroup ref="gml:AssociationAttributeGroup"/>
+    <attributeGroup ref="gml:OwnershipAttributeGroup"/>
+  </complexType>
+  <element name="solidProperty" type="gml:SolidPropertyType">
+    <annotation>
+      <documentation>This property element either references a solid via the XLink-attributes or contains the solid element. solidProperty is the predefined property which may be used by GML Application Schemas whenever a GML feature has a property with a value that is substitutable for AbstractSolid.</documentation>
+    </annotation>
+  </element>
+  <complexType name="SolidArrayPropertyType">
+    <annotation>
+      <documentation>gml:SolidArrayPropertyType is a container for an array of solids. The elements are always contained in the array property, referencing geometry elements or arrays of geometry elements is not supported.</documentation>
+    </annotation>
+    <sequence minOccurs="0" maxOccurs="unbounded">
+      <element ref="gml:AbstractSolid"/>
+    </sequence>
+    <attributeGroup ref="gml:OwnershipAttributeGroup"/>
+  </complexType>
+  <complexType name="SolidType">
+    <complexContent>
+      <extension base="gml:AbstractSolidType">
+        <sequence>
+          <element name="exterior" type="gml:ShellPropertyType" minOccurs="0"/>
+          <element name="interior" type="gml:ShellPropertyType" minOccurs="0" maxOccurs="unbounded"
+          />
+        </sequence>
+      </extension>
+    </complexContent>
+  </complexType>
+  <element name="Solid" type="gml:SolidType" substitutionGroup="gml:AbstractSolid">
+    <annotation>
+      <documentation>A solid is the basis for 3-dimensional geometry. The extent of a solid is defined by the boundary surfaces as specified in ISO 19107:2003, 6.3.18. exterior specifies the outer boundary, interior the inner boundary of the solid.</documentation>
+    </annotation>
+  </element>
+  <complexType name="ShellType">
+    <complexContent>
+      <extension base="gml:AbstractSurfaceType">
+        <sequence>
+          <element ref="gml:surfaceMember" maxOccurs="unbounded"/>
+        </sequence>
+        <attributeGroup ref="gml:AggregationAttributeGroup"/>
+      </extension>
+    </complexContent>
+  </complexType>
+  <element name="Shell" type="gml:ShellType" substitutionGroup="gml:AbstractSurface">
+    <annotation>
+      <documentation>A shell is used to represent a single connected component of a solid boundary as specified in ISO 19107:2003, 6.3.8.
+        Every gml:surfaceMember references or contains one surface, i.e. any element which is substitutable for gml:AbstractSurface. In the context of a shell, the surfaces describe the boundary of the solid. 
+        If provided, the aggregationType attribute shall have the value "set".
+      </documentation>
+    </annotation>
+  </element>
+  <complexType name="ShellPropertyType">
+    <annotation>
+      <documentation>A property with the content model of gml:ShellPropertyType encapsulates a shell to represent a component of a solid boundary.</documentation>
+    </annotation>
+    <sequence>
+      <element ref="gml:Shell"/>
+    </sequence>
+  </complexType>
+  <complexType name="SurfaceType">
+    <complexContent>
+      <extension base="gml:AbstractSurfaceType">
+        <sequence>
+          <element ref="gml:patches"/>
+        </sequence>
+      </extension>
+    </complexContent>
+  </complexType>
+  <element name="Surface" type="gml:SurfaceType" substitutionGroup="gml:AbstractSurface">
+    <annotation>
+      <documentation>A Surface is a 2-dimensional primitive and is composed of one or more surface patches as specified in ISO 19107:2003, 6.3.17.1. The surface patches are connected to one another.
+        patches encapsulates the patches of the surface.</documentation>
+    </annotation>
+  </element>
+  <complexType name="OrientableSurfaceType">
+    <complexContent>
+      <extension base="gml:AbstractSurfaceType">
+        <sequence>
+          <element ref="gml:baseSurface"/>
+        </sequence>
+        <attribute name="orientation" type="gml:SignType" default="+"/>
+      </extension>
+    </complexContent>
+  </complexType>
+  <element name="baseSurface" type="gml:SurfacePropertyType">
+    <annotation>
+      <documentation>The property baseSurface references or contains the base surface. The property baseSurface either references the base surface via the XLink-attributes or contains the surface element. A surface element is any element which is substitutable for gml:AbstractSurface. The base surface has positive orientation.</documentation>
+    </annotation>
+  </element>
+  <element name="OrientableSurface" type="gml:OrientableSurfaceType"
+    substitutionGroup="gml:AbstractSurface">
+    <annotation>
+      <documentation>OrientableSurface consists of a surface and an orientation. If the orientation is "+", then the OrientableSurface is identical to the baseSurface. If the orientation is "-", then the OrientableSurface is a reference to a gml:AbstractSurface with an up-normal that reverses the direction for this OrientableSurface, the sense of "the top of the surface".</documentation>
+    </annotation>
+  </element>
+  <complexType name="AbstractSurfacePatchType" abstract="true"/>
+  <element name="AbstractSurfacePatch" type="gml:AbstractSurfacePatchType" abstract="true">
+    <annotation>
+      <documentation>A surface patch defines a homogenuous portion of a surface. 
+        The AbstractSurfacePatch element is the abstract head of the substituition group for all surface patch elements describing a continuous portion of a surface.
+        All surface patches shall have an attribute interpolation (declared in the types derived from gml:AbstractSurfacePatchType) specifying the interpolation mechanism used for the patch using gml:SurfaceInterpolationType.</documentation>
+    </annotation>
+  </element>
+  <complexType name="SurfacePatchArrayPropertyType">
+    <annotation>
+      <documentation>gml:SurfacePatchArrayPropertyType is a container for a sequence of surface patches.</documentation>
+    </annotation>
+    <sequence minOccurs="0" maxOccurs="unbounded">
+      <element ref="gml:AbstractSurfacePatch"/>
+    </sequence>
+  </complexType>
+  <element name="patches" type="gml:SurfacePatchArrayPropertyType">
+    <annotation>
+      <documentation>The patches property element contains the sequence of surface patches. The order of the elements is significant and shall be preserved when processing the array.</documentation>
+    </annotation>
+  </element>
+  <simpleType name="SurfaceInterpolationType">
+    <annotation>
+      <documentation>gml:SurfaceInterpolationType is a list of codes that may be used to identify the interpolation mechanisms specified by an application schema.</documentation>
+    </annotation>
+    <restriction base="string">
+      <enumeration value="none"/>
+      <enumeration value="planar"/>
+      <enumeration value="spherical"/>
+      <enumeration value="elliptical"/>
+      <enumeration value="conic"/>
+      <enumeration value="tin"/>
+      <enumeration value="parametricCurve"/>
+      <enumeration value="polynomialSpline"/>
+      <enumeration value="rationalSpline"/>
+      <enumeration value="triangulatedSpline"/>
+    </restriction>
+  </simpleType>
+  <complexType name="PolygonPatchType">
+    <complexContent>
+      <extension base="gml:AbstractSurfacePatchType">
+        <sequence>
+          <element ref="gml:exterior" minOccurs="0"/>
+          <element ref="gml:interior" minOccurs="0" maxOccurs="unbounded"/>
+        </sequence>
+        <attribute name="interpolation" type="gml:SurfaceInterpolationType" fixed="planar"/>
+      </extension>
+    </complexContent>
+  </complexType>
+  <element name="PolygonPatch" type="gml:PolygonPatchType"
+    substitutionGroup="gml:AbstractSurfacePatch">
+    <annotation>
+      <documentation>A gml:PolygonPatch is a surface patch that is defined by a set of boundary curves and an underlying surface to which these curves adhere. The curves shall be coplanar and the polygon uses planar interpolation in its interior. 
+        interpolation is fixed to "planar", i.e. an interpolation shall return points on a single plane. The boundary of the patch shall be contained within that plane.</documentation>
+    </annotation>
+  </element>
 
 </schema>
