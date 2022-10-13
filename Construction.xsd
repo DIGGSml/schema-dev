@@ -2164,25 +2164,45 @@ represent an average or some other value.</documentation>
         <complexContent>
             <extension base="diggs:AbstractObjectType">
                 <sequence>
-                    <element maxOccurs="1" minOccurs="0" ref="diggs:groutRef">
-                        <annotation>
-                            <appinfo>diggs:GroutBatch</appinfo>
-                            <documentation>This property references the grout sample(s) used for
+                    <choice>
+                        <element maxOccurs="1" minOccurs="0" ref="diggs:groutRef">
+                            <annotation>
+                                <appinfo>diggs:GroutBatch</appinfo>
+                                <documentation>This property references the grout sample(s) used for
                                 this stage</documentation>
-                        </annotation>
-                    </element>
-                    <element maxOccurs="1" minOccurs="0" name="fluid_1"
-                        type="diggs:GroutingFluidPropertyType">
-                        <annotation>
-                            <appinfo/>
-                            <documentation>This property holds or references a GroutingFluid object describing the fluid used during jet grouting or deep soil mixing.</documentation>
-                        </annotation>
-                    </element>
+                            </annotation>
+                        </element>
+                        <sequence>
+                            <element maxOccurs="1" minOccurs="0" name="penetrationGroutRef"
+                                type="diggs:FeatureReferenceType">
+                                <annotation>
+                                    <appinfo>diggs:GroutBatch</appinfo>
+                                    <documentation>This property references the grout sample(s) used for
+                                this stage</documentation>
+                                </annotation>
+                            </element>
+                            <element maxOccurs="1" minOccurs="0" name="withdrawalGroutRef"
+                                type="diggs:FeatureReferenceType">
+                                <annotation>
+                                    <appinfo>diggs:GroutBatch</appinfo>
+                                    <documentation>This property references the grout sample(s) used for
+                                this stage</documentation>
+                                </annotation>
+                            </element>
+                        </sequence>
+                    </choice>
                     <element maxOccurs="1" minOccurs="0" name="fluid_2"
                         type="diggs:GroutingFluidPropertyType">
                         <annotation>
                             <appinfo/>
-                            <documentation>This property holds or references a GroutingFluid object describing the fluid used during jet grouting or deep soil mixing.</documentation>
+                            <documentation>This property holds or references a GroutingFluid object describing the fluid used during jet grouting</documentation>
+                        </annotation>
+                    </element>
+                    <element maxOccurs="1" minOccurs="0" name="fluid_3"
+                        type="diggs:GroutingFluidPropertyType">
+                        <annotation>
+                            <appinfo/>
+                            <documentation>This property holds or references a GroutingFluid object describing the fluid used during jet grouting</documentation>
                         </annotation>
                     </element>
                     <element minOccurs="0" name="groutInterval"
@@ -2268,29 +2288,49 @@ collected during grout injection. Multiple injection time series are allowed to 
                             <documentation>Volume of grout used.</documentation>
                         </annotation>
                     </element>
-                    <element name="totalFluid_1Take" type="eml:VolumeMeasure" minOccurs="0">
+                    <element name="totalFluid_2Take" type="eml:VolumeMeasure" minOccurs="0">
                         <annotation>
                             <documentation>Volume of fluid 1 used.</documentation>
                         </annotation>
                     </element>
-                    <element name="totalFluid_2Take" type="eml:VolumeMeasure" minOccurs="0">
+                    <element name="totalFluid_3Take" type="eml:VolumeMeasure" minOccurs="0">
                         <annotation>
                             <documentation>Volume of fluid 2 used.</documentation>
                         </annotation>
                     </element>
-                    <element name="groutTemperature" type="eml:ThermodynamicTemperatureMeasure"
-                        minOccurs="0">
-                        <annotation>
-                            <documentation>Temperature of the grout. This could be a single measurment taken prior to or during grouting or an average of temperatures measured during the grouting event. Discrete temperature measurements taken during the grouting should be recorded within the grouting time series object.</documentation>
-                        </annotation>
-                    </element>
-                    <element name="fluid_1Temperature" type="eml:ThermodynamicTemperatureMeasure"
+                    <choice>
+                        <element name="groutTemperature"
+                            type="eml:ThermodynamicTemperatureMeasureExt" minOccurs="0">
+                            <annotation>
+                                <documentation>Temperature of the grout. This could be a single measurment taken prior to or during grouting or an average of temperatures measured during the grouting event. Discrete temperature measurements taken during the grouting should be recorded within the grouting time series object.</documentation>
+                            </annotation>
+                        </element>
+                        <sequence>
+                            <element maxOccurs="1" minOccurs="0" name="penetrationGroutTemperature"
+                                type="eml:ThermodynamicTemperatureMeasureExt">
+                                <annotation>
+                                    <appinfo>diggs:GroutBatch</appinfo>
+                                    <documentation>This property references the grout sample(s) used for
+                                this stage</documentation>
+                                </annotation>
+                            </element>
+                            <element maxOccurs="1" minOccurs="0" name="withdrawalGroutTemperature"
+                                type="eml:ThermodynamicTemperatureMeasureExt">
+                                <annotation>
+                                    <appinfo>diggs:GroutBatch</appinfo>
+                                    <documentation>This property references the grout sample(s) used for
+                                this stage</documentation>
+                                </annotation>
+                            </element>
+                        </sequence>
+                    </choice>
+                    <element name="fluid_2Temperature" type="eml:ThermodynamicTemperatureMeasure"
                         minOccurs="0">
                         <annotation>
                             <documentation>Temperature of fluid 1. This could be a single measurment taken prior to or during grouting or an average of temperatures measured during the grouting event. Discrete temperature measurements taken during the grouting should be recorded within the grouting time series object.</documentation>
                         </annotation>
                     </element>
-                    <element name="Fluid_2Temperature" type="eml:ThermodynamicTemperatureMeasure"
+                    <element name="Fluid_3Temperature" type="eml:ThermodynamicTemperatureMeasure"
                         minOccurs="0">
                         <annotation>
                             <documentation>Temperature of fluid 2. This could be a single measurment taken prior to or during grouting or an average of temperatures measured during the grouting event. Discrete temperature measurements taken during the grouting should be recorded within the grouting time series object.</documentation>
@@ -4303,6 +4343,19 @@ Rock - the injection of specially formulated cement-based mixes into the ground 
                 </sequence>
             </extension>
 
+        </complexContent>
+    </complexType>
+    <complexType name="GroutTrenchCutoffWallType">
+        <complexContent>
+            <extension base="diggs:AbstractLinearSamplingFeatureType">
+                <sequence>
+                    <element minOccurs="0" name="cutoffWallWidth" type="eml:LengthMeasure">
+                        <annotation>
+                            <documentation>The width of the trench cutoff wall - this is typically the same as the thickness of the cutting tool or backhoe shovel</documentation>
+                        </annotation>
+                    </element>
+                </sequence>
+            </extension>
         </complexContent>
     </complexType>
 </schema>
