@@ -1,5 +1,6 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <schema xmlns:diggs="http://diggsml.org/schemas/2.6"
+    xmlns:diggs_geo="http://diggsml.org/schemas/2.6/geotechnical"
     xmlns:eml="http://www.energistics.org/energyml/data/commonv2"
     xmlns:witsml="http://www.energistics.org/energyml/data/witsmlv2"
     xmlns:g3.3="http://www.opengis.net/gml/3.3/ce" xmlns:glr="http://www.opengis.net/gml/3.3/lr"
@@ -20,62 +21,45 @@
         schemaLocation="witsml/2.0/data/witsml/v2.0/xsd_schemas/WitsmlAllObjects.xsd"/>
     <import namespace="http://www.opengis.net/gml/3.2" schemaLocation="gml3.2Profile_diggs.xsd"/>
     <import namespace="http://www.w3.org/XML/1998/namespace" schemaLocation="xml.xsd"/>
-    <element name="AbstractGroutingEquipment" substitutionGroup="diggs:AbstractEquipment"
-        type="diggs:AbstractGroutingEquipmentType">
-        <annotation>
-            <documentation>The base type for Diggs equipment objects that serves as the head of a substitution group for all specialized equipment used in grouting.</documentation>
-        </annotation>
-    </element>
-    <complexType abstract="true" name="AbstractGroutingEquipmentType">
-        <complexContent>
-            <extension base="diggs:AbstractEquipmentType"/>
-        </complexContent>
+    <import namespace="http://diggsml.org/schemas/2.6/geotechnical"
+        schemaLocation="Geotechnical.xsd"/>
+
+
+    <element abstract="true" name="AbstractProgramDesign" type="diggs:AbstractProgramDesignType"/>
+    <complexType abstract="false" name="AbstractProgramDesignPropertyType">
+        <sequence>
+            <element ref="diggs:AbstractProgramDesign"/>
+        </sequence>
     </complexType>
-    <element abstract="true" name="AbstractProgramDesign"
-        type="diggs:AbstractGroutingProgramDesignType"/>
     <complexType abstract="true" name="AbstractProgramDesignType">
         <complexContent>
             <extension base="diggs:AbstractFeatureType"/>
         </complexContent>
     </complexType>
     <element abstract="true" name="AbstractProgramSpecificaton"
-        type="diggs:AbstractGroutingProgramSpecificationType"/>
+        type="diggs:AbstractProgramSpecificationType"/>
+    <complexType abstract="false" name="AbstractProgramSpecificationPropertyType">
+        <sequence>
+            <element ref="diggs:AbstractProgramSpecificaton"/>
+        </sequence>
+    </complexType>
     <complexType abstract="true" name="AbstractProgramSpecificationType">
         <complexContent>
             <extension base="diggs:AbstractFeatureType"/>
         </complexContent>
     </complexType>
-    <element abstract="true" name="AbstractGroutingProgramDesign"
-        type="diggs:AbstractGroutingProgramDesignType"
-        substitutionGroup="diggs:AbstractProgramDesign"/>
-    <complexType abstract="true" name="AbstractGroutingProgramDesignType">
-        <complexContent>
-            <extension base="diggs:AbstractFeatureType"> </extension>
-        </complexContent>
-    </complexType>
-    <element abstract="true" name="AbstractGroutingProgramSpecificaton"
-        type="diggs:AbstractGroutingProgramSpecificationType"
-        substitutionGroup="diggs:AbstractFeature"/>
-    <complexType abstract="true" name="AbstractGroutingProgramSpecificationType">
-        <complexContent>
-            <extension base="diggs:AbstractFeatureType"/>
-        </complexContent>
-    </complexType>
-    <complexType name="AbstractGroutingProgramDesignPropertyType">
-        <sequence>
-            <element ref="diggs:AbstractGroutingProgramDesign"/>
-        </sequence>
-    </complexType>
-    <complexType name="AbstractGroutingProgramSpecificationPropertyType">
-        <sequence>
-            <element ref="diggs:AbstractGroutingProgramSpecificaton"/>
-        </sequence>
-    </complexType>
     <element abstract="true" name="AbstractMaterialTestProcedure"
         substitutionGroup="diggs:AbstractTestProcedure"
         type="diggs:AbstractMaterialTestlProcedureType">
         <annotation>
-            <documentation>Base type for all test procedures performed only on manufactured samples -eg. those that are created by aggregation of other samples or materials and where the sample has no location relevance. Material test procedures must reference or describe the samples and/or specimens upon which the test is performed. This category was developed for test procedures developed for characterizing grout samples but could be used for other types of samples where the results of the procedure relate to the characteristics of the sample only, and does not relate to the properties of a geographic feature of interest</documentation>
+            <documentation>Base type for all test procedures performed only on manufactured samples
+                -eg. those that are created by aggregation of other samples or materials and where
+                the sample has no location relevance. Material test procedures must reference or
+                describe the samples and/or specimens upon which the test is performed. This
+                category was developed for test procedures developed for characterizing grout
+                samples but could be used for other types of samples where the results of the
+                procedure relate to the characteristics of the sample only, and does not relate to
+                the properties of a geographic feature of interest</documentation>
         </annotation>
     </element>
     <complexType name="AbstractMaterialTestlProcedureType" abstract="true">
@@ -140,7 +124,17 @@
                     <element minOccurs="0" name="resultTime"
                         type="diggs:TimeIntervalOrInstantPropertyType">
                         <annotation>
-                            <documentation>Describes the time when the result became available, typically when the procedure associated with the observation was completed. For some observations this is identical to the samplingTime. However, there are important cases where they differ. Example: Where a measurement is made on a specimen in a laboratory,the samplingTime should record the time the specimen was retrieved from its host, while the resultTime should record the time the laboratory procedure was applied. Example: Where monitoring observation results are post-processed, the resultTime is the post-processing time, while the samplingTime preserves the time of initial interaction with the world. </documentation>
+                            <documentation>Describes the time when the result became available,
+                                typically when the procedure associated with the observation was
+                                completed. For some observations this is identical to the
+                                samplingTime. However, there are important cases where they differ.
+                                Example: Where a measurement is made on a specimen in a
+                                laboratory,the samplingTime should record the time the specimen was
+                                retrieved from its host, while the resultTime should record the time
+                                the laboratory procedure was applied. Example: Where monitoring
+                                observation results are post-processed, the resultTime is the
+                                post-processing time, while the samplingTime preserves the time of
+                                initial interaction with the world. </documentation>
                         </annotation>
                     </element>
                     <element minOccurs="0" name="validTime"
@@ -164,9 +158,11 @@
             </extension>
         </complexContent>
     </complexType>
-    <element name="Admixture" type="diggs:groutComponentCharacteristicsType">
+    <element name="Admixture" type="diggs:GroutComponentCharacteristicsType">
         <annotation>
-            <documentation>An object containing properties of the admixture component of a grout mix, including the supplier, specific gravity, type, volume, and weight of the component used.</documentation>
+            <documentation>An object containing properties of the admixture component of a grout
+                mix, including the supplier, specific gravity, type, volume, and weight of the
+                component used.</documentation>
         </annotation>
     </element>
     <complexType name="AdmixturePropertyType">
@@ -179,9 +175,12 @@
             </element>
         </sequence>
     </complexType>
-    <element name="Binder" type="diggs:groutComponentCharacteristicsType">
+    <element name="Binder" type="diggs:GroutComponentCharacteristicsType">
         <annotation>
-            <documentation>An object containing properties of the binder component of a grout mix, including the supplier, specific gravity, type, volume, and weight of the component used. Binder here refers to binding components of a grout mix exclusive of cement, such as fly ash or lime.</documentation>
+            <documentation>An object containing properties of the binder component of a grout mix,
+                including the supplier, specific gravity, type, volume, and weight of the component
+                used. Binder here refers to binding components of a grout mix exclusive of cement,
+                such as fly ash or lime.</documentation>
         </annotation>
     </element>
     <complexType name="BinderPropertyType">
@@ -197,7 +196,8 @@
     <element name="BleedTest" type="diggs:BleedTestType"
         substitutionGroup="diggs:AbstractMaterialTestProcedure">
         <annotation>
-            <documentation>A test procedure object that holds intermediate data and metadata for a bleed test.</documentation>
+            <documentation>A test procedure object that holds intermediate data and metadata for a
+                bleed test.</documentation>
         </annotation>
     </element>
     <complexType name="BleedTestType">
@@ -205,9 +205,11 @@
             <extension base="diggs:AbstractMaterialTestlProcedureType"/>
         </complexContent>
     </complexType>
-    <element name="Cement" type="diggs:groutComponentCharacteristicsType">
+    <element name="Cement" type="diggs:GroutComponentCharacteristicsType">
         <annotation>
-            <documentation>An object containing properties of the cement component of a grout mix, including the supplier, specific gravity, type, volume, and weight of the component used.</documentation>
+            <documentation>An object containing properties of the cement component of a grout mix,
+                including the supplier, specific gravity, type, volume, and weight of the component
+                used.</documentation>
         </annotation>
     </element>
     <complexType name="CementPropertyType">
@@ -215,7 +217,7 @@
             <element ref="diggs:Cement"/>
         </sequence>
     </complexType>
-    <element name="Chemical" type="diggs:groutComponentCharacteristicsType">
+    <element name="Chemical" type="diggs:GroutComponentCharacteristicsType">
         <annotation>
             <documentation>An object that describes the type, volume, and weight of chemical used in
                 the mix.</documentation>
@@ -226,7 +228,7 @@
             <element ref="diggs:Chemical"/>
         </sequence>
     </complexType>
-    <element name="DesignGroutMix" substitutionGroup="diggs:AbstractGroutingProgramDesign"
+    <element name="DesignGroutMix" substitutionGroup="diggs:AbstractProgramDesign"
         type="diggs:DesignGroutMixType">
         <annotation>
             <documentation>An object that contains properites describing the characteristics of a
@@ -236,17 +238,19 @@
     </element>
     <complexType name="DesignGroutMixType">
         <complexContent>
-            <extension base="diggs:AbstractGroutingProgramDesignType">
+            <extension base="diggs:AbstractProgramDesignType">
                 <sequence>
                     <element minOccurs="0" ref="diggs:groutSpecificationRef">
                         <annotation>
                             <appinfo>diggs:GroutSpecification</appinfo>
-                            <documentation>Pointer to the GroutSpecification object that this grout mix is targeted to.</documentation>
+                            <documentation>Pointer to the GroutSpecification object that this grout
+                                mix is targeted to.</documentation>
                         </annotation>
                     </element>
                     <element minOccurs="0" name="placementDescription" type="diggs:DiggsStringType">
                         <annotation>
-                            <documentation>Description of general location of grout mix on project site.</documentation>
+                            <documentation>Description of general location of grout mix on project
+                                site.</documentation>
                         </annotation>
                     </element>
                     <choice>
@@ -254,57 +258,60 @@
                             type="diggs:FeatureReferenceType">
                             <annotation>
                                 <appinfo>diggs:TrialGroutBatch</appinfo>
-                                <documentation>Pointer to the trial grout batch that represents this grout design.</documentation>
+                                <documentation>Pointer to the trial grout batch that represents this
+                                    grout design.</documentation>
                             </annotation>
                         </element>
                         <sequence>
                             <element minOccurs="0" name="admixture"
                                 type="diggs:AdmixturePropertyType" maxOccurs="unbounded">
                                 <annotation>
-                                    <documentation>Property containing information on admixtures used in mix
-                            </documentation>
+                                    <documentation>Property containing information on admixtures
+                                        used in mix </documentation>
                                 </annotation>
                             </element>
                             <element minOccurs="0" name="binder" type="diggs:BinderPropertyType"
                                 maxOccurs="unbounded">
                                 <annotation>
-                                    <documentation>Property containing information on binders used in mix;
-                                includes fly ash, lime, etc., but excluding cement, which is
-                                recorded in its own component property </documentation>
+                                    <documentation>Property containing information on binders used
+                                        in mix; includes fly ash, lime, etc., but excluding cement,
+                                        which is recorded in its own component property
+                                    </documentation>
                                 </annotation>
                             </element>
                             <element minOccurs="0" name="cement" type="diggs:CementPropertyType"
                                 maxOccurs="unbounded">
                                 <annotation>
-                                    <documentation>Property containing information on cement used in the
-                                grout mix </documentation>
+                                    <documentation>Property containing information on cement used in
+                                        the grout mix </documentation>
                                 </annotation>
                             </element>
                             <element minOccurs="0" name="chemical" type="diggs:ChemicalPropertyType"
                                 maxOccurs="unbounded">
                                 <annotation>
-                                    <documentation>Property containing information on cement used in the
-                                grout mix </documentation>
+                                    <documentation>Property containing information on cement used in
+                                        the grout mix </documentation>
                                 </annotation>
                             </element>
                             <element minOccurs="0" name="filler" type="diggs:FillerPropertyType"
                                 maxOccurs="unbounded">
                                 <annotation>
-                                    <documentation>Property containing information on fillers used in mix.
-                                Aggregate is a type of filler. </documentation>
+                                    <documentation>Property containing information on fillers used
+                                        in mix. Aggregate is a type of filler. </documentation>
                                 </annotation>
                             </element>
                             <element minOccurs="0" name="theoreticalYield" type="eml:VolumeMeasure">
                                 <annotation>
-                                    <documentation>Theoretical volume of a batch of grout produced by following the design mix formula.</documentation>
+                                    <documentation>Theoretical volume of a batch of grout produced
+                                        by following the design mix formula.</documentation>
                                 </annotation>
                             </element>
                             <element minOccurs="0" name="typeMix" type="gml:CodeType">
                                 <annotation>
-                                    <documentation>Type of grout mix; preferably from a controlled list, eg.
-                                cement, chemical.</documentation>
+                                    <documentation>Type of grout mix; preferably from a controlled
+                                        list, eg. cement, chemical.</documentation>
                                     <documentation>Should this be an enum if only a few common
-                                choices?</documentation>
+                                        choices?</documentation>
                                 </annotation>
                             </element>
                             <element minOccurs="0" name="volumeWater" type="eml:VolumeMeasureExt">
@@ -315,14 +322,14 @@
                             <element minOccurs="0" name="waterCementRatio"
                                 type="eml:MassPerMassMeasure">
                                 <annotation>
-                                    <documentation>Weight of water to weight of cement used for this grout
-                            </documentation>
+                                    <documentation>Weight of water to weight of cement used for this
+                                        grout </documentation>
                                 </annotation>
                             </element>
                             <element minOccurs="0" name="wtCementPerGalH2O" type="eml:ForceMeasure">
                                 <annotation>
                                     <documentation>Weight of cement used per gallon of
-                                water.</documentation>
+                                        water.</documentation>
                                 </annotation>
                             </element>
                         </sequence>
@@ -334,7 +341,8 @@
                     </element>
                     <element minOccurs="0" name="filtrateVolumeDesign" type="eml:VolumeMeasure">
                         <annotation>
-                            <documentation>Design filtrate volume value from pressure filtration test.</documentation>
+                            <documentation>Design filtrate volume value from pressure filtration
+                                test.</documentation>
                         </annotation>
                     </element>
                     <element minOccurs="0" name="gelTimeDesign" type="eml:TimeMeasure">
@@ -354,9 +362,10 @@
                         </annotation>
                     </element>
                     <element minOccurs="0" name="pressureFiltrationValueDesign"
-                        type="diggs:reciprocalSqiareRootTimeMeasure">
+                        type="diggs:ReciprocalSqiareRootTimeMeasureType">
                         <annotation>
-                            <documentation>Design pressure filtration value from pressure filtration test.</documentation>
+                            <documentation>Design pressure filtration value from pressure filtration
+                                test.</documentation>
                         </annotation>
                     </element>
                     <element minOccurs="0" name="shrinkageDesign" type="eml:VolumePerVolumeMeasure">
@@ -378,7 +387,7 @@
                     <element minOccurs="0" name="strengthDesign" type="eml:PressureMeasure">
                         <annotation>
                             <documentation>Design value for grout unconfined compressive strength.
-</documentation>
+                            </documentation>
                         </annotation>
                     </element>
                     <element minOccurs="0" name="syneresisDesign"
@@ -416,16 +425,10 @@
             <element ref="diggs:AbstractProgramSpecificaton"/>
         </sequence>
     </complexType>
-    <element name="GroutSpecification" type="diggs:GroutSpecificationType"
-        substitutionGroup="diggs:AbstractGroutingProgramSpecificaton"/>
     <element name="GroutGradingSpecification" type="diggs:GroutGradingSpecificationType"/>
     <complexType name="GroutGradingSpecificationType">
         <complexContent>
-            <restriction base="diggs:SieveAnalysisType">
-                <sequence>
-                    <element maxOccurs="unbounded" minOccurs="0" ref="diggs:gradingData"/>
-                </sequence>
-            </restriction>
+            <extension base="diggs_geo:SieveAnalysisType"> </extension>
         </complexContent>
     </complexType>
     <complexType name="GroutGradingSpecificationPropertyType">
@@ -433,256 +436,200 @@
             <element ref="diggs:GroutGradingSpecification"/>
         </sequence>
     </complexType>
-    <complexType name="GroutSpecificationType">
-        <complexContent>
-            <extension base="diggs:AbstractGroutingProgramSpecificationType">
-                <sequence>
-                    <element minOccurs="0" ref="diggs:designGroutMixRef"/>
-                    <element minOccurs="0" name="aggregateGradationCurveCoarseLimit"
-                        type="diggs:GroutGradingSpecificationPropertyType">
-                        <annotation>
-                            <documentation>A property containing gradation data that describes a grain size curve that defines the coarse grain size limit for grout aggregate.</documentation>
-                        </annotation>
-                    </element>
-                    <element minOccurs="0" name="aggregateGradationCurveFineLimit"
-                        type="diggs:GroutGradingSpecificationPropertyType">
-                        <annotation>
-                            <documentation>A property containing gradation data that describes a grain size curve that defines the fine grain size limit for grout aggregate.</documentation>
-                        </annotation>
-                    </element>
-                    <element minOccurs="0" name="maxBleedAllowed" type="eml:VolumePerVolumeMeasure">
-                        <annotation>
-                            <documentation>Maximum allowable bleed for all batches.</documentation>
-                        </annotation>
-                    </element>
-                    <element minOccurs="0" name="maxDeviationFlowConeTime"
-                        type="eml:DimensionlessMeasure">
-                        <annotation>
-                            <documentation>Maximum allowable percent deviation of flow cone time from design mix value.</documentation>
-                        </annotation>
-                    </element>
-                    <element minOccurs="0" name="maxDeviationGelTime"
-                        type="eml:DimensionlessMeasure">
-                        <annotation>
-                            <documentation>Maximum allowable percent deviation of gel time from design mix value.</documentation>
-                        </annotation>
-                    </element>
-                    <element minOccurs="0" name="maxDeviationMarshFunnelTime"
-                        type="eml:DimensionlessMeasure">
-                        <annotation>
-                            <documentation>Maximum allowable percent deviation of marsh funnel time from design mix value.</documentation>
-                        </annotation>
-                    </element>
-                    <element minOccurs="0" name="maxDeviationUnitWeight"
-                        type="eml:DimensionlessMeasure">
-                        <annotation>
-                            <documentation>Maximum allowable percent deviation of mud balance density from design mix value.</documentation>
-                        </annotation>
-                    </element>
-                    <element minOccurs="0" name="maxShrinkageAllowed"
-                        type="eml:VolumePerVolumeMeasure">
-                        <annotation>
-                            <documentation>Maximum allowable shrinkage for all grout batches.</documentation>
-                        </annotation>
-                    </element>
-                    <element minOccurs="0" name="maxSlumpAllowed" type="eml:LengthMeasure">
-                        <annotation>
-                            <documentation>Maximum amount of slump allowed for all grout batches.</documentation>
-                        </annotation>
-                    </element>
-                    <element minOccurs="0" name="maxSyneresisAllowed"
-                        type="diggs:VolumeOrMassLossMeasure">
-                        <annotation>
-                            <documentation>Maximum syneresis value allowed for all grout batches.</documentation>
-                        </annotation>
-                    </element>
-                    <element minOccurs="0" name="strengthAverage" type="eml:PressureMeasure">
-                        <annotation>
-                            <documentation>Minimum average strength allowed for all grout batches.</documentation>
-                        </annotation>
-                    </element>
-                    <element minOccurs="0" name="strength90Percent" type="eml:PressureMeasure">
-                        <annotation>
-                            <documentation>The minimum strength that 90% of grout batches must meet or exceed.</documentation>
-                        </annotation>
-                    </element>
-                    <element minOccurs="0" name="strengthMinimum" type="eml:PressureMeasure">
-                        <annotation>
-                            <documentation>Minimum allowable strength of all grout batches.</documentation>
-                        </annotation>
-                    </element>
-                </sequence>
-            </extension>
-        </complexContent>
-    </complexType>
     <element name="GroutingPerformanceSpecification"
         type="diggs:GroutingPerformanceSpecificationType"
-        substitutionGroup="diggs:AbstractGroutingProgramSpecificaton"/>
+        substitutionGroup="diggs:AbstractProgramSpecificaton"/>
     <complexType name="GroutingPerformanceSpecificationType">
         <complexContent>
-            <extension base="diggs:AbstractGroutingProgramSpecificationType">
+            <extension base="diggs:AbstractProgramSpecificationType">
                 <sequence>
                     <element minOccurs="0" name="groutedSoilPermeabilityAverage"
                         type="eml:PermeabilityRockMeasure">
                         <annotation>
-                            <documentation>Minimum average permeability allowable for all post-grout tests.</documentation>
+                            <documentation>Minimum average permeability allowable for all post-grout
+                                tests.</documentation>
                         </annotation>
                     </element>
                     <element minOccurs="0" name="groutedSoilPermeability90Percent"
                         type="eml:PermeabilityRockMeasure">
                         <annotation>
-                            <documentation>The highest permeability limit that 90% of in-situ and/or sample tests must fall at or below.</documentation>
+                            <documentation>The highest permeability limit that 90% of in-situ and/or
+                                sample tests must fall at or below.</documentation>
                         </annotation>
                     </element>
                     <element minOccurs="0" name="groutedSoilPermeabilityMaximum"
                         type="eml:PermeabilityRockMeasure">
                         <annotation>
-                            <documentation>Maximum allowable permeablilty measured from a sample or in-situ.</documentation>
+                            <documentation>Maximum allowable permeablilty measured from a sample or
+                                in-situ.</documentation>
                         </annotation>
                     </element>
                     <element minOccurs="0" name="groutedSoilUnconfinedCompressiveStrengthAverage"
                         type="eml:PressureMeasure">
                         <annotation>
-                            <documentation>Minimum average strength allowed for all grouted samples or measured in-situ.</documentation>
+                            <documentation>Minimum average strength allowed for all grouted samples
+                                or measured in-situ.</documentation>
                         </annotation>
                     </element>
                     <element minOccurs="0" name="groutedSoilUnconfinedCompressiveStrength90Percent"
                         type="eml:PressureMeasure">
                         <annotation>
-                            <documentation>The minimum strength that 90% of grouted samples or measurements in-situ must fall at or above.</documentation>
+                            <documentation>The minimum strength that 90% of grouted samples or
+                                measurements in-situ must fall at or above.</documentation>
                         </annotation>
                     </element>
                     <element minOccurs="0" name="groutedSoilUnconfinedCompressiveStrengthMinimum"
                         type="eml:PressureMeasure">
                         <annotation>
-                            <documentation>Minimum allowable strength of  grouted samples or measurements in-situ.</documentation>
+                            <documentation>Minimum allowable strength of grouted samples or
+                                measurements in-situ.</documentation>
                         </annotation>
                     </element>
                     <element minOccurs="0" name="groutedSoilConfinedCompressiveStrengthAverage"
                         type="eml:PressureMeasure">
                         <annotation>
-                            <documentation>Minimum average strength allowed for all grouted samples or measured in-situ.</documentation>
+                            <documentation>Minimum average strength allowed for all grouted samples
+                                or measured in-situ.</documentation>
                         </annotation>
                     </element>
                     <element minOccurs="0" name="groutedSoilConfinedCompressiveStrength90Percent"
                         type="eml:PressureMeasure">
                         <annotation>
-                            <documentation>The minimum strength that 90% of grouted samples or measurements in-situ must fall at or above.</documentation>
+                            <documentation>The minimum strength that 90% of grouted samples or
+                                measurements in-situ must fall at or above.</documentation>
                         </annotation>
                     </element>
                     <element minOccurs="0" name="groutedSoilConfinedCompressiveStrengthMinimum"
                         type="eml:PressureMeasure">
                         <annotation>
-                            <documentation>Minimum allowable strength of  grouted samples or measurements in-situ</documentation>
+                            <documentation>Minimum allowable strength of grouted samples or
+                                measurements in-situ</documentation>
                         </annotation>
                     </element>
                     <element minOccurs="0" name="groutedSoilShearStrengthAverage"
                         type="eml:PressureMeasure">
                         <annotation>
-                            <documentation>Minimum average strength allowed for all grouted samples or measured in-situ</documentation>
+                            <documentation>Minimum average strength allowed for all grouted samples
+                                or measured in-situ</documentation>
                         </annotation>
                     </element>
                     <element minOccurs="0" name="groutedSoilShearStrength90Percent"
                         type="eml:PressureMeasure">
                         <annotation>
-                            <documentation>The minimum strength that 90% of grouted samples or measurements in-situ must fall at or above.
-</documentation>
+                            <documentation>The minimum strength that 90% of grouted samples or
+                                measurements in-situ must fall at or above. </documentation>
                         </annotation>
                     </element>
                     <element minOccurs="0" name="groutedSoilShearStrengthMinimum"
                         type="eml:PressureMeasure">
                         <annotation>
-                            <documentation>Minimum allowable strength of  grouted samples or measurements in-situ</documentation>
+                            <documentation>Minimum allowable strength of grouted samples or
+                                measurements in-situ</documentation>
                         </annotation>
                     </element>
                     <element minOccurs="0" name="groutedSoilCompressibilityAverage"
                         type="eml:ReciprocalPressureMeasureExt">
                         <annotation>
-                            <documentation>Maximum average compressibility allowed for all grouted samples or measured in-situ.</documentation>
+                            <documentation>Maximum average compressibility allowed for all grouted
+                                samples or measured in-situ.</documentation>
                         </annotation>
                     </element>
                     <element minOccurs="0" name="groutedCompressibility90Percent"
                         type="eml:ReciprocalPressureMeasureExt">
                         <annotation>
-                            <documentation>The maximum compressibility that 90% of grouted samples or measurements in-situ must fall at or below.</documentation>
+                            <documentation>The maximum compressibility that 90% of grouted samples
+                                or measurements in-situ must fall at or below.</documentation>
                         </annotation>
                     </element>
                     <element minOccurs="0" name="groutedSoilCompressibilityMaximum"
                         type="eml:ReciprocalPressureMeasureExt">
                         <annotation>
-                            <documentation>Maximum allowable compressiblity of grouted samples or measurements in-situ</documentation>
+                            <documentation>Maximum allowable compressiblity of grouted samples or
+                                measurements in-situ</documentation>
                         </annotation>
                     </element>
                     <element minOccurs="0" name="groutedSoilSPTAverage"
                         type="eml:DimensionlessMeasure">
                         <annotation>
-                            <documentation>Minimum average SPT N value allowed for all measurements in-situ.</documentation>
+                            <documentation>Minimum average SPT N value allowed for all measurements
+                                in-situ.</documentation>
                         </annotation>
                     </element>
                     <element minOccurs="0" name="groutedSoilSPT90Percent"
                         type="eml:DimensionlessMeasure">
                         <annotation>
-                            <documentation>The minimum SPT N value that 90% of measurements in-situ must meet or exceed.</documentation>
+                            <documentation>The minimum SPT N value that 90% of measurements in-situ
+                                must meet or exceed.</documentation>
                         </annotation>
                     </element>
                     <element minOccurs="0" name="groutedSoilSPTMinimum"
                         type="eml:DimensionlessMeasure">
                         <annotation>
-                            <documentation>Minimum allowable SPT N value allowed for all measurements in-situ.</documentation>
+                            <documentation>Minimum allowable SPT N value allowed for all
+                                measurements in-situ.</documentation>
                         </annotation>
                     </element>
                     <element minOccurs="0" name="groutedSoilCPTTipAverage"
                         type="eml:PressureMeasure">
                         <annotation>
-                            <documentation>Minimum average CPT tip value allowed where measured in-situ.</documentation>
+                            <documentation>Minimum average CPT tip value allowed where measured
+                                in-situ.</documentation>
                         </annotation>
                     </element>
                     <element minOccurs="0" name="groutedSoilCPTTip90Percent"
                         type="eml:PressureMeasure">
                         <annotation>
-                            <documentation>The minimum CPT tip value that 90% of measurements in-situ must meet or exceed.</documentation>
+                            <documentation>The minimum CPT tip value that 90% of measurements
+                                in-situ must meet or exceed.</documentation>
                         </annotation>
                     </element>
                     <element minOccurs="0" name="groutedSoilCPTTipMinimum"
                         type="eml:PressureMeasure">
                         <annotation>
-                            <documentation>Minimum allowable CPT tip value measured in-situ.</documentation>
+                            <documentation>Minimum allowable CPT tip value measured
+                                in-situ.</documentation>
                         </annotation>
                     </element>
                     <element minOccurs="0" name="groutedSoilDensityAverage"
                         type="diggs:DensityOrUnitWeightMeasureType">
                         <annotation>
-                            <documentation>Minimum average density allowed for all grouted samples or measured in-situ.</documentation>
+                            <documentation>Minimum average density allowed for all grouted samples
+                                or measured in-situ.</documentation>
                         </annotation>
                     </element>
                     <element minOccurs="0" name="groutedSoilDensity90Percent"
                         type="diggs:DensityOrUnitWeightMeasureType">
                         <annotation>
-                            <documentation>The minimum density that 90% of grouted samples or measurements in-situ must fall at or above.</documentation>
+                            <documentation>The minimum density that 90% of grouted samples or
+                                measurements in-situ must fall at or above.</documentation>
                         </annotation>
                     </element>
                     <element minOccurs="0" name="groutedSoilDensityMinimum"
                         type="diggs:DensityOrUnitWeightMeasureType">
                         <annotation>
-                            <documentation>Minimum allowable density of grouted samples or measurements in-situ.</documentation>
+                            <documentation>Minimum allowable density of grouted samples or
+                                measurements in-situ.</documentation>
                         </annotation>
                     </element>
                     <element minOccurs="0" name="groutedSoilSWaveVelocityAverage"
-                        type="eml:LengthPerTimeMeasure">
+                        type="diggs:LengthPerTimeMeasureType">
                         <annotation>
-                            <documentation>Minimum average shear wave velocity value allowed where measured in-situ.</documentation>
+                            <documentation>Minimum average shear wave velocity value allowed where
+                                measured in-situ.</documentation>
                         </annotation>
                     </element>
                     <element minOccurs="0" name="groutedSoilSWaveVelocity90Percent"
-                        type="eml:LengthPerTimeMeasure">
+                        type="diggs:LengthPerTimeMeasureType">
                         <annotation>
-                            <documentation>The minimum shear wave velocity that 90% of measurements in-situ must meet or exceed.</documentation>
+                            <documentation>The minimum shear wave velocity that 90% of measurements
+                                in-situ must meet or exceed.</documentation>
                         </annotation>
                     </element>
                     <element minOccurs="0" name="groutedSoilSWaveVelocityMinimum"
-                        type="eml:LengthPerTimeMeasure">
+                        type="diggs:LengthPerTimeMeasureType">
                         <annotation>
-                            <documentation>Minimum allowable shear wave velocity measured in-situ.</documentation>
+                            <documentation>Minimum allowable shear wave velocity measured
+                                in-situ.</documentation>
                         </annotation>
                     </element>
                 </sequence>
@@ -690,21 +637,25 @@
         </complexContent>
     </complexType>
     <element name="GroutingActivitySpecification" type="diggs:GroutingActivitySpecificationType"
-        substitutionGroup="diggs:AbstractGroutingProgramSpecificaton"/>
+        substitutionGroup="diggs:AbstractProgramSpecificaton"/>
     <complexType name="GroutingActivitySpecificationType">
         <complexContent>
-            <extension base="diggs:AbstractGroutingProgramSpecificationType">
+            <extension base="diggs:AbstractProgramSpecificationType">
                 <sequence>
                     <element minOccurs="0" name="constructionSpecification"
                         type="diggs:GroutConstructionSpecificationPropertyType" maxOccurs="1">
                         <annotation>
-                            <documentation>Property type containing specifications for the grouting activity. A grouting activity can have more than one constructionSpecification that would be relevant to one or more boreholes or soundings.</documentation>
+                            <documentation>Property type containing specifications for the grouting
+                                activity. A grouting activity can have more than one
+                                constructionSpecification that would be relevant to one or more
+                                boreholes or soundings.</documentation>
                         </annotation>
                     </element>
                     <element minOccurs="0" name="terminationCriteria"
                         type="diggs:TerminationCriteriaPropertyType" maxOccurs="1">
                         <annotation>
-                            <documentation>Property type containing specifications for conditions that require termination of grout injection</documentation>
+                            <documentation>Property type containing specifications for conditions
+                                that require termination of grout injection</documentation>
                         </annotation>
                     </element>
                 </sequence>
@@ -724,7 +675,8 @@
                 <sequence>
                     <element minOccurs="0" name="apparentLugeonValue">
                         <annotation>
-                            <documentation>The apparent Lugeon value upon which injection should terminate.</documentation>
+                            <documentation>The apparent Lugeon value upon which injection should
+                                terminate.</documentation>
                         </annotation>
                         <complexType>
                             <simpleContent>
@@ -736,33 +688,42 @@
                     </element>
                     <element minOccurs="0" name="crossCommunication" type="boolean">
                         <annotation>
-                            <documentation>Value is true if cross-communication of grout (eg. grout appearing in an adjacent hole) should be a criteria for injection termination, false if not.</documentation>
+                            <documentation>Value is true if cross-communication of grout (eg. grout
+                                appearing in an adjacent hole) should be a criteria for injection
+                                termination, false if not.</documentation>
                         </annotation>
                     </element>
                     <element minOccurs="0" name="gInValue" type="eml:MomentOfForceMeasure">
                         <annotation>
-                            <documentation>Grouting Intensity Number - the pressure x volume limit used for grout termination</documentation>
+                            <documentation>Grouting Intensity Number - the pressure x volume limit
+                                used for grout termination</documentation>
                         </annotation>
                     </element>
                     <element minOccurs="0" name="groutAtSurface" type="boolean">
                         <annotation>
-                            <documentation>Grout appears at grout surface, indicative of grout loss. True if this should be criteria for injection termination.</documentation>
+                            <documentation>Grout appears at grout surface, indicative of grout loss.
+                                True if this should be criteria for injection
+                                termination.</documentation>
                         </annotation>
                     </element>
                     <element minOccurs="0" name="groutFlowAtConstantPressure"
                         type="eml:VolumePerTimeMeasure">
                         <annotation>
-                            <documentation>Amount of grout flow under constant pressure that should trigger termination.</documentation>
+                            <documentation>Amount of grout flow under constant pressure that should
+                                trigger termination.</documentation>
                         </annotation>
                     </element>
                     <element minOccurs="0" name="groutVolumeLimit" type="eml:VolumeMeasure">
                         <annotation>
-                            <documentation>The total amount grout by volume that should trigger termination.</documentation>
+                            <documentation>The total amount grout by volume that should trigger
+                                termination.</documentation>
                         </annotation>
                     </element>
                     <element minOccurs="0" name="lateralMovement" maxOccurs="unbounded">
                         <annotation>
-                            <documentation>Amount of lateral movement that triggers injection termination. Attribute 'displacedFeature' identifies feature being monitored for movement.</documentation>
+                            <documentation>Amount of lateral movement that triggers injection
+                                termination. Attribute 'displacedFeature' identifies feature being
+                                monitored for movement.</documentation>
                         </annotation>
                         <complexType>
                             <complexContent>
@@ -775,7 +736,9 @@
                     </element>
                     <element minOccurs="0" name="movement" maxOccurs="unbounded">
                         <annotation>
-                            <documentation>Amount of total movement that triggers injection termination. Attribute 'displacedFeature' identifies feature being monitored for movement.</documentation>
+                            <documentation>Amount of total movement that triggers injection
+                                termination. Attribute 'displacedFeature' identifies feature being
+                                monitored for movement.</documentation>
                         </annotation>
                         <complexType>
                             <complexContent>
@@ -789,12 +752,18 @@
                     <element minOccurs="0" name="pressureLimit"
                         type="diggs:GroutPressureMeasureType" maxOccurs="unbounded">
                         <annotation>
-                            <documentation>The pressure where injection termination should occur. Required attribute 'type' indicates what type of pressure is being measured - eg. gauge, effective, transducer) and optional attribute 'sensorLocation' is a string type indicating where sensor is located (eg. pump, grout head, etc.).</documentation>
+                            <documentation>The pressure where injection termination should occur.
+                                Required attribute 'type' indicates what type of pressure is being
+                                measured - eg. gauge, effective, transducer) and optional attribute
+                                'sensorLocation' is a string type indicating where sensor is located
+                                (eg. pump, grout head, etc.).</documentation>
                         </annotation>
                     </element>
                     <element minOccurs="0" name="rotation" maxOccurs="unbounded">
                         <annotation>
-                            <documentation>Amount of rotation that triggers injection termination. Attribute 'displacedFeature' identifies feature being monitored for movement.</documentation>
+                            <documentation>Amount of rotation that triggers injection termination.
+                                Attribute 'displacedFeature' identifies feature being monitored for
+                                movement.</documentation>
                         </annotation>
                         <complexType>
                             <complexContent>
@@ -807,7 +776,9 @@
                     </element>
                     <element minOccurs="0" name="tilt" maxOccurs="unbounded">
                         <annotation>
-                            <documentation>Amount of tilt that triggers injection termination. Attribute 'displacedFeature' identifies feature being monitored for movement.</documentation>
+                            <documentation>Amount of tilt that triggers injection termination.
+                                Attribute 'displacedFeature' identifies feature being monitored for
+                                movement.</documentation>
                         </annotation>
                         <complexType>
                             <complexContent>
@@ -820,7 +791,9 @@
                     </element>
                     <element minOccurs="0" name="verticalMovement" maxOccurs="unbounded">
                         <annotation>
-                            <documentation>Amount of vertical movement that triggers injection termination. Attribute 'displacedFeature' identifies feature being monitored for movement.</documentation>
+                            <documentation>Amount of vertical movement that triggers injection
+                                termination. Attribute 'displacedFeature' identifies feature being
+                                monitored for movement.</documentation>
                         </annotation>
                         <complexType>
                             <complexContent>
@@ -896,13 +869,17 @@
                             <element minOccurs="0" name="injectionMethod" maxOccurs="1"
                                 type="gml:CodeType">
                                 <annotation>
-                                    <documentation>The method used to inject grout into the sampling feature (eg. TAM, lances, out of bottom of casing, etc.). Intended to come from a controlled list of terms.</documentation>
+                                    <documentation>The method used to inject grout into the sampling
+                                        feature (eg. TAM, lances, out of bottom of casing, etc.).
+                                        Intended to come from a controlled list of
+                                        terms.</documentation>
                                 </annotation>
                             </element>
                             <element minOccurs="0" name="reinjectionCriteria" maxOccurs="unbounded"
                                 type="gml:CodeType">
                                 <annotation>
-                                    <documentation>Description of conditions whereby hole/stage may be required to be regrouted</documentation>
+                                    <documentation>Description of conditions whereby hole/stage may
+                                        be required to be regrouted</documentation>
                                 </annotation>
                             </element>
                             <choice minOccurs="0">
@@ -910,14 +887,16 @@
                                     <element minOccurs="1" name="digitalRecordingRequired"
                                         type="boolean" fixed="true">
                                         <annotation>
-                                            <documentation>Set to true here, grouting parameters are required to be recorded digitally.</documentation>
+                                            <documentation>Set to true here, grouting parameters are
+                                                required to be recorded digitally.</documentation>
                                         </annotation>
                                     </element>
                                     <element maxOccurs="unbounded" minOccurs="0"
                                         name="recordingParameter" type="gml:CodeType">
                                         <annotation>
-                                            <documentation>Grouting parameter to be recorded digitally (eg. flow, pressure). Intended to come from a controlled list of terms.
-</documentation>
+                                            <documentation>Grouting parameter to be recorded
+                                                digitally (eg. flow, pressure). Intended to come
+                                                from a controlled list of terms. </documentation>
                                         </annotation>
                                     </element>
                                 </sequence>
@@ -925,7 +904,9 @@
                                     <element minOccurs="1" name="digitalRecordingNotRequired"
                                         type="boolean" fixed="true">
                                         <annotation>
-                                            <documentation>Set to true here, grouting parameters are NOT required to be recorded digitally.</documentation>
+                                            <documentation>Set to true here, grouting parameters are
+                                                NOT required to be recorded
+                                                digitally.</documentation>
                                         </annotation>
                                     </element>
                                 </sequence>
@@ -933,13 +914,15 @@
                             <element minOccurs="0" name="groutingPressureMaximum"
                                 type="diggs:GroutPressureMeasureType" maxOccurs="1">
                                 <annotation>
-                                    <documentation>Maximum grouting pressure specified.</documentation>
+                                    <documentation>Maximum grouting pressure
+                                        specified.</documentation>
                                 </annotation>
                             </element>
                             <element minOccurs="0" name="groutingPressureMinimum"
                                 type="diggs:GroutPressureMeasureType" maxOccurs="1">
                                 <annotation>
-                                    <documentation>Minimum grouting pressure specified.</documentation>
+                                    <documentation>Minimum grouting pressure
+                                        specified.</documentation>
                                 </annotation>
                             </element>
                             <element minOccurs="0" name="groutVolumeMaximum"
@@ -957,18 +940,22 @@
                             <element minOccurs="0" name="injectionRateMaximum"
                                 type="eml:VolumePerTimeMeasure">
                                 <annotation>
-                                    <documentation>Maximum specified rate of grout injection.</documentation>
+                                    <documentation>Maximum specified rate of grout
+                                        injection.</documentation>
                                 </annotation>
                             </element>
                             <element minOccurs="0" name="injectionRateMinimum"
                                 type="eml:VolumePerTimeMeasure">
                                 <annotation>
-                                    <documentation>Minimum specified rate of grout injection</documentation>
+                                    <documentation>Minimum specified rate of grout
+                                        injection</documentation>
                                 </annotation>
                             </element>
                             <element minOccurs="0" name="pressureControlLogic">
                                 <annotation>
-                                    <documentation>Property defining how grout injection is to be controlled, either by constant flow or constant pressure. From an enumerated list.</documentation>
+                                    <documentation>Property defining how grout injection is to be
+                                        controlled, either by constant flow or constant pressure.
+                                        From an enumerated list.</documentation>
                                 </annotation>
                                 <simpleType>
                                     <restriction base="string">
@@ -1008,12 +995,14 @@
                 <sequence>
                     <element form="qualified" name="minimumDepthBelowLS" type="eml:LengthMeasure">
                         <annotation>
-                            <documentation>The minimum vertical depth below land surface for which associated construction criteria are applicable.</documentation>
+                            <documentation>The minimum vertical depth below land surface for which
+                                associated construction criteria are applicable.</documentation>
                         </annotation>
                     </element>
                     <element form="qualified" name="maximumDepthBelowLS" type="eml:LengthMeasure">
                         <annotation>
-                            <documentation>The maximum vertical depth below land surface for which associated construction criteria are applicable.</documentation>
+                            <documentation>The maximum vertical depth below land surface for which
+                                associated construction criteria are applicable.</documentation>
                         </annotation>
                     </element>
                     <element maxOccurs="1" minOccurs="0" name="injectionEquipment"
@@ -1042,13 +1031,16 @@
                     </element>
                     <element minOccurs="0" name="injectionMethod" maxOccurs="1" type="gml:CodeType">
                         <annotation>
-                            <documentation>The method used to inject grout into the sampling feature (eg. TAM, lances, out of bottom of casing, etc.). Intended to come from a controlled list of terms.</documentation>
+                            <documentation>The method used to inject grout into the sampling feature
+                                (eg. TAM, lances, out of bottom of casing, etc.). Intended to come
+                                from a controlled list of terms.</documentation>
                         </annotation>
                     </element>
                     <element minOccurs="0" name="reinjectionCriteria" maxOccurs="unbounded"
                         type="gml:CodeType">
                         <annotation>
-                            <documentation>Description of conditions whereby hole/stage may be required to be regrouted</documentation>
+                            <documentation>Description of conditions whereby hole/stage may be
+                                required to be regrouted</documentation>
                         </annotation>
                     </element>
                     <choice minOccurs="0">
@@ -1056,14 +1048,16 @@
                             <element minOccurs="1" name="digitalRecordingRequired" type="boolean"
                                 fixed="true">
                                 <annotation>
-                                    <documentation>Set to true here, grouting parameters are required to be recorded digitally.</documentation>
+                                    <documentation>Set to true here, grouting parameters are
+                                        required to be recorded digitally.</documentation>
                                 </annotation>
                             </element>
                             <element maxOccurs="unbounded" minOccurs="0" name="recordingParameter"
                                 type="gml:CodeType">
                                 <annotation>
-                                    <documentation>Grouting parameter to be recorded digitally (eg. flow, pressure). Intended to come from a controlled list of terms.
-</documentation>
+                                    <documentation>Grouting parameter to be recorded digitally (eg.
+                                        flow, pressure). Intended to come from a controlled list of
+                                        terms. </documentation>
                                 </annotation>
                             </element>
                         </sequence>
@@ -1071,7 +1065,8 @@
                             <element minOccurs="1" name="digitalRecordingNotRequired" type="boolean"
                                 fixed="true">
                                 <annotation>
-                                    <documentation>Set to true here, grouting parameters are NOT required to be recorded digitally.</documentation>
+                                    <documentation>Set to true here, grouting parameters are NOT
+                                        required to be recorded digitally.</documentation>
                                 </annotation>
                             </element>
                         </sequence>
@@ -1112,7 +1107,9 @@
                     </element>
                     <element minOccurs="0" name="pressureControlLogic">
                         <annotation>
-                            <documentation>Property defining how grout injection is to be controlled, either by constant flow or constant pressure. From an enumerated list.</documentation>
+                            <documentation>Property defining how grout injection is to be
+                                controlled, either by constant flow or constant pressure. From an
+                                enumerated list.</documentation>
                         </annotation>
                         <simpleType>
                             <restriction base="string">
@@ -1135,9 +1132,11 @@
             </extension>
         </complexContent>
     </complexType>
-    <element name="Filler" type="diggs:groutComponentCharacteristicsType">
+    <element name="Filler" type="diggs:GroutComponentCharacteristicsType">
         <annotation>
-            <documentation>An object containing properties of the filler component of a grout mix, including the supplier, specific gravity, type, volume, and weight of the component used. Aggregate is a common filler component in grout.</documentation>
+            <documentation>An object containing properties of the filler component of a grout mix,
+                including the supplier, specific gravity, type, volume, and weight of the component
+                used. Aggregate is a common filler component in grout.</documentation>
         </annotation>
     </element>
     <complexType name="FillerPropertyType">
@@ -1145,19 +1144,10 @@
             <element ref="diggs:Filler"/>
         </sequence>
     </complexType>
-    <complexType name="groutComponentCharacteristicsType">
-        <annotation>
-            <documentation>Add role propertey</documentation>
-        </annotation>
+    <complexType name="GroutComponentCharacteristicsType">
         <complexContent>
-            <extension base="diggs:AbstractNamedObjectType">
+            <extension base="diggs:AbstractNamedRoleObjectType">
                 <sequence>
-                    <element minOccurs="0" name="supplier"
-                        type="diggs:BusinessAssociatePropertyType">
-                        <annotation>
-                            <documentation>The BusinessAssociate who supplied the grout component</documentation>
-                        </annotation>
-                    </element>
                     <element minOccurs="0" name="specificGravity" type="diggs:SpecificGravityType">
                         <annotation>
                             <documentation>Specific gravity of grout component </documentation>
@@ -1227,7 +1217,9 @@
     <element name="GeoUnitObservation" type="diggs:GeoUnitObservationType"
         substitutionGroup="diggs:AbstractObservation">
         <annotation>
-            <documentation>An observation of a geologic or geotechnical unit where the unit is primarily defined by the value(s) or a value range of one or more physical properties.</documentation>
+            <documentation>An observation of a geologic or geotechnical unit where the unit is
+                primarily defined by the value(s) or a value range of one or more physical
+                properties.</documentation>
         </annotation>
     </element>
     <complexType name="GeoUnitObservationType">
@@ -1236,7 +1228,8 @@
                 <sequence>
                     <element minOccurs="1" name="unitName" type="gml:CodeType" maxOccurs="unbounded">
                         <annotation>
-                            <documentation>The name of the unit (eg. Unit A) assigned to this zone.</documentation>
+                            <documentation>The name of the unit (eg. Unit A) assigned to this
+                                zone.</documentation>
                         </annotation>
                     </element>
                     <element minOccurs="0" name="unitDescription" type="diggs:DiggsStringType">
@@ -1247,24 +1240,32 @@
                     <element minOccurs="0" name="verticalDistanceToTopOfUnit"
                         type="eml:LengthMeasure">
                         <annotation>
-                            <documentation>When encountered in a linear sampling feature, the vertical distance to the top (or beginning) of the unit, measured from the feature's reference point.</documentation>
+                            <documentation>When encountered in a linear sampling feature, the
+                                vertical distance to the top (or beginning) of the unit, measured
+                                from the feature's reference point.</documentation>
                         </annotation>
                     </element>
                     <element minOccurs="0" name="verticalDistanceToBaseOfUnit"
                         type="eml:LengthMeasure">
                         <annotation>
-                            <documentation>When encountered in a linear sampling feature, the vertical distance to the base (or end) of the unit, measured from the feature's reference point.</documentation>
+                            <documentation>When encountered in a linear sampling feature, the
+                                vertical distance to the base (or end) of the unit, measured from
+                                the feature's reference point.</documentation>
                         </annotation>
                     </element>
                     <element minOccurs="0" name="verticallThicknessOfUnit" type="eml:LengthMeasure">
                         <annotation>
-                            <documentation>Thickness of the unit, measured vertically. This would be the difference between the verticalDistanceToBaseOfUnit - verticalDistanceToTopOfUnit.</documentation>
+                            <documentation>Thickness of the unit, measured vertically. This would be
+                                the difference between the verticalDistanceToBaseOfUnit -
+                                verticalDistanceToTopOfUnit.</documentation>
                         </annotation>
                     </element>
                     <element maxOccurs="unbounded" minOccurs="0" name="characteristicProperty"
                         type="diggs:ParameterPropertyType">
                         <annotation>
-                            <documentation>A Parameter object that describes the name, value, or range of values of a property characteristic of this unit.</documentation>
+                            <documentation>A Parameter object that describes the name, value, or
+                                range of values of a property characteristic of this
+                                unit.</documentation>
                         </annotation>
                     </element>
                     <element minOccurs="0" ref="diggs:baseBoundary"/>
@@ -1276,7 +1277,9 @@
         <sequence>
             <element ref="diggs:GeoUnitObservation">
                 <annotation>
-                    <documentation>A geotechnical unit defined within a project and generally identified by one or more characteristic physical or engineering properties.</documentation>
+                    <documentation>A geotechnical unit defined within a project and generally
+                        identified by one or more characteristic physical or engineering
+                        properties.</documentation>
                 </annotation>
             </element>
         </sequence>
@@ -1284,7 +1287,8 @@
     <element name="GroutInjectionProperty" substitutionGroup="gml:AbstractValue"
         type="diggs:GroutInjectionPropertyType">
         <annotation>
-            <documentation>An object that specifies a property that is recorded during grout injection.</documentation>
+            <documentation>An object that specifies a property that is recorded during grout
+                injection.</documentation>
         </annotation>
     </element>
     <complexType name="GroutInjectionPropertyType">
@@ -1312,22 +1316,13 @@
                     <element maxOccurs="1" minOccurs="1" name="propertyClass"
                         type="gml:CodeWithAuthorityType">
                         <annotation>
-                            <documentation>The official name of the grout injection time series property, from a dictionary of controlled terms. Standard DIGGS property class values are:
-
-- apparent_lugeon_value 
-- column_pressure 
-- effective_pressure
-- elapsed_time 
-- grout_flow_rate 
-- gauge_pressure 
-- grout_specific_gravity
-- grout_temperature
-- injection_pressure 
-- line_loss 
-- mix 
-- packer_pressure 
-- stroke_count
-- take</documentation>
+                            <documentation>The official name of the grout injection time series
+                                property, from a dictionary of controlled terms. Standard DIGGS
+                                property class values are: - apparent_lugeon_value - column_pressure
+                                - effective_pressure - elapsed_time - grout_flow_rate -
+                                gauge_pressure - grout_specific_gravity - grout_temperature -
+                                injection_pressure - line_loss - mix - packer_pressure -
+                                stroke_count - take</documentation>
                         </annotation>
                     </element>
                     <element maxOccurs="1" minOccurs="0" name="uom" type="diggs:AllUnits">
@@ -1351,8 +1346,9 @@
                     <element maxOccurs="unbounded" minOccurs="0" name="correctionUsed"
                         type="gml:CodeType">
                         <annotation>
-                            <documentation>A description of corrections used to obtain the reported
-describe any other adjustments made to the reported data. Can come from a controlled list.</documentation>
+                            <documentation>A description of corrections used to obtain the reported result or to
+                                describe any other adjustments made to the reported data. Can come
+                                from a controlled list.</documentation>
                         </annotation>
                     </element>
                     <element minOccurs="0" name="measurementTechnique">
@@ -1370,7 +1366,8 @@ describe any other adjustments made to the reported data. Can come from a contro
                                 <extension base="diggs:DescriptorMethodEnumType">
                                     <attribute name="formula" type="string">
                                         <annotation>
-                                            <documentation>A description of the formula used to obtain the measurement result.</documentation>
+                                            <documentation>A description of the formula used to
+                                                obtain the measurement result.</documentation>
                                         </annotation>
                                     </attribute>
                                     <attribute name="samplingRate" type="string"> </attribute>
@@ -1390,8 +1387,8 @@ describe any other adjustments made to the reported data. Can come from a contro
                         type="eml:ReciprocalTimeMeasure">
                         <annotation>
                             <documentation>The number of measurements taken per unit time; refers to
-the original sampling rate from which the reported value may
-represent an average or some other value.</documentation>
+                                the original sampling rate from which the reported value may
+                                represent an average or some other value.</documentation>
                         </annotation>
                     </element>
                 </sequence>
@@ -1417,26 +1414,197 @@ represent an average or some other value.</documentation>
             <element ref="diggs:GroutSpecimen"/>
         </sequence>
     </complexType>
+    <element name="GroutSpecification" type="diggs:GroutSpecificationType"
+        substitutionGroup="diggs:AbstractProgramSpecificaton"/>
+    <complexType name="GroutSpecificationType">
+        <complexContent>
+            <extension base="diggs:AbstractProgramSpecificationType">
+                <sequence>
+                    <element minOccurs="0" ref="diggs:designGroutMixRef"/>
+                    <element minOccurs="0" name="aggregateGradationCurveCoarseLimit"
+                        type="diggs:GroutGradingSpecificationPropertyType">
+                        <annotation>
+                            <documentation>A property containing gradation data that describes a
+                                grain size curve that defines the coarse grain size limit for grout
+                                aggregate.</documentation>
+                        </annotation>
+                    </element>
+                    <element minOccurs="0" name="aggregateGradationCurveFineLimit"
+                        type="diggs:GroutGradingSpecificationPropertyType">
+                        <annotation>
+                            <documentation>A property containing gradation data that describes a
+                                grain size curve that defines the fine grain size limit for grout
+                                aggregate.</documentation>
+                        </annotation>
+                    </element>
+                    <element minOccurs="0" name="maxBleedAllowed" type="eml:VolumePerVolumeMeasure">
+                        <annotation>
+                            <documentation>Maximum allowable bleed for all batches.</documentation>
+                        </annotation>
+                    </element>
+                    <element minOccurs="0" name="maxDeviationFlowConeTime"
+                        type="eml:DimensionlessMeasure">
+                        <annotation>
+                            <documentation>Maximum allowable percent deviation of flow cone time
+                                from design mix value.</documentation>
+                        </annotation>
+                    </element>
+                    <element minOccurs="0" name="maxDeviationGelTime"
+                        type="eml:DimensionlessMeasure">
+                        <annotation>
+                            <documentation>Maximum allowable percent deviation of gel time from
+                                design mix value.</documentation>
+                        </annotation>
+                    </element>
+                    <element minOccurs="0" name="maxDeviationMarshFunnelTime"
+                        type="eml:DimensionlessMeasure">
+                        <annotation>
+                            <documentation>Maximum allowable percent deviation of marsh funnel time
+                                from design mix value.</documentation>
+                        </annotation>
+                    </element>
+                    <element minOccurs="0" name="maxDeviationUnitWeight"
+                        type="eml:DimensionlessMeasure">
+                        <annotation>
+                            <documentation>Maximum allowable percent deviation of mud balance
+                                density from design mix value.</documentation>
+                        </annotation>
+                    </element>
+                    <element minOccurs="0" name="maxShrinkageAllowed"
+                        type="eml:VolumePerVolumeMeasure">
+                        <annotation>
+                            <documentation>Maximum allowable shrinkage for all grout
+                                batches.</documentation>
+                        </annotation>
+                    </element>
+                    <element minOccurs="0" name="maxSlumpAllowed" type="eml:LengthMeasure">
+                        <annotation>
+                            <documentation>Maximum amount of slump allowed for all grout
+                                batches.</documentation>
+                        </annotation>
+                    </element>
+                    <element minOccurs="0" name="maxSyneresisAllowed"
+                        type="diggs:VolumeOrMassLossMeasure">
+                        <annotation>
+                            <documentation>Maximum syneresis value allowed for all grout
+                                batches.</documentation>
+                        </annotation>
+                    </element>
+                    <element minOccurs="0" name="strengthAverage" type="eml:PressureMeasure">
+                        <annotation>
+                            <documentation>Minimum average strength allowed for all grout
+                                batches.</documentation>
+                        </annotation>
+                    </element>
+                    <element minOccurs="0" name="strength90Percent" type="eml:PressureMeasure">
+                        <annotation>
+                            <documentation>The minimum strength that 90% of grout batches must meet
+                                or exceed.</documentation>
+                        </annotation>
+                    </element>
+                    <element minOccurs="0" name="strengthMinimum" type="eml:PressureMeasure">
+                        <annotation>
+                            <documentation>Minimum allowable strength of all grout
+                                batches.</documentation>
+                        </annotation>
+                    </element>
+                </sequence>
+            </extension>
+        </complexContent>
+    </complexType>
+    <element name="MixedGrout-SoilSpecification" type="diggs:MixedGrout-SoilSpecificationType"
+        substitutionGroup="diggs:AbstractProgramSpecificaton"/>
+    <complexType name="MixedGrout-SoilSpecificationType">
+        <complexContent>
+            <extension base="diggs:AbstractProgramSpecificationType">
+                <sequence>
+                    <element minOccurs="0" name="mixedGrout-SoilSampleRef"
+                        type="diggs:FeatureReferenceType">
+                        <annotation>
+                            <documentation>A pointer to the mixed grout-soil sample (GroutBatch)
+                                that is used as the model for the specification. Typically this is
+                                the sample tested for a strength value that meets the specified
+                                minimum strength value. </documentation>
+                        </annotation>
+                    </element>
+                    <element minOccurs="0" ref="diggs:measurementRef" maxOccurs="unbounded">
+                        <annotation>
+                            <documentation>Links to the strength measurements used to determine this
+                                specification</documentation>
+                        </annotation>
+                    </element>
+                    <element minOccurs="0" name="strengthMinimum" type="eml:PressureMeasure">
+                        <annotation>
+                            <documentation>Minimum allowable strength for a grout-soil
+                                mix</documentation>
+                        </annotation>
+                    </element>
+                    <element minOccurs="0" name="bkadeRotationNumber" type="positiveInteger">
+                        <annotation>
+                            <documentation>The specified or target blade rotation
+                                number</documentation>
+                        </annotation>
+                    </element>
+                    <element minOccurs="0" name="volumeRatio" type="eml:VolumePerVolumeMeasureExt">
+                        <annotation>
+                            <documentation>Volume ratio of mixed soil</documentation>
+                        </annotation>
+                    </element>
+                    <element minOccurs="0" name="binderFactor" type="eml:ForcePerVolumeMeasureExt">
+                        <annotation>
+                            <documentation>Binder factor expressed in terms of volume ratio and dry
+                                unit weight of slurry.</documentation>
+                        </annotation>
+                    </element>
+                    <element minOccurs="0" name="binderFactorInPlace"
+                        type="eml:ForcePerVolumeMeasureExt">
+                        <annotation>
+                            <documentation>Ratio of weight of cement used in the grout mix to the
+                                volume soil in the grout-soil mix, for the specified
+                                saturation</documentation>
+                        </annotation>
+                    </element>
+                    <element minOccurs="0" name="binderContent" type="eml:ForcePerForceMeasureExt">
+                        <annotation>
+                            <documentation>Binder content of mixed soil, equal to the ratio of dry
+                                unit weights of the soil and slurry times the volume
+                                ratio.</documentation>
+                        </annotation>
+                    </element>
+                    <element minOccurs="0" name="totalWaterBinderRatio"
+                        type="eml:ForcePerForceMeasureExt">
+                        <annotation>
+                            <documentation>Total water to binder ratio of mixed
+                                soil.</documentation>
+                        </annotation>
+                    </element>
+                </sequence>
+            </extension>
+        </complexContent>
+    </complexType>
     <element abstract="true" name="AbstractTrialGroutBatch" substitutionGroup="diggs:AbstractSample"
         type="diggs:TrialGroutBatchType"/>
     <element name="GroutInjectionEquipment" type="diggs:GroutInjectionEquipmentType"
-        substitutionGroup="diggs:AbstractGroutingEquipment">
+        substitutionGroup="diggs:AbstractEquipment">
         <annotation>
-            <documentation>Extends the generic Equipment object to contain properties for tubes, lancets or manchettes used in grout injection. .</documentation>
+            <documentation>Extends the generic Equipment object to contain properties for tubes,
+                lancets or manchettes used in grout injection. .</documentation>
         </annotation>
     </element>
     <complexType name="GroutInjectionEquipmentPropertyType">
         <sequence>
             <element ref="diggs:GroutInjectionEquipment">
                 <annotation>
-                    <documentation>An object that describes the equipment from the grout pump to the hole bottom that is specified for injecting grout into the ground.</documentation>
+                    <documentation>An object that describes the equipment from the grout pump to the
+                        hole bottom that is specified for injecting grout into the
+                        ground.</documentation>
                 </annotation>
             </element>
         </sequence>
     </complexType>
     <complexType name="GroutInjectionEquipmentType">
         <complexContent>
-            <extension base="diggs:AbstractGroutingEquipmentType">
+            <extension base="diggs:AbstractEquipmentType">
                 <sequence>
                     <element minOccurs="0" name="lanceOuterDiameter" type="eml:LengthMeasure">
                         <annotation>
@@ -1450,17 +1618,21 @@ represent an average or some other value.</documentation>
                     </element>
                     <element minOccurs="0" name="packerSpacing" type="eml:LengthMeasure">
                         <annotation>
-                            <documentation>Distance between packer seals for straddle-type packers</documentation>
+                            <documentation>Distance between packer seals for straddle-type
+                                packers</documentation>
                         </annotation>
                     </element>
                     <element minOccurs="0" name="packerType" type="gml:CodeType">
                         <annotation>
-                            <documentation>The type of packers used (eg. slide,inflatable,straddle or single-element, manual). Intended to come from a controlled list. </documentation>
+                            <documentation>The type of packers used (eg. slide,inflatable,straddle
+                                or single-element, manual). Intended to come from a controlled list.
+                            </documentation>
                         </annotation>
                     </element>
                     <element minOccurs="0" name="groutPipeInnerDiameter" type="eml:LengthMeasure">
                         <annotation>
-                            <documentation>Inner diameter of the grout pipe or packer rod.</documentation>
+                            <documentation>Inner diameter of the grout pipe or packer
+                                rod.</documentation>
                         </annotation>
                     </element>
                     <element minOccurs="0" name="headerRadius" type="eml:LengthMeasure">
@@ -1470,8 +1642,7 @@ represent an average or some other value.</documentation>
                     </element>
                     <element minOccurs="0" name="headerSize" type="eml:LengthMeasure">
                         <annotation>
-                            <documentation>Size of the grout header.
-</documentation>
+                            <documentation>Size of the grout header. </documentation>
                         </annotation>
                     </element>
                     <element minOccurs="0" name="riserRadius" type="eml:LengthMeasure">
@@ -1481,17 +1652,21 @@ represent an average or some other value.</documentation>
                     </element>
                     <element minOccurs="0" name="lengthOfOCSP" type="eml:LengthMeasure">
                         <annotation>
-                            <documentation>For rock grouting, length of the overburden casing as sleeve pipe</documentation>
+                            <documentation>For rock grouting, length of the overburden casing as
+                                sleeve pipe</documentation>
                         </annotation>
                     </element>
                     <element minOccurs="0" name="portSpacing" type="eml:LengthMeasure">
                         <annotation>
-                            <documentation>Distance between ports in manchette or lance.</documentation>
+                            <documentation>Distance between ports in manchette or
+                                lance.</documentation>
                         </annotation>
                     </element>
                     <element minOccurs="0" name="sealType" type="gml:CodeType">
                         <annotation>
-                            <documentation>The type of seals used in the packer (eg. hourglass or wirewound). Intended to come from a controlled list. </documentation>
+                            <documentation>The type of seals used in the packer (eg. hourglass or
+                                wirewound). Intended to come from a controlled list.
+                            </documentation>
                         </annotation>
                     </element>
                     <element minOccurs="0" name="tubeInnerDiameter" type="eml:LengthMeasure">
@@ -1501,7 +1676,9 @@ represent an average or some other value.</documentation>
                     </element>
                     <element minOccurs="0" name="tubeType" type="gml:CodeType">
                         <annotation>
-                            <documentation>Type of manchette or other tube used, eg. standard PVC, recessed rubber PVC, metal, etc. Intended to come from a controlled list.</documentation>
+                            <documentation>Type of manchette or other tube used, eg. standard PVC,
+                                recessed rubber PVC, metal, etc. Intended to come from a controlled
+                                list.</documentation>
                         </annotation>
                     </element>
                 </sequence>
@@ -1511,24 +1688,28 @@ represent an average or some other value.</documentation>
     <element name="GroutPlant" type="diggs:GroutPlantType"
         substitutionGroup="diggs:AbstractEquipment">
         <annotation>
-            <documentation>Extends the generic Equipment object to include properties for a grout plant - a combined equipment type containing a grout mixer and a grout pump.</documentation>
+            <documentation>Extends the generic Equipment object to include properties for a grout
+                plant - a combined equipment type containing a grout mixer and a grout
+                pump.</documentation>
         </annotation>
     </element>
     <complexType name="GroutPlantPropertyType">
         <sequence>
             <element ref="diggs:GroutPlant">
                 <annotation>
-                    <documentation>An object that describes the grout plant equipment, which is a combined mixer and pump.</documentation>
+                    <documentation>An object that describes the grout plant equipment, which is a
+                        combined mixer and pump.</documentation>
                 </annotation>
             </element>
         </sequence>
     </complexType>
     <complexType name="GroutPlantType">
         <annotation>
-            <documentation>Extends property type to include properties for a grout plant - a combined equipment type containing a grout mixer and a grout pump.</documentation>
+            <documentation>Extends property type to include properties for a grout plant - a
+                combined equipment type containing a grout mixer and a grout pump.</documentation>
         </annotation>
         <complexContent>
-            <extension base="diggs:AbstractGroutingEquipmentType">
+            <extension base="diggs:AbstractEquipmentType">
                 <sequence>
                     <element minOccurs="0" name="mixer" type="diggs:GroutMixerPropertyType"/>
                     <element minOccurs="0" name="pump" type="diggs:GroutPumpPropertyType"/>
@@ -1556,13 +1737,14 @@ represent an average or some other value.</documentation>
     <element name="groutSpecificationRef" type="diggs:FeatureReferenceType"/>
     <element name="designGroutMixRef" type="diggs:FeatureReferenceType">
         <annotation>
-            <documentation>A pointer to the gml:id of the DesignGroutMix object that serves as the design standard for this grout batch or specification</documentation>
+            <documentation>A pointer to the gml:id of the DesignGroutMix object that serves as the
+                design standard for the grout used.</documentation>
         </annotation>
     </element>
-    <element name="GroutPump" type="diggs:GroutPumpType"
-        substitutionGroup="diggs:AbstractGroutingEquipment">
+    <element name="GroutPump" type="diggs:GroutPumpType" substitutionGroup="diggs:AbstractEquipment">
         <annotation>
-            <documentation>Extends the generic Equipment object to include properties for a grout pump.</documentation>
+            <documentation>Extends the generic Equipment object to include properties for a grout
+                pump.</documentation>
         </annotation>
     </element>
     <complexType name="GroutPumpPropertyType">
@@ -1572,7 +1754,7 @@ represent an average or some other value.</documentation>
     </complexType>
     <complexType name="GroutPumpType">
         <complexContent>
-            <extension base="diggs:AbstractGroutingEquipmentType">
+            <extension base="diggs:AbstractEquipmentType">
                 <sequence>
                     <element minOccurs="0" name="inletPipeSize" type="eml:LengthMeasure">
                         <annotation>
@@ -1616,12 +1798,15 @@ represent an average or some other value.</documentation>
                     </element>
                     <element minOccurs="0" name="cylinderVolume" type="eml:VolumeMeasure">
                         <annotation>
-                            <documentation>The rated cylinder volume, which would equate to the maximum volume of grout pumped per piston stroke.</documentation>
+                            <documentation>The rated cylinder volume, which would equate to the
+                                maximum volume of grout pumped per piston stroke.</documentation>
                         </annotation>
                     </element>
                     <element minOccurs="0" name="type" type="gml:CodeType">
                         <annotation>
-                            <documentation>Type of pump, ie. piston, plunger, pneumatic, screw, twin stream, rocker, etc. Intended to come from a controlled list of terms</documentation>
+                            <documentation>Type of pump, ie. piston, plunger, pneumatic, screw, twin
+                                stream, rocker, etc. Intended to come from a controlled list of
+                                terms</documentation>
                         </annotation>
                     </element>
                     <element minOccurs="0" name="enginePower" type="eml:PowerMeasure">
@@ -1641,9 +1826,10 @@ represent an average or some other value.</documentation>
         </complexContent>
     </complexType>
     <element name="JetGroutingMonitor" type="diggs:JetGroutingMonitorType"
-        substitutionGroup="diggs:AbstractGroutingEquipment">
+        substitutionGroup="diggs:AbstractEquipment">
         <annotation>
-            <documentation>Extends the generic Equipment object to contain properties for a jet grouting monitor.</documentation>
+            <documentation>Extends the generic Equipment object to contain properties for a jet
+                grouting monitor.</documentation>
         </annotation>
     </element>
     <complexType name="JetGroutingMonitorPropertyType">
@@ -1653,7 +1839,7 @@ represent an average or some other value.</documentation>
     </complexType>
     <complexType name="JetGroutingMonitorType">
         <complexContent>
-            <extension base="diggs:AbstractGroutingEquipmentType">
+            <extension base="diggs:AbstractEquipmentType">
                 <sequence>
                     <element minOccurs="0" name="numberOfGroutNozzles" type="positiveInteger">
                         <annotation>
@@ -1665,58 +1851,74 @@ represent an average or some other value.</documentation>
                             <documentation>Diameter of the grout nozzles</documentation>
                         </annotation>
                     </element>
-                    <element minOccurs="0" name="numberOfFluid_1Nozzles" type="positiveInteger">
+                    <element minOccurs="0" name="numberOfFluid_2Nozzles" type="positiveInteger">
                         <annotation>
-                            <documentation>Number of fluid 1 nozzles on the monitor</documentation>
+                            <documentation>Number of fluid 2 nozzles on the monitor</documentation>
                         </annotation>
                     </element>
                     <choice minOccurs="0">
-                        <element minOccurs="1" name="diameterOfFluid_1Nozzles"
+                        <element minOccurs="1" name="diameterOfFluid_2Nozzles"
                             type="eml:LengthMeasure">
                             <annotation>
                                 <documentation>Diameter of the fluid 1 nozzles</documentation>
                             </annotation>
                         </element>
                         <sequence>
-                            <element minOccurs="1" name="innerDiameterOfFluid_1Nozzles"
+                            <element minOccurs="1" name="innerDiameterOfFluid_2Nozzles"
                                 type="eml:LengthMeasure">
                                 <annotation>
-                                    <documentation>Where the fluid nozzle is a shroud around another nozzle, this value represents the inner diameter of the shroud (eg. the outer diameter of the interior nozzle</documentation>
+                                    <documentation>Where the fluid nozzle is a shroud around another
+                                        nozzle, this value represents the inner diameter of the
+                                        shroud (eg. the outer diameter of the interior
+                                        nozzle</documentation>
                                 </annotation>
                             </element>
-                            <element minOccurs="1" name="outerDiameterOfFluid_1Nozzles"
+                            <element minOccurs="1" name="outerDiameterOfFluid_2Nozzles"
                                 type="eml:LengthMeasure">
                                 <annotation>
-                                    <documentation>Where the fluid nozzle is a shroud around another nozzle, this value represents the outer diameter of the shroud.</documentation>
+                                    <documentation>Where the fluid nozzle is a shroud around another
+                                        nozzle, this value represents the outer diameter of the
+                                        shroud.</documentation>
                                 </annotation>
                             </element>
                         </sequence>
                     </choice>
+                    <element minOccurs="0" name="numberOfFluid_3Nozzles" type="positiveInteger">
+                        <annotation>
+                            <documentation>Number of fluid_3 nozzles on the monitor</documentation>
+                        </annotation>
+                    </element>
                     <choice minOccurs="0">
-                        <element minOccurs="1" name="diameterOfFluid_2Nozzles"
+                        <element minOccurs="1" name="diameterOfFluid_3Nozzles"
                             type="eml:LengthMeasure">
                             <annotation>
                                 <documentation>Diameter of the fluid 2 nozzles</documentation>
                             </annotation>
                         </element>
                         <sequence>
-                            <element minOccurs="1" name="innerDiameterOfFluid_2Nozzles"
+                            <element minOccurs="1" name="innerDiameterOfFluid_3Nozzles"
                                 type="eml:LengthMeasure">
                                 <annotation>
-                                    <documentation>Where the fluid nozzle is a shroud around another nozzle, this value represents the inner diameter of the shroud (eg. the outer diameter of the interior nozzle</documentation>
+                                    <documentation>Where the fluid nozzle is a shroud around another
+                                        nozzle, this value represents the inner diameter of the
+                                        shroud (eg. the outer diameter of the interior
+                                        nozzle</documentation>
                                 </annotation>
                             </element>
-                            <element minOccurs="1" name="outerDiameterOfFluid_2Nozzles"
+                            <element minOccurs="1" name="outerDiameterOfFluid_3Nozzles"
                                 type="eml:LengthMeasure">
                                 <annotation>
-                                    <documentation>Where the fluid nozzle is a shroud around another nozzle, this value represents the outer diameter of the shroud.</documentation>
+                                    <documentation>Where the fluid nozzle is a shroud around another
+                                        nozzle, this value represents the outer diameter of the
+                                        shroud.</documentation>
                                 </annotation>
                             </element>
                         </sequence>
                     </choice>
                     <element minOccurs="0" name="xJet" type="boolean">
                         <annotation>
-                            <documentation>Value is true if nozzle configuration is angles so that the fluid from the nozzles form an X pattern</documentation>
+                            <documentation>Value is true if nozzle configuration is angles so that
+                                the fluid from the nozzles form an X pattern</documentation>
                         </annotation>
                     </element>
                 </sequence>
@@ -1732,23 +1934,25 @@ represent an average or some other value.</documentation>
         </annotation>
     </element>
     <element name="GroutMixer" type="diggs:GroutMixerType"
-        substitutionGroup="diggs:AbstractGroutingEquipment">
+        substitutionGroup="diggs:AbstractEquipment">
         <annotation>
-            <documentation>Extends the generic Equipment object to contain properties for a grout mixer.</documentation>
+            <documentation>Extends the generic Equipment object to contain properties for a grout
+                mixer.</documentation>
         </annotation>
     </element>
     <complexType name="GroutMixerPropertyType">
         <sequence>
             <element ref="diggs:GroutMixer">
                 <annotation>
-                    <documentation>An object with properties othat describes grout mixing equipment.</documentation>
+                    <documentation>An object with properties othat describes grout mixing
+                        equipment.</documentation>
                 </annotation>
             </element>
         </sequence>
     </complexType>
     <complexType name="GroutMixerType">
         <complexContent>
-            <extension base="diggs:AbstractGroutingEquipmentType">
+            <extension base="diggs:AbstractEquipmentType">
                 <sequence>
                     <element minOccurs="0" name="outletPressure" type="eml:PressureMeasure">
                         <annotation>
@@ -1757,7 +1961,8 @@ represent an average or some other value.</documentation>
                     </element>
                     <element minOccurs="0" name="outputRate" type="eml:VolumePerTimeMeasure">
                         <annotation>
-                            <documentation>Rate of output from the mixer (volume/time)</documentation>
+                            <documentation>Rate of output from the mixer
+                                (volume/time)</documentation>
                         </annotation>
                     </element>
                     <element minOccurs="0" name="agitatorVolume" type="eml:VolumeMeasure"
@@ -1768,8 +1973,10 @@ represent an average or some other value.</documentation>
                     </element>
                     <element minOccurs="0" name="mixerVolume" maxOccurs="unbounded">
                         <annotation>
-                            <documentation>Maximum capacity of the mixer.  The optional attribute atSpecificGravity may  be used to specify the maximum capacity of the mixer for a particular specific gravity of the grout
-</documentation>
+                            <documentation>Maximum capacity of the mixer. The optional attribute
+                                atSpecificGravity may be used to specify the maximum capacity of the
+                                mixer for a particular specific gravity of the grout
+                            </documentation>
                         </annotation>
                         <complexType>
                             <complexContent>
@@ -1831,7 +2038,9 @@ represent an average or some other value.</documentation>
                         maxOccurs="unbounded">
                         <annotation>
                             <documentation>Property containing information on fillers used in mix.
-                                Aggregate is a type of filler. </documentation>
+                                Aggregate is a type of filler, as would be a soil in a soil-cement
+                                mixture used to determine the appropriate slurry-soil mixes for deep
+                                soil mixing</documentation>
                         </annotation>
                     </element>
                     <element minOccurs="0" name="specificGravityMix"
@@ -1843,7 +2052,8 @@ represent an average or some other value.</documentation>
                     <element minOccurs="0" name="specificGravityWater"
                         type="diggs:SpecificGravityType">
                         <annotation>
-                            <documentation>The specific gravity of water used for mix proportions,</documentation>
+                            <documentation>The specific gravity of water used for mix
+                                proportions,</documentation>
                         </annotation>
                     </element>
                     <element minOccurs="0" name="totalBatchVolume" type="eml:VolumeMeasure">
@@ -1853,7 +2063,8 @@ represent an average or some other value.</documentation>
                     </element>
                     <element minOccurs="0" name="typeMix" type="gml:CodeType">
                         <annotation>
-                            <documentation>Type of grout mix; preferably from a controlled list, eg. cement, chemical.</documentation>
+                            <documentation>Type of grout mix; preferably from a controlled list, eg.
+                                cement, chemical, soil-cement, etc.</documentation>
                             <documentation>Should this be an enum if only a few common
                                 choices?</documentation>
                         </annotation>
@@ -1863,15 +2074,52 @@ represent an average or some other value.</documentation>
                             <documentation>Volume of water used</documentation>
                         </annotation>
                     </element>
-                    <element minOccurs="0" name="waterCementRatio" type="eml:MassPerMassMeasure">
+                    <element minOccurs="0" name="waterCementRatio"
+                        type="eml:ForcePerForceMeasureExt">
                         <annotation>
-                            <documentation>Weight of water to weight of cement used for this grout. If expressed as a number (eg 3 for 3:1 or 1.5 for 3:2), use 'Euc' as the UOM. Otherwise, this value should be expressed as a percentage.
-                            </documentation>
+                            <documentation>Ratio of the weight of water mixed with the cement to
+                                weight of cement used for this grout.</documentation>
                         </annotation>
                     </element>
-                    <element minOccurs="0" name="wtCementPerGalH2O" type="eml:ForceMeasure">
+                    <element minOccurs="0" name="waterCementRatioOfMix"
+                        type="eml:ForcePerForceMeasureExt">
                         <annotation>
-                            <documentation>Weight of cement used per gallon of water.</documentation>
+                            <documentation>Ratio of the weight of total water in the mix to the
+                                weight of cement</documentation>
+                        </annotation>
+                    </element>
+                    <element minOccurs="0" name="wtCementPerGalH2O" type="eml:ForceMeasureExt">
+                        <annotation>
+                            <documentation>Weight of cement used per gallon of
+                                water.</documentation>
+                        </annotation>
+                    </element>
+                    <element minOccurs="0" name="binderFactor"
+                        type="diggs:DensityOrUnitWeightMeasureType">
+                        <annotation>
+                            <documentation>Weight of cement devided by the volume of soil in a
+                                soil-cement mix.</documentation>
+                        </annotation>
+                    </element>
+                    <element minOccurs="0" name="binderFactorInPlace"
+                        type="diggs:DensityOrUnitWeightMeasureType">
+                        <annotation>
+                            <documentation>Weight of cement devided by the volume of soil-cement
+                                mixture, which is equal to the sum of the volumes of the cement,
+                                soil, and water.</documentation>
+                        </annotation>
+                    </element>
+                    <element minOccurs="0" name="binderContent" type="eml:ForcePerForceMeasureExt">
+                        <annotation>
+                            <documentation>Weight of cement used per gallon of
+                                water.</documentation>
+                        </annotation>
+                    </element>
+                    <element minOccurs="0" name="volumeRatio" type="eml:VolumePerVolumeMeasureExt">
+                        <annotation>
+                            <documentation>Ratio of the volume of cenent plus volume of the water in
+                                the cement slurry, to the volume of soil in a cement-soil
+                                mix</documentation>
                         </annotation>
                     </element>
                 </sequence>
@@ -1882,14 +2130,7 @@ represent an average or some other value.</documentation>
         type="diggs:GroutingProgramType"/>
     <complexType name="GroutingProgramType">
         <complexContent>
-            <extension base="diggs:AbstractProgramType">
-                <sequence>
-                    <element maxOccurs="unbounded" minOccurs="0" name="design"
-                        type="diggs:AbstractGroutingProgramDesignPropertyType"/>
-                    <element maxOccurs="unbounded" minOccurs="0" name="specification"
-                        type="diggs:AbstractGroutingProgramSpecificationPropertyType"/>
-                </sequence>
-            </extension>
+            <extension base="diggs:AbstractProgramType"> </extension>
         </complexContent>
     </complexType>
     <element name="groutRef" type="diggs:FeatureReferenceType">
@@ -1950,13 +2191,23 @@ represent an average or some other value.</documentation>
                     </element>
                     <element minOccurs="0" name="formMaterial" type="gml:CodeType">
                         <annotation>
-                            <documentation>Mold material. Used when forming sample for compressive testing. Intended to come from a controlled list of terms.</documentation>
+                            <documentation>Mold material. Used when forming sample for compressive
+                                testing. Intended to come from a controlled list of
+                                terms.</documentation>
+                        </annotation>
+                    </element>
+                    <element minOccurs="0" name="curingTime" type="eml:TimeMeasure">
+                        <annotation>
+                            <documentation>The time the specimen is cured prior to
+                                testing.</documentation>
                         </annotation>
                     </element>
                     <element minOccurs="0" name="groutSpecimenExtractionLocation"
                         type="gml:CodeType">
                         <annotation>
-                            <documentation>Describes location from where the grout specimen is pulled from the grout batch. Intended to come from a controlled list of terms.</documentation>
+                            <documentation>Describes location from where the grout specimen is
+                                pulled from the grout batch. Intended to come from a controlled list
+                                of terms.</documentation>
                         </annotation>
                     </element>
                     <element minOccurs="0" name="specificGravityOfSolids"
@@ -1990,7 +2241,10 @@ represent an average or some other value.</documentation>
                     <element maxOccurs="unbounded" minOccurs="0" name="equipment"
                         type="diggs:EquipmentPropertyType">
                         <annotation>
-                            <documentation>For equipment specific to this stage, equipment objects or references can be inserted here. Otherwise, use the equipment property in the BoreholeGroutingActivity feature to identiy activity-wide equipment</documentation>
+                            <documentation>For equipment specific to this stage, equipment objects
+                                or references can be inserted here. Otherwise, use the equipment
+                                property in the BoreholeGroutingActivity feature to identiy
+                                activity-wide equipment</documentation>
                         </annotation>
                     </element>
                     <element maxOccurs="unbounded" minOccurs="0" ref="diggs:groutRef">
@@ -2002,7 +2256,8 @@ represent an average or some other value.</documentation>
                     </element>
                     <element name="stageType" minOccurs="0">
                         <annotation>
-                            <documentation>Restricted string; either ascending or descending are allowed.</documentation>
+                            <documentation>Restricted string; either ascending or descending are
+                                allowed.</documentation>
                         </annotation>
                         <simpleType>
                             <restriction base="string">
@@ -2014,7 +2269,8 @@ represent an average or some other value.</documentation>
                     <element minOccurs="0" name="stageInterval"
                         type="diggs:LinearExtentPropertyType">
                         <annotation>
-                            <documentation>The depth interval for the stage (measured along the centerline of the borehole), where the grout material was emplaced.
+                            <documentation>The depth interval for the stage (measured along the
+                                centerline of the borehole), where the grout material was emplaced.
                             </documentation>
                         </annotation>
                     </element>
@@ -2026,7 +2282,8 @@ represent an average or some other value.</documentation>
                     <element name="maxInjectionPressure" minOccurs="0"
                         type="diggs:GroutPressureMeasureType">
                         <annotation>
-                            <documentation>Maximum injection pressure during stage filling.</documentation>
+                            <documentation>Maximum injection pressure during stage
+                                filling.</documentation>
                         </annotation>
                     </element>
                     <element name="minInjectionPressure" minOccurs="0"
@@ -2045,7 +2302,8 @@ represent an average or some other value.</documentation>
                     <element minOccurs="0" name="startTimePressurizing"
                         type="gml:TimeInstantPropertyType">
                         <annotation>
-                            <documentation>The time instant when pressurizing starts.</documentation>
+                            <documentation>The time instant when pressurizing
+                                starts.</documentation>
                         </annotation>
                     </element>
                     <element minOccurs="0" name="endTime" type="gml:TimeInstantPropertyType">
@@ -2055,7 +2313,9 @@ represent an average or some other value.</documentation>
                     </element>
                     <element minOccurs="0" name="deliveryType" type="gml:CodeType">
                         <annotation>
-                            <documentation>The device or method by which the grout is delivered - eg. manchette, tube, sleeve, etc. Intended to come from a controlled list. </documentation>
+                            <documentation>The device or method by which the grout is delivered -
+                                eg. manchette, tube, sleeve, etc. Intended to come from a controlled
+                                list. </documentation>
                         </annotation>
                     </element>
                     <element name="holeVolume" type="eml:VolumeMeasure" minOccurs="0">
@@ -2066,7 +2326,8 @@ represent an average or some other value.</documentation>
                     <element minOccurs="0" name="hydrostaticColumnPressure"
                         type="diggs:pressureMeasureType">
                         <annotation>
-                            <documentation>Hydrostatic column pressure determined for the stage.</documentation>
+                            <documentation>Hydrostatic column pressure determined for the
+                                stage.</documentation>
                         </annotation>
                     </element>
                     <element minOccurs="0" ref="diggs:injectionTerminatedBy" maxOccurs="unbounded"/>
@@ -2080,18 +2341,21 @@ represent an average or some other value.</documentation>
                     </element>
                     <element minOccurs="0" name="lancePlacementMethod">
                         <annotation>
-                            <documentation>Method of lance emplacement for this stage - either driven or wash bored, from an enumerated list.</documentation>
+                            <documentation>Method of lance emplacement for this stage - either
+                                driven or wash bored, from an enumerated list.</documentation>
                         </annotation>
                         <simpleType>
                             <restriction base="string">
                                 <enumeration value="Driven">
                                     <annotation>
-                                        <documentation>Lance is driven into the ground by hydraulic pressure or hammer</documentation>
+                                        <documentation>Lance is driven into the ground by hydraulic
+                                            pressure or hammer</documentation>
                                     </annotation>
                                 </enumeration>
                                 <enumeration value="Wash bored">
                                     <annotation>
-                                        <documentation>Lance is emplaced behind a high-pressure water jet</documentation>
+                                        <documentation>Lance is emplaced behind a high-pressure
+                                            water jet</documentation>
                                     </annotation>
                                 </enumeration>
                             </restriction>
@@ -2099,12 +2363,14 @@ represent an average or some other value.</documentation>
                     </element>
                     <element minOccurs="0" name="strokeCount" type="positiveInteger">
                         <annotation>
-                            <documentation>Where a piston grout pump is used, total number of pump strokes for the stage.</documentation>
+                            <documentation>Where a piston grout pump is used, total number of pump
+                                strokes for the stage.</documentation>
                         </annotation>
                     </element>
                     <element name="totalCement" type="eml:ForceMeasure" minOccurs="0">
                         <annotation>
-                            <documentation>Weoght of grout cement used to fill stage.</documentation>
+                            <documentation>Weoght of grout cement used to fill
+                                stage.</documentation>
                         </annotation>
                     </element>
                     <element name="totalGroutTake" type="eml:VolumeMeasure" minOccurs="0">
@@ -2115,7 +2381,8 @@ represent an average or some other value.</documentation>
                     <element name="volumeInjectionPerLength" type="eml:VolumePerLengthMeasure"
                         minOccurs="0">
                         <annotation>
-                            <documentation>Volume of grout injection per unit length of stage interval filled.</documentation>
+                            <documentation>Volume of grout injection per unit length of stage
+                                interval filled.</documentation>
                         </annotation>
                     </element>
                     <element minOccurs="0" name="waterLugeonValue">
@@ -2130,19 +2397,25 @@ represent an average or some other value.</documentation>
                     <element maxOccurs="unbounded" minOccurs="0" name="groutTemperature"
                         type="diggs:TemperatureMeasurementtPropertyType">
                         <annotation>
-                            <documentation>Temperature of the grout. This could be a single measurment taken prior to or during the grout stage or an average of temperatures measured during the grouting event. Discrete temperature measurements taken during the grouting should be recorded within the injection time series object.</documentation>
+                            <documentation>Temperature of the grout. This could be a single
+                                measurment taken prior to or during the grout stage or an average of
+                                temperatures measured during the grouting event. Discrete
+                                temperature measurements taken during the grouting should be
+                                recorded within the injection time series object.</documentation>
                         </annotation>
                     </element>
                     <element minOccurs="0" name="maxHeaderPressureAtZeroFlow"
                         type="eml:PressureMeasure">
                         <annotation>
-                            <documentation>The pressure measured at the header at zero grout flow.</documentation>
+                            <documentation>The pressure measured at the header at zero grout
+                                flow.</documentation>
                         </annotation>
                     </element>
                     <element minOccurs="0" name="staticLineResistanceAtZeroFlow"
                         type="eml:PressureMeasure">
                         <annotation>
-                            <documentation>The static line resistance to grout flow during zero flow conditions.</documentation>
+                            <documentation>The static line resistance to grout flow during zero flow
+                                conditions.</documentation>
                         </annotation>
                     </element>
                 </sequence>
@@ -2152,7 +2425,8 @@ represent an average or some other value.</documentation>
     <element name="ContinuousGrouting" substitutionGroup="diggs:AbstractObject"
         type="diggs:ContinuousGroutingType">
         <annotation>
-            <documentation>An object that carries properties for continuous grouting performed during jet grouting or deep soil mixing activities</documentation>
+            <documentation>An object that carries properties for continuous grouting performed
+                during jet grouting or deep soil mixing activities</documentation>
         </annotation>
     </element>
     <complexType name="ContinuousGroutingPropertyType">
@@ -2169,7 +2443,7 @@ represent an average or some other value.</documentation>
                             <annotation>
                                 <appinfo>diggs:GroutBatch</appinfo>
                                 <documentation>This property references the grout sample(s) used for
-                                this stage</documentation>
+                                    this stage</documentation>
                             </annotation>
                         </element>
                         <sequence>
@@ -2177,16 +2451,16 @@ represent an average or some other value.</documentation>
                                 type="diggs:FeatureReferenceType">
                                 <annotation>
                                     <appinfo>diggs:GroutBatch</appinfo>
-                                    <documentation>This property references the grout sample(s) used for
-                                this stage</documentation>
+                                    <documentation>This property references the grout sample(s) used
+                                        for this stage</documentation>
                                 </annotation>
                             </element>
                             <element maxOccurs="1" minOccurs="0" name="withdrawalGroutRef"
                                 type="diggs:FeatureReferenceType">
                                 <annotation>
                                     <appinfo>diggs:GroutBatch</appinfo>
-                                    <documentation>This property references the grout sample(s) used for
-                                this stage</documentation>
+                                    <documentation>This property references the grout sample(s) used
+                                        for this stage</documentation>
                                 </annotation>
                             </element>
                         </sequence>
@@ -2195,20 +2469,23 @@ represent an average or some other value.</documentation>
                         type="diggs:GroutingFluidPropertyType">
                         <annotation>
                             <appinfo/>
-                            <documentation>This property holds or references a GroutingFluid object describing the fluid used during jet grouting</documentation>
+                            <documentation>This property holds or references a GroutingFluid object
+                                describing the fluid used during jet grouting</documentation>
                         </annotation>
                     </element>
                     <element maxOccurs="1" minOccurs="0" name="fluid_3"
                         type="diggs:GroutingFluidPropertyType">
                         <annotation>
                             <appinfo/>
-                            <documentation>This property holds or references a GroutingFluid object describing the fluid used during jet grouting</documentation>
+                            <documentation>This property holds or references a GroutingFluid object
+                                describing the fluid used during jet grouting</documentation>
                         </annotation>
                     </element>
                     <element minOccurs="0" name="groutInterval"
                         type="diggs:LinearExtentPropertyType">
                         <annotation>
-                            <documentation>The depth interval for the stage (measured along the centerline of the borehole), where the grout material was emplaced.
+                            <documentation>The depth interval for the stage (measured along the
+                                centerline of the borehole), where the grout material was emplaced.
                             </documentation>
                         </annotation>
                     </element>
@@ -2220,7 +2497,8 @@ represent an average or some other value.</documentation>
                     <element name="maxInjectionPressureGrout" minOccurs="0"
                         type="diggs:GroutPressureMeasureType">
                         <annotation>
-                            <documentation>Maximum injection pressure of the grout during grouting.</documentation>
+                            <documentation>Maximum injection pressure of the grout during
+                                grouting.</documentation>
                         </annotation>
                     </element>
                     <element name="minInjectionPressureGrout" minOccurs="0"
@@ -2230,28 +2508,32 @@ represent an average or some other value.</documentation>
                             </documentation>
                         </annotation>
                     </element>
-                    <element name="maxInjectionPressureFluid_1" minOccurs="0"
-                        type="diggs:GroutPressureMeasureType">
-                        <annotation>
-                            <documentation>Maximum injection pressure of fluid 1 during grouting.</documentation>
-                        </annotation>
-                    </element>
-                    <element name="minInjectionPressureFluid_1" minOccurs="0"
-                        type="diggs:GroutPressureMeasureType">
-                        <annotation>
-                            <documentation>Minimum injection pressure of fluid 1 during grouting.</documentation>
-                        </annotation>
-                    </element>
                     <element name="maxInjectionPressureFluid_2" minOccurs="0"
                         type="diggs:GroutPressureMeasureType">
                         <annotation>
-                            <documentation>Maximum injection pressure of fluid 2 during grouting.</documentation>
+                            <documentation>Maximum injection pressure of fluid 1 during
+                                grouting.</documentation>
                         </annotation>
                     </element>
                     <element name="minInjectionPressureFluid_2" minOccurs="0"
                         type="diggs:GroutPressureMeasureType">
                         <annotation>
-                            <documentation>Minimum injection pressure of fluid 2 during grouting.</documentation>
+                            <documentation>Minimum injection pressure of fluid 1 during
+                                grouting.</documentation>
+                        </annotation>
+                    </element>
+                    <element name="maxInjectionPressureFluid_3" minOccurs="0"
+                        type="diggs:GroutPressureMeasureType">
+                        <annotation>
+                            <documentation>Maximum injection pressure of fluid 2 during
+                                grouting.</documentation>
+                        </annotation>
+                    </element>
+                    <element name="minInjectionPressureFluid_3" minOccurs="0"
+                        type="diggs:GroutPressureMeasureType">
+                        <annotation>
+                            <documentation>Minimum injection pressure of fluid 2 during
+                                grouting.</documentation>
                         </annotation>
                     </element>
                     <element minOccurs="0" name="startTimeGrouting"
@@ -2267,20 +2549,20 @@ represent an average or some other value.</documentation>
                     </element>
                     <element minOccurs="0" name="mixingType" type="diggs:MixingTypeEnumType">
                         <annotation>
-                            <documentation>The type of fluid/grout mix used, from an enumerated list as follows:
-1) dry mixing
-2) slurry mixing
-3) single fluid jet
-4) double fluid jet
-5) triple fluid jet
-6) Other:any string</documentation>
+                            <documentation>The type of fluid/grout mix used, from an enumerated list
+                                as follows: 1) dry mixing 2) slurry mixing 3) single fluid jet 4)
+                                double fluid jet 5) triple fluid jet 6) Other:any
+                                string</documentation>
                         </annotation>
                     </element>
                     <element name="groutingTimeSeries" type="diggs:GroutingTimeSeriesPropertyType"
                         minOccurs="0" maxOccurs="unbounded">
                         <annotation>
                             <documentation>Property that contains the measured and calculated values
-collected during grout injection. Multiple injection time series are allowed to delineate between drilling and grouting, or to allow for stopping of the grouting between injection intervals.</documentation>
+                                collected during grout injection. Multiple injection time series are
+                                allowed to delineate between drilling and grouting, or to allow for
+                                stopping of the grouting between injection
+                                intervals.</documentation>
                         </annotation>
                     </element>
                     <element name="totalGroutTake" type="eml:VolumeMeasure" minOccurs="0">
@@ -2302,7 +2584,11 @@ collected during grout injection. Multiple injection time series are allowed to 
                         <element name="groutTemperature"
                             type="eml:ThermodynamicTemperatureMeasureExt" minOccurs="0">
                             <annotation>
-                                <documentation>Temperature of the grout. This could be a single measurment taken prior to or during grouting or an average of temperatures measured during the grouting event. Discrete temperature measurements taken during the grouting should be recorded within the grouting time series object.</documentation>
+                                <documentation>Temperature of the grout. This could be a single
+                                    measurment taken prior to or during grouting or an average of
+                                    temperatures measured during the grouting event. Discrete
+                                    temperature measurements taken during the grouting should be
+                                    recorded within the grouting time series object.</documentation>
                             </annotation>
                         </element>
                         <sequence>
@@ -2310,16 +2596,16 @@ collected during grout injection. Multiple injection time series are allowed to 
                                 type="eml:ThermodynamicTemperatureMeasureExt">
                                 <annotation>
                                     <appinfo>diggs:GroutBatch</appinfo>
-                                    <documentation>This property references the grout sample(s) used for
-                                this stage</documentation>
+                                    <documentation>This property references the grout sample(s) used
+                                        for this stage</documentation>
                                 </annotation>
                             </element>
                             <element maxOccurs="1" minOccurs="0" name="withdrawalGroutTemperature"
                                 type="eml:ThermodynamicTemperatureMeasureExt">
                                 <annotation>
                                     <appinfo>diggs:GroutBatch</appinfo>
-                                    <documentation>This property references the grout sample(s) used for
-                                this stage</documentation>
+                                    <documentation>This property references the grout sample(s) used
+                                        for this stage</documentation>
                                 </annotation>
                             </element>
                         </sequence>
@@ -2327,13 +2613,21 @@ collected during grout injection. Multiple injection time series are allowed to 
                     <element name="fluid_2Temperature" type="eml:ThermodynamicTemperatureMeasure"
                         minOccurs="0">
                         <annotation>
-                            <documentation>Temperature of fluid 1. This could be a single measurment taken prior to or during grouting or an average of temperatures measured during the grouting event. Discrete temperature measurements taken during the grouting should be recorded within the grouting time series object.</documentation>
+                            <documentation>Temperature of fluid 1. This could be a single measurment
+                                taken prior to or during grouting or an average of temperatures
+                                measured during the grouting event. Discrete temperature
+                                measurements taken during the grouting should be recorded within the
+                                grouting time series object.</documentation>
                         </annotation>
                     </element>
                     <element name="Fluid_3Temperature" type="eml:ThermodynamicTemperatureMeasure"
                         minOccurs="0">
                         <annotation>
-                            <documentation>Temperature of fluid 2. This could be a single measurment taken prior to or during grouting or an average of temperatures measured during the grouting event. Discrete temperature measurements taken during the grouting should be recorded within the grouting time series object.</documentation>
+                            <documentation>Temperature of fluid 2. This could be a single measurment
+                                taken prior to or during grouting or an average of temperatures
+                                measured during the grouting event. Discrete temperature
+                                measurements taken during the grouting should be recorded within the
+                                grouting time series object.</documentation>
                         </annotation>
                     </element>
                 </sequence>
@@ -2346,39 +2640,34 @@ collected during grout injection. Multiple injection time series are allowed to 
         </sequence>
         <attributeGroup ref="gml:AssociationAttributeGroup"/>
     </complexType>
-    <element name="GroutingFluid" substitutionGroup="diggs:AbstractNamedObject"
+    <element name="GroutingFluid" substitutionGroup="diggs:AbstractObject"
         type="diggs:GroutingFluidType">
         <annotation>
-            <documentation>An object that contains properites of a fluid that is injected along with grout, and possibly another fluid, during jet grouting or deep soil miing.</documentation>
+            <documentation>An object that contains properites of a fluid that is injected along with
+                grout, and possibly another fluid, during jet grouting or deep soil
+                miing.</documentation>
         </annotation>
     </element>
     <complexType name="GroutingFluidType">
         <complexContent>
-            <extension base="diggs:AbstractNamedObjectType">
-                <sequence>
-                    <element minOccurs="0" name="additive" maxOccurs="unbounded"
-                        type="diggs:FluidAdditivePropertyType">
-                        <annotation>
-                            <documentation>An object containing information on a substance that may be added to the fluid during injection, such as sodium silicate. Along with a history of when and how much additive is added to the fluid.</documentation>
-                        </annotation>
-                    </element>
-                </sequence>
-            </extension>
+            <extension base="diggs:AbstractObjectType"> </extension>
         </complexContent>
     </complexType>
     <element name="FluidAdditive" substitutionGroup="diggs:AbstractObject"
         type="diggs:FluidAdditiveType">
         <annotation>
-            <documentation>An object that carries properties for continuous grouting performed during jet grouting or deep soil mixing activities</documentation>
+            <documentation>An object that carries properties for continuous grouting performed
+                during jet grouting or deep soil mixing activities</documentation>
         </annotation>
     </element>
     <complexType name="FluidAdditiveType">
         <complexContent>
             <extension base="diggs:AbstractObjectType">
                 <sequence>
-                    <element name="type" type="gml:CodeType">
+                    <element name="additiveType" type="gml:CodeType">
                         <annotation>
-                            <documentation>A term, intended to come from a controlled list, identifying the type of fluid used. Typically this is water or air.</documentation>
+                            <documentation>A term, intended to come from a controlled list,
+                                identifying the type of material added to the fluid.</documentation>
                         </annotation>
                     </element>
                     <element maxOccurs="unbounded" minOccurs="0" name="additionEvent"
@@ -2391,7 +2680,7 @@ collected during grout injection. Multiple injection time series are allowed to 
         <sequence>
             <element ref="diggs:FluidAdditive">
                 <annotation>
-                    <documentation>A term, intended to come from a controlled list, identifying the type of fluid used. Typically this is water or air.</documentation>
+                    <documentation/>
                 </annotation>
             </element>
         </sequence>
@@ -2400,14 +2689,16 @@ collected during grout injection. Multiple injection time series are allowed to 
         <sequence>
             <element ref="diggs:AdditionEvent">
                 <annotation>
-                    <documentation>A term, intended to come from a controlled list, identifying the type of fluid used. Typically this is water or air.</documentation>
+                    <documentation>An object that provides the history of addiltion of an additive
+                        to a fluid.</documentation>
                 </annotation>
             </element>
         </sequence>
     </complexType>
     <element name="AdditionEvent" type="diggs:AdditionEventType">
         <annotation>
-            <documentation>The time and the amount of additive added to the fluid stream during jet grouting or deep soil mixing.</documentation>
+            <documentation>The time and the amount of additive added to the fluid stream during jet
+                grouting or deep soil mixing.</documentation>
         </annotation>
     </element>
     <complexType name="AdditionEventType">
@@ -2422,12 +2713,14 @@ collected during grout injection. Multiple injection time series are allowed to 
                     </element>
                     <element minOccurs="0" name="weightAdded" type="eml:ForceMeasureExt">
                         <annotation>
-                            <documentation>Weight of additive added at this event time.</documentation>
+                            <documentation>Weight of additive added at this event
+                                time.</documentation>
                         </annotation>
                     </element>
                     <element minOccurs="0" name="volumeAdded" type="eml:VolumeMeasureExt">
                         <annotation>
-                            <documentation>Volume of additive added at this event time.</documentation>
+                            <documentation>Volume of additive added at this event
+                                time.</documentation>
                         </annotation>
                     </element>
                 </sequence>
@@ -2437,7 +2730,8 @@ collected during grout injection. Multiple injection time series are allowed to 
     <element abstract="false" name="GroutingTimeSeries" substitutionGroup="gml:AbstractCoverage"
         type="diggs:GroutingTimeSeriesType">
         <annotation>
-            <documentation>An object containing time series data recorded during drilling and grouting of the hole while jet grouting or deep soil mixing.</documentation>
+            <documentation>An object containing time series data recorded during drilling and
+                grouting of the hole while jet grouting or deep soil mixing.</documentation>
         </annotation>
     </element>
     <complexType name="GroutingTimeSeriesPropertyType">
@@ -2474,17 +2768,21 @@ collected during grout injection. Multiple injection time series are allowed to 
                     </element>
                     <element minOccurs="0" name="totalElapsedTime" type="eml:TimeMeasure">
                         <annotation>
-                            <documentation>Total time between injection initiation and injection  termination.</documentation>
+                            <documentation>Total time between injection initiation and injection
+                                termination.</documentation>
                         </annotation>
                     </element>
                     <element minOccurs="0" name="totalGroutTake" type="eml:VolumeMeasure">
                         <annotation>
-                            <documentation>Total volume of grout injected during this injection interval.</documentation>
+                            <documentation>Total volume of grout injected during this injection
+                                interval.</documentation>
                         </annotation>
                     </element>
                     <element minOccurs="0" name="filteringParameters" type="diggs:DiggsStringType">
                         <annotation>
-                            <documentation>A description of any parameters used for filtering any raw data parameters before reporting those data in the outcome property.</documentation>
+                            <documentation>A description of any parameters used for filtering any
+                                raw data parameters before reporting those data in the outcome
+                                property.</documentation>
                         </annotation>
                     </element>
                 </sequence>
@@ -2577,7 +2875,8 @@ collected during grout injection. Multiple injection time series are allowed to 
     <element name="ContinuousGroutInjectionProperty" substitutionGroup="gml:AbstractValue"
         type="diggs:ContinuousGroutInjectionPropertyType">
         <annotation>
-            <documentation>An object that specifies a property that is recorded during grout injection.</documentation>
+            <documentation>An object that specifies a property that is recorded during grout
+                injection.</documentation>
         </annotation>
     </element>
     <complexType name="ContinuousGroutInjectionPropertyType">
@@ -2605,33 +2904,16 @@ collected during grout injection. Multiple injection time series are allowed to 
                     <element maxOccurs="1" minOccurs="1" name="propertyClass"
                         type="gml:CodeWithAuthorityType">
                         <annotation>
-                            <documentation>The official name of the grout injection time series property, from a dictionary of terms. Standard DIGGS property class values are:
-
-- crowd_pressure
-- depth
-- drilling_index
-- drilling_speed
-- elapsed_time
-- fluid_1_flow
-- fluid_1_pressure
-- fluid_1_temperature
-- fluid_2_flow
-- fluid_2_pressure
-- fluid_2_temperature
-- grout_flow
-- grout_pressure
-- grout_temperature
-- grout_volume
-- micro_motion_flow
-- micro_motion_volume
-- pull_speed
-- rotary_pressure
-- rotation_speed
-- specific_energy
-- stroke_count
-- take
-- thrust
-- torque</documentation>
+                            <documentation>The official name of the grout injection time series
+                                property, from a dictionary of terms. Standard DIGGS property class
+                                values are: - crowd_pressure - depth - drilling_index -
+                                drilling_speed - elapsed_time - fluid_1_flow - fluid_1_pressure -
+                                fluid_1_temperature - fluid_2_flow - fluid_2_pressure -
+                                fluid_2_temperature - grout_flow - grout_pressure -
+                                grout_temperature - grout_volume - micro_motion_flow -
+                                micro_motion_volume - pull_speed - rotary_pressure - rotation_speed
+                                - specific_energy - stroke_count - take - thrust -
+                                torque</documentation>
                         </annotation>
                     </element>
                     <element maxOccurs="1" minOccurs="0" name="uom" type="diggs:AllUnits">
@@ -2656,7 +2938,8 @@ collected during grout injection. Multiple injection time series are allowed to 
                         type="gml:CodeType">
                         <annotation>
                             <documentation>A description of corrections used to obtain the reported
-describe any other adjustments made to the reported data. Can come from a controlled list.</documentation>
+                                describe any other adjustments made to the reported data. Can come
+                                from a controlled list.</documentation>
                         </annotation>
                     </element>
                     <element minOccurs="0" name="measurementTechnique">
@@ -2695,8 +2978,8 @@ describe any other adjustments made to the reported data. Can come from a contro
                         type="eml:ReciprocalTimeMeasure">
                         <annotation>
                             <documentation>The number of measurements taken per unit time; refers to
-the original sampling rate from which the reported value may
-represent an average or some other value.</documentation>
+                                the original sampling rate from which the reported value may
+                                represent an average or some other value.</documentation>
                         </annotation>
                     </element>
                 </sequence>
@@ -2717,68 +3000,12 @@ represent an average or some other value.</documentation>
             </extension>
         </complexContent>
     </complexType>
-    <simpleType name="ContinuousInjectionDataEnumType">
-        <annotation>
-            <documentation>Property definitions are:
-crowd_pressure - 
-depth - depth of the injection tool at the time of reading
-drilling_index - 
-elapsed_time - time since initiation of the time series
-fluid_1_flow - flow of fluid 1 (in volume/time)
-fluid_1_pressure - injection pressure of fluid 1
-fluid_1_temperature - temperature of fluid 1
-fluid_2_flow - flow of fluid 2 (in volume/time)
-fluid_2_pressure - injection pressure of fluid 2
-fluid_2_temperature - temperature of fluid 2
-grout_flow - flow of grout (in volume/time)
-grout_pressure - injection pressure of grout
-grout_temperature - temperature of grout
-micro_motion_flow - 
-micro_motion_volume - 
-pull_speed - velocity (length/time) of injection tool as it is being pulled from the ground
-rotary_pressure - 
-rotation_speed - the speed of rotation of the injection tool (typically in RPM)
-specific_energy - a calculated value equal to the pressure times the flow divided by the pull speed
-specific_gravity - specific gravity of the grout
-take - volume of grout injected
-thrust - 
-torque - 
-</documentation>
-        </annotation>
-        <restriction base="string">
-            <enumeration value="crowd_pressure"/>
-            <enumeration value="depth"/>
-            <enumeration value="drilling_index"/>
-            <enumeration value="drilling_speed"/>
-            <enumeration value="elapsed_time"/>
-            <enumeration value="fluid_1_flow"/>
-            <enumeration value="fluid_1_pressure"/>
-            <enumeration value="fluid_1_temperature"/>
-            <enumeration value="fluid_2_flow"/>
-            <enumeration value="fluid_2_pressure"/>
-            <enumeration value="fluid_2_temperature"/>
-            <enumeration value="grout_flow"/>
-            <enumeration value="grout_pressure"/>
-            <enumeration value="grout_temperature"/>
-            <enumeration value="grout volume"/>
-            <enumeration value="micro_motion_flow"/>
-            <enumeration value="micro_motion_volume"/>
-            <enumeration value="pull_speed"/>
-            <enumeration value="rotary_pressure"/>
-            <enumeration value="rotation_speed"/>
-            <enumeration value="specific_energy"/>
-            <enumeration value="specific_gravity"/>
-            <enumeration value="take"/>
-            <enumeration value="thrust"/>
-            <enumeration value="torque"/>
-        </restriction>
-    </simpleType>
-    <simpleType name="ContinuousInjectionDataExtEnumType">
-        <union memberTypes="diggs:OtherNameType diggs:ContinuousInjectionDataEnumType"/>
-    </simpleType>
     <element name="injectionTerminatedBy" type="diggs:InjectionTerminatedByType">
         <annotation>
-            <documentation>Criteria used to terminate grout injection for the stage. Where there are multiple injections for the stage, this property is not populated, and the injectionTerminatedBy property of the injection time series is used instead.</documentation>
+            <documentation>Criteria used to terminate grout injection for the stage. Where there are
+                multiple injections for the stage, this property is not populated, and the
+                injectionTerminatedBy property of the injection time series is used
+                instead.</documentation>
         </annotation>
     </element>
     <complexType name="InjectionTerminatedByType">
@@ -2791,7 +3018,8 @@ torque -
     <element abstract="false" name="InjectionTimeSeries" substitutionGroup="gml:AbstractCoverage"
         type="diggs:InjectionTimeSeriesType">
         <annotation>
-            <documentation>An object containing a grout stage time series for eachg grout injection event, for recording measurements taken during grouting.</documentation>
+            <documentation>An object containing a grout stage time series for eachg grout injection
+                event, for recording measurements taken during grouting.</documentation>
         </annotation>
     </element>
     <complexType name="InjectionTimeSeriesPropertyType">
@@ -2828,22 +3056,28 @@ torque -
                     </element>
                     <element minOccurs="0" name="totalElapsedTime" type="eml:TimeMeasure">
                         <annotation>
-                            <documentation>Total time between injection initiation and injection  termination.</documentation>
+                            <documentation>Total time between injection initiation and injection
+                                termination.</documentation>
                         </annotation>
                     </element>
                     <element minOccurs="0" ref="diggs:injectionTerminatedBy">
                         <annotation>
-                            <documentation>Type of criteria used to terminate grout injection. Where there is only one injection for the stage, this property may be left unpopulated and the injectionTerminatedBy property of the stage is used instead.</documentation>
+                            <documentation>Type of criteria used to terminate grout injection. Where
+                                there is only one injection for the stage, this property may be left
+                                unpopulated and the injectionTerminatedBy property of the stage is
+                                used instead.</documentation>
                         </annotation>
                     </element>
                     <element minOccurs="0" name="numberPumpStrokes" type="positiveInteger">
                         <annotation>
-                            <documentation>The total number of pump strokes for the injection.</documentation>
+                            <documentation>The total number of pump strokes for the
+                                injection.</documentation>
                         </annotation>
                     </element>
                     <element minOccurs="0" name="totalGroutTake" type="eml:VolumeMeasure">
                         <annotation>
-                            <documentation>Total volume of grout injected during this injection interval.</documentation>
+                            <documentation>Total volume of grout injected during this injection
+                                interval.</documentation>
                         </annotation>
                     </element>
                     <element minOccurs="0" name="waterLugeonValue">
@@ -2857,7 +3091,9 @@ torque -
                     </element>
                     <element minOccurs="0" name="filteringParameters" type="diggs:DiggsStringType">
                         <annotation>
-                            <documentation>A description of any parameters used for filtering any raw data parameters before reporting those data in the outcome property.</documentation>
+                            <documentation>A description of any parameters used for filtering any
+                                raw data parameters before reporting those data in the outcome
+                                property.</documentation>
                         </annotation>
                     </element>
                 </sequence>
@@ -3075,7 +3311,8 @@ torque -
                                 measurements recorded in the step time series. </documentation>
                         </annotation>
                     </element>
-                    <element minOccurs="0" name="coeffPermeability" type="eml:LengthPerTimeMeasure">
+                    <element minOccurs="0" name="coeffPermeability"
+                        type="diggs:LengthPerTimeMeasureType">
                         <annotation>
                             <documentation>The coefficient of permeability (also known as hydraulic
                                 conductivity) computed from the step measurements. This value is
@@ -3328,7 +3565,8 @@ torque -
                                 <extension base="diggs:DescriptorMethodEnumType">
                                     <attribute name="formula" type="string">
                                         <annotation>
-                                            <documentation>A description of the formula used to obtain this property value.</documentation>
+                                            <documentation>A description of the formula used to
+                                                obtain this property value.</documentation>
                                         </annotation>
                                     </attribute>
                                     <attribute name="samplingERate" type="string">
@@ -3435,7 +3673,8 @@ torque -
     <element name="MarshFunnelTest" type="diggs:MarshFunnelTestType"
         substitutionGroup="diggs:AbstractMaterialTestProcedure">
         <annotation>
-            <documentation>A test procedure object that holds intermediate data and metadata for a marsh funnel test.</documentation>
+            <documentation>A test procedure object that holds intermediate data and metadata for a
+                marsh funnel test.</documentation>
         </annotation>
     </element>
     <complexType name="MarshFunnelTestType">
@@ -3445,7 +3684,8 @@ torque -
                     <element name="marshFunnelVolume" type="eml:VolumeMeasure" maxOccurs="1"
                         minOccurs="0">
                         <annotation>
-                            <documentation>Volume of the marsh funnel used (26 sec or 28 sec cone), 1 qt or 1 l.</documentation>
+                            <documentation>Volume of the marsh funnel used (26 sec or 28 sec cone),
+                                1 qt or 1 l.</documentation>
                         </annotation>
                     </element>
                 </sequence>
@@ -3455,7 +3695,8 @@ torque -
     <element name="MudBalanceTest" type="diggs:MudBalanceTestType"
         substitutionGroup="diggs:AbstractMaterialTestProcedure">
         <annotation>
-            <documentation>A test procedure object that holds intermediate data and metadata for a mud balance test.</documentation>
+            <documentation>A test procedure object that holds intermediate data and metadata for a
+                mud balance test.</documentation>
         </annotation>
     </element>
     <complexType name="MudBalanceTestType">
@@ -3466,7 +3707,8 @@ torque -
     <element name="PressureFiltrationTest" type="diggs:PressureFiltrationTestType"
         substitutionGroup="diggs:AbstractMaterialTestProcedure">
         <annotation>
-            <documentation>A test procedure object that holds intermediate data and metadata for a pressure filtration test.</documentation>
+            <documentation>A test procedure object that holds intermediate data and metadata for a
+                pressure filtration test.</documentation>
         </annotation>
     </element>
     <complexType name="PressureFiltrationTestType">
@@ -3517,7 +3759,8 @@ torque -
     <element name="TiltCupTest" type="diggs:TiltCupTestType"
         substitutionGroup="diggs:AbstractMaterialTestProcedure">
         <annotation>
-            <documentation>A test procedure object that holds intermediate data and metadata for a tilt cup test.</documentation>
+            <documentation>A test procedure object that holds intermediate data and metadata for a
+                tilt cup test.</documentation>
         </annotation>
     </element>
     <complexType name="TiltCupTestType">
@@ -3530,7 +3773,8 @@ torque -
     <element name="ShrinkageTest" type="diggs:ShrinkageTestType"
         substitutionGroup="diggs:AbstractMaterialTestProcedure">
         <annotation>
-            <documentation>A test procedure object that holds intermediate data and metadata for a shrinkage test.</documentation>
+            <documentation>A test procedure object that holds intermediate data and metadata for a
+                shrinkage test.</documentation>
         </annotation>
     </element>
     <complexType name="ShrinkageTestType">
@@ -3543,7 +3787,8 @@ torque -
     <element name="SlumpTest" type="diggs:SlumpTestType"
         substitutionGroup="diggs:AbstractMaterialTestProcedure">
         <annotation>
-            <documentation>A test procedure object that holds intermediate data and metadata for a slump test.</documentation>
+            <documentation>A test procedure object that holds intermediate data and metadata for a
+                slump test.</documentation>
         </annotation>
     </element>
     <complexType name="SlumpTestType">
@@ -3551,67 +3796,95 @@ torque -
             <extension base="diggs:AbstractMaterialTestlProcedureType"> </extension>
         </complexContent>
     </complexType>
-    <element name="BoreholeGroutingActivity" substitutionGroup="diggs:AbstractConstructionActivity"
-        type="diggs:BoreholeGroutingActivityType">
+    <element name="LinearGroutingActivity" substitutionGroup="diggs:AbstractConstructionActivity"
+        type="diggs:LinearGroutingActivityType">
         <annotation>
-            <documentation>A feature that contains properties associated with grouting that occurs within a single sampling feature, typically a borehole or sounding. A grouting activity feature can accommodate all grouting within a
-                sampling feature, where the grouting setup is the same for all grout stages. Otherwise,
-                multiple grouting actvity features can be assigned to a borehole to accommodate variations
-                in grout setup, equipment, mix types, or where there is significant time between various grouting activities.</documentation>
+            <documentation>A feature that contains properties associated with grouting that occurs
+                within a single linear sampling feature, typically a borehole or sounding. A
+                grouting activity feature can accommodate all grouting within a sampling feature,
+                where the grouting setup is the same for all grout stages. Otherwise, multiple
+                grouting actvities can be assigned to a sampling feature to accommodate variations
+                in grout setup, equipment, mix types, or where there is significant time between
+                various grouting activities.</documentation>
         </annotation>
     </element>
-    <complexType name="BoreholeGroutingActivityType">
+    <complexType name="LinearGroutingActivityType">
         <complexContent>
             <extension base="diggs:AbstractConstructionActivityType">
                 <sequence>
                     <element minOccurs="1" name="groutingType" type="diggs:GroutingTypesEnumType">
                         <annotation>
                             <documentation>Specifies the grouting treatment solution for this
-                                activity. Allowed values are: Compaction - injecting a very stiff homogeneous grout mix under relatively high-pressures and at low injection rates to subsurface locations in pre-designed patterns in order to displace and compact soils.
-                                
-Compensation - also know as fracture grouting, is the injection of a cement slurry grout, hydrofracturing soil, creating lenses. The lenses compact surrounding soil and then lift the overlying soil and structures.
-                                
-Jet - consists of breaking up the soil with a  high-pressure jet in a predrilled borehole and mixing the loosened soil with a cement grout alone or mixed with air and/or water.
-
-Permeation - Introduction of cement or chemical-based grout into soil pores without an essential change in the original soil volume and structure, changing the support capability of granular soils without disturbing them 
-
-Rock - the injection of specially formulated cement-based mixes into the ground to improve its strength or reduce permeability. </documentation>
+                                activity. Allowed values are: Compaction - injecting a very stiff
+                                homogeneous grout mix under relatively high-pressures and at low
+                                injection rates to subsurface locations in pre-designed patterns in
+                                order to displace and compact soils. Compensation - also know as
+                                fracture grouting, is the injection of a cement slurry grout,
+                                hydrofracturing soil, creating lenses. The lenses compact
+                                surrounding soil and then lift the overlying soil and structures.
+                                Jet - consists of breaking up the soil with a high-pressure jet in a
+                                predrilled borehole and mixing the loosened soil with a cement grout
+                                alone or mixed with air and/or water. Permeation - Introduction of
+                                cement or chemical-based grout into soil pores without an essential
+                                change in the original soil volume and structure, changing the
+                                support capability of granular soils without disturbing them Rock -
+                                the injection of specially formulated cement-based mixes into the
+                                ground to improve its strength or reduce permeability.
+                            </documentation>
+                        </annotation>
+                    </element>
+                    <element minOccurs="0" name="cavity_depth" type="eml:LengthMeasure">
+                        <annotation>
+                            <documentation>For grouting in a borehole, typically done for jet or
+                                deep soil mixing, the length of the top of the hole that is
+                                pre-drilled out completely to form a cavity to contain the
+                                additional volume of soil and grout generated by the activity. For a
+                                grout trench cutoff wall, this value is the depth of excavation of
+                                the trench made from the surface to contain the additional volume of
+                                soil and grout generated by the activity.</documentation>
                         </annotation>
                     </element>
                     <element name="distanceToWater" type="diggs:PointLocationPropertyType"
                         minOccurs="0" form="qualified">
                         <annotation>
-                            <documentation>Location of water as measured in the sampling feature's linear reference system</documentation>
+                            <documentation>Location of water as measured in the sampling feature's
+                                linear reference system</documentation>
                         </annotation>
                     </element>
                     <element minOccurs="0" name="geoUnit"
                         type="diggs:GeoUnitObservationPropertyType" maxOccurs="unbounded">
                         <annotation>
-                            <documentation>Property type containing objects that identify the geologic/geotechnical units or contacts of interest to the grouting activity.</documentation>
+                            <documentation>Property type containing objects that identify the
+                                geologic/geotechnical units or contacts of interest to the grouting
+                                activity.</documentation>
                         </annotation>
                     </element>
                     <element minOccurs="0" name="groutingInterval"
                         type="diggs:LinearExtentPropertyType">
                         <annotation>
-                            <documentation>Total depth interval of the borehole being grouted as measured along borehole centerline.</documentation>
+                            <documentation>Total depth interval of the borehole being grouted as
+                                measured along borehole centerline.</documentation>
                         </annotation>
                     </element>
                     <element minOccurs="0" name="overburdenInterval"
                         type="diggs:LinearExtentPropertyType">
                         <annotation>
-                            <documentation>Total interval of overburden measured along borehole centerline.</documentation>
+                            <documentation>Total interval of overburden measured along borehole
+                                centerline.</documentation>
                         </annotation>
                     </element>
                     <element minOccurs="0" name="overburdenVerticalThickness"
                         type="eml:LengthMeasure">
                         <annotation>
-                            <documentation>Vertical thickness of overburden (eg. vertical depth to base of overburden).</documentation>
+                            <documentation>Vertical thickness of overburden (eg. vertical depth to
+                                base of overburden).</documentation>
                         </annotation>
                     </element>
                     <element minOccurs="0" maxOccurs="unbounded" ref="diggs:groutRef">
                         <annotation>
                             <appinfo>diggs:GroutBatch</appinfo>
-                            <documentation>A property that references GroutBatch objects that are used within this BoreholeGroutingActivity</documentation>
+                            <documentation>A property that references GroutBatch objects that are
+                                used within this BoreholeGroutingActivity</documentation>
                         </annotation>
                     </element>
                     <choice>
@@ -3619,24 +3892,37 @@ Rock - the injection of specially formulated cement-based mixes into the ground 
                             maxOccurs="unbounded">
                             <annotation>
                                 <documentation>Property type containing information about individual
-                                grout stages </documentation>
+                                    grout stages </documentation>
                             </annotation>
                         </element>
                         <element minOccurs="0" name="continuousGrouting"
                             type="diggs:ContinuousGroutingPropertyType" maxOccurs="1">
                             <annotation>
-                                <documentation>Property type containing information about continuous grouting as part of a jet grouting or deep soil mixing activity</documentation>
+                                <documentation>Property type containing information about continuous
+                                    grouting as part of a jet grouting or deep soil mixing
+                                    activity</documentation>
                             </annotation>
                         </element>
                     </choice>
                     <element minOccurs="0" name="totalGroutVolumeActivity" type="eml:VolumeMeasure">
                         <annotation>
-                            <documentation>The total volume of grout injected by this activity.</documentation>
+                            <documentation>The total volume of grout injected by this
+                                activity.</documentation>
                         </annotation>
                     </element>
-                    <element minOccurs="0" name="totalGroutVolumeHole" type="eml:VolumeMeasure">
+                    <element minOccurs="0" name="totalGroutVolumeAtFeature" type="eml:VolumeMeasure">
                         <annotation>
-                            <documentation>The total volume of grout injected into the hole of which this activity is a part. Where there is only one activity in a hole. this value will equal totalGroutVolumeActivity.</documentation>
+                            <documentation>The total volume of grout injected into the
+                                samplingFeature of which this activity is a part. Where there is
+                                only one activity in a samplingFeature. this value will equal
+                                totalGroutVolumeActivity.</documentation>
+                        </annotation>
+                    </element>
+                    <element minOccurs="0" name="wasteVolume" type="eml:VolumeMeasure">
+                        <annotation>
+                            <documentation>An estimate of the volume of spoils (grout and soil
+                                waster) produced by the jet or deep soil mixing grouting
+                                activity.</documentation>
                         </annotation>
                     </element>
                 </sequence>
@@ -3689,23 +3975,11 @@ Rock - the injection of specially formulated cement-based mixes into the ground 
     <simpleType name="GroutSpecimentExtractionLocationExtEnumType">
         <union memberTypes="diggs:OtherNameType diggs:GroutSpecimenExtractionLocationEnumType"/>
     </simpleType>
-    <complexType name="UnconfinedCompressiveTestType">
-        <complexContent>
-            <extension base="diggs:AbstractMaterialTestlProcedureType">
-                <sequence>
-                    <element minOccurs="0" name="compressiveStrength" type="eml:PressureMeasure">
-                        <annotation>
-                            <documentation>Measured strength</documentation>
-                        </annotation>
-                    </element>
-                </sequence>
-            </extension>
-        </complexContent>
-    </complexType>
     <element name="ViscometerTest" type="diggs:ViscometerTestType"
         substitutionGroup="diggs:AbstractMaterialTestProcedure">
         <annotation>
-            <documentation>A test procedure object that holds intermediate data and metadata for a viscometer test.</documentation>
+            <documentation>A test procedure object that holds intermediate data and metadata for a
+                viscometer test.</documentation>
         </annotation>
     </element>
     <complexType name="ViscometerTestType">
@@ -3795,7 +4069,8 @@ Rock - the injection of specially formulated cement-based mixes into the ground 
     <element name="WashoutTest" type="diggs:WashoutTestType"
         substitutionGroup="diggs:AbstractMaterialTestProcedure">
         <annotation>
-            <documentation>A test procedure object that holds intermediate data and metadata for a washout test.</documentation>
+            <documentation>A test procedure object that holds intermediate data and metadata for a
+                washout test.</documentation>
         </annotation>
     </element>
     <complexType name="WashoutTestType">
@@ -3818,27 +4093,34 @@ Rock - the injection of specially formulated cement-based mixes into the ground 
                 <sequence>
                     <element minOccurs="0" name="lineLength" type="eml:LengthMeasure">
                         <annotation>
-                            <documentation>The length of the grout line (packer line) from the pressure gauge located at the pump to the pressure gauge at the grout header.</documentation>
+                            <documentation>The length of the grout line (packer line) from the
+                                pressure gauge located at the pump to the pressure gauge at the
+                                grout header.</documentation>
                         </annotation>
                     </element>
                     <element minOccurs="0" name="lineLossCoeffA" type="double">
                         <annotation>
-                            <documentation>Coefficient A of the regression equation generated from lineLossData recorded at different flow rates.</documentation>
+                            <documentation>Coefficient A of the regression equation generated from
+                                lineLossData recorded at different flow rates.</documentation>
                         </annotation>
                     </element>
                     <element minOccurs="0" name="lineLossCoeffB" type="double">
                         <annotation>
-                            <documentation>Coefficient B of the regression equation generated from lineLossData recorded at different flow rates.</documentation>
+                            <documentation>Coefficient B of the regression equation generated from
+                                lineLossData recorded at different flow rates.</documentation>
                         </annotation>
                     </element>
                     <element minOccurs="0" name="lineLossCoeffC" type="double">
                         <annotation>
-                            <documentation>Coefficient C of the regression equation generated from lineLossData recorded at different flow rates.</documentation>
+                            <documentation>Coefficient C of the regression equation generated from
+                                lineLossData recorded at different flow rates.</documentation>
                         </annotation>
                     </element>
                     <element minOccurs="0" name="lineLossR2" type="double">
                         <annotation>
-                            <documentation>The correlation coefficient (R^2) for the regression equation generated from lineLossData recorded at different flow rates.</documentation>
+                            <documentation>The correlation coefficient (R^2) for the regression
+                                equation generated from lineLossData recorded at different flow
+                                rates.</documentation>
                         </annotation>
                     </element>
                     <element maxOccurs="unbounded" minOccurs="0" name="lineLossData"
@@ -3872,19 +4154,21 @@ Rock - the injection of specially formulated cement-based mixes into the ground 
                     </element>
                     <element minOccurs="0" name="p2" type="eml:PressureMeasure">
                         <annotation>
-                            <documentation>Pressure measured at the grout head
-</documentation>
+                            <documentation>Pressure measured at the grout head </documentation>
                         </annotation>
                     </element>
                     <element name="lineLoss" type="eml:PressureMeasure" minOccurs="0">
                         <annotation>
-                            <documentation>The pressure differential between the pump gauge and the grout head gauge.</documentation>
+                            <documentation>The pressure differential between the pump gauge and the
+                                grout head gauge.</documentation>
                         </annotation>
                     </element>
                     <element name="lineLossNormalized" type="eml:ForcePerVolumeMeasure"
                         minOccurs="0">
                         <annotation>
-                            <documentation>The pressure differential between the pump gauge and the grout head gauge, divided by the line length between the two gauges.</documentation>
+                            <documentation>The pressure differential between the pump gauge and the
+                                grout head gauge, divided by the line length between the two
+                                gauges.</documentation>
                         </annotation>
                     </element>
                 </sequence>
@@ -3932,11 +4216,11 @@ Rock - the injection of specially formulated cement-based mixes into the ground 
     <complexType name="VolumeOrMassLossMeasure">
         <simpleContent>
             <extension base="eml:AbstractMeasure">
-                <attribute name="uom" type="diggs:VolumeOrLossMeasureUOM"/>
+                <attribute name="uom" type="diggs:VolumeOrMassLossMeasureUOM"/>
             </extension>
         </simpleContent>
     </complexType>
-    <simpleType name="VolumeOrLossMeasureUOM">
+    <simpleType name="VolumeOrMassLossMeasureUOM">
         <union memberTypes="eml:VolumePerVolumeUom eml:MassPerMassUom"/>
     </simpleType>
     <element name="SyneresisTest" substitutionGroup="diggs:AbstractMaterialTestProcedure"
@@ -4299,7 +4583,8 @@ Rock - the injection of specially formulated cement-based mixes into the ground 
                 <attribute name="type" use="optional" type="diggs:pressureMeasureTypeEnumType"/>
                 <attribute name="sensorLocation" type="string">
                     <annotation>
-                        <documentation>A text string describing where the pressure sensor is located.</documentation>
+                        <documentation>A text string describing where the pressure sensor is
+                            located.</documentation>
                     </annotation>
                 </attribute>
             </extension>
@@ -4327,12 +4612,14 @@ Rock - the injection of specially formulated cement-based mixes into the ground 
                 <sequence>
                     <element name="pressureUOM" type="eml:PressureUom">
                         <annotation>
-                            <documentation>The UOM symbol for the pressure measurements that make up the data of the pressure-flow rate curve</documentation>
+                            <documentation>The UOM symbol for the pressure measurements that make up
+                                the data of the pressure-flow rate curve</documentation>
                         </annotation>
                     </element>
                     <element name="flowRateUOM" type="eml:VolumePerTimeUom">
                         <annotation>
-                            <documentation>The UOM symbol for the flow rate measurements that make up the data of the pressure-flow rate curve</documentation>
+                            <documentation>The UOM symbol for the flow rate measurements that make
+                                up the data of the pressure-flow rate curve</documentation>
                         </annotation>
                     </element>
                     <sequence maxOccurs="unbounded" minOccurs="2">
@@ -4351,13 +4638,90 @@ Rock - the injection of specially formulated cement-based mixes into the ground 
                 <sequence>
                     <element minOccurs="0" name="cutoffWallWidth" type="eml:LengthMeasure">
                         <annotation>
-                            <documentation>The width of the trench cutoff wall - this is typically the same as the thickness of the cutting tool or backhoe shovel</documentation>
+                            <documentation>The width of the trench cutoff wall - this is typically
+                                the same as the thickness of the cutting tool or backhoe
+                                shovel</documentation>
+                        </annotation>
+                    </element>
+                    <element name="depthIncrement"/>
+                </sequence>
+            </extension>
+        </complexContent>
+    </complexType>
+    <element name="GroutTrenchCutoffWall" substitutionGroup="diggs:AbstractSamplingFeature"
+        type="diggs:GroutTrenchCutoffWallType"/>
+    <complexType name="CutterSoilMixingToolType">
+        <complexContent>
+            <extension base="diggs:AbstractEquipmentType">
+                <sequence>
+                    <element minOccurs="0" name="diameterCuttingWheels" type="eml:LengthMeasure">
+                        <annotation>
+                            <documentation>External diameter of each of the cutting
+                                wheels</documentation>
+                        </annotation>
+                    </element>
+                    <element minOccurs="0" name="panelLength" type="eml:LengthMeasure">
+                        <annotation>
+                            <documentation>Length (long dimension) of the soil panel cut by the deep
+                                soil mixing tool</documentation>
+                        </annotation>
+                    </element>
+                    <element minOccurs="0" name="panelWidth" type="eml:LengthMeasure">
+                        <annotation>
+                            <documentation>Width (short dimension) of the soil panel cut by the deep
+                                soil mixing tool</documentation>
                         </annotation>
                     </element>
                 </sequence>
             </extension>
         </complexContent>
     </complexType>
-   <element name="GroutTrenchCutoffWall" substitutionGroup="diggs:AbstractSamplingFeature"
-        type="diggs:GroutTrenchCutoffWallType"/>
+    <element name="CutterSoilMixingTool" type="diggs:CutterSoilMixingToolType"
+        substitutionGroup="diggs:AbstractEquipment"/>
+    <complexType name="DeepSoilMixingToolType">
+        <complexContent>
+            <extension base="diggs:AbstractEquipmentType">
+                <sequence>
+                    <element minOccurs="0" name="diameterMixingBlades" type="eml:LengthMeasure">
+                        <annotation>
+                            <documentation>External diameter of each of the cutting
+                                wheels</documentation>
+                        </annotation>
+                    </element>
+                    <element minOccurs="0" name="numberBladesPerShaft" type="positiveInteger">
+                        <annotation>
+                            <documentation>The total number of blades on each deep mixing tool
+                                shaft</documentation>
+                        </annotation>
+                    </element>
+                    <element minOccurs="0" name="numberShafts" type="positiveInteger">
+                        <annotation>
+                            <documentation>The total number of shafts on the deep mixing
+                                tool</documentation>
+                        </annotation>
+                    </element>
+                    <element minOccurs="0" name="mixingToolHeight" type="eml:LengthMeasure">
+                        <annotation>
+                            <documentation>Height of the tool, eg. the length of the mixing tool
+                                shaft(s)</documentation>
+                        </annotation>
+                    </element>
+                    <element minOccurs="0" name="panelLength" type="eml:LengthMeasure">
+                        <annotation>
+                            <documentation>Length (long dimension) of the soil panel cut by the deep
+                                soil mixing tool</documentation>
+                        </annotation>
+                    </element>
+                    <element minOccurs="0" name="panelWidth" type="eml:LengthMeasureExt">
+                        <annotation>
+                            <documentation>Width (short dimension) of the soil panel cut by the deep
+                                soil mixing tool</documentation>
+                        </annotation>
+                    </element>
+                </sequence>
+            </extension>
+        </complexContent>
+    </complexType>
+    <element name="DeepSoilMixingTool" type="diggs:DeepSoilMixingToolType"
+        substitutionGroup="diggs:AbstractEquipment"/>
 </schema>
