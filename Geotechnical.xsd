@@ -12,6 +12,7 @@
     <annotation>
         <documentation>This schema file including the diggs_geo: namespace is deprecated for all versions greater than 2.5. All elements and type definitions in this schema have been moved into schema file TestProcedures in the diggs namespace.</documentation>
     </annotation>
+    <import namespace="http://diggsml.org/schemas/2.6" schemaLocation="Diggs.xsd"/>
     <import namespace="http://www.opengis.net/gml/3.2" schemaLocation="gml3.2Profile_diggs.xsd"/>
     <import namespace="http://www.w3.org/1999/xlink" schemaLocation="xlinks.xsd"/>
     <import namespace="http://www.w3.org/XML/1998/namespace" schemaLocation="xml.xsd"/>
@@ -21,7 +22,6 @@
 	<import namespace="http://www.w3.org/XML/1998/namespace" schemaLocation="http://www.w3.org/2001/xml.xsd"/>
 	-->
     <!-- include and import other DIGGS schemas -->
-    <import namespace="http://diggsml.org/schemas/2.6" schemaLocation="Kernel.xsd"/>
     <!-- import the witsml schemas -->
     <import namespace="http://www.energistics.org/energyml/data/commonv2"
         schemaLocation="witsml/2.0/data/common/v2.1/xsd_schemas/EmlAllObjects.xsd"/>
@@ -108,7 +108,8 @@
                         <complexType>
                             <simpleContent>
                                 <extension base="diggs:DensityOrUnitWeightMeasureType">
-                                    <attribute ref="diggs:howDetermined"/>
+                                    <attribute name="howDetermined"
+                                        type="diggs:DescriptorMethodEnumType"/>
                                 </extension>
                             </simpleContent>
                         </complexType>
@@ -465,7 +466,7 @@
                                 increment</documentation>
                         </annotation>
                     </element>
-                    <element minOccurs="0" ref="diggs_geo:timeInterval"/>
+                    <element minOccurs="0" ref="diggs:timeInterval"/>
                     <element minOccurs="0" name="coefficientOfConsolidation" type="double">
                         <annotation>
                             <documentation>Coefficient of consolidation for this stress
@@ -600,7 +601,7 @@
                                 loading increment</documentation>
                         </annotation>
                     </element>
-                    <element minOccurs="1" ref="diggs_geo:timeInterval"/>
+                    <element minOccurs="1" ref="diggs:timeInterval"/>
                 </sequence>
             </extension>
         </complexContent>
@@ -653,14 +654,14 @@
                         </annotation>
                     </element>
                     <element minOccurs="0" name="displacementRatePeakStressStage"
-                        type="eml:LengthPerTimeMeasure">
+                        type="diggs:LengthPerTimeMeasureType">
                         <annotation>
                             <documentation>Displacement rate during the peak stress stage of
                                 shearing.</documentation>
                         </annotation>
                     </element>
                     <element minOccurs="0" name="displacementRateResidualStressStage"
-                        type="eml:LengthPerTimeMeasure">
+                        type="diggs:LengthPerTimeMeasureType">
                         <annotation>
                             <documentation>Displacement rate during the residual stress stage of
                                 shearing.</documentation>
@@ -774,7 +775,7 @@
     </element>
     <complexType name="DrivenPenetrationTestType">
         <annotation>
-            <documentation>Base type for DrivenPenetrationTest</documentation>
+            <documentation/>
         </annotation>
         <complexContent>
             <extension base="diggs:AbstractInsituTestProcedureType">
@@ -878,8 +879,8 @@
                                 completion of the procedure</documentation>
                         </annotation>
                     </element>
-                    <element name="driveSet" type="diggs_geo:DriveSetPropertyType" minOccurs="0"
-                        maxOccurs="unbounded"/>
+                    <element maxOccurs="unbounded" minOccurs="0" name="driveSet"
+                        type="diggs_geo:DriveSetPropertyType"/>
                 </sequence>
             </extension>
         </complexContent>
@@ -921,12 +922,12 @@
                     <element name="delay" type="diggs:DelayEventPropertyType" minOccurs="0">
                         <annotation>
                             <documentation>Duration of delay before increment
-                                started.</documentation>
+                                started. Deprecate- replace with test result for DynamicProbeTest.</documentation>
                         </annotation>
                     </element>
                     <element name="torque" type="eml:MomentOfForceMeasure" minOccurs="0">
                         <annotation>
-                            <documentation>Maximum torque required to rotate rods.</documentation>
+                            <documentation>Maximum torque required to rotate rods. Deprecated - use as result for DynamicProbeTest</documentation>
                         </annotation>
                     </element>
                 </sequence>
@@ -942,6 +943,124 @@
         <sequence>
             <element ref="diggs_geo:DriveSet" minOccurs="1" maxOccurs="1"/>
         </sequence>
+    </complexType>
+    <element name="DynamicProbeTest" type="diggs_geo:DynamicProbeTestType" abstract="false"
+        substitutionGroup="diggs:AbstractInsituTestProcedure">
+        <annotation>
+            <documentation>An object describing a driven penetration test procedure. The Driven Penetration Test includes all methods that involve driving a
+                rod (with or without a sampler) by impact hammer. The most common test of this type
+                inclue the Standard Penetration Test and the Becker Hammer Test.</documentation>
+        </annotation>
+    </element>
+    <complexType name="DynamicProbeTestType">
+        <annotation>
+            <documentation/>
+        </annotation>
+        <complexContent>
+            <extension base="diggs:AbstractInsituTestProcedureType">
+                <sequence>
+                    <element name="penetrationTestType" type="gml:CodeType">
+                        <annotation>
+                            <documentation>Type of penetration test performed, e.g. Standard
+                                Penetration Test, Becker Hammer Test, etc.</documentation>
+                        </annotation>
+                    </element>
+                    <element name="hammerType" type="gml:CodeType" minOccurs="0">
+                        <annotation>
+                            <documentation>The type of hammer used for the sampling and penetration,
+                                including the mechanism used to lift and drop the hammer assembly.
+                                Additional details about the sampler (e.g. cathead diameter, number
+                                of turns, etc) can be mapped to the equipment
+                                object.</documentation>
+                        </annotation>
+                    </element>
+                    <element name="hammerMass" type="eml:MassMeasure" minOccurs="0">
+                        <annotation>
+                            <documentation>The hammer mass used to drive the
+                                sampler.</documentation>
+                        </annotation>
+                    </element>
+                    <element name="hammerDropHeight" type="eml:LengthMeasure" minOccurs="0">
+                        <annotation>
+                            <documentation>The hammer drop height.</documentation>
+                        </annotation>
+                    </element>
+                    <element name="hammerEfficiency" type="eml:DimensionlessMeasure" minOccurs="0">
+                        <annotation>
+                            <documentation>A description of the energy efficiency of the
+                                hammer.</documentation>
+                        </annotation>
+                    </element>
+                    <element name="samplerLength" type="eml:LengthMeasure" minOccurs="0">
+                        <annotation>
+                            <documentation>The length of the sampler barrel.</documentation>
+                        </annotation>
+                    </element>
+                    <element name="samplerInternalDiameter" type="eml:LengthMeasure" minOccurs="0">
+                        <annotation>
+                            <documentation>The inside diameter of the sampler.</documentation>
+                        </annotation>
+                    </element>
+                    <element name="samplerLinerDescription" type="diggs:DiggsStringType"
+                        minOccurs="0">
+                        <annotation>
+                            <documentation>A description of the liner, if used.</documentation>
+                        </annotation>
+                    </element>
+                    <element name="samplerRetainerDescription" type="diggs:DiggsStringType"
+                        minOccurs="0">
+                        <annotation>
+                            <documentation>A description of the basket retainer, if
+                                used.</documentation>
+                        </annotation>
+                    </element>
+                    <element name="rodType" type="gml:CodeType" minOccurs="0">
+                        <annotation>
+                            <documentation>The type of sampling rods used for
+                                penetration.</documentation>
+                        </annotation>
+                    </element>
+                    <element name="rodExternalDiameter" type="eml:LengthMeasure" minOccurs="0">
+                        <annotation>
+                            <documentation>The external diameter of the sampling
+                                rods.</documentation>
+                        </annotation>
+                    </element>
+                    <element name="rodSectionLength" type="eml:LengthMeasure" minOccurs="0">
+                        <annotation>
+                            <documentation>The drive rod weight per unit length.</documentation>
+                        </annotation>
+                    </element>
+                    <element name="rodWeight" type="eml:ForcePerLengthMeasure" minOccurs="0">
+                        <annotation>
+                            <documentation>The drive rod weight per unit length.</documentation>
+                        </annotation>
+                    </element>
+                    <element name="depthCasing" type="eml:LengthMeasure" minOccurs="0">
+                        <annotation>
+                            <documentation>Casing depth at time of test</documentation>
+                        </annotation>
+                    </element>
+                    <element name="selfWeightPenetration" type="eml:LengthMeasure" minOccurs="0">
+                        <annotation>
+                            <documentation>The distance the sampler penetrates the soil under its
+                                own weight before applying hammer blows</documentation>
+                        </annotation>
+                    </element>
+                    <element name="waterDepth" type="eml:LengthMeasure" minOccurs="0">
+                        <annotation>
+                            <documentation>Depth to water at time of test.</documentation>
+                        </annotation>
+                    </element>
+                    <element name="totalPenetration" type="eml:LengthMeasure" minOccurs="0">
+                        <annotation>
+                            <documentation>Total distance the sampler penetrated the soil following
+                                completion of the procedure</documentation>
+                        </annotation>
+                    </element>
+                </sequence>
+            </extension>
+        </complexContent>
     </complexType>
     <element name="FlatPlateDilatometerTest" substitutionGroup="diggs:AbstractInsituTestProcedure"
         type="diggs_geo:FlatPlateDilatometerTestType">
@@ -1734,7 +1853,7 @@
                                     trial.</documentation>
                             </annotation>
                         </element>
-                        <element minOccurs="0" ref="diggs_geo:timeInterval">
+                        <element minOccurs="0" ref="diggs:timeInterval">
                             <annotation>
                                 <documentation>Time at the beginning and end of the trial and/or
                                     duration of the trial.</documentation>
@@ -2208,6 +2327,22 @@ consolidation (ch) and in situ horizontal coefficient of permeability (kh)</docu
             </extension>
         </complexContent>
     </complexType>
+    <element name="MaterialGradationTest" type="diggs_geo:MaterialGradationTestType"
+        abstract="false" substitutionGroup="diggs:AbstractMaterialTestProcedure">
+        <annotation>
+            <documentation>An object describing the properties of a laboratory particle size test procedure performed on the coarse fraction (greater than silt size) of a material sample - primarily used for recording gradation of a grout mix aggregate.</documentation>
+        </annotation>
+    </element>
+    <complexType name="MaterialGradationTestType">
+        <complexContent>
+            <extension base="diggs:AbstractMaterialTestlProcedureType">
+                <sequence>
+                    <element minOccurs="0" name="sieveAnalysis"
+                        type="diggs_geo:SieveAnalysisPropertyType" maxOccurs="unbounded"/>
+                </sequence>
+            </extension>
+        </complexContent>
+    </complexType>
     <element name="ParticleSizeTest" type="diggs_geo:ParticleSizeTestType" abstract="false"
         substitutionGroup="diggs:AbstractLaboratoryTestProcedure">
         <annotation>
@@ -2289,15 +2424,16 @@ consolidation (ch) and in situ horizontal coefficient of permeability (kh)</docu
             </extension>
         </complexContent>
     </complexType>
+    <element name="gradingData" type="diggs_geo:GradingPropertyType"/>
     <complexType name="GradingPropertyType">
         <annotation>
             <documentation>This is the property that contains the Grading object(s). It is needed to
                 satisfy the GML object-property rule when Grading is used as an element in another
                 test.</documentation>
         </annotation>
-        <choice>
+        <sequence>
             <element ref="diggs_geo:Grading" minOccurs="1" maxOccurs="1"/>
-        </choice>
+        </sequence>
     </complexType>
     <element name="Hydrometer" type="diggs_geo:HydrometerType">
         <annotation>
@@ -2400,9 +2536,9 @@ consolidation (ch) and in situ horizontal coefficient of permeability (kh)</docu
                 satisfy the GML object-property rule when Grading is used as an element in another
                 test.</documentation>
         </annotation>
-        <choice>
+        <sequence>
             <element ref="diggs_geo:PanData" minOccurs="1" maxOccurs="1"/>
-        </choice>
+        </sequence>
     </complexType>
     <element name="Sedimentation" type="diggs_geo:SedimentationType">
         <annotation>
@@ -2514,8 +2650,7 @@ consolidation (ch) and in situ horizontal coefficient of permeability (kh)</docu
                     </element>
                     <element maxOccurs="unbounded" minOccurs="0" name="otherSieveAnalysisProperty"
                         type="diggs:ParameterPropertyType"/>
-                    <element name="gradingData" type="diggs_geo:GradingPropertyType" minOccurs="0"
-                        maxOccurs="unbounded"/>
+                    <element ref="diggs_geo:gradingData" minOccurs="0" maxOccurs="unbounded"/>
                     <element minOccurs="0" name="panData" type="diggs_geo:PanDataPropertyType"/>
                 </sequence>
             </extension>
@@ -2721,7 +2856,8 @@ consolidation (ch) and in situ horizontal coefficient of permeability (kh)</docu
                                 tip.</documentation>
                         </annotation>
                     </element>
-                    <element minOccurs="0" name="penetrationRate" type="eml:LengthPerTimeMeasure">
+                    <element minOccurs="0" name="penetrationRate"
+                        type="diggs:LengthPerTimeMeasureType">
                         <annotation>
                             <documentation>The rate of advance of the penetrometer.</documentation>
                         </annotation>
@@ -3664,10 +3800,4 @@ consolidation (ch) and in situ horizontal coefficient of permeability (kh)</docu
                 value="constant volume-falling head (by mercury), rising tailwater elevation"/>
         </restriction>
     </simpleType>
-    <element name="timeInterval" type="diggs:TimeIntervalPropertyType">
-        <annotation>
-            <documentation>A property with property type containing a time interval object that recordes the time at the beginning and end of the trial or test increment, and/or
-                duration</documentation>
-        </annotation>
-    </element>
 </schema>
