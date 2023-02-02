@@ -107,6 +107,8 @@
             </extension>
         </complexContent>
     </complexType>
+    <element abstract="true" name="AbstractCurve" substitutionGroup="gml:AbstractCurve"
+        type="diggs:AbstractCurveType"/>
     <complexType abstract="true" name="AbstractCurveType">
         <annotation>
             <documentation>diggs:AbstractCurveType is an abstraction of a curve to support the
@@ -114,7 +116,7 @@
                 primitive, i.e. is continuous.</documentation>
         </annotation>
         <complexContent>
-            <extension base="diggs:AbstractGeometricPrimitiveType"/>
+            <extension base="gml:AbstractCurveType"/>
         </complexContent>
     </complexType>
     <element abstract="true" name="AbstractObservationSystem"
@@ -985,8 +987,7 @@
     <element abstract="true" name="AbstractSample" substitutionGroup="diggs:AbstractNamedFeature"
         type="diggs:AbstractSampleType">
         <annotation>
-            <documentation>Base object and Aabstract head of a substitution group for all material
-                samples. </documentation>
+            <documentation>Base object and Abstract head of a substitution group for all material samples. </documentation>
         </annotation>
     </element>
     <complexType name="AbstractSampleType" abstract="true">
@@ -1112,11 +1113,14 @@
             </extension>
         </complexContent>
     </complexType>
-    <element abstract="true" name="AbstractSpecimen" type="diggs:AbstractSpecimenType"/>
+    <element abstract="true" name="AbstractSpecimen" type="diggs:AbstractSpecimenType">
+        <annotation>
+            <documentation>AbstractSpecimen serves as the head of a substitution group for concrete specimen specializations based on specimen state or type: eg. soil, liquid, gas, rock. A specimen derives from one or more Samples, is created as part of a test procedure, and exists only in the context of the test procedure that creates it.</documentation>
+        </annotation>
+    </element>
     <complexType abstract="true" name="AbstractSpecimenType">
         <annotation>
-            <documentation>AbstractSpecimenType is an abstraction of a specimen to support different
-                specimen types, based on state/type: eg. soil, liquid, gas, rock</documentation>
+            <documentation/>
         </annotation>
         <complexContent>
             <extension base="diggs:AbstractFeatureType">
@@ -3671,8 +3675,7 @@
     <element name="FluidSpecimen" type="diggs:FluidSpecimenType"
         substitutionGroup="diggs:AbstractSpecimen">
         <annotation>
-            <documentation>An object that describes the physical conditions of a fluid specimen
-                subjected tp testing</documentation>
+            <documentation>A specialization of a specimen that describes the physical conditions of a fluid sample or samples subjected to testing.</documentation>
         </annotation>
     </element>
     <complexType name="FluidSpecimenType">
@@ -4308,8 +4311,7 @@
             </extension>
         </complexContent>
     </complexType>
-    <element name="LinearExtent" substitutionGroup="diggs:AbstractGeometry"
-        type="diggs:LineStringType">
+    <element name="LinearExtent" substitutionGroup="gml:AbstractCurve" type="diggs:LineStringType">
         <annotation>
             <documentation>An object that defines a location as a linear extent or interval, with
                 the first vertex representing the starting location and the last vertex the end
@@ -6313,9 +6315,7 @@ DSB: REMOVED FROM PROFILE
     <element abstract="false" name="Sample" substitutionGroup="diggs:AbstractSample"
         type="diggs:SampleType">
         <annotation>
-            <documentation>A specimen of earth material, fluid, or gas that is obtained as a result
-                of a sampling activity, for the purpose of observation and/or
-                testing</documentation>
+            <documentation>A material sample, either solid, fluid, or gas that is obtained as a result of a sampling activity, for the purpose of observation and/or testing. This is a concrete representation of AbstractSample, which serves as the head of a substitution group for this and other sample specialties.</documentation>
         </annotation>
     </element>
     <simpleType name="SampleFractionEnumType">
@@ -6508,12 +6508,7 @@ DSB: REMOVED FROM PROFILE
     <element abstract="false" name="SamplingActivity"
         substitutionGroup="diggs:AbstractSamplingActivity" type="diggs:SamplingActivityType">
         <annotation>
-            <documentation>The action taken to obtain or produce a material sample, although the
-                activity may not produce a sample (eg. a core run that produces no recovery). This
-                activity typically occurs at a location on a sampling feature, or could occur
-                elsewhere (eg. a laboratory) in the case of test or blank samples, or can produce
-                aggregate samples where the location of the samples produced have no meaning. All
-                Sample features must refer to a SamplingActivity feature.</documentation>
+            <documentation>The action taken to obtain or produce material samples even if the activity fails to produce a sample (eg. a core run that produces no recovery). The activity type must be specified, and indicates if the produced sample(s) are a result of collection at a sampling feature, sub-sampling, aggregation of two or more samples, or a sample created as a test or blank sample. All samples must refer to a SamplingActivity feature.</documentation>
         </annotation>
     </element>
     <complexType name="SamplingActivityPropertyType">
@@ -7124,8 +7119,7 @@ DSB: REMOVED FROM PROFILE
     <element name="SoilSpecimen" type="diggs:SoilSpecimenType"
         substitutionGroup="diggs:AbstractSpecimen">
         <annotation>
-            <documentation>An object that describes the physical conditions of a specimen subjected
-                to soil testing</documentation>
+            <documentation>A specialization of a specimen that describes the physical conditions of a soil sample or samples subjected to testing.</documentation>
         </annotation>
     </element>
     <complexType name="SoilSpecimenType">
@@ -7204,8 +7198,7 @@ DSB: REMOVED FROM PROFILE
     <element name="RockSpecimen" type="diggs:RockSpecimenType"
         substitutionGroup="diggs:AbstractSpecimen">
         <annotation>
-            <documentation>An object that describes the physical conditions of a specimen subjected
-                to rock testing</documentation>
+            <documentation>A specialization of a specimen that describes the physical conditions of a rock sample or samples subjected to testing.</documentation>
         </annotation>
     </element>
     <complexType name="RockSpecimenType">
@@ -7608,6 +7601,7 @@ DSB: REMOVED FROM PROFILE
                                 unit</documentation>
                         </annotation>
                     </element>
+                    <element minOccurs="0" name="unitType" type="diggs:StratUnitExtEnumType"/>
                     <element maxOccurs="unbounded" minOccurs="0" ref="diggs:placedObservation"/>
                     <element minOccurs="0" ref="diggs:baseBoundary">
                         <annotation>
@@ -9063,5 +9057,49 @@ DSB: REMOVED FROM PROFILE
             <enumeration value="mm/min"/>
             <enumeration value="mm/d"/>
         </restriction>
+    </simpleType>
+    <simpleType name="StratUnitEnum">
+        <annotation>
+            <documentation>Definitions of the following unit types:
+
+1) allostratigraphic - a body of sedimentary rock that is defined and identified only by its bounding discontinuities 
+
+2) biostratigraphic - bodies of rock strata that are defined or characterized on the basis of their contained fossils.
+
+3) chemostratigraphic - a body of rock defined on the chemical composition of the sediments, rocks, and rock components.
+
+4) chronostratigraphic - bodies of rocks, layered or unlayered, that are defined between specified stratigraphic horizons which represent specified intervals of geologic time. 
+
+5) hydrostratigraphic - a part of a body of rock that forms a distinct hydrologic unit with respect to the flow of ground water, generally characterized by its porosity and permeability.
+
+6) lithodemic - a three-dimensional body composed of one or more intrusive, highly deformed or highly metamorphosed rock types, distinguished and delimited on the basis of rock characteristics. Its contacts with other rock units may be sedimentary, extrusive, intrusive, and tectonic or relate to metamorphic grade.
+
+7) lithostratigraphy - bodies of rocks, bedded or unbedded, that are defined and characterized on the basis of their lithologic properties and their stratigraphic relations. 
+
+8) magnetostratigraphic - rock strata unified by similar magnetic characteristics (not only magnetic polarity) which allows it to be differentiated from adjacent strata.
+
+9) pedostratigraphic - units defined based on the stratigraphical and spatial relationships and implications of surface and buried soils. It has emerged as a key means of interpreting palaeosols; records of metastability in landscapes when rates of erosion and accumulation are slow. 
+
+10) polarity chronostratigraphic -  units defined by primary magnetic-polarity record imposed when the rock was deposited or crystallized during a specific interval of geologic time.
+
+11) tectonostratigraphic - a body characterized by a consistent tectonostratigraphy and metamorphic evolution, and bounded by tectonic discontinuities.</documentation>
+        </annotation>
+        <restriction base="string">
+            <enumeration value="allostratigraphic"/>
+            <enumeration value="biostratigraphic"/>
+            <enumeration value="chemostraitgraphic"/>
+            <enumeration value="chronostratigraphic"/>
+            <enumeration value="hydrostraptigraphic"/>
+            <enumeration value="lithodemic"/>
+            <enumeration value="lithostratigraphic"/>
+            <enumeration value="magnetostratigraphic"/>
+            <enumeration value="pedostratigraphic"/>
+            <enumeration value="polarity chronostratigraphic"/>
+            <enumeration value="tectonostratigraphic"/>
+        </restriction>
+    </simpleType>
+
+    <simpleType name="StratUnitExtEnumType">
+        <union memberTypes="diggs:StratUnitEnum diggs:OtherNameType"/>
     </simpleType>
 </schema>
