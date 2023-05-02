@@ -924,37 +924,86 @@
         <complexContent>
             <extension base="diggs:AbstractSamplingFeatureType">
                 <sequence>
-                    <element name="referenceEdge" type="diggs:LinearExtentPropertyType"
-                        minOccurs="0" maxOccurs="1">
-                        <annotation>
-                            <documentation>A line, whose vertices are described in the same absolute
-                                CRS as the referencePoint, that runs through the referencePoint
-                                along one edge of the sampling feature’s surface. It is used to
-                                define the x-axis of a 2D relative coordinate reference
-                                system.</documentation>
-                        </annotation>
-                    </element>
-                    <element name="featureExtent" type="diggs:AbstractSurfacePropertyType"
-                        maxOccurs="1" minOccurs="0">
-                        <annotation>
-                            <documentation> This element defines the extent of the surface feature
+                    <choice>
+                        <sequence>
+                            <annotation>
+                                <documentation>This sequence is used if planarReferencing is not used and locations within the sampling feature are given as absolute coordinates.</documentation>
+                            </annotation>
+                            <element name="featureExtent" type="diggs:AbstractSurfacePropertyType"
+                                maxOccurs="1" minOccurs="1">
+                                <annotation>
+                                    <documentation> This element defines the extent of the surface feature
                                 using a absolute CRS. This element can be used for visual
-                                representations using typical/simple mapping software
+                                representations using typical/simple mapping software. Either this element, or relativeFeatureExtent is required, and can be optionally added if relativeFeatureExtent is used.
                             </documentation>
-                        </annotation>
-                    </element>
-                    <element name="relativeFeatureBoundary" type="diggs:AbstractSurfacePropertyType"
-                        maxOccurs="1" minOccurs="0">
-                        <annotation>
-                            <documentation> This element defines the extent of the surface feature
+                                </annotation>
+                            </element>
+                        </sequence>
+                        <sequence>
+                            <annotation>
+                                <documentation>This sequence is used if planarReferencing  not used and locations within the sampling feature are given as relative coordinates.</documentation>
+                            </annotation>
+                            <element name="referenceEdge" type="diggs:LinearExtentPropertyType"
+                                minOccurs="1" maxOccurs="1">
+                                <annotation>
+                                    <documentation>A line, whose vertices are described in the same absolute
+                                CRS as the referencePoint, that runs through the referencePoint
+                                along one edge of the sampling feature’s surface. This element is used and required where planarReferencing is used, and defines the x-axis of a 2D relative coordinate reference
+                                system.</documentation>
+                                </annotation>
+                            </element>
+                            <choice>
+                                <sequence>
+                                    <element name="featureExtent"
+                                        type="diggs:AbstractSurfacePropertyType" maxOccurs="1"
+                                        minOccurs="1">
+                                        <annotation>
+                                            <documentation> This element defines the extent of the surface feature
+                                using a absolute CRS. This element can be used for visual
+                                representations using typical/simple mapping software. Either this element, or relativeFeatureExtent is required, and can be optionally added if relativeFeatureExtent is used.
+                            </documentation>
+                                        </annotation>
+                                    </element>
+                                    <element name="relativeFeatureBoundary"
+                                        type="diggs:AbstractSurfacePropertyType" maxOccurs="1"
+                                        minOccurs="0">
+                                        <annotation>
+                                            <documentation> This element defines the extent of the surface feature
                                 using a relative planar referencing system (must use
                                 planarReferencing property contents). This element should be used
                                 for software that can handle planar referencing (e.g.
-                                LinearSpatialReferenceSystem in GML 3.3) </documentation>
-                        </annotation>
-                    </element>
-                    <element name="planarReferencing" minOccurs="0" maxOccurs="unbounded"
-                        type="diggs:VectorLinearSpatialReferenceSystemPropertyType"/>
+                                LinearSpatialReferenceSystem in GML 3.3). Either this element, or featureExtent is required, and can be optionally added if featureExtent is used.</documentation>
+                                        </annotation>
+                                    </element>
+                                </sequence>
+                                <sequence>
+                                    <element name="relativeFeatureBoundary"
+                                        type="diggs:AbstractSurfacePropertyType" maxOccurs="1"
+                                        minOccurs="1">
+                                        <annotation>
+                                            <documentation> This element defines the extent of the surface feature
+                                using a relative planar referencing system (must use
+                                planarReferencing property contents). This element should be used
+                                for software that can handle planar referencing (e.g.
+                                LinearSpatialReferenceSystem in GML 3.3). Either this element, or featureExtent is required, and can be optionally added if featureExtent is used.</documentation>
+                                        </annotation>
+                                    </element>
+                                    <element name="featureExtent"
+                                        type="diggs:AbstractSurfacePropertyType" maxOccurs="1"
+                                        minOccurs="0">
+                                        <annotation>
+                                            <documentation> This element defines the extent of the surface feature
+                                using a absolute CRS. This element can be used for visual
+                                representations using typical/simple mapping software. Either this element, or relativeFeatureExtent is required, and can be optionally added if relativeFeatureExtent is used.
+                            </documentation>
+                                        </annotation>
+                                    </element>
+                                </sequence>
+                            </choice>
+                            <element name="planarReferencing" minOccurs="1" maxOccurs="unbounded"
+                                type="diggs:VectorLinearSpatialReferenceSystemPropertyType"/>
+                        </sequence>
+                    </choice>
                 </sequence>
             </extension>
         </complexContent>
@@ -4823,6 +4872,7 @@ DSB: REMOVED FROM PROFILE
         <element ref="gml:AbstractTimeObject"/>
         
 -->
+                        <element ref="diggs:LinearExtent"/>
                     </choice>
                 </sequence>
                 <attributeGroup ref="gml:OwnershipAttributeGroup"/>
@@ -5155,7 +5205,7 @@ DSB: REMOVED FROM PROFILE
                 <sequence>
                     <element name="strikeOrBearing" type="eml:PlaneAngleMeasure">
                         <annotation>
-                            <documentation>The compass bearing of the feature (if linear) or strike
+                            <documentation>The true bearing of the feature (if linear) or strike
                                 of the plane, from north (range 0-360), where 0 is north and 90
                                 east, etc.</documentation>
                         </annotation>
@@ -5858,17 +5908,13 @@ DSB: REMOVED FROM PROFILE
     </simpleType>
     <complexType name="PropertyInfoPropertyType">
         <complexContent>
-            <restriction base="gml:AssociationRoleType">
-                <sequence minOccurs="0">
-                    <element ref="diggs:PropertyParameters"/>
-                </sequence>
-            </restriction>
+            <restriction base="gml:AssociationRoleType"> </restriction>
         </complexContent>
     </complexType>
     <element name="PropertyParameters" type="diggs:PropertyParametersType"
         substitutionGroup="gml:CompositeValue">
         <annotation>
-            <documentation>An object that contains the properties property of a measurement
+            <documentation>An object that contains the properties of a measurement
                 result.</documentation>
         </annotation>
     </element>
@@ -6274,6 +6320,7 @@ DSB: REMOVED FROM PROFILE
                     <!--DSB: REMOVED FROM PROFILE
         <element ref="gml:File"/>
         -->
+                    <element ref="diggs:ResultFile"/>
                 </choice>
             </restriction>
         </complexContent>
@@ -7012,7 +7059,7 @@ DSB: REMOVED FROM PROFILE
                     <element maxOccurs="1" minOccurs="0" name="whenConstructed"
                         type="diggs:TimeIntervalPropertyType">
                         <annotation>
-                            <documentation>The period of time when the hole is constructed. This
+                            <documentation>The period of time when the sounding is constructed. This
                                 should include the entire time the drill rig is on
                                 site.</documentation>
                         </annotation>
@@ -7039,7 +7086,7 @@ DSB: REMOVED FROM PROFILE
                     <element minOccurs="0" name="casing" type="diggs:CasingPropertyType"
                         maxOccurs="unbounded">
                         <annotation>
-                            <documentation>Information on the borehole casing installed following or
+                            <documentation>Information on the casing installed following or
                                 during the sounding</documentation>
                         </annotation>
                     </element>
@@ -7794,6 +7841,45 @@ DSB: REMOVED FROM PROFILE
             </extension>
         </complexContent>
     </complexType>
+    <element name="ResultFile" type="diggs:ResultFileType" substitutionGroup="gml:File"/>
+    <complexType name="ResultFileBaseType">
+        <complexContent>
+            <restriction base="gml:FileType">
+                <sequence>
+                    <element ref="diggs:parameters"/>
+                    <!-- Replace with global elements to allow for restriction 
+      <choice>
+        <element name="fileName" type="anyURI">
+          <annotation>
+            <appinfo>deprecated</appinfo>
+          </annotation>
+        </element>
+        <element name="fileReference" type="anyURI"/>
+      </choice>
+      <element name="fileStructure" type="gml:CodeType"/>
+      <element name="mimeType" type="anyURI" minOccurs="0"/>
+      <element name="compression" type="anyURI" minOccurs="0"/>
+      -->
+                    <choice>
+                        <element ref="diggs:fileURL"/>
+                    </choice>
+                    <element ref="diggs:fileStructure"/>
+                </sequence>
+            </restriction>
+        </complexContent>
+    </complexType>
+    <complexType name="ResultFileType">
+        <complexContent>
+            <extension base="diggs:ResultFileBaseType">
+                <sequence>
+                    <element minOccurs="0" name="mimeType" type="anyURI"/>
+                    <element minOccurs="0" name="compression" type="anyURI"/>
+                </sequence>
+            </extension>
+        </complexContent>
+    </complexType>
+    <element name="fileURL" substitutionGroup="gml:fileReference" type="anyURI"/>
+    <element name="fileStructure" substitutionGroup="gml:fileStructure" type="gml:CodeType"/>
     <complexType name="TimeIntervalOrInstantPropertyType">
         <choice>
             <element minOccurs="1" ref="diggs:TimeInterval"/>
@@ -8032,9 +8118,35 @@ DSB: REMOVED FROM PROFILE
         <complexContent>
             <extension base="diggs:AbstractPlanarSamplingFeatureType">
                 <sequence>
+                    <element maxOccurs="1" minOccurs="0" name="whenConstructed"
+                        type="diggs:TimeIntervalPropertyType">
+                        <annotation>
+                            <documentation>The period of time when the trench is constructed. This
+                                should include the entire time the trench is open for logging.</documentation>
+                        </annotation>
+                    </element>
+                    <element name="trenchDepth" type="eml:LengthMeasure" minOccurs="0">
+                        <annotation>
+                            <documentation>The maximum depth of the trench, referenced to a linear
+                                reference system.</documentation>
+                        </annotation>
+                    </element>
+                    <element name="trenchLength" type="eml:LengthMeasure" minOccurs="0"
+                        maxOccurs="1">
+                        <annotation>
+                            <documentation>The length of the long horizontal dimension of the trench.
+                            </documentation>
+                        </annotation>
+                    </element>
+                    <element name="trenchWidth" type="eml:LengthMeasure" minOccurs="0" maxOccurs="1">
+                        <annotation>
+                            <documentation>The length of the short horizontal dimension of the
+                                trench.</documentation>
+                        </annotation>
+                    </element>
                     <element name="shoring" type="diggs:DiggsStringType" minOccurs="0" maxOccurs="1">
                         <annotation>
-                            <documentation>Description of shoring equipment and method used for the
+                            <documentation>Description of shoring equipment and method used for shoring
                                 trench.</documentation>
                         </annotation>
                     </element>
