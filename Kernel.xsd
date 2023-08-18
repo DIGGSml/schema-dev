@@ -261,10 +261,12 @@
                     </element>
                     <element minOccurs="0" name="status" type="gml:CodeType">
                         <annotation>
-                            <documentation>A text string to provide information about the status of
-                                the object to be used to track QA/QC controls, review or release
-                                status, etc. The values used are intended to come from a controlled
-                                list of terms maintained by an organization.</documentation>
+                            <documentation>A text string to provide information used to track the QA/QC controls, review, or release status of the object t. The values used are intended to come from a controlled list of terms maintained by an organization.</documentation>
+                        </annotation>
+                    </element>
+                    <element minOccurs="0" name="implementationStatus">
+                        <annotation>
+                            <documentation>A text string describing the implementation status of the object or the completion status of the activity. Termes used (usch as in progress, completed, etc.) are intended to come from a controlled list of terms.</documentation>
                         </annotation>
                     </element>
                     <element name="associatedFile" type="diggs:AssociatedFilePropertyType"
@@ -841,6 +843,13 @@
             <documentation>Base type for DIGGS componentobjects including name, status, and remarks - those objects that are components of other objects and do not require gml:ID for referencing.</documentation>
         </annotation>
     </element>
+    <element abstract="true" name="AbstractNamedComponentObject"
+        substitutionGroup="diggs:AbstractComponentObjectBase"
+        type="diggs:AbstractNamedComponentObjectType">
+        <annotation>
+            <documentation>Base type for DIGGS componentobjects including name, status, and remarks - those objects that are components of other objects and do not require gml:ID for referencing, but where name is required</documentation>
+        </annotation>
+    </element>
     <element abstract="true" name="AbstractComponentObjectBase"
         type="diggs:AbstractComponentObjectBaseType">
         <annotation>
@@ -858,6 +867,42 @@
                     <element ref="gml:description" minOccurs="0"/>
                     <element minOccurs="0" ref="gml:identifier"/>
                     <element maxOccurs="unbounded" minOccurs="0" ref="gml:name"/>
+                    <element minOccurs="0" name="status" type="gml:CodeType">
+                        <annotation>
+                            <documentation>A text string to provide information about the status of
+                                the object to be used to track QA/QC controls, review or release
+                                status, etc. The values used are intended to come from a controlled
+                                list of terms maintained by an organization.</documentation>
+                        </annotation>
+                    </element>
+                    <element name="remark" type="diggs:RemarkPropertyType" minOccurs="0"
+                        maxOccurs="unbounded">
+                        <annotation>
+                            <documentation>Any comment or remark associated with this specific
+                                feature, the person or organization making the comment, and the time
+                                comment was made.Any comment or remark associated with this specific
+                                feature, the person or organization making the comment, and the time
+                                comment was made.</documentation>
+                        </annotation>
+                    </element>
+                </sequence>
+                <attribute ref="xml:lang">
+                    <annotation>
+                        <documentation>Identifies the language used for the values of properties in
+                            this feature. Optional; if not used language is assumed to be
+                            English.</documentation>
+                    </annotation>
+                </attribute>
+            </extension>
+        </complexContent>
+    </complexType>
+    <complexType name="AbstractNamedComponentObjectType" abstract="true">
+        <complexContent>
+            <extension base="diggs:AbstractComponentObjectBaseType">
+                <sequence>
+                    <element ref="gml:description" minOccurs="0"/>
+                    <element minOccurs="0" ref="gml:identifier"/>
+                    <element maxOccurs="unbounded" minOccurs="1" ref="gml:name"/>
                     <element minOccurs="0" name="status" type="gml:CodeType">
                         <annotation>
                             <documentation>A text string to provide information about the status of
@@ -2026,10 +2071,10 @@
                         </annotation>
                     </element>
                     <element minOccurs="0" name="waterStrike" type="diggs:WaterStrikePropertyType"
-                        maxOccurs="1">
+                        maxOccurs="unbounded">
                         <annotation>
                             <documentation>Information on when ground water is struck during
-                                drilling of the hole.</documentation>
+                                drilling of the hole. Note, option for more than one waterstrike property is deprecated in 2.6. Only one waterstrike property should be used. Post-strike readings should use the postStrikeReading property within the Waterstrike onject and not additional waterstrike properties.</documentation>
                         </annotation>
                     </element>
                 </sequence>
@@ -2589,8 +2634,62 @@
                         </element>
                     </choice>
                 </sequence>
-                <attribute name="character" type="diggs:ColorCharacterEnumType"/>
-                <attribute name="origin" type="diggs:ColorOriginEnumType"/>
+                <attribute name="character" type="diggs:ColorCharacterEnumType">
+                    <annotation>
+                        <documentation>Describes the character of the color(s) in the associated unit, from the following enumerated list:
+banded - multiple colors occur in horizontal layers within the unit
+mottled - unit consists of a pattern of irregular spots, blotches or patches of a different color than the unit matrix color
+multicalored - unit consists of multiple colors where there is no description of the pattern or character of the various colors
+uniform - unit consists of a single color
+variegated - a multicolored unit containing spots, streaks, or blotches of multiple colors
+</documentation>
+                    </annotation>
+                </attribute>
+                <attribute name="origin" type="diggs:ColorOriginEnumType">
+                    <annotation>
+                        <documentation>A term from an enumerated list that identifies the location (eg matrix or mottle), or the source/cause of the color described. Defined terms are:
+matrix - the color of the soil or rock matrix
+mottle - the color of soil mottles
+clay depletion - color caused by depletion of clay
+iron depletion - color caused by depletion of iron
+iron Fe2 mass - color caused by masses of reduced iron
+iron Fe3 mass - color caused by masses of oxidized iron
+iron-manganese mass - color caused by masses of iron and manganese
+jarosite mass - color caused by masses of jarosite
+manganese mass - color caused by masses of manganese
+ironstone module - color caused by ironstone nodules
+iron-manganese nodule - color caused by iron-manganese nodules
+jarosite nodule - color caused by jarosite nodules
+plinthite - color caused by plinthite(s) (an iron-rich, humus-poor mixture of clay with quartz and other minerals).
+iron-manganese concretion - color caused by iron-manganese concretions
+manganese coat or film - color caused by manganese coats or films
+disseminated carbonate - color caused by disseminated calcium carbonate
+disseminated salts - color caused by disseminated unspecified salts
+disseminated gypsum - color caused by disseminated gypsum
+barite mass - color caused by masses of barite
+gypsum mass - color caused by masses of gypsum
+carbonate mass - color caused by masses of calcium carbonate
+salt mass - color caused by masses of unspecified salt
+clay body - color caused by included bodies of clay
+silica mass - color caused by masses of silica
+gypsum crystal clusters - color caused by crystal clusters of gypsum
+carbonate nodule - color caused by nodules of carbonate
+durinode (SiO2) nodule - color caused by nodules of SiO2
+gibbsite (Al1O3) nodule - color caused by nodules of Al2O3
+opal nodule - color caused by nodules of opal
+ortstein nodule - color caused by hardpans cemented with iron and organic matter
+carbonate concretion - color caused by concretions of calcium carbonate
+gibbsite concretion - color caused by concretions of gibbsite
+silica concretion - color caused by concretions of silica
+titanium oxide - color caused by concretions of titanium oxide
+barite crystals - color caused by crystals of barite
+calcite crystals - color caused by calcite crystals
+gypsum crystals - color caused by gypsum crystals
+salt crystals - color caused by salt crystals
+satin spar crystals - color caused by crystals of satin spar gypsum
+selenite crystals - color caused by crystals of selenite gypsum</documentation>
+                    </annotation>
+                </attribute>
             </extension>
         </complexContent>
     </complexType>
@@ -3659,6 +3758,13 @@
                                 Intended to come from a controlled list.</documentation>
                         </annotation>
                     </element>
+                    <element minOccurs="0" name="rockMass" type="gml:CodeType">
+                        <annotation>
+                            <documentation>A descriptive term or phrase to describe the structural features that constitute mechanical discontinuities (major geological features). Rock mass refers to any in situ rock with all inherent geomechanical discontinuities (eg. fissile, blocky, fractured, etc.)
+
+</documentation>
+                        </annotation>
+                    </element>
                     <element minOccurs="0" name="rockSlakingRate" type="gml:CodeType">
                         <annotation>
                             <documentation>A descriptive term or phrase to describe the relative
@@ -3676,7 +3782,7 @@
                     <element minOccurs="0" name="rockWeathering" type="gml:CodeType">
                         <annotation>
                             <documentation>A descriptive term or phrase to describe the relative
-                                degree of rock, eg. "slightly decomposed", "Grade III", etc.
+                                degree of rock weathering, eg. "slightly decomposed", "Grade III", etc.
                                 Intended to come from a controlled list.</documentation>
                         </annotation>
                     </element>
@@ -4047,6 +4153,7 @@
             <enumeration value="ftH2O(39.2F)"/>
             <enumeration value="ftH2O(60F)"/>
             <enumeration value="inH2O(4degC)"/>
+            <enumeration value="tonfUS/ft2"/>
         </restriction>
     </simpleType>
     <complexType name="ObservationPropertyType">
@@ -4633,7 +4740,7 @@ If the lithology description does not include any controlled term that serves to
                     </choice>
                     <element minOccurs="0" name="legendCode" type="gml:CodeType">
                         <annotation>
-                            <documentation>Specifies the engineering characteristics of the lithology matrix, in this case either soil or rock. This property can typically be inferred from the classificationCode, but is included here to simplify data ingestion into data systems that may store rock and soil physical property information in different objects or tables.</documentation>
+                            <documentation>A string or numeric value that is used to define a graphic pattern that may be used to symbolize the unit on a borehole log or map.</documentation>
                         </annotation>
                     </element>
                     <element minOccurs="0" name="matrixType" type="diggs:MaterialEnumType">
@@ -5297,7 +5404,8 @@ DSB: REMOVED FROM PROFILE
             <pattern value="Other: .{2,}"/>
         </restriction>
     </simpleType>
-    <element name="Parameter" substitutionGroup="diggs:AbstractObject" type="diggs:ParameterType">
+    <element name="Parameter" substitutionGroup="diggs:AbstractComponentObjectBase"
+        type="diggs:ParameterType">
         <annotation>
             <documentation>An object containing the name, value or range of values and unit of
                 measure of a property or a measurement parameter (result).</documentation>
@@ -5311,7 +5419,7 @@ DSB: REMOVED FROM PROFILE
     </element>
     <complexType name="ParameterType">
         <complexContent>
-            <extension base="diggs:AbstractObjectType">
+            <extension base="diggs:AbstractComponentObjectBaseType">
                 <sequence>
                     <element minOccurs="0" name="index" type="integer">
                         <annotation>
@@ -6128,7 +6236,7 @@ DSB: REMOVED FROM PROFILE
             </extension>
         </complexContent>
     </complexType>
-    <element abstract="false" name="Qualifier" substitutionGroup="gml:AbstractGML"
+    <element abstract="false" name="Qualifier" substitutionGroup="diggs:AbstractComponentObjectBase"
         type="diggs:ParameterType">
         <annotation>
             <documentation>An enumeration of various parameters upon which the property result may
@@ -6491,10 +6599,9 @@ DSB: REMOVED FROM PROFILE
                                 list.</documentation>
                         </annotation>
                     </element>
-                    <element minOccurs="0" name="condition" type="diggs:DiggsStringType">
+                    <element minOccurs="0" name="condition" type="gml:CodeType">
                         <annotation>
-                            <documentation>A description of the sample condition following
-                                collection or production; uncontrolled stringstring</documentation>
+                            <documentation>A description of the sample condition following collection or production; intended to come from a controlled list of terms (eg. Disturbed), but may be a more elaborate uncontrolled string describing the sample's condition.</documentation>
                         </annotation>
                     </element>
                     <element minOccurs="0" name="extrusionMethod" type="gml:CodeType">
@@ -6768,7 +6875,8 @@ DSB: REMOVED FROM PROFILE
             </extension>
         </complexContent>
     </complexType>
-    <element name="SampleDimensions" type="diggs:SampleDimensionsType">
+    <element name="SampleDimensions" type="diggs:SampleDimensionsType"
+        substitutionGroup="diggs:AbstractComponentObjectBase">
         <annotation>
             <documentation>For solid soil or rock samples, contains properties on the sample
                 dimensions </documentation>
@@ -6776,8 +6884,18 @@ DSB: REMOVED FROM PROFILE
     </element>
     <complexType name="SampleDimensionsType">
         <complexContent>
-            <extension base="diggs:AbstractObjectType">
+            <extension base="diggs:AbstractComponentObjectBaseType">
                 <sequence>
+                    <element name="remark" type="diggs:RemarkPropertyType" minOccurs="0"
+                        maxOccurs="unbounded">
+                        <annotation>
+                            <documentation>Any comment or remark associated with this specific
+                                feature, the person or organization making the comment, and the time
+                                comment was made.Any comment or remark associated with this specific
+                                feature, the person or organization making the comment, and the time
+                                comment was made.</documentation>
+                        </annotation>
+                    </element>
                     <element minOccurs="0" name="diameter" type="eml:LengthMeasure">
                         <annotation>
                             <documentation><![CDATA[For core or cylindrical samples, the diameter of the sample]]></documentation>
@@ -7697,10 +7815,10 @@ DSB: REMOVED FROM PROFILE
         <complexContent>
             <extension base="diggs:AbstractObservationSystemType">
                 <sequence>
-                    <element name="stratigraphyType" type="diggs:StratigraphyObservationEnumType">
+                    <element name="stratigraphyType" type="diggs:StratUnitExtEnumType">
                         <annotation>
                             <documentation>Selected from an enumerated list, the type of
-                                stratigraphic units described in this system</documentation>
+                                stratigraphic units described in this system. Where there may be different strat unit definitions within a system (rare), the dominant type should be listed here and the unitType property of each StratigraphyObservation may be instantiated to identify which observation falls within each type of unit.</documentation>
                         </annotation>
                     </element>
                     <element name="stratigraphyObservation"
@@ -9186,25 +9304,27 @@ DSB: REMOVED FROM PROFILE
 
 4) chronostratigraphic - bodies of rocks, layered or unlayered, that are defined between specified stratigraphic horizons which represent specified intervals of geologic time. 
 
-5) hydrostratigraphic - a part of a body of rock that forms a distinct hydrologic unit with respect to the flow of ground water, generally characterized by its porosity and permeability.
+5) geotechnical - bodies of rocks and soils that are distinguished by their engineering properties. The criteria for distinguishing such units may vary depending on the engineering application.
 
-6) lithodemic - a three-dimensional body composed of one or more intrusive, highly deformed or highly metamorphosed rock types, distinguished and delimited on the basis of rock characteristics. Its contacts with other rock units may be sedimentary, extrusive, intrusive, and tectonic or relate to metamorphic grade.
+6) hydrostratigraphic - a part of a body of rock that forms a distinct hydrologic unit with respect to the flow of ground water, generally characterized by its porosity and permeability.
 
-7) lithostratigraphy - bodies of rocks, bedded or unbedded, that are defined and characterized on the basis of their lithologic properties and their stratigraphic relations. 
+7) lithodemic - a three-dimensional body composed of one or more intrusive, highly deformed or highly metamorphosed rock types, distinguished and delimited on the basis of rock characteristics. Its contacts with other rock units may be sedimentary, extrusive, intrusive, and tectonic or relate to metamorphic grade.
+8) lithostratigraphy - bodies of rocks, bedded or unbedded, that are defined and characterized on the basis of their lithologic properties and their stratigraphic relations. 
 
-8) magnetostratigraphic - rock strata unified by similar magnetic characteristics (not only magnetic polarity) which allows it to be differentiated from adjacent strata.
+9) magnetostratigraphic - rock strata unified by similar magnetic characteristics (not only magnetic polarity) which allows it to be differentiated from adjacent strata.
 
-9) pedostratigraphic - units defined based on the stratigraphical and spatial relationships and implications of surface and buried soils. It has emerged as a key means of interpreting palaeosols; records of metastability in landscapes when rates of erosion and accumulation are slow. 
+10) pedostratigraphic - units defined based on the stratigraphical and spatial relationships and implications of surface and buried soils. It has emerged as a key means of interpreting palaeosols; records of metastability in landscapes when rates of erosion and accumulation are slow. 
 
-10) polarity chronostratigraphic -  units defined by primary magnetic-polarity record imposed when the rock was deposited or crystallized during a specific interval of geologic time.
+11) polarity chronostratigraphic -  units defined by primary magnetic-polarity record imposed when the rock was deposited or crystallized during a specific interval of geologic time.
 
-11) tectonostratigraphic - a body characterized by a consistent tectonostratigraphy and metamorphic evolution, and bounded by tectonic discontinuities.</documentation>
+12) tectonostratigraphic - a body characterized by a consistent tectonostratigraphy and metamorphic evolution, and bounded by tectonic discontinuities.</documentation>
         </annotation>
         <restriction base="string">
             <enumeration value="allostratigraphic"/>
             <enumeration value="biostratigraphic"/>
             <enumeration value="chemostraitgraphic"/>
             <enumeration value="chronostratigraphic"/>
+            <enumeration value="geotechnical"/>
             <enumeration value="hydrostraptigraphic"/>
             <enumeration value="lithodemic"/>
             <enumeration value="lithostratigraphic"/>
