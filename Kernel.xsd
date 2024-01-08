@@ -137,6 +137,12 @@
                         <element ref="diggs:samplingFeatureRef"/>
                         <element ref="diggs:sampleRef"/>
                     </choice>
+                    <element minOccurs="0" name="observationProcedure"
+                        type="diggs:SpecificationPropertyType">
+                        <annotation>
+                            <documentation>A property containing a Specification object that describes the method used for all of the obserations contained within this ObservationSystem. Where procedures vary among individual observations, use appropriate properties and attributes within the various observation objects to describe the approach used.</documentation>
+                        </annotation>
+                    </element>
                 </sequence>
             </extension>
         </complexContent>
@@ -460,8 +466,8 @@
             </extension>
         </complexContent>
     </complexType>
-    <element abstract="true" name="AbstractObservation" type="diggs:AbstractObservationType"
-        substitutionGroup="diggs:AbstractObject">
+    <element abstract="true" name="AbstractObservation" substitutionGroup="diggs:AbstractObject"
+        type="diggs:AbstractObservationType">
         <annotation>
             <documentation>An interval or region defined at a sampling feature that contains
                 human-derived, generally category-based observations or
@@ -513,6 +519,12 @@
                         </annotation>
                     </element>
                 </sequence>
+                <attribute ref="diggs:howDetermined"/>
+                <attribute name="stratumCode" type="string">
+                    <annotation>
+                        <documentation>A legacy attribute to support AGS trial pit sampling features where observations of different stratum may occur at the same depth in a pit. It is a reference letter or number whose sole purpose is to link the stratum shown on a face sketch of the trial pit to the specific observation. </documentation>
+                    </annotation>
+                </attribute>
             </extension>
         </complexContent>
     </complexType>
@@ -3342,7 +3354,7 @@ selenite crystals - color caused by crystals of selenite gypsum</documentation>
     <element name="DiscontinuityObservation" substitutionGroup="diggs:AbstractObservation"
         type="diggs:DiscontinuityObservationType">
         <annotation>
-            <documentation>Describes faults, fractures and joints and their spacing. Individual
+            <documentation>Descriptions of faults, fractures and joints and their spacing, with attendant mechanical and hydraulic properties. Individual
                 discontinuities or zone of discontinuities within a discontinuity system may
                 overlap.</documentation>
         </annotation>
@@ -4200,7 +4212,6 @@ selenite crystals - color caused by crystals of selenite gypsum</documentation>
             <enumeration value="ftH2O(39.2F)"/>
             <enumeration value="ftH2O(60F)"/>
             <enumeration value="inH2O(4degC)"/>
-            <enumeration value="tonfUS/ft2"/>
         </restriction>
     </simpleType>
     <complexType name="ObservationPropertyType">
@@ -5452,6 +5463,10 @@ DSB: REMOVED FROM PROFILE
         </complexContent>
     </complexType>
     <simpleType name="OtherNameType">
+        <annotation>
+            <documentation>A type used to extend a controlled list, used where none of the enumerations are suitable for transfer. An enumeration of the form Other:xx (where xx are two or more characters) will be schmema valid but use of the Other" prefix can result in interoperability issues.
+</documentation>
+        </annotation>
         <restriction base="string">
             <pattern value="Other: .{2,}"/>
         </restriction>
@@ -5528,7 +5543,12 @@ DSB: REMOVED FROM PROFILE
         </complexContent>
     </complexType>
     <complexType name="ParameterPropertyType">
-        <sequence>
+        <sequence maxOccurs="1">
+            <element ref="diggs:Parameter" maxOccurs="1" minOccurs="1"/>
+        </sequence>
+    </complexType>
+    <complexType name="ParameterArrayPropertyType">
+        <sequence maxOccurs="unbounded" minOccurs="1">
             <element ref="diggs:Parameter" maxOccurs="1" minOccurs="1"/>
         </sequence>
     </complexType>
@@ -7910,8 +7930,7 @@ DSB: REMOVED FROM PROFILE
     <element name="GeoUnitSystem" substitutionGroup="diggs:AbstractObservationSystem"
         type="diggs:GeoUnitSystemType">
         <annotation>
-            <documentation>An object containing a system of geostechnical unit observations. Observations. Geotechnical units are bodies of earth material distinguished by one or more characteristic physical properties.
-                Ovservations within a geounit system must not overlap.</documentation>
+            <documentation>An object containing a system of geostechnical unit observations. Observations. Geotechnical units are bodies of earth material distinguished by one or more characteristic engineering properties. Observations within a geounit system must not overlap.</documentation>
         </annotation>
     </element>
     <complexType name="GeoUnitSystemType">
@@ -8311,8 +8330,7 @@ DSB: REMOVED FROM PROFILE
     <element name="TrenchWall" substitutionGroup="diggs:AbstractPlanarSamplingFeature"
         type="diggs:TrenchWallType">
         <annotation>
-            <documentation>A wall of a trench or pit dug into the ground and represented by a planar
-                surface.</documentation>
+            <documentation>A wall of a trench or pit dug into the ground and represented by a PlanarSurface or MultiPlanar surface geometry.</documentation>
         </annotation>
     </element>
     <element name="TrenchWallEvent" substitutionGroup="diggs:AbstractEvent"
@@ -8400,7 +8418,7 @@ DSB: REMOVED FROM PROFILE
             <documentation>A relatively shallow excavation into the earth's surface, dug either
                 manually or by a mechanical excavator. Samples,observations and tests in the trial
                 pit are referenced in a linear referencing system only (1D). This is a legacy
-                sampling feature to support AGS trial pit constructs. The trench wall sampling
+                sampling feature to support AGS trial pit constructs. The TrenchWall sampling
                 feature should be used to represent more detail on walls of pits or trenches in
                 2D.</documentation>
         </annotation>
@@ -9395,7 +9413,7 @@ DSB: REMOVED FROM PROFILE
 
 4) chronostratigraphic - bodies of rocks, layered or unlayered, that are defined between specified stratigraphic horizons which represent specified intervals of geologic time. 
 
-5) geotechnical - bodies of rocks and soils that are distinguished by their engineering properties. The criteria for distinguishing such units may vary depending on the engineering application.
+5) geophysical - bodies of rocks and soils that are distinguished by their geophysical properties. The criteria for distinguishing such units may vary depending on the engineering application.
 
 6) hydrostratigraphic - a part of a body of rock that forms a distinct hydrologic unit with respect to the flow of ground water, generally characterized by its porosity and permeability.
 
@@ -9415,7 +9433,7 @@ DSB: REMOVED FROM PROFILE
             <enumeration value="biostratigraphic"/>
             <enumeration value="chemostraitgraphic"/>
             <enumeration value="chronostratigraphic"/>
-            <enumeration value="geotechnical"/>
+            <enumeration value="geophysical"/>
             <enumeration value="hydrostraptigraphic"/>
             <enumeration value="lithodemic"/>
             <enumeration value="lithostratigraphic"/>
