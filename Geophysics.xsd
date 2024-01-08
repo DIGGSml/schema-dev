@@ -25,12 +25,16 @@
     <import namespace="http://www.opengis.net/gml/3.3/lr" schemaLocation="glrProfile_diggs.xsd"/>
     <import namespace="http://www.opengis.net/gml/3.3/lrov" schemaLocation="glrovProfile_diggs.xsd"/>
     <element name="ProcessedGeophysicalSurvey" type="diggs:ProcessedGeophysicalSurveyType"
-        substitutionGroup="diggs:AbstractProcedure"/>
+        substitutionGroup="diggs:AbstractProcedure">
+        <annotation>
+            <documentation>A procedure object used to define the moethod(s) involved in proceessing gepphysical field data to produce a processed set of results.</documentation>
+        </annotation>
+    </element>
     <element abstract="true" name="AbstractVolumeSamplingFeature"
         substitutionGroup="diggs:AbstractSamplingFeature"
         type="diggs:AbstractVolumeSamplingFeatureType">
         <annotation>
-            <documentation>Base type for sampling features with volume (3D)
+            <documentation>The head of a substitution group for sampling features with volume (3D)
                 geometries.</documentation>
         </annotation>
     </element>
@@ -49,14 +53,10 @@
                             </documentation>
                         </annotation>
                     </element>
-                    <element maxOccurs="1" minOccurs="0" name="relativeFeatureBoundary"
+                    <element maxOccurs="1" minOccurs="0" name="relativeFeatureExtent"
                         type="diggs:AbstractVolumePropertyType">
                         <annotation>
-                            <documentation> This element defines the polygon extent of the planar
-                                feature using a relative planar referencing system (must use
-                                planarReferencing property contents). This element should be used
-                                for software that can handle planar referencing (e.g.
-                                LinearSpatialReferenceSystem in GML 3.3) </documentation>
+                            <documentation> This element defines the polygon extent of the planar feature using a relative planar referencing system (must use planarReferencing property contents). This element should be used for software that can handle planar referencing (e.g. VectorLinearSpatialReferenceSystem in GML 3.3) </documentation>
                         </annotation>
                     </element>
                     <element maxOccurs="unbounded" minOccurs="0" name="volumeReferencing"
@@ -67,11 +67,17 @@
     </complexType>
     <complexType name="SurfaceSpaceType">
         <complexContent>
-            <extension base="diggs:AbstractPlanarSamplingFeatureType"/>
+            <extension base="diggs:AbstractPlanarSamplingFeatureType">
+                <sequence/>
+            </extension>
         </complexContent>
     </complexType>
     <element name="SurfaceSpace" type="diggs:SurfaceSpaceType"
-        substitutionGroup="diggs:AbstractSamplingFeature"/>
+        substitutionGroup="diggs:AbstractSamplingFeature">
+        <annotation>
+            <documentation>A generic Diggs 2D sampling feature that represents a surface that defines the sampling space. The featureExtent property can be of a PlanarSurface geometry (used for simple cross-sections or maps), where the surface is entirely coplanar, or a MultiPlanarSurface geometry, where the overall surface consists of multiple coplanar patches (used for dog-leg sections or non-complanar surfaces).</documentation>
+        </annotation>
+    </element>
     <complexType name="AbstractVolumePropertyType">
         <complexContent>
             <restriction base="gml:DomainSetType">
@@ -101,7 +107,11 @@ DSB: REMOVED FROM PROFILE
         </complexContent>
     </complexType>
     <element abstract="true" name="AbstractVolume" type="diggs:AbstractVolumeType"
-        substitutionGroup="diggs:AbstractGeometry"/>
+        substitutionGroup="diggs:AbstractGeometry">
+        <annotation>
+            <documentation>The head of a substitution group for 3D geometries</documentation>
+        </annotation>
+    </element>
     <complexType name="SolidType">
         <complexContent>
             <extension base="diggs:AbstractVolumeType">
@@ -134,11 +144,7 @@ DSB: REMOVED FROM PROFILE
     </complexType>
     <element name="Shell" type="diggs:ShellType" substitutionGroup="diggs:AbstractSurface">
         <annotation>
-            <documentation>A shell is used to represent a single connected component of a solid
-                boundary. Every diggs:surfaceMember references or contains one surface, i.e. any
-                element which is substitutable for diggs:AbstractSurface. In the context of a shell,
-                the surfaces describe the boundary of the solid. If provided, the aggregationType
-                attribute shall have the value "set". </documentation>
+            <documentation>A shell is used to represent a single connected component of the boundary of a 3D solid. Every diggs:surfaceMember references or contains one surface, i.e. any element which is substitutable for diggs:AbstractSurface. In the context of a shell, the surfaces describe the boundary of the solid. If provided, the aggregationType attribute shall have the value "set". </documentation>
         </annotation>
     </element>
     <complexType name="ShellPropertyType">
@@ -154,16 +160,14 @@ DSB: REMOVED FROM PROFILE
     <element name="VolumeSpace" substitutionGroup="diggs:AbstractSamplingFeature"
         type="diggs:VolumeSpaceType">
         <annotation>
-            <documentation>A Diggs geometry object that represents a surface that does not lie
-                within a single plane. It contains an array of polygon patches, each of which
-                contain and inner and optionally outer ring that define the extent of the patch. All
-                of the coordinate points within a patch must be coplanar, and each patch must share
-                an edge with an adjacent patch to form a continuous surface. </documentation>
+            <documentation>A generic Diggs 3D sampling feature that represents a volume that defines the sampling space. The featureExtent properties uses Solid geometry.</documentation>
         </annotation>
     </element>
     <complexType name="VolumeSpaceType">
         <complexContent>
-            <extension base="diggs:AbstractVolumeSamplingFeatureType"/>
+            <extension base="diggs:AbstractVolumeSamplingFeatureType">
+                <sequence/>
+            </extension>
         </complexContent>
     </complexType>
     <complexType name="AbstractSurfacePropertyType">
@@ -197,7 +201,7 @@ DSB: REMOVED FROM PROFILE
     <element abstract="true" name="AbstractSurface" nillable="false"
         substitutionGroup="diggs:AbstractGeometry" type="diggs:AbstractSurfaceType">
         <annotation>
-            <documentation>Base type for all 2D surface objects.</documentation>
+            <documentation>Head of a substitution group for all 2D surface objects.</documentation>
         </annotation>
     </element>
     <element name="PlanarSurface" substitutionGroup="diggs:AbstractSurface" type="diggs:PolygonType">
@@ -220,11 +224,7 @@ DSB: REMOVED FROM PROFILE
     <element name="MultiPlanarSurface" substitutionGroup="diggs:AbstractSurface"
         type="diggs:MultiPlanarSurfaceType">
         <annotation>
-            <documentation>A Diggs geometry object that represents a surface that does not lie
-                within a single plane. It contains an array of polygon patches, each of which
-                contain and inner and optionally outer ring that define the extent of the patch. All
-                of the coordinate points within a patch must be coplanar, and each patch must share
-                an edge with an adjacent patch to form a continuous surface. </documentation>
+            <documentation>A Diggs geometry object that represents a surface that does not lie within a single plane. It contains an array of polygon patches, each of which contain and inner and optionally outer ring that define the extent of the patch. All of the coordinate points within a patch must be coplanar, and each patch must share an edge with an adjacent patch to form a continuous surface. </documentation>
         </annotation>
     </element>
     <complexType name="RectifiedGridType">
@@ -266,8 +266,11 @@ DSB: REMOVED FROM PROFILE
                 to be â€œ+1 +2â€.</documentation>
         </annotation>
     </element>
-    <element name="geophysicalMethod" type="diggs:GeophysicalMethodEnumExtType"/>
-    <simpleType name="GeophysicalMethodEnumType">
+    <element name="geophysicalMethod" type="diggs:geophysicalMethodEnumExtType"/>
+    <simpleType name="geophysicalMethodEnumType">
+        <annotation>
+            <documentation>A controlled list of terms identifying supported field geophysical survey methods.</documentation>
+        </annotation>
         <restriction base="string">
             <enumeration value="borehole crosshole seismic"/>
             <enumeration value="borehole image log"/>
@@ -302,8 +305,11 @@ DSB: REMOVED FROM PROFILE
             <enumeration value="very low frequency method (VLF)"/>
         </restriction>
     </simpleType>
-    <simpleType name="GeophysicalMethodEnumExtType" final="">
-        <union memberTypes="diggs:GeophysicalMethodEnumType diggs:OtherNameType"/>
+    <simpleType name="geophysicalMethodEnumExtType" final="">
+        <annotation>
+            <documentation/>
+        </annotation>
+        <union memberTypes="diggs:geophysicalMethodEnumType diggs:OtherNameType"/>
     </simpleType>
     <complexType name="ProcessingStepsArrayPropertyType">
         <sequence maxOccurs="unbounded" minOccurs="0">
@@ -462,12 +468,20 @@ DSB: REMOVED FROM PROFILE
                     </element>
                     <element name="outcome" type="diggs:GP_SurveyResultPropertyType">
                         <annotation>
-                            <documentation/>
+                            <documentation>The property that contains the GP_SurveyResult</documentation>
                         </annotation>
                     </element>
-                    <element ref="diggs:geophysicalMethod"/>
+                    <element ref="diggs:geophysicalMethod">
+                        <annotation>
+                            <documentation>A mandotory property identifying the type of geophysical survey being conducted; from a controlled list.</documentation>
+                        </annotation>
+                    </element>
                     <element minOccurs="0" name="procedure"
-                        type="diggs:GP_FieldProcedurePropertyType"/>
+                        type="diggs:GP_FieldProcedurePropertyType">
+                        <annotation>
+                            <documentation>The property that contains information about the field procedure (GP_FieldProcedure object).</documentation>
+                        </annotation>
+                    </element>
                 </sequence>
             </extension>
         </complexContent>
@@ -478,19 +492,31 @@ DSB: REMOVED FROM PROFILE
         <complexContent>
             <extension base="diggs:AbstractComponentObjectType">
                 <sequence>
-                    <element name="files" type="diggs:FilesArrayPropertyType"/>
+                    <element name="files" type="diggs:FilesArrayPropertyType">
+                        <annotation>
+                            <documentation>A property containing one or more GP_FieldDataFile objexts</documentation>
+                        </annotation>
+                    </element>
                 </sequence>
             </extension>
         </complexContent>
     </complexType>
     <complexType name="DataPackagePropertyType">
         <sequence>
-            <element ref="diggs:DataPackage"/>
+            <element ref="diggs:DataPackage">
+                <annotation>
+                    <documentation>The DataPackage object contains properties related to the data file or files referenced in the transmission.</documentation>
+                </annotation>
+            </element>
         </sequence>
     </complexType>
     <complexType name="FilesArrayPropertyType">
         <sequence maxOccurs="unbounded">
-            <element ref="diggs:GP_FieldDataFile"/>
+            <element ref="diggs:GP_FieldDataFile">
+                <annotation>
+                    <documentation>An object containing properties of the field data file being referenced.</documentation>
+                </annotation>
+            </element>
         </sequence>
     </complexType>
     <complexType name="GP_ArealSurveyType">
@@ -499,16 +525,13 @@ DSB: REMOVED FROM PROFILE
                 <sequence>
                     <element name="sensorMix" type="diggs:SensorMixEnumType">
                         <annotation>
-                            <documentation>Describes the kind of sensors that are located along the trackline; from an enumerated list as follows:
-1) common mid-point: the trackline represents measurement locations that are located midway between sources and receivers.
-2) mixed: both sources and receivers are located on the trackline.
-3) receivers: the trackline represents receiver locations only.
-4) sources: the trackline represents source locations only.</documentation>
+                            <documentation>Describes the kind of sensors that are located within the areal survey; from an enumerated list.
+</documentation>
                         </annotation>
                     </element>
                     <element minOccurs="0" name="totalSurveyArea" type="eml:AreaMeasure">
                         <annotation>
-                            <documentation>The total length of the trackline.</documentation>
+                            <documentation>The total area of the survey</documentation>
                         </annotation>
                     </element>
                 </sequence>
@@ -539,11 +562,7 @@ DSB: REMOVED FROM PROFILE
                 <sequence>
                     <element name="sensorMix" type="diggs:SensorMixEnumType">
                         <annotation>
-                            <documentation>Describes the kind of sensors that are located along the trackline; from an enumerated list as follows:
-1) common mid-point: the trackline represents measurement locations that are located midway between sources and receivers.
-2) mixed: both sources and receivers are located on the trackline.
-3) receivers: the trackline represents receiver locations only.
-4) sources: the trackline represents source locations only.</documentation>
+                            <documentation>Describes the kind of sensors that are located along the trackline; from an enumerated list.</documentation>
                         </annotation>
                     </element>
                     <element minOccurs="0" name="whenTracklineOccupied"
@@ -590,7 +609,11 @@ DSB: REMOVED FROM PROFILE
                     <element minOccurs="0" ref="gml:description"/>
                     <element maxOccurs="unbounded" minOccurs="0" name="remark"
                         type="diggs:RemarkPropertyType"/>
-                    <element name="receiverInfo" type="diggs:ReceiverInfoArrayPropertyType"/>
+                    <element name="receiverInfo" type="diggs:ReceiverInfoArrayPropertyType">
+                        <annotation>
+                            <documentation>An array property type containing one or more ReceiverInfo objects.</documentation>
+                        </annotation>
+                    </element>
                     <element minOccurs="0" name="sourceInfo"
                         type="diggs:SourceInfoArrayPropertyType"/>
                 </sequence>
@@ -617,66 +640,21 @@ DSB: REMOVED FROM PROFILE
                         type="diggs:RemarkPropertyType"/>
                     <element minOccurs="1" name="receiverType" type="diggs:receiverTypeEnumExtType">
                         <annotation>
-                            <documentation>1) accelerometer: an instrument for measuring acceleration of the earth.
-
-2) electrode: a device set up (typically a pair of metal rods with a voltmeter connecting the two) for measuring the electrical potential difference in the earth between the electrode pair.
-
-3) Geiger-Muller counter: a device for measuring radioactivity by detecting and counting ionizing particles.
-
-4) geophone: a device that measures velocity by converting ground movement into voltage.
-
-5)gravimeter: an instrument used to measure gravitational acceleration.
-
-6) hydrophone: a microphone designed to be used underwater for recording or listening to underwater sound.
-
-7) magnetometer: an instrument for measuring the strength and direction of magnetic fields,
-
-8) RF coil: a receiver of radiofrequency signals in equipment used in magnetic resonance and electromagnetic induction methods.
-
-9) radio wave antenna: an antenna attached to a receiver used to detect radio waves (a type of electromagnetic radiation with frequencies of 300 gigahertz (GHz) and below).
-
-10) scintillation detector: an instrument for detecting and measuring ionizing radiation by using the excitation effect of incident radiation on a scintillating material, and detecting the resultant light pulses.
-
-11) seismometer: an instrument used to measure ground motions by detecting relative movement between a "stationary" mass and a frame coupled to the earth. Typically seismometers contain sensors to measure motions on multiple axes.
-
-12) sodium iodide detector: a device for measuring gammma radiation at various frequencies that uses sodium iodide as the detector.
-
-13) VLF receiver antenna: an antenna designed to detect radio frequencies in the range of 3-30 kHz.
+                            <documentation>The type of receiver used in this platform; from a controlled list.
 </documentation>
                         </annotation>
                     </element>
                     <element minOccurs="0" name="noReceivers" type="nonNegativeInteger"/>
                     <element minOccurs="0" name="receiverArrayOrientation"
-                        type="diggs:platformOrientationEnumType"/>
+                        type="diggs:platformOrientationEnumType">
+                        <annotation>
+                            <documentation>The orientation of the receiver array relative to the direction of platform travel. From a controlled list.</documentation>
+                        </annotation>
+                    </element>
                     <element minOccurs="0" name="receiverInterval" type="eml:LengthMeasure"/>
                     <element minOccurs="1" name="sourceType" type="diggs:sourceTypeEnumExtType">
                         <annotation>
-                            <documentation>1) accelerometer: an instrument for measuring acceleration of the earth.
-
-2) electrode: a device set up (typically a pair of metal rods with a voltmeter connecting the two) for measuring the electrical potential difference in the earth between the electrode pair.
-
-3) Geiger-Muller counter: a device for measuring radioactivity by detecting and counting ionizing particles.
-
-4) geophone: a device that measures velocity by converting ground movement into voltage.
-
-5)gravimeter: an instrument used to measure gravitational acceleration.
-
-6) hydrophone: a microphone designed to be used underwater for recording or listening to underwater sound.
-
-7) magnetometer: an instrument for measuring the strength and direction of magnetic fields,
-
-8) RF coil: a receiver of radiofrequency signals in equipment used in magnetic resonance and electromagnetic induction methods.
-
-9) radio wave antenna: an antenna attached to a receiver used to detect radio waves (a type of electromagnetic radiation with frequencies of 300 gigahertz (GHz) and below).
-
-10) scintillation detector: an instrument for detecting and measuring ionizing radiation by using the excitation effect of incident radiation on a scintillating material, and detecting the resultant light pulses.
-
-11) seismometer: an instrument used to measure ground motions by detecting relative movement between a "stationary" mass and a frame coupled to the earth. Typically seismometers contain sensors to measure motions on multiple axes.
-
-12) sodium iodide detector: a device for measuring gammma radiation at various frequencies that uses sodium iodide as the detector.
-
-13) VLF receiver antenna: an antenna designed to detect radio frequencies in the range of 3-30 kHz.
-</documentation>
+                            <documentation>The type of source used for the platform; from a controlled list.</documentation>
                         </annotation>
                     </element>
                     <element minOccurs="0" name="noSources">
@@ -687,7 +665,11 @@ DSB: REMOVED FROM PROFILE
                         </simpleType>
                     </element>
                     <element minOccurs="0" name="sourceReceiverOrientation"
-                        type="diggs:platformOrientationEnumType"/>
+                        type="diggs:platformOrientationEnumType">
+                        <annotation>
+                            <documentation>The orientation of the source receiver array relative to the direction of platform travel. From a controlled list.</documentation>
+                        </annotation>
+                    </element>
                     <element minOccurs="0" name="minSourceReceiverSpacing" type="eml:LengthMeasure"/>
                     <element minOccurs="0" name="maxSourceReceiverSpacing" type="eml:LengthMeasure"/>
                     <element minOccurs="0" name="platformVelocity" type="eml:LengthPerTimeMeasure"/>
@@ -704,6 +686,34 @@ DSB: REMOVED FROM PROFILE
         </annotation>
     </element>
     <simpleType name="receiverTypeEnumType">
+        <annotation>
+            <documentation>1) accelerometer: an instrument for measuring acceleration of the earth.
+
+2) electrode: a device set up (typically a pair of metal rods with a voltmeter connecting the two) for measuring the electrical potential difference in the earth between the electrode pair.
+
+3) Geiger-Muller counter: a device for measuring radioactivity by detecting and counting ionizing particles.
+
+4) geophone: a device that measures velocity by converting ground movement into voltage.
+
+5)gravimeter: an instrument used to measure gravitational acceleration.
+
+6) hydrophone: a microphone designed to be used underwater for recording or listening to underwater sound.
+
+7) magnetometer: an instrument for measuring the strength and direction of magnetic fields,
+
+8) RF coil: a receiver of radiofrequency signals in equipment used in magnetic resonance and electromagnetic induction methods.
+
+9) radio wave antenna: an antenna attached to a receiver used to detect radio waves (a type of electromagnetic radiation with frequencies of 300 gigahertz (GHz) and below).
+
+10) scintillation detector: an instrument for detecting and measuring ionizing radiation by using the excitation effect of incident radiation on a scintillating material, and detecting the resultant light pulses.
+
+11) seismometer: an instrument used to measure ground motions by detecting relative movement between a "stationary" mass and a frame coupled to the earth. Typically seismometers contain sensors to measure motions on multiple axes.
+
+12) sodium iodide detector: a device for measuring gammma radiation at various frequencies that uses sodium iodide as the detector.
+
+13) VLF receiver antenna: an antenna designed to detect radio frequencies in the range of 3-30 kHz.
+</documentation>
+        </annotation>
         <restriction base="string">
             <enumeration value="accelerometer"/>
             <enumeration value="electrode"/>
@@ -724,6 +734,10 @@ DSB: REMOVED FROM PROFILE
         <union memberTypes="diggs:receiverTypeEnumType diggs:OtherNameType"/>
     </simpleType>
     <simpleType name="sourceTypeEnumType">
+        <annotation>
+            <documentation>1) impulsive - an energy source of short duration that is repeatable and does not generate noise that interferes with detection.
+2) nonimpulsive - an energy source transmitted into the ground for an extended period of time. </documentation>
+        </annotation>
         <restriction base="string">
             <enumeration value="impulsive"/>
             <enumeration value="nonimpulsive"/>
@@ -733,6 +747,10 @@ DSB: REMOVED FROM PROFILE
         <union memberTypes="diggs:sourceTypeEnumType diggs:OtherNameType"/>
     </simpleType>
     <simpleType name="GP_MeasurementEnumType">
+        <annotation>
+            <documentation>Type currently not used; reserved for possible extension
+</documentation>
+        </annotation>
         <restriction base="string">
             <enumeration value="chargeability"/>
             <enumeration value="magnetic field strength"/>
@@ -780,10 +798,14 @@ DSB: REMOVED FROM PROFILE
                         maxOccurs="1">
                         <annotation>
                             <documentation>A property that provides the receiver and (optionally)
-                                source locations for the field survey.</documentation>
+                                source locations for the field survey. This property is not used if receiver and source geometries are included int he GP_FieldProcedure object</documentation>
                         </annotation>
                     </element>
-                    <element name="dataPackage" type="diggs:DataPackagePropertyType"/>
+                    <element name="dataPackage" type="diggs:DataPackagePropertyType" minOccurs="0">
+                        <annotation>
+                            <documentation>A property type containing a DataPackage object. Normally, a DataPackage should be transmitted with the GeophysicalFieldSurvey. If not, gp_Locstion must be instanntiated to identify locations of sources and receivers used, as one property of the GP_SurveyResult.</documentation>
+                        </annotation>
+                    </element>
                     <element minOccurs="0" ref="diggs:gridMappingFunction"/>
                 </sequence>
             </extension>
@@ -793,9 +815,7 @@ DSB: REMOVED FROM PROFILE
         <sequence>
             <element ref="diggs:GP_SurveyResult">
                 <annotation>
-                    <documentation>SurveyReult contains properties about tthe receiver and source
-                        locations, measurement properties and pointers to field data
-                        files.</documentation>
+                    <documentation>SurveyReult contains properties about the receiver and source locations and pointers to field data </documentation>
                 </annotation>
             </element>
         </sequence>
@@ -862,8 +882,16 @@ DSB: REMOVED FROM PROFILE
         </sequence>
     </complexType>
     <complexType name="GP_MeasurementPropertiesPropertyType">
+        <annotation>
+            <documentation>Unused, reserved for possible extension</documentation>
+        </annotation>
         <sequence>
-            <element ref="diggs:GP_MeasurementProperties"/>
+            <element ref="diggs:GP_MeasurementProperties">
+                <annotation>
+                    <documentation>Unused, reserved for possible extension.
+</documentation>
+                </annotation>
+            </element>
         </sequence>
     </complexType>
     <element name="GP_FieldProcedure" type="diggs:GP_FieldProcedureType"/>
@@ -872,18 +900,46 @@ DSB: REMOVED FROM PROFILE
             <extension base="diggs:AbstractProcedureType">
                 <sequence>
                     <element minOccurs="0" name="otherFieldProcedureProperty"
-                        type="diggs:ParameterPropertyType" maxOccurs="unbounded"/>
+                        type="diggs:ParameterPropertyType" maxOccurs="unbounded">
+                        <annotation>
+                            <documentation>A property type containing a Parameter object for listing parameter names and values for non-standard procedure properties (metadata).</documentation>
+                        </annotation>
+                    </element>
                     <element minOccurs="0" name="receiverEquipment"
-                        type="diggs:ReceiverEquipmentArrayPropertyRype"/>
-                    <element minOccurs="0" name="receiverParameters"
-                        type="diggs:ReceiverParametersArrayPropertyType"/>
+                        type="diggs:ReceiverEquipmentPropertyType" maxOccurs="unbounded">
+                        <annotation>
+                            <documentation>A property type containing a receiver equipment object</documentation>
+                        </annotation>
+                    </element>
                     <element minOccurs="0" name="sourceEquipment"
-                        type="diggs:SourceEquipmentArrayPropertyRype"/>
-                    <element minOccurs="0" name="sourceParameters"
-                        type="diggs:SourceParametersArrayPropertyType"/>
+                        type="diggs:SourceEquipmentPropertyType" maxOccurs="unbounded">
+                        <annotation>
+                            <documentation>A property type containing a source equipment object.</documentation>
+                        </annotation>
+                    </element>
+                    <element minOccurs="0" name="dataAcquisitionSystem"
+                        type="diggs:DataAcquisitionSystemPropertyType">
+                        <annotation>
+                            <documentation>A property type containing a data acquisition system object describiing the properties of the recording system.</documentation>
+                        </annotation>
+                    </element>
+                    <element minOccurs="0" name="recordingParameters"
+                        type="diggs:ParameterArrayPropertyType">
+                        <annotation>
+                            <documentation>Am arrau property type containing one or more Parameter objects to define the various recording parameters set for the data acquisition system for this procedure.</documentation>
+                        </annotation>
+                    </element>
                     <element maxOccurs="1" minOccurs="0" name="configurations"
-                        type="diggs:ConfigurationArrayPropertyType"/>
-                    <element minOccurs="0" name="platforms" type="diggs:PlatformArrayPropertyType"/>
+                        type="diggs:ConfigurationArrayPropertyType">
+                        <annotation>
+                            <documentation>An array property type containing one or more Configuration objects used to define the receiver or source-receiver configuration(s) for the survey.</documentation>
+                        </annotation>
+                    </element>
+                    <element minOccurs="0" name="platforms" type="diggs:PlatformArrayPropertyType">
+                        <annotation>
+                            <documentation>An array property type containing one or more Platform objects used for the survey.</documentation>
+                        </annotation>
+                    </element>
                 </sequence>
             </extension>
         </complexContent>
@@ -901,40 +957,17 @@ DSB: REMOVED FROM PROFILE
                     <element maxOccurs="unbounded" minOccurs="0" name="remark"
                         type="diggs:RemarkPropertyType"/>
                     <element minOccurs="1" ref="diggs:samplingFeatureRef"/>
-                    <element minOccurs="1" name="receiverType" type="diggs:receiverTypeEnumExtType">
+                    <element minOccurs="0" name="receiverType" type="diggs:receiverTypeEnumExtType">
                         <annotation>
-                            <documentation>1) accelerometer: an instrument for measuring acceleration of the earth.
+                            <documentation>This element identifies the type of receiver(s) used in this configuration. It is optional, but should be instantiated when receiverGeometry is not used.
 
-2) electrode: a device set up (typically a pair of metal rods with a voltmeter connecting the two) for measuring the electrical potential difference in the earth between the electrode pair.
-
-3) Geiger-Muller counter: a device for measuring radioactivity by detecting and counting ionizing particles.
-
-4) geophone: a device that measures velocity by converting ground movement into voltage.
-
-5)gravimeter: an instrument used to measure gravitational acceleration.
-
-6) hydrophone: a microphone designed to be used underwater for recording or listening to underwater sound.
-
-7) magnetometer: an instrument for measuring the strength and direction of magnetic fields,
-
-8) RF coil: a receiver of radiofrequency signals in equipment used in magnetic resonance and electromagnetic induction methods.
-
-9) radio wave antenna: an antenna attached to a receiver used to detect radio waves (a type of electromagnetic radiation with frequencies of 300 gigahertz (GHz) and below).
-
-10) scintillation detector: an instrument for detecting and measuring ionizing radiation by using the excitation effect of incident radiation on a scintillating material, and detecting the resultant light pulses.
-
-11) seismometer: an instrument used to measure ground motions by detecting relative movement between a "stationary" mass and a frame coupled to the earth. Typically seismometers contain sensors to measure motions on multiple axes.
-
-12) sodium iodide detector: a device for measuring gammma radiation at various frequencies that uses sodium iodide as the detector.
-
-13) VLF receiver antenna: an antenna designed to detect radio frequencies in the range of 3-30 kHz.
 </documentation>
                         </annotation>
                     </element>
                     <element minOccurs="0" name="receiverIntervals"
                         type="diggs:SensorSpacingPropertyType">
                         <annotation>
-                            <documentation>The average spacing between receivers in this configuration.</documentation>
+                            <documentation>The average, minimum, and/or maximum spacing between receivers in this configuration.</documentation>
                         </annotation>
                     </element>
                     <element minOccurs="0" name="noReceiverStations" type="positiveInteger">
@@ -968,10 +1001,20 @@ DSB: REMOVED FROM PROFILE
     </complexType>
     <complexType name="GP_FieldProcedurePropertyType">
         <sequence>
-            <element ref="diggs:GP_FieldProcedure"/>
+            <element ref="diggs:GP_FieldProcedure">
+                <annotation>
+                    <documentation>An object containing properties related to the field survey procedure, including receiver, source and data aquisition equipment used, recording parameters, and the source-receiver configurations or platforms</documentation>
+                </annotation>
+            </element>
         </sequence>
     </complexType>
     <simpleType name="SensorMixEnumType">
+        <annotation>
+            <documentation>1) common mid-point: the sampling feature represents measurement locations that are located midway between sources and receivers.
+2) mixed: both sources and receivers are located on the sampling feature.
+3) receivers: the sampling feature represents receiver locations only.
+4) sources: the sampling feature represents source locations only.</documentation>
+        </annotation>
         <restriction base="string">
             <enumeration value="common mid-point"/>
             <enumeration value="receivers"/>
@@ -979,7 +1022,11 @@ DSB: REMOVED FROM PROFILE
             <enumeration value="sources"/>
         </restriction>
     </simpleType>
-    <element name="ReceiverGeometry" type="diggs:ReceiverGeometryType"/>
+    <element name="ReceiverGeometry" type="diggs:ReceiverGeometryType">
+        <annotation>
+            <documentation>An object that contains properties of the receiver locations and references to the receiver objects.</documentation>
+        </annotation>
+    </element>
     <complexType name="ReceiverGeometryPropertyType">
         <sequence maxOccurs="1" minOccurs="0">
             <element ref="diggs:ReceiverGeometry">
@@ -1002,7 +1049,7 @@ If more than one GP_Receiver is referenced, then use of the PointLocation geomet
                     <element maxOccurs="unbounded" name="receiverRef"
                         type="diggs:FeatureReferenceType">
                         <annotation>
-                            <documentation>A reference to a GP_Receiver object's gml:ID. At least one GP_Receiver object must exist. 
+                            <documentation>A reference to a GP_Receiver object's gml:ID. At least one GP_Receiver object must exist. If multiple receiverRef properties are used the sourceLocations property must contain either a MultiPointLocation or RectifiedGrid object and the order of the tuples must correspond with the order of the receiverRef properties within the instance.
 </documentation>
                         </annotation>
                     </element>
@@ -1012,7 +1059,11 @@ If more than one GP_Receiver is referenced, then use of the PointLocation geomet
         </complexContent>
     </complexType>
     <element name="GP_Receiver" substitutionGroup="diggs:AbstractGP_Receiver"
-        type="diggs:GP_ReceiverType"/>
+        type="diggs:GP_ReceiverType">
+        <annotation>
+            <documentation>A generic field survey receiver object containing properties of a receiver.</documentation>
+        </annotation>
+    </element>
     <complexType name="GP_ReceiverType">
         <complexContent>
             <extension base="diggs:AbstractGP_ReceiverType">
@@ -1020,12 +1071,24 @@ If more than one GP_Receiver is referenced, then use of the PointLocation geomet
             </extension>
         </complexContent>
     </complexType>
-    <element name="AbstractGP_Receiver" type="diggs:AbstractGP_ReceiverType" abstract="true"/>
+    <element name="AbstractGP_Receiver" type="diggs:AbstractGP_ReceiverType" abstract="true">
+        <annotation>
+            <documentation>The head of a substitution group for receiver equipment.</documentation>
+        </annotation>
+    </element>
     <complexType name="AbstractGP_ReceiverType" abstract="true">
         <complexContent>
             <extension base="diggs:AbstractEquipmentType">
                 <sequence>
+                    <element minOccurs="1" name="receiverType" type="diggs:receiverTypeEnumExtType">
+                        <annotation>
+                            <documentation>The type of receiver. This is a mandatory term that comes from a controlled list.</documentation>
+                        </annotation>
+                    </element>
                     <element name="isGroup">
+                        <annotation>
+                            <documentation>if isGroup is true, this implies that the properties of this receiver object apply to more than one individual receivers. Where true, the noReceivers attribute must be instantiated with the total number of individual receivers that belong to the group. isGroup is used where there are multiple identical receivers (such as electrodes or geophones) that are identical and do not need to be identified individually in configurations or platforms. If false, this indicates that the object consists of only one piece of equipment.</documentation>
+                        </annotation>
                         <complexType>
                             <simpleContent>
                                 <extension base="boolean">
@@ -1038,18 +1101,29 @@ If more than one GP_Receiver is referenced, then use of the PointLocation geomet
                             </simpleContent>
                         </complexType>
                     </element>
-                    <element maxOccurs="unbounded" minOccurs="0" name="detector"
-                        type="diggs:GP_DetectorPropertyType"/>
+                    <element maxOccurs="1" minOccurs="0" name="detectors"
+                        type="diggs:GP_DetectorArrayPropertyType">
+                        <annotation>
+                            <documentation>An array propoerty type containing one or more GP_Detector objects.
+</documentation>
+                        </annotation>
+                    </element>
                 </sequence>
-                <attributeGroup ref="gml:AssociationAttributeGroup"/>
-                <attributeGroup ref="gml:OwnershipAttributeGroup"/>
             </extension>
         </complexContent>
     </complexType>
-    <element name="GP_Detector" type="diggs:GP_DetectorType"/>
-    <complexType name="GP_DetectorPropertyType">
-        <sequence>
-            <element ref="diggs:GP_Detector"/>
+    <element name="GP_Detector" type="diggs:GP_DetectorType">
+        <annotation>
+            <documentation>Am object that holds properties of a receiver detector - the specific sensor within the receiver.</documentation>
+        </annotation>
+    </element>
+    <complexType name="GP_DetectorArrayPropertyType">
+        <sequence maxOccurs="unbounded">
+            <element ref="diggs:GP_Detector">
+                <annotation>
+                    <documentation/>
+                </annotation>
+            </element>
         </sequence>
     </complexType>
     <complexType name="GP_DetectorType">
@@ -1065,7 +1139,12 @@ If more than one GP_Receiver is referenced, then use of the PointLocation geomet
                         </annotation>
                     </element>
                     <element minOccurs="0" name="recordingSpace"
-                        type="diggs:RecordingSpaceEnumExtType"/>
+                        type="diggs:RecordingSpaceEnumExtType">
+                        <annotation>
+                            <documentation>A term that describes the recording space for the detector - a controlled term.
+</documentation>
+                        </annotation>
+                    </element>
                     <element minOccurs="0" name="measurementAxisBearing"
                         type="eml:PlaneAngleMeasure">
                         <annotation>
@@ -1088,6 +1167,11 @@ If more than one GP_Receiver is referenced, then use of the PointLocation geomet
         </complexContent>
     </complexType>
     <simpleType name="RecordingSpaceEnumType">
+        <annotation>
+            <documentation>1) frequency domain - the recorded values are vary with frequency
+2) non-varying - the recorded values do not vary with frequency or time
+3) time-domain - the recorded values vary with time</documentation>
+        </annotation>
         <restriction base="string">
             <enumeration value="frequency domain"/>
             <enumeration value="non-varying"/>
@@ -1097,32 +1181,48 @@ If more than one GP_Receiver is referenced, then use of the PointLocation geomet
     <simpleType name="RecordingSpaceEnumExtType">
         <union memberTypes="diggs:OtherNameType diggs:RecordingSpaceEnumType"/>
     </simpleType>
-    <element name="GP_Source" substitutionGroup="diggs:AbstractGP_Source" type="diggs:GP_SourceType"/>
+    <element name="GP_Source" substitutionGroup="diggs:AbstractGP_Source" type="diggs:GP_SourceType">
+        <annotation>
+            <documentation>A generic field survey source object containing properties of a source.</documentation>
+        </annotation>
+    </element>
     <complexType name="GP_SourceType">
         <complexContent>
-            <extension base="diggs:AbstractGP_SourceType"> </extension>
+            <extension base="diggs:AbstractGP_SourceType">
+                <sequence/>
+            </extension>
         </complexContent>
     </complexType>
-    <element name="AbstractGP_Source" type="diggs:AbstractGP_SourceType" abstract="true"/>
+    <element name="AbstractGP_Source" type="diggs:AbstractGP_SourceType" abstract="true">
+        <annotation>
+            <documentation>The head of a substitution group for source equipment.</documentation>
+        </annotation>
+    </element>
     <complexType name="AbstractGP_SourceType" abstract="true">
         <complexContent>
             <extension base="diggs:AbstractEquipmentType">
                 <sequence>
+                    <element name="souirceType" type="diggs:sourceTypeEnumExtType">
+                        <annotation>
+                            <documentation>The type of source. This is a mandatory term that comes from a controlled list.</documentation>
+                        </annotation>
+                    </element>
                     <element name="isGroup">
+                        <annotation>
+                            <documentation>if isGroup is true, this implies that the properties of this source object apply to more than one individual sources. Where true, the noSources attribute must be instantiated with the total number of individual sources that belong to the group. isGroup is used where there are multiple identical soureces that are identical and do not need to be identified individually in configurations or platforms. If false, this indicates that the object consists of only one piece of equipment.</documentation>
+                        </annotation>
                         <complexType>
                             <simpleContent>
                                 <extension base="boolean">
-                                    <attribute name="noRecevers" type="positiveInteger">
+                                    <attribute name="noSources" type="positiveInteger">
                                         <annotation>
-                                            <documentation>Where isGroup is true, identifies the number of receivers in the group that share identical properties</documentation>
+                                            <documentation>Where isGroup is true, identifies the number of sources in the group that share identical properties</documentation>
                                         </annotation>
                                     </attribute>
                                 </extension>
                             </simpleContent>
                         </complexType>
                     </element>
-                    <element maxOccurs="unbounded" minOccurs="0" name="detector"
-                        type="diggs:GP_DetectorPropertyType"/>
                 </sequence>
                 <attributeGroup ref="gml:AssociationAttributeGroup"/>
                 <attributeGroup ref="gml:OwnershipAttributeGroup"/>
@@ -1131,7 +1231,7 @@ If more than one GP_Receiver is referenced, then use of the PointLocation geomet
     </complexType>
     <element abstract="false" name="SourceInfo" type="diggs:SourceInfoType">
         <annotation>
-            <documentation>Contains properties about the sources and source locations associated with a single GP_Trackline or GP_ArealSurvey sampling feature in this configuration. If no specific source geometry is included, information about the spacing and number of receivers can be provided using the sourceInterval and noSourceStations properties. If detailed information about specific sources and their locations are provided, The sourceGeometry property is used, If sourceGeometry is used, at least one GP_Source object must exist.</documentation>
+            <documentation>Contains properties about the sources and source locations associated with a single GP_Trackline or GP_ArealSurvey sampling feature in this configuration. If no specific source geometry is included, information about the spacing and number of sources can be provided using the sourceInterval and noSourceStations properties. If detailed information about specific sources and their locations are provided, The sourceGeometry property is used, If sourceGeometry is used, at least one GP_Source object must exist.</documentation>
         </annotation>
     </element>
     <complexType name="SourceInfoType">
@@ -1142,36 +1242,9 @@ If more than one GP_Receiver is referenced, then use of the PointLocation geomet
                     <element maxOccurs="unbounded" minOccurs="0" name="remark"
                         type="diggs:RemarkPropertyType"/>
                     <element minOccurs="1" ref="diggs:samplingFeatureRef"/>
-                    <element minOccurs="1" name="sourceType" type="diggs:sourceTypeEnumExtType">
+                    <element minOccurs="0" name="sourceType" type="diggs:sourceTypeEnumExtType">
                         <annotation>
-                            <documentation>1) accelerometer: an instrument for measuring acceleration of the earth.
-
-2)fluxgate magnetometer: a vector magnetic field sensor that uses a highly permeable rod or ring core which serves to concentrate the magnetic field to be measured.
-
-3) Geiger-Muller counter: a device for measuring radioactivity by detecting and counting ionizing particles.
-
-4) geophone: a device that measures velocity by converting ground movement into voltage.
-
-5)gravimeter: an instrument used to measure gravitational acceleration.
-
-6) hydrophone: a microphone designed to be used underwater for recording or listening to underwater sound.
-
-7) proton precession magnetometer: a continuous recording magnetic instrument that measures the total magnetic field of the Earth by observing the free precession frequency of the protons in a sample of water.
-
-8) radiofrequency coil: a receiver of radiofrequency (RF) signals in equipment used in magnetic resonance imaging (MRI).
-
-9) radio wave antenna: an antenna attached to a receiver used to detect radio waves (a type of electromagnetic radiation with frequencies of 300 gigahertz (GHz) and below).
-
-10) scintillation detector: an instrument for detecting and measuring ionizing radiation by using the excitation effect of incident radiation on a scintillating material, and detecting the resultant light pulses.
-
-11) seismometer: an instrument used to measure ground motions by detecting relative movement between a "stationary" mass and a frame coupled to the earth. Typically seismometers contain sensors to measure motions on multiple axes.
-
-12) sodium iodide detector: a device for measuring gammma radiation at various frequencies that uses sodium iodide as the detector.
-
-13) VLF receiver antenna: an antenna designed to detect radio frequencies in the range of 3-30 kHz.
-
-voltage electrodes: a device set up (typically a pair of metal rods with a voltmeter connecting the two) for measuring the electrical potential diffence in the earth between the electrode pair.
-</documentation>
+                            <documentation>Identifies the type of source(s) used, from a controlled list of terms. This property is optional, but should be instantiated in the case where sourceGeometry is not used.</documentation>
                         </annotation>
                     </element>
                     <element minOccurs="0" name="sourceIntervals"
@@ -1208,7 +1281,11 @@ voltage electrodes: a device set up (typically a pair of metal rods with a voltm
             </element>
         </sequence>
     </complexType>
-    <element name="SourceGeometry" type="diggs:SourceGeometryType"/>
+    <element name="SourceGeometry" type="diggs:SourceGeometryType">
+        <annotation>
+            <documentation>An object that contains properties of the source locations and references.</documentation>
+        </annotation>
+    </element>
     <complexType name="SourceGeometryPropertyType">
         <sequence maxOccurs="1" minOccurs="0">
             <element ref="diggs:SourceGeometry">
@@ -1231,8 +1308,7 @@ If more than one GP_Source is referenced, then use of the PointLocation geometry
                     <element maxOccurs="unbounded" name="sourceRef"
                         type="diggs:FeatureReferenceType">
                         <annotation>
-                            <documentation>A reference to a GP_Source object's gml:ID. At least one GP_Source object must exist. 
-</documentation>
+                            <documentation>A reference to a GP_Source object's gml:ID. At least one GP_Source object must exist. If multiple sourceRef properties are used the sourceLocations property must contain either a MultiPointLocation or RectifiedGrid object and the order of the tuples must correspond with the order of the sourceRef properties within the instance.</documentation>
                         </annotation>
                     </element>
                     <element name="sourceLocations" type="diggs:GP_SensorLocationsPropertyType">
@@ -1245,21 +1321,76 @@ If more than one GP_Source is referenced, then use of the PointLocation geometry
         </complexContent>
     </complexType>
     <simpleType name="platformOrientationEnumType">
+        <annotation>
+            <documentation>1) oblique - instrument array is aligned obliquely to the direction of platform travel.
+2) parallel - instrument array is aligned parallel to the direction of platform travel.
+3) perpendicular - instrument array is aligned perpendicular to direction of travel</documentation>
+        </annotation>
         <restriction base="string">
             <enumeration value="oblique"/>
             <enumeration value="parallel"/>
             <enumeration value="perpendicular"/>
         </restriction>
     </simpleType>
-    <complexType name="ReceiverEquipmentArrayPropertyRype">
-        <sequence maxOccurs="unbounded">
-            <element ref="diggs:AbstractGP_Receiver"/>
-        </sequence>
+    <element name="GP_DataAcquisitionSystem"
+        substitutionGroup="diggs:AbstractGP_DataAcquisitionSystem"
+        type="diggs:GP_DataAcquisitionSystemType">
+        <annotation>
+            <documentation>A generic data acquisition system object containing properties of a data recorder.</documentation>
+        </annotation>
+    </element>
+    <complexType name="GP_DataAcquisitionSystemType" abstract="true">
+        <complexContent>
+            <extension base="diggs:AbstractGP_DataAcquisitionSystemType"> </extension>
+        </complexContent>
     </complexType>
-    <complexType name="SourceEquipmentArrayPropertyRype">
+    <element name="AbstractGP_DataAcquisitionSystem"
+        type="diggs:AbstractGP_DataAcquisitionSystemType" abstract="true">
+        <annotation>
+            <documentation>The head of a substitution group for data acquisition equipment.</documentation>
+        </annotation>
+    </element>
+    <complexType name="AbstractGP_DataAcquisitionSystemType" abstract="true">
+        <complexContent>
+            <extension base="diggs:AbstractEquipmentType">
+                <sequence>
+                    <element minOccurs="0" name="numberChannels" type="positiveInteger">
+                        <annotation>
+                            <documentation>The number of recording channels</documentation>
+                        </annotation>
+                    </element>
+                </sequence>
+            </extension>
+        </complexContent>
+    </complexType>
+    <complexType name="ReceiverEquipmentPropertyType">
         <sequence maxOccurs="unbounded">
-            <element ref="diggs:AbstractGP_Source"/>
+            <element ref="diggs:AbstractGP_Receiver">
+                <annotation>
+                    <documentation>The head of a substitution group for receiver equipment.</documentation>
+                </annotation>
+            </element>
         </sequence>
+        <attributeGroup ref="gml:AssociationAttributeGroup"/>
+        <attributeGroup ref="gml:OwnershipAttributeGroup"/>
+    </complexType>
+    <complexType name="SourceEquipmentPropertyType">
+        <sequence maxOccurs="unbounded">
+            <element ref="diggs:AbstractGP_Source">
+                <annotation>
+                    <documentation>The head of a substitution group for source equipment.</documentation>
+                </annotation>
+            </element>
+        </sequence>
+        <attributeGroup ref="gml:AssociationAttributeGroup"/>
+        <attributeGroup ref="gml:OwnershipAttributeGroup"/>
+    </complexType>
+    <complexType name="DataAcquisitionSystemPropertyType">
+        <sequence maxOccurs="1">
+            <element ref="diggs:AbstractGP_DataAcquisitionSystem"/>
+        </sequence>
+        <attributeGroup ref="gml:AssociationAttributeGroup"/>
+        <attributeGroup ref="gml:OwnershipAttributeGroup"/>
     </complexType>
     <element name="PlatformGeometry" type="diggs:PlatformGeometryType"/>
     <complexType name="PlatformGeometryType">
@@ -1285,42 +1416,6 @@ If more than one GP_Source is referenced, then use of the PointLocation geometry
     <complexType name="PlatformGeometryArrayPropertyType">
         <sequence maxOccurs="unbounded">
             <element ref="diggs:PlatformGeometry"/>
-        </sequence>
-    </complexType>
-    <element name="ReceiverParameters" type="diggs:ReceiverParametersType"/>
-    <complexType name="ReceiverParametersType">
-        <complexContent>
-            <extension base="diggs:AbstractComponentObjectBaseType">
-                <sequence>
-                    <element maxOccurs="unbounded" name="receiverRef"
-                        type="diggs:FeatureReferenceType"/>
-                    <element maxOccurs="unbounded" name="parametert"
-                        type="diggs:ParameterPropertyType"/>
-                </sequence>
-            </extension>
-        </complexContent>
-    </complexType>
-    <complexType name="ReceiverParametersArrayPropertyType">
-        <sequence maxOccurs="unbounded">
-            <element ref="diggs:ReceiverParameters"/>
-        </sequence>
-    </complexType>
-    <element name="SourcerParameters" type="diggs:ReceiverParametersType"/>
-    <complexType name="SourceParametersType">
-        <complexContent>
-            <extension base="diggs:AbstractComponentObjectBaseType">
-                <sequence>
-                    <element maxOccurs="unbounded" name="receiverRef"
-                        type="diggs:FeatureReferenceType"/>
-                    <element maxOccurs="unbounded" name="parametert"
-                        type="diggs:ParameterPropertyType"/>
-                </sequence>
-            </extension>
-        </complexContent>
-    </complexType>
-    <complexType name="SourceParametersArrayPropertyType">
-        <sequence maxOccurs="unbounded">
-            <element ref="diggs:ReceiverParameters"/>
         </sequence>
     </complexType>
     <element name="Spacing" type="diggs:SensorSpacingType"/>
