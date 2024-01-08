@@ -1,4 +1,4 @@
-# 2.6 Development Branch
+# 2.6 Pre-production version
 
 This is a branch for proposed nominal object/property updates to 
 2.5.a. Schema changes in this branch are designed such that 
