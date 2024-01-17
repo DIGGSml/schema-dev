@@ -6,7 +6,7 @@
     <include schemaLocation="Diggs.xsd"/>
     <!-- import the gml namespaces (local profiles)  -->
     <import namespace="http://www.opengis.net/gml/3.2" schemaLocation="gml3.2Profile_diggs.xsd"/>
-    
+
     <element name="Definition" substitutionGroup="gml:Definition" abstract="false"
         type="diggs:DefinitionType"> </element>
     <complexType name="DefinitionType">
@@ -32,18 +32,35 @@
                                 term</documentation>
                         </annotation>
                     </element>
-                    <element maxOccurs="unbounded" minOccurs="0" name="associatedElement"
-                        type="anyURI">
+                    <element maxOccurs="1" minOccurs="0" name="occurrences"
+                        type="diggs:OccurrenceArrayPropertyType">
                         <annotation>
-                            <documentation>The XPATH of the Diggs element for which this
-                                code/property applies, eg. for the lithology classification code:
-                                /diggs:Diggs/diggs:observation/diggs:LithologySystem/diggs:lithologyObservation/diggs:LithologyObservation/diggs:primaryLithology/diggs:Lithology/diggs:classificationCode.
-                                Since a code value may apply to several DIGGS elements, multiple
-                                associatedElements are allowed.</documentation>
+                            <documentation>A property containing one or more Occurrence objects, which hold XPATH locations for the element that may contain the identifier value and any element (and optionally an element value) that must be present for the identifier value to be valid.</documentation>
                         </annotation>
                     </element>
                 </sequence>
             </extension>
         </complexContent>
+    </complexType>
+    <element name="Occurrence" type="diggs:OccurrenceType"/>
+    <complexType name="OccurrenceArrayPropertyType">
+        <sequence maxOccurs="unbounded" minOccurs="1">
+            <element ref="diggs:Occurrence"/>
+        </sequence>
+    </complexType>
+    <complexType name="OccurrenceType">
+        <sequence>
+            <element name="sourceXpath" type="anyURI">
+                <annotation>
+                    <documentation>An XPATH string identifying the element within an instance where the identifier is an allowable value.</documentation>
+                </annotation>
+            </element>
+            <element minOccurs="0" name="conditionalElementXpath" type="anyURI">
+                <annotation>
+                    <documentation>An XPATH identifying an element(and potential element value) that must be present for the identifier to be validly used.
+</documentation>
+                </annotation>
+            </element>
+        </sequence>
     </complexType>
 </schema>
