@@ -434,6 +434,12 @@ DSB: REMOVED FROM PROFILE
         <complexContent>
             <extension base="diggs:AbstractMeasurementType">
                 <sequence>
+                    <element minOccurs="0" name="processedGeophysicalResultsRef"
+                        type="diggs:FeatureReferenceType">
+                        <annotation>
+                            <documentation>A reference to the Test feature that holds the measurement results derived from processing the data from this geophysical field survey.</documentation>
+                        </annotation>
+                    </element>
                     <element minOccurs="0" name="samplingTime"
                         type="diggs:TimeIntervalOrInstantPropertyType">
                         <annotation>
@@ -644,25 +650,34 @@ DSB: REMOVED FROM PROFILE
 </documentation>
                         </annotation>
                     </element>
-                    <element minOccurs="0" name="noReceivers" type="nonNegativeInteger"/>
+                    <element minOccurs="0" name="noReceivers" type="nonNegativeInteger">
+                        <annotation>
+                            <documentation>Th number of receivers in the platform
+</documentation>
+                        </annotation>
+                    </element>
                     <element minOccurs="0" name="receiverArrayOrientation"
                         type="diggs:platformOrientationEnumType">
                         <annotation>
                             <documentation>The orientation of the receiver array relative to the direction of platform travel. From a controlled list.</documentation>
                         </annotation>
                     </element>
-                    <element minOccurs="0" name="receiverInterval" type="eml:LengthMeasure"/>
+                    <element minOccurs="0" name="receiveSpacing"
+                        type="diggs:SensorSpacingPropertyType">
+                        <annotation>
+                            <documentation>Where a platform has 2 or more receivers, this property records the spacing between them. If receiver spacing is not regular this value can be the average spacing.
+</documentation>
+                        </annotation>
+                    </element>
                     <element minOccurs="1" name="sourceType" type="diggs:sourceTypeEnumExtType">
                         <annotation>
                             <documentation>The type of source used for the platform; from a controlled list.</documentation>
                         </annotation>
                     </element>
-                    <element minOccurs="0" name="noSources">
-                        <simpleType>
-                            <restriction base="nonNegativeInteger">
-                                <maxInclusive value="1"/>
-                            </restriction>
-                        </simpleType>
+                    <element minOccurs="0" name="noSources" type="nonNegativeInteger">
+                        <annotation>
+                            <documentation>The number of sources in the platform</documentation>
+                        </annotation>
                     </element>
                     <element minOccurs="0" name="sourceReceiverOrientation"
                         type="diggs:platformOrientationEnumType">
@@ -670,12 +685,22 @@ DSB: REMOVED FROM PROFILE
                             <documentation>The orientation of the source receiver array relative to the direction of platform travel. From a controlled list.</documentation>
                         </annotation>
                     </element>
-                    <element minOccurs="0" name="minSourceReceiverSpacing" type="eml:LengthMeasure"/>
-                    <element minOccurs="0" name="maxSourceReceiverSpacing" type="eml:LengthMeasure"/>
-                    <element minOccurs="0" name="platformVelocity" type="eml:LengthPerTimeMeasure"/>
-                    <element minOccurs="0" name="samplingRate" type="eml:ReciprocalTimeMeasureExt"/>
-                    <element maxOccurs="1" minOccurs="0" name="platformGeometry"
-                        type="diggs:PlatformGeometryArrayPropertyType"/>
+                    <element minOccurs="0" name="minSourceReceiverSpacing" type="eml:LengthMeasure">
+                        <annotation>
+                            <documentation>The minimum spacing between source and receiver in the platform</documentation>
+                        </annotation>
+                    </element>
+                    <element minOccurs="0" name="maxSourceReceiverSpacing" type="eml:LengthMeasure">
+                        <annotation>
+                            <documentation>The maximum spacing between source and receiver in the platform</documentation>
+                        </annotation>
+                    </element>
+                    <element maxOccurs="1" minOccurs="0" name="platformMovement"
+                        type="diggs:PlatformGeometryArrayPropertyType">
+                        <annotation>
+                            <documentation>A property type containing one or more PlatformMovement objects that describes the platform veloicity, sampling rate and optionally the locations of the platform on a sampling feature</documentation>
+                        </annotation>
+                    </element>
                 </sequence>
             </extension>
         </complexContent>
@@ -964,7 +989,7 @@ DSB: REMOVED FROM PROFILE
 </documentation>
                         </annotation>
                     </element>
-                    <element minOccurs="0" name="receiverIntervals"
+                    <element minOccurs="0" name="receiverSpacing"
                         type="diggs:SensorSpacingPropertyType">
                         <annotation>
                             <documentation>The average, minimum, and/or maximum spacing between receivers in this configuration.</documentation>
@@ -1101,8 +1126,8 @@ If more than one GP_Receiver is referenced, then use of the PointLocation geomet
                             </simpleContent>
                         </complexType>
                     </element>
-                    <element maxOccurs="1" minOccurs="0" name="detectors"
-                        type="diggs:GP_DetectorArrayPropertyType">
+                    <element maxOccurs="unbounded" minOccurs="0" name="detector"
+                        type="diggs:GP_DetectorPropertyType">
                         <annotation>
                             <documentation>An array propoerty type containing one or more GP_Detector objects.
 </documentation>
@@ -1117,8 +1142,8 @@ If more than one GP_Receiver is referenced, then use of the PointLocation geomet
             <documentation>Am object that holds properties of a receiver detector - the specific sensor within the receiver.</documentation>
         </annotation>
     </element>
-    <complexType name="GP_DetectorArrayPropertyType">
-        <sequence maxOccurs="unbounded">
+    <complexType name="GP_DetectorPropertyType">
+        <sequence maxOccurs="1">
             <element ref="diggs:GP_Detector">
                 <annotation>
                     <documentation/>
@@ -1330,6 +1355,7 @@ If more than one GP_Source is referenced, then use of the PointLocation geometry
             <enumeration value="oblique"/>
             <enumeration value="parallel"/>
             <enumeration value="perpendicular"/>
+            <enumeration value="other"/>
         </restriction>
     </simpleType>
     <element name="GP_DataAcquisitionSystem"
@@ -1364,7 +1390,7 @@ If more than one GP_Source is referenced, then use of the PointLocation geometry
         </complexContent>
     </complexType>
     <complexType name="ReceiverEquipmentPropertyType">
-        <sequence maxOccurs="unbounded">
+        <sequence maxOccurs="1">
             <element ref="diggs:AbstractGP_Receiver">
                 <annotation>
                     <documentation>The head of a substitution group for receiver equipment.</documentation>
@@ -1375,7 +1401,7 @@ If more than one GP_Source is referenced, then use of the PointLocation geometry
         <attributeGroup ref="gml:OwnershipAttributeGroup"/>
     </complexType>
     <complexType name="SourceEquipmentPropertyType">
-        <sequence maxOccurs="unbounded">
+        <sequence maxOccurs="1">
             <element ref="diggs:AbstractGP_Source">
                 <annotation>
                     <documentation>The head of a substitution group for source equipment.</documentation>
@@ -1392,33 +1418,47 @@ If more than one GP_Source is referenced, then use of the PointLocation geometry
         <attributeGroup ref="gml:AssociationAttributeGroup"/>
         <attributeGroup ref="gml:OwnershipAttributeGroup"/>
     </complexType>
-    <element name="PlatformGeometry" type="diggs:PlatformGeometryType"/>
-    <complexType name="PlatformGeometryType">
+    <element name="PlatformMovement" type="diggs:PlatformMovementType"/>
+    <complexType name="PlatformMovementType">
         <complexContent>
             <extension base="diggs:AbstractComponentObjectBaseType">
+
                 <sequence>
                     <element maxOccurs="1" name="samplingFeatiureRef"
-                        type="diggs:FeatureReferenceType">
+                        type="diggs:FeatureReferenceType" minOccurs="1">
                         <annotation>
                             <documentation>A reference to a GP_Source object's gml:ID. At least one GP_Source object must exist. 
 </documentation>
                         </annotation>
                     </element>
-                    <element name="locations" type="diggs:GP_SensorLocationsPropertyType">
+                    <element minOccurs="0" name="platformVelocity" type="eml:LengthPerTimeMeasure">
+                        <annotation>
+                            <documentation>The average speed of platform movement for the survey</documentation>
+                        </annotation>
+                    </element>
+                    <element minOccurs="0" name="samplingRate" type="eml:ReciprocalTimeMeasureExt">
+                        <annotation>
+                            <documentation>The average rate of data collection (samples per time interval).
+</documentation>
+                        </annotation>
+                    </element>
+                    <element name="locations" type="diggs:GP_SensorLocationsPropertyType"
+                        minOccurs="0">
                         <annotation>
                             <documentation>One of several point style geometries (PointLocation, MultiPoint,RectifiedGrid) defining the location of the sources used in this configuration.</documentation>
                         </annotation>
                     </element>
                 </sequence>
+
             </extension>
         </complexContent>
     </complexType>
     <complexType name="PlatformGeometryArrayPropertyType">
         <sequence maxOccurs="unbounded">
-            <element ref="diggs:PlatformGeometry"/>
+            <element ref="diggs:PlatformMovement"/>
         </sequence>
     </complexType>
-    <element name="Spacing" type="diggs:SensorSpacingType"/>
+    <element name="SensorSpacing" type="diggs:SensorSpacingType"/>
     <complexType name="SensorSpacingType">
         <complexContent>
             <extension base="diggs:AbstractComponentObjectBaseType">
