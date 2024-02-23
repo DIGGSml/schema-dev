@@ -1,0 +1,182 @@
+<?xml version="1.0" encoding="utf-8"?>
+<schema xmlns:diggs="http://diggsml.org/schemas/2.6"
+    xmlns:diggs_geo="http://diggsml.org/schemas/2.6/geotechnical"
+    xmlns:g3.3="http://www.opengis.net/gml/3.3/ce" xmlns:glr="http://www.opengis.net/gml/3.3/lr"
+    xmlns:glrov="http://www.opengis.net/gml/3.3/lrov"
+    xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns="http://www.w3.org/2001/XMLSchema"
+    xmlns:xlink="http://www.w3.org/1999/xlink"
+    xmlns:eml="http://www.energistics.org/energyml/data/commonv2"
+    xmlns:witsml="http://www.energistics.org/energyml/data/witsmlv2"
+    xmlns:gml="http://www.opengis.net/gml/3.2"
+    xmlns:vc="http://www.w3.org/2007/XMLSchema-versioning"
+    targetNamespace="http://diggsml.org/schemas/2.6" version="2.6" elementFormDefault="qualified"
+    vc:maxVersion="1.1" vc:minVersion="1.0">
+    <!--
+ import the gml and xlinks namespaces (original local profiles)   -->
+    
+    <!--  <include schemaLocation="../Diggs.xsd"/> -->  
+    <!--
+  (canonical complete schemas for TeamEngine GML validation) 
+  <import namespace="http://www.opengis.net/gml/3.2"
+    schemaLocation="http://schemas.opengis.net/gml/3.2.1/gml.xsd"/>
+  <import namespace="http://www.opengis.net/gml/3.3/ce"
+    schemaLocation="http://schemas.opengis.net/gml/3.3/geometryCompact.xsd"/>
+  <import namespace="http://www.opengis.net/gml/3.3/lr"
+    schemaLocation="http://schemas.opengis.net/gml/3.3/linearRef.xsd"/>
+  <import namespace="http://www.opengis.net/gml/3.3/lrov"
+    schemaLocation="http://schemas.opengis.net/gml/3.3/linearRefOffsetVector.xsd"/>
+  <import namespace="http://www.w3.org/1999/xlink"
+    schemaLocation="http://www.w3.org/XML/2008/06/xlink.xsd"/>
+  <import namespace="http://www.w3.org/XML/1998/namespace"
+    schemaLocation="http://www.w3.org/2001/xml.xsd"/> 
+-->
+    <!--  include and import other DIGGS schemas -->
+    <!--  import the witsml schemas  -->
+    <import namespace="http://www.opengis.net/gml/3.2" schemaLocation="../gml3.2Profile_diggs.xsd"/>
+    <import namespace="http://www.opengis.net/gml/3.3/ce" schemaLocation="../gml3.3Profile_diggs.xsd"/>
+    <import namespace="http://www.opengis.net/gml/3.3/lr" schemaLocation="../glrProfile_diggs.xsd"/>
+    <import namespace="http://www.opengis.net/gml/3.3/lrov" schemaLocation="../glrovProfile_diggs.xsd"/>
+    <import namespace="http://www.w3.org/1999/xlink" schemaLocation="../xlinks.xsd"/>
+    <import namespace="http://www.w3.org/XML/1998/namespace" schemaLocation="../xml.xsd"/>
+    <import namespace="http://www.energistics.org/energyml/data/commonv2"
+        schemaLocation="../witsml/2.0/data/common/v2.1/xsd_schemas/EmlAllObjects.xsd"/>
+    <import namespace="http://www.energistics.org/energyml/data/witsmlv2"
+        schemaLocation="../witsml/2.0/data/witsml/v2.0/xsd_schemas/WitsmlAllObjects.xsd"/>
+    <element name="AbstractConstructionActivity" type="diggs:AbstractConstructionActivityType"
+        abstract="true" substitutionGroup="diggs:AbstractFeature">
+        <!-- 2015-04-10 PwD add substitution gruop -->
+        <annotation>
+            <documentation>Base type for construction activity features - activities that improve or
+                alter ground conditions.</documentation>
+        </annotation>
+    </element>
+    <complexType name="AbstractConstructionActivityPropertyType">
+        <sequence>
+            <element maxOccurs="1" minOccurs="1" ref="diggs:AbstractConstructionActivity"/>
+        </sequence>
+    </complexType>
+    <complexType name="AbstractConstructionActivityType" abstract="false">
+        <complexContent>
+            <extension base="diggs:AbstractFeatureType">
+                <sequence>
+                    <element ref="diggs:investigationTarget" maxOccurs="unbounded"/>
+                    <element name="constructionMethod" type="diggs:SpecificationPropertyType"
+                        maxOccurs="unbounded" minOccurs="0">
+                        <annotation>
+                            <documentation>A property element that contains a Specification object
+                                (or reference to one) detailing the test procedure method
+                                used.</documentation>
+                        </annotation>
+                    </element>
+                </sequence>
+            </extension>
+        </complexContent>
+    </complexType>
+    <element abstract="true" name="AbstractFeature" substitutionGroup="diggs:AbstractFeatureBase"
+        type="diggs:AbstractFeatureType">
+        <annotation>
+            <documentation>The base type for DIGGS features - extends AbstractFeatureBase by adding
+                gml:name, status, remark, internalIdentifer, role and associatedFile
+                properties.</documentation>
+        </annotation>
+    </element>
+    <element abstract="true" name="AbstractFeatureBase" substitutionGroup="gml:AbstractFeature"
+        type="diggs:AbstractFeatureBaseType">
+        <annotation>
+            <documentation>Diggs feature base type that serves to restrict gml:AbstractFeatureType
+                properties to those used by DIGGS</documentation>
+        </annotation>
+    </element>
+    <complexType name="AbstractFeatureBaseType" mixed="false" abstract="true">
+        <complexContent>
+            <restriction base="gml:AbstractFeatureType">
+                <sequence>
+                    <element ref="gml:description" minOccurs="0"/>
+                    <element minOccurs="0" ref="gml:identifier"/>
+                </sequence>
+                <attribute ref="gml:id" use="required">
+                    <annotation>
+                        <documentation>The id of this feature. The id must be unique within a DIGGS
+                            xml instance.</documentation>
+                    </annotation>
+                </attribute>
+                <!-- 2015-04-23 PwD added per http://www.w3.org/TR/xmlschema-1/#d0e2483 Schema Component Constraint: Derivation Valid (Restriction, Complex) 3 -->
+            </restriction>
+        </complexContent>
+    </complexType>
+    <complexType name="AbstractFeatureType">
+        <complexContent>
+            <extension base="diggs:AbstractFeatureBaseType">
+                <sequence>
+                    <element maxOccurs="unbounded" minOccurs="0" ref="gml:name"/>
+                    <element minOccurs="0" name="internalIdentifier"
+                        type="diggs:CodeWithAuthorityType" maxOccurs="1">
+                        <annotation>
+                            <documentation>The value of this property is the identifier originally
+                                created by the authority for this feature, or that is used as the
+                                identifier in the authority's internal data management system -
+                                commonly this might be a borehole number or id, job number, or
+                                contract number. There is no assumption as to the unique scope or
+                                persistence of this identifier. In cases where the original or
+                                internal identifier does not meet the semantic requirements for
+                                gml:id, the internal identifier may be used in
+                                order for the originating authority to "map back" the identifier to
+                                an internal data management system. The codeSpace attribute must be
+                                populated to identify the authority that uses the internalIdentifier
+                                value.</documentation>
+                        </annotation>
+                    </element>
+                    <element minOccurs="0" name="status" type="gml:CodeType">
+                        <annotation>
+                            <documentation>A text string to provide information used to track the QA/QC controls, review, or release status of the object t. The values used are intended to come from a controlled list of terms maintained by an organization.</documentation>
+                        </annotation>
+                    </element>
+                    <element minOccurs="0" name="implementationStatus" type="gml:CodeType">
+                        <annotation>
+                            <documentation>A text string describing the implementation status of the object or the completion status of the activity. Termes used (usch as in progress, completed, etc.) are intended to come from a controlled list of terms.</documentation>
+                        </annotation>
+                    </element>
+                    <element name="associatedFile" type="diggs:AssociatedFilePropertyType"
+                        minOccurs="0" maxOccurs="unbounded">
+                        <annotation>
+                            <appinfo source="urn:x-gml:targetElement">diggs:AssociatedFile</appinfo>
+                            <documentation>A reference to an AssociatedFile object that provides
+                                information about external files or documents associated with this
+                                feature. The target value is indicated in the appinfo
+                                element.</documentation>
+                        </annotation>
+                    </element>
+                    <element name="role" type="diggs:RolePropertyType" minOccurs="0"
+                        maxOccurs="unbounded">
+                        <annotation>
+                            <documentation>Identifies a specific role or task performed that is
+                                associated with this specific feature, the person or organization
+                                that performed the role, and associated time frame, if
+                                applicable.</documentation>
+                        </annotation>
+                    </element>
+                    <element name="remark" type="diggs:RemarkPropertyType" minOccurs="0"
+                        maxOccurs="unbounded">
+                        <annotation>
+                            <documentation>Any comment or remark associated with this specific
+                                feature.</documentation>
+                        </annotation>
+                    </element>
+                </sequence>
+                <attribute ref="xml:lang">
+                    <annotation>
+                        <documentation>Identifies the language used for the values of properties in
+                            this feature. Optional; if not used language is assumed to be
+                            English.</documentation>
+                    </annotation>
+                </attribute>
+            </extension>
+        </complexContent>
+    </complexType>
+    <complexType name="SpecificationPropertyType"></complexType>
+    <element name="investigationTarget"></element>
+    <complexType name="CodeWithAuthorityType"></complexType>
+    <complexType name="AssociatedFilePropertyType"></complexType>
+    <complexType name="RolePropertyType"></complexType>
+    <complexType name="RemarkPropertyType"></complexType>
+</schema>
