@@ -1,0 +1,107 @@
+<!DOCTYPE html>
+<html>
+    <head>
+        <title>Title</title>
+    </head>
+    <body>
+        <script>
+            // Script to create listing of repository contents for Github pages - for sites with the branch as the root folder
+            //Set variables to determine directory location ans repository name
+                var path = document.location.pathname.substring(0,document.location.pathname.lastIndexOf("/"));
+                var repo = path.substring(1, path.length);
+                if(repo.indexOf("/") > 0) repo = repo.substring(0,repo.indexOf("/"));
+                var dir = path.substring(repo.length+1,path.length);
+                console.log("Path =" + path);
+                console.log("Repository = " + repo);
+                console.log("Directory = " + dir);
+
+            //Write out header lines
+                var txt = '<h1>Index of ' + path + '</h1>';
+                txt += '<table>';
+                txt += '<tr><th valign="top"><img src="https://apache.org/icons/blank.gif" alt="[ ]"></th><th><a href="?C=N;O=D">Name</a></th><th><a href="?C=M;O=A">Last Modified</a></th><th><a href="?C=S;O=A">Size</a></th></tr>';
+                txt += '<tr><th colspan="4"><hr></th></tr>';
+                txt += '<tr><td valign="top"><img src="https://apache.org/icons/back.gif" alt="[PARENTDIR]"></td><td><a href="../">Parent Directory</a></td><td align="right">  - </td></tr>';
+
+                // Call Github API to get repository contents
+                (async () => {
+                    var api = "https://api.github.com/repos/diggsml/" + repo + "/contents"+dir;
+                    const response = await fetch(api);
+                    const data = await response.json();
+                    var dString = "";
+                    //Loop to parse JSON response; do not list                                 resouce files and folders
+                    for (let rec of data) {
+                        if(rec.name == "scripts") continue;
+                        if(rec.name == "icons") continue;
+                        if(rec.name == "stylesheets") continue;
+                        if(rec.name == "index.html") continue;
+                        if(rec.name == "img") continue;
+                        if(rec.name == ".gitignore") continue;
+                        if(rec.name == "README.md") continue;
+                        if(rec.name == "LICENSE") continue;
+
+                        //Find file type and sassign icon for directory display
+                        if(rec.type == "file") {
+                            var suffix = rec.name.substring(rec.name.lastIndexOf(".")+1,rec.name.length);
+                            if(suffix == "xml" || suffix == "xsl" || suffix == "xsd" || suffix == "diggs"){
+                                var image ='<img src="https://apache.org/icons/xml.png" alt="[XML]">';
+                            }else if(suffix == "zip" || suffix == "gz" || suffix == "Z" || suffix == "bz2" || suffix == "diggz"){
+                                image ='<img src="https://apache.org/icons/compressed.gif" alt="[ZIP]">';
+                            }else image ='<img src="https://apache.org/icons/generic.gif" alt="[UNK]">';
+                        }
+                        if(rec.type == "dir") image ='<img src="https://apache.org/icons/folder.gif" alt="[DIR]">';
+                        var size = rec.size;
+                        if(size == 0){
+                            size = '';
+                        } else if(size < 1000) {
+                            size = size + " bytes";
+                        } else if(size >= 1000 && size < 1000000){
+                            size = Math.round(size/1000 * 10) / 10;
+                            size = size + ' KB';
+                        } else if(size >= 1000000) {
+                            size = Math.round(size/1000000 * 10) / 10;
+                            size = size + ' MB';
+                        }
+
+
+                        //Build request string for determining last commit date for item
+                        var commitapi = "https://api.github.com/repos/diggsml/" + repo + "/commits?path=" + dir + "/" + rec.name + "&page=1&per_page=1"; 
+
+                         //Call function to return last commit date
+                         const resp = await fetch(commitapi);
+                        const dat = await resp.json();
+                        for (let dt of dat) {
+                            var d = new Date(dt.commit.author.date);
+                            dString = d.getFullYear() + '-' + ("0"+ (d.getMonth()+1)).slice(-2) + '-' + ("0"+d.getDate()).slice(-2) +' '+('0' + d.getHours()).slice(-2)+':'+('0' + d.getMinutes()).slice(-2)+':'+('0' + d.getSeconds()).slice(-2);
+                        }
+                        //Write out row for item
+                        txt += '<tr><td valign="top">'+image+'</td><td><a href="'+rec.name+'">'+rec.name+'</a></td><td>'+dString+'</td><td>'+size+'</td></tr>';
+                    }
+                    txt += '</table>';
+                    txt+= '<div style="font-size:0.8em; font-family:arial; text-align: center;">';
+                    txt +='<div style="border: 0px #333366 double; text-align: center; margin: 1em auto; padding: 2px; width: 99%;">';
+                    if(repo == "def") var rtype = "resource";
+                    if(repo == "schemas") rtype = "schema";
+                    if(repo == "doc") rtype = "documantation";
+                    if(repo == "schema-dev") rtype = "schema development";
+                    txt += '<a href="http://diggsml.org/' + repo + '/">diggsml.org/' + repo + '</a> is the official ' + rtype + ' repository for the <a href="http://diggsml.org">DIGGS project</a>, a data interchange standard for the geotechnical and geoenvironmental community.<br/>';
+                    txt += '<a href="http://www.diggsml.org">www.diggsml.org</a> is the official namespace of the DIGGS project.</p>';
+                    if(rtype == "schema"){
+                        if (dir == ""){
+                            txt += '<p>You may download the schema files as a single compressed file per release version at:<br/><a href="https://github.com/DIGGSml/schema-dev/releases">https://github.com/DIGGSml/schema-dev/releases</a></p>';
+                            }else{
+                                var sdir=dir.substring(1,dir.length);
+                                if(sdir.indexOf("/") == -1) {
+                                    var version = sdir; 
+                                }else version = sdir.substring(0,sdir.indexOf("/"));
+                            txt += '<p>You may download the schema files for version ' + version + ' as a single compressed file at:<br/><a href="https://github.com/DIGGSml/schema-dev/releases/tag/' + version + '">https://github.com/DIGGSml/schema-dev/releases/tag/' + version + '</a></p>';
+                        }
+                    }
+                    txt += '<p>DIGGS is a Special Project of the <a href="https://www.geoinstitute.org/">Amerian Society of Civil Engineers Geo-Institute (G-I)</a>. All rights reserved.</p>';
+                    txt += '</div></div>';
+
+                      //Set text on web pabe
+                    document.getElementsByTagName('body')[0].innerHTML = txt;
+                })()
+        </script>
+     </body>
+ </html>
