@@ -1,6 +1,10 @@
-# 2.6 Pre-production version
+# DIGGS Schema Development Repository
 
-This is a branch for proposed nnominal changes to the 2.6 pre-release. 
+This repository holds the latest commits to the DIGGS schema. This version contains the latest features and updates but should be considered unstable and not suitable for production use.
+
+View the diff between this schema version and the latest release here.
+
+To validate instance documents against this version, the schemaLocation attribute should point to: https://diggsml.org/schema-dev/Diggs.xsd
 
 
 The DIGGS project involves development of a GML (XML-based) geospatial standard schema for the transfer of geotechnical and geoenvironmental data within an organization or between multiple organizations.  DIGGS can work with existing software, hardware, databases and data storage facilities to easily transfer and share your data. 
