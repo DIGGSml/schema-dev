@@ -1,0 +1,594 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<schema xmlns:diggs="http://diggsml.org/schemas/2.6"
+    xmlns:diggs_geo="http://diggsml.org/schemas/2.6/geotechnical"
+    xmlns:eml="http://www.energistics.org/energyml/data/commonv2"
+    xmlns:witsml="http://www.energistics.org/energyml/data/witsmlv2"
+    xmlns:g3.3="http://www.opengis.net/gml/3.3/ce" xmlns:glr="http://www.opengis.net/gml/3.3/lr"
+    xmlns:glrov="http://www.opengis.net/gml/3.3/lrov"
+    xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns="http://www.w3.org/2001/XMLSchema"
+    xmlns:xlink="http://www.w3.org/1999/xlink" xmlns:gml="http://www.opengis.net/gml/3.2"
+    xmlns:vc="http://www.w3.org/2007/XMLSchema-versioning"
+    targetNamespace="http://diggsml.org/schemas/2.6" version="2.6" elementFormDefault="qualified"
+    vc:maxVersion="1.1" vc:minVersion="1.0">
+    <import namespace="http://www.opengis.net/gml/3.2" schemaLocation="gml3.2Profile_diggs.xsd"/>
+    <import namespace="http://diggsml.org/schemas/2.6/geotechnical" schemaLocation="Diggs_geo.xsd"/>
+    <import namespace="http://www.energistics.org/energyml/data/commonv2"
+        schemaLocation="witsml/2.0/data/common/v2.1/xsd_schemas/EmlAllObjects.xsd"/>
+    <import namespace="http://www.energistics.org/energyml/data/witsmlv2"
+        schemaLocation="witsml/2.0/data/witsml/v2.0/xsd_schemas/WitsmlAllObjects.xsd"/>
+
+    <complexType name="AbstractPileType" abstract="true">
+        <complexContent>
+            <extension base="diggs:AbstractLinearInstallationType">
+                <sequence>
+                    <element minOccurs="0" name="whenInstalled" type="diggs:TimeIntervalType"/>
+                    <element minOccurs="1" name="groundSurfaceElevation"
+                        type="diggs:PointLocationPropertyType"/>
+                    <element minOccurs="1" name="cutoffElevation"
+                        type="diggs:PointLocationPropertyType"/>
+                    <element minOccurs="0" name="jettingElevation"
+                        type="diggs:PointLocationPropertyType"/>
+                    <element minOccurs="0" name="totalPileLength" type="eml:LengthMeasureExt"/>
+                    <element minOccurs="0" name="weightPerLength"
+                        type="eml:ForcePerLengthMeasureExt"/>
+                    <element minOccurs="0" name="tipDeviationNorth" type="eml:LengthMeasureExt"/>
+                    <element minOccurs="0" name="tipDeviationEast" type="eml:LengthMeasureExt"/>
+                    <element minOccurs="0" name="lengthAboveGS" type="eml:LengthMeasureExt"/>
+                    <element minOccurs="0" name="lengthBelowGS" type="eml:LengthMeasureExt"/>
+                    <element minOccurs="0" name="lengthNonFriction" type="eml:LengthMeasureExt"/>
+                    <element maxOccurs="unbounded" minOccurs="1" name="intervalData"
+                        type="diggs:IntervalDataPropertyType"/>
+                    <element minOccurs="0" name="productionPile" type="boolean"/>
+                    <element minOccurs="0" name="testPile" type="boolean"/>
+                    <element minOccurs="0" name="nominalCapacity" type="eml:ForceMeasureExt"/>
+                    <element form="qualified" maxOccurs="1" minOccurs="0" name="finalTipElevation"
+                        type="eml:LengthMeasureExt"/>
+                </sequence>
+            </extension>
+        </complexContent>
+    </complexType>
+    <element abstract="true" name="AbstractPile" substitutionGroup="diggs:AbstractSamplingFeature"
+        type="diggs:AbstractPileType"/>
+    <complexType name="IntervalDataType">
+        <complexContent>
+            <extension base="diggs:AbstractComponentObjectBaseType">
+                <sequence>
+                    <element name="intervalLocation" type="diggs:LinearExtentPropertyType"/>
+                    <element name="widthAtTop" type="eml:LengthMeasure"/>
+                    <element name="widthAtBottom" type="eml:LengthMeasure"/>
+                    <element minOccurs="0" name="pileMaterial" type="gml:CodeType"/>
+                    <element minOccurs="0" name="pileShape" type="gml:CodeType"/>
+                </sequence>
+            </extension>
+        </complexContent>
+    </complexType>
+    <element name="IntervalData" type="diggs:IntervalDataType"/>
+    <complexType name="IntervalDataPropertyType">
+        <sequence>
+            <element ref="diggs:IntervalData"/>
+        </sequence>
+    </complexType>
+    <complexType name="SteelHPileType">
+        <complexContent>
+            <extension base="diggs:AbstractPileType">
+                <sequence>
+                    <element minOccurs="0" name="flangeLength" type="eml:LengthMeasureExt"/>
+                    <element minOccurs="0" name="flangeThickness" type="eml:LengthMeasureExt"/>
+                    <element minOccurs="0" name="webThickness" type="eml:LengthMeasureExt"/>
+                    <element maxOccurs="unbounded" minOccurs="0" name="spliceLocation"
+                        type="diggs:PointLocationPropertyType"/>
+                </sequence>
+            </extension>
+        </complexContent>
+    </complexType>
+    <element name="SteelHPile" substitutionGroup="diggs:AbstractSamplingFeature"
+        type="diggs:SteelHPileType"/>
+    <complexType name="SteelPipePileType">
+        <complexContent>
+            <extension base="diggs:AbstractPileType">
+                <sequence>
+                    <element minOccurs="0" name="wallThickness" type="eml:LengthMeasureExt"/>
+                    <element minOccurs="0" name="concreteFilled" type="boolean"/>
+                    <element minOccurs="0" name="soilPlugDepth" type="eml:LengthMeasureExt"/>
+                    <element minOccurs="0" name="soilPlugElevation"
+                        type="diggs:PointLocationPropertyType"/>
+                    <element maxOccurs="unbounded" minOccurs="0" name="spliceLocation"
+                        type="diggs:PointLocationPropertyType"/>
+                </sequence>
+            </extension>
+        </complexContent>
+    </complexType>
+    <element name="SteelPipePile" substitutionGroup="diggs:AbstractSamplingFeature"
+        type="diggs:SteelPipePileType"/>
+    <complexType name="ConcretePileType">
+        <complexContent>
+            <extension base="diggs:AbstractPileType">
+                <sequence>
+                    <element minOccurs="0" name="shape" type="diggs:PileShapeEnumExtType"/>
+                    <element minOccurs="0" name="hollowWidth" type="eml:LengthMeasureExt"/>
+                    <element minOccurs="0" name="wallThickness" type="eml:LengthMeasureExt"/>
+                    <element minOccurs="0" name="sideLength" type="eml:LengthMeasureExt"/>
+                    <element minOccurs="0" name="soilPlugDepth" type="eml:LengthMeasureExt"/>
+                    <element minOccurs="0" name="soilPlugElevation"
+                        type="diggs:PointLocationPropertyType"/>
+                    <element maxOccurs="unbounded" minOccurs="0" name="spliceLocation"
+                        type="diggs:PointLocationPropertyType"/>
+                </sequence>
+            </extension>
+        </complexContent>
+    </complexType>
+    <element name="ConcretePile" substitutionGroup="diggs:AbstractSamplingFeature"
+        type="diggs:ConcretePileType"/>
+    <simpleType name="PileShapeEnumType">
+        <restriction base="string">
+            <enumeration value="circular closed"/>
+            <enumeration value="circular open"/>
+            <enumeration value="hexagonal"/>
+            <enumeration value="octagonal"/>
+            <enumeration value="square hollow"/>
+            <enumeration value="square solid"/>
+        </restriction>
+    </simpleType>
+    <simpleType name="PileShapeEnumExtType">
+        <union memberTypes="diggs:PileShapeEnumType diggs:OtherNameType"/>
+    </simpleType>
+    <complexType name="TimberPileType">
+        <complexContent>
+            <extension base="diggs:AbstractPileType">
+                <sequence>
+                    <element minOccurs="0" name="timberType" type="gml:CodeType"/>
+                </sequence>
+            </extension>
+        </complexContent>
+    </complexType>
+    <element name="TimberPile" substitutionGroup="diggs:AbstractSamplingFeature"
+        type="diggs:TimberPileType"/>
+    <element name="compositePile" substitutionGroup="diggs:AbstractSamplingFeature"/>
+    <element name="CIPPile" substitutionGroup="diggs:AbstractSamplingFeature"/>
+    <complexType abstract="true" mixed="true" name="AbstractPilingEquipmentType">
+        <complexContent mixed="false">
+            <extension base="diggs:AbstractEquipmentType"/>
+        </complexContent>
+    </complexType>
+    <element abstract="true" name="AbstractPilingEquipment" type="diggs:AbstractPilingEquipmentType"/>
+    <complexType mixed="false" name="PileDriveHammerType">
+        <complexContent>
+            <extension base="diggs:AbstractPilingEquipmentType">
+                <sequence>
+                    <element minOccurs="0" name="hammerKind" type="gml:CodeType"/>
+                    <element minOccurs="0" name="hammerType" type="gml:CodeType"/>
+                    <element minOccurs="0" name="hammerAction" type="gml:CodeType"/>
+                    <element minOccurs="0" name="ratedEnergy" type="eml:EnergyMeasureExt"/>
+                    <element minOccurs="0" name="ratedStroke" type="eml:LengthMeasureExt"/>
+                    <element minOccurs="0" name="ramWeight" type="eml:ForceMeasureExt"/>
+                    <element minOccurs="0" name="hammerWeight" type="eml:ForceMeasureExt"/>
+                    <element minOccurs="0" name="anvilWeight" type="eml:ForceMeasureExt"/>
+                    <element minOccurs="0" name="pistonArea" type="eml:AreaMeasureExt"/>
+                    <element minOccurs="0" name="strikerPlate" type="diggs:StrikerPlatePropertyType"/>
+                    <element minOccurs="0" name="blowsPerMinuteMin" type="positiveInteger"/>
+                    <element minOccurs="0" name="blowsPerMinuteMax" type="positiveInteger"/>
+                </sequence>
+            </extension>
+        </complexContent>
+    </complexType>
+    <complexType name="PileDriveHammerPropertyType">
+        <sequence>
+            <element ref="diggs:PileDriveHammer"/>
+        </sequence>
+    </complexType>
+    <element name="PileDriveHammer" substitutionGroup="diggs:AbstractPilingEquipment"
+        type="diggs:PileDriveHammerType"/>
+    <complexType name="StrikerPlateType">
+        <complexContent>
+            <extension base="diggs:AbstractComponentObjectBaseType">
+                <sequence>
+                    <element minOccurs="0" name="weight" type="eml:ForceMeasureExt"/>
+                    <element minOccurs="0" name="diameter" type="eml:LengthMeasureExt"/>
+                    <element minOccurs="0" name="thickness" type="eml:LengthMeasureExt"/>
+                </sequence>
+            </extension>
+        </complexContent>
+    </complexType>
+    <element name="StrikerPlate" type="diggs:StrikerPlateType"/>
+    <complexType name="StrikerPlatePropertyType">
+        <sequence>
+            <element ref="diggs:StrikerPlate"/>
+        </sequence>
+    </complexType>
+    <complexType mixed="false" name="PileCapType">
+        <complexContent>
+            <extension base="diggs:AbstractPilingEquipmentType">
+                <sequence>
+                    <element minOccurs="0" name="weight" type="eml:ForceMeasureExt"/>
+                    <element minOccurs="0" name="diameter" type="eml:LengthMeasureExt"/>
+                    <element minOccurs="0" name="thickness" type="eml:LengthMeasureExt"/>
+                </sequence>
+            </extension>
+        </complexContent>
+    </complexType>
+    <complexType name="PileCapPropertyType">
+        <sequence>
+            <element ref="diggs:PileCap"/>
+        </sequence>
+    </complexType>
+    <element name="PileCap" substitutionGroup="diggs:AbstractPilingEquipment"
+        type="diggs:PileCapType"/>
+    <complexType mixed="false" name="CushionType">
+        <complexContent>
+            <extension base="diggs:AbstractComponentObjectType">
+                <sequence>
+                    <element minOccurs="0" name="cushionElement" maxOccurs="unbounded"
+                        type="diggs:CushionElementPropertyType"/>
+                    <element minOccurs="0" name="totalThicknessBeforeDrive"
+                        type="eml:LengthMeasureExt"/>
+                    <element minOccurs="0" name="totalThicknessAfterDrive"
+                        type="eml:LengthMeasureExt"/>
+                    <element minOccurs="0" name="areaBeforeDrive" type="eml:AreaMeasureExt"/>
+                    <element minOccurs="0" name="areaAfterDrive" type="eml:AreaMeasureExt"/>
+                    <element minOccurs="0" name="coefficientOfRestitution">
+                        <simpleType>
+                            <restriction base="double">
+                                <minInclusive value="0"/>
+                                <maxInclusive value="1"/>
+                            </restriction>
+                        </simpleType>
+                    </element>
+                </sequence>
+            </extension>
+        </complexContent>
+    </complexType>
+    <complexType name="CushionPropertyType">
+        <sequence>
+            <element ref="diggs:Cushion"/>
+        </sequence>
+    </complexType>
+    <element name="Cushion" substitutionGroup="diggs:AbstractComponentObject"
+        type="diggs:CushionType"/>
+    <complexType name="CushionElementType">
+        <complexContent>
+            <extension base="diggs:AbstractComponentObjectBaseType">
+                <sequence>
+                    <element minOccurs="0" name="material" type="gml:CodeType"/>
+                    <element minOccurs="0" name="noLayers" type="integer"/>
+                    <element minOccurs="0" name="thickness" type="eml:LengthMeasureExt"/>
+                    <element minOccurs="0" name="elasticModulus" type="eml:PressureMeasureExt"/>
+                </sequence>
+            </extension>
+        </complexContent>
+    </complexType>
+    <element name="CushionElement" type="diggs:CushionElementType"/>
+    <complexType name="CushionElementPropertyType">
+        <sequence>
+            <element ref="diggs:CushionElement"/>
+        </sequence>
+    </complexType>
+    <complexType name="DrivenPileInstallationType">
+        <complexContent>
+            <extension base="diggs:AbstractConstructionActivityType">
+                <sequence>
+                    <element minOccurs="0" name="totalDrivenLength" type="eml:LengthMeasureExt"/>
+                    <element minOccurs="0" name="preDrillDepth" type="eml:LengthMeasureExt"/>
+                    <element minOccurs="0" name="preDrillDiameter" type="eml:LengthMeasureExt"/>
+                    <element minOccurs="0" name="plumbCheck" type="boolean"/>
+                    <element minOccurs="0" name="plumbCheckDirection"
+                        type="eml:PlaneAngleMeasureExt"/>
+                    <element maxOccurs="unbounded" minOccurs="0" name="pileDrivingRecord"
+                        type="diggs:PileDrivingRecordPropertyType"/>
+                </sequence>
+            </extension>
+        </complexContent>
+    </complexType>
+    <element abstract="false" name="PileDrivingRecord" substitutionGroup="gml:AbstractCoverage"
+        type="diggs:PileDrivingRecordType">
+        <annotation>
+            <documentation>
+</documentation>
+        </annotation>
+    </element>
+    <complexType name="PileDrivingRecordPropertyType">
+        <annotation>
+            <documentation/>
+        </annotation>
+        <sequence>
+            <element maxOccurs="1" minOccurs="1" ref="diggs:PileDrivingRecord"/>
+        </sequence>
+        <attribute name="index" type="positiveInteger"/>
+    </complexType>
+    <complexType name="PileDrivingRecordBaseType">
+        <complexContent>
+            <restriction base="gml:AbstractCoverageType">
+                <sequence>
+                    <element ref="diggs:pileTipLocation"/>
+                    <element ref="diggs:pileDrivingRecordResults"/>
+                </sequence>
+            </restriction>
+        </complexContent>
+    </complexType>
+    <element name="pileTipLocation" substitutionGroup="gml:domainSet"
+        type="diggs:LocationPropertyType"/>
+    <complexType name="PileDrivingRecordType">
+        <complexContent>
+            <extension base="diggs:PileDrivingRecordBaseType">
+                <sequence>
+                    <element minOccurs="0" name="hammer" type="diggs:PileDriveHammerPropertyType">
+                        <annotation>
+                            <documentation/>
+                        </annotation>
+                    </element>
+                    <element minOccurs="0" name="hammerCushion" type="diggs:CushionPropertyType">
+                        <annotation>
+                            <documentation/>
+                        </annotation>
+                    </element>
+                    <element minOccurs="0" name="pileCap" type="diggs:PileCapPropertyType">
+                        <annotation>
+                            <documentation/>
+                        </annotation>
+                    </element>
+                    <element minOccurs="0" name="pileCushion" type="diggs:CushionPropertyType">
+                        <annotation>
+                            <documentation/>
+                        </annotation>
+                    </element>
+                    <element minOccurs="0" name="driveInterval"
+                        type="diggs:LinearExtentPropertyType">
+                        <annotation>
+                            <documentation/>
+                        </annotation>
+                    </element>
+                    <element minOccurs="0" name="initiationTime" type="gml:TimePositionType">
+                        <annotation>
+                            <documentation>Time instant that injection begins.</documentation>
+                        </annotation>
+                    </element>
+                    <element minOccurs="0" name="endTime" type="gml:TimePositionType">
+                        <annotation>
+                            <documentation>Time instant that injection ends.</documentation>
+                        </annotation>
+                    </element>
+                    <element minOccurs="0" name="totalElapsedTime" type="eml:TimeMeasure">
+                        <annotation>
+                            <documentation>Total time between injection initiation and injection
+                                termination.</documentation>
+                        </annotation>
+                    </element>
+                    <element minOccurs="0" name="totallengthPlacedInLeads"
+                        type="eml:LengthMeasureExt">
+                        <annotation>
+                            <documentation/>
+                        </annotation>
+                    </element>
+                    <element minOccurs="0" name="safety" type="boolean">
+                        <annotation>
+                            <documentation/>
+                        </annotation>
+                    </element>
+                    <element minOccurs="0" name="hammerStartSetting" type="double">
+                        <annotation>
+                            <documentation/>
+                        </annotation>
+                    </element>
+                    <element minOccurs="0" name="hammerEndSetting" type="double">
+                        <annotation>
+                            <documentation/>
+                        </annotation>
+                    </element>
+                    <element minOccurs="0" name="pressureAtHammer" type="eml:PressureMeasureExt"> </element>
+                    <element minOccurs="0" maxOccurs="unbounded" name="lastBlowsData"
+                        type="diggs:LastBlowsDataPropertyType"/>
+                </sequence>
+            </extension>
+        </complexContent>
+    </complexType>
+    <element name="pileDrivingRecordParameters"/>
+    <element name="pileDrivingRecordResults" substitutionGroup="gml:rangeSet"
+        type="diggs:PileDrivingRecordResultsPropertyType"/>
+    <complexType name="LastBlowsDataType">
+        <complexContent>
+            <extension base="diggs:AbstractComponentObjectBaseType">
+                <sequence>
+                    <element minOccurs="0" name="lastBlowsDistance" type="eml:LengthMeasureExt"/>
+                    <element minOccurs="0" name="blowCount" type="positiveInteger"/>
+                    <element minOccurs="0" name="averageStrokeLength" type="eml:LengthMeasureExt"/>
+                </sequence>
+            </extension>
+        </complexContent>
+    </complexType>
+    <element name="LastBlowsData" type="diggs:LastBlowsDataType"/>
+    <complexType name="LastBlowsDataPropertyType">
+        <sequence>
+            <element ref="diggs:LastBlowsData"/>
+        </sequence>
+    </complexType>
+    <element name="PileDrivingRecordResults" substitutionGroup="gml:rangeSet"
+        type="diggs:InjectionDataResultsPropertyType">
+        <annotation>
+            <documentation/>
+        </annotation>
+    </element>
+    <complexType name="PileDrivingRecordResultsPropertyType">
+        <complexContent>
+            <restriction base="gml:RangeSetType">
+                <choice>
+                    <element minOccurs="1" ref="diggs:PileDrivingRecordResultSet"/>
+                </choice>
+            </restriction>
+        </complexContent>
+    </complexType>
+    <element name="PileDrivingRecordResultSet" substitutionGroup="gml:DataBlock"
+        type="diggs:PileDrivingRecordResultSetType">
+        <annotation>
+            <documentation/>
+        </annotation>
+    </element>
+    <complexType name="PileDrivingRecordResultSetType">
+        <complexContent>
+            <restriction base="gml:DataBlockType">
+                <sequence>
+                    <element ref="diggs:injectionDataParameters"/>
+                    <choice>
+                        <element ref="diggs:dataValues"/>
+                    </choice>
+                </sequence>
+            </restriction>
+        </complexContent>
+    </complexType>
+    <element name="PileDrivingRecordParameters" substitutionGroup="gml:rangeParameters"
+        type="diggs:PileDrivingRecordPropertyInfoPropertyType">
+        <annotation>
+            <documentation/>
+        </annotation>
+    </element>
+    <complexType name="PileDrivingRecordPropertyInfoPropertyType">
+        <complexContent>
+            <restriction base="gml:AssociationRoleType">
+                <sequence minOccurs="1">
+                    <element ref="diggs:pileDrivingRecordPropertyParameters"/>
+                </sequence>
+            </restriction>
+        </complexContent>
+    </complexType>
+    <element name="pileDrivingRecordPropertyParameters" substitutionGroup="gml:CompositeValue"
+        type="diggs:PileDrivingRecordPropertyParametersType"/>
+    <element name="PileDrivingRecordPropertyParameters" substitutionGroup="gml:CompositeValue"
+        type="diggs:PileDrivingRecordPropertyParametersType">
+        <annotation>
+            <documentation/>
+        </annotation>
+    </element>
+    <complexType name="PileDrivingRecordPropertyParametersType">
+        <complexContent>
+            <restriction base="gml:CompositeValueType">
+                <sequence>
+                    <element maxOccurs="1" minOccurs="1" ref="diggs:properties"/>
+                </sequence>
+            </restriction>
+        </complexContent>
+    </complexType>
+    <element name="DriveRecordProperty" substitutionGroup="gml:AbstractValue"
+        type="diggs:GroutInjectionPropertyType">
+        <annotation>
+            <documentation>An object that specifies a property that is recorded during grout
+                injection.</documentation>
+        </annotation>
+    </element>
+    <complexType name="DriveRecordPropertyType">
+        <complexContent>
+            <extension base="diggs:AbstractObjectType">
+                <sequence>
+                    <element maxOccurs="1" minOccurs="0" name="propertyName" type="gml:CodeType">
+                        <annotation>
+                            <documentation>A code or name for the property as used by the data
+                                provider. This value can come from a controlled list of terms or be
+                                an uncontrolled text string. The value would be commonly used to
+                                label a column of a log sheet or provide other local meaning to the
+                                property. The value of mnemonic should be unique for all of the
+                                properties included in the dataValue block transmitted as part of
+                                this measurement.</documentation>
+                        </annotation>
+                    </element>
+                    <element maxOccurs="1" minOccurs="1" name="typeData"
+                        type="diggs:PropertyDataTypeEnumType">
+                        <annotation>
+                            <documentation>The data type for this property (eg. double, long,
+                                string, etc.)</documentation>
+                        </annotation>
+                    </element>
+                    <element maxOccurs="1" minOccurs="1" name="propertyClass"
+                        type="gml:CodeWithAuthorityType">
+                        <annotation>
+                            <documentation>The official name of the grout injection time series
+                                property, from a dictionary of controlled terms. Standard DIGGS
+                                property class values are: - apparent_lugeon_value - column_pressure
+                                - effective_pressure - elapsed_time - grout_flow_rate -
+                                gauge_pressure - grout_specific_gravity - grout_temperature -
+                                injection_pressure - line_loss - mix - packer_pressure -
+                                stroke_count - take</documentation>
+                        </annotation>
+                    </element>
+                    <element maxOccurs="1" minOccurs="0" name="uom" type="diggs:AllUnits">
+                        <annotation>
+                            <documentation>Unit of measurement for the property. Must conform to EML
+                                unit standards.</documentation>
+                        </annotation>
+                    </element>
+                    <element maxOccurs="1" minOccurs="0" name="nullValue" type="diggs:NullDataType">
+                        <annotation>
+                            <documentation>An empty string is the default representation of a null
+                                value for a property (i.e. when the null value representation is not
+                                explicitly defined). This value defines a value to be interpreted as
+                                null for this property in the dataValues block. The reason attribute
+                                can be used to define the reason for the null value, (eg. witheld).
+                                This can be customized with an other: qualifier (eg. other:below
+                                detection limit) or reference a URI for a more complete
+                                definition.</documentation>
+                        </annotation>
+                    </element>
+                    <element maxOccurs="unbounded" minOccurs="0" name="correctionUsed"
+                        type="gml:CodeType">
+                        <annotation>
+                            <documentation>A description of corrections used to obtain the reported result or to
+                                describe any other adjustments made to the reported data. Can come
+                                from a controlled list.</documentation>
+                        </annotation>
+                    </element>
+                    <element minOccurs="0" name="measurementTechnique">
+                        <annotation>
+                            <documentation>The method by which the property value is obtained. From
+                                an enumerated list. For values that are calculated, the formula
+                                attribute allows for a formula to be included, a
+                                description/reference to the formula used to calculate te value, or
+                                details of any moving average. The samplingRate attribute describes
+                                the raw rate of measurement collection from which any moving
+                                averages may be derived. </documentation>
+                        </annotation>
+                        <complexType>
+                            <simpleContent>
+                                <extension base="diggs:DescriptorMethodEnumType">
+                                    <attribute name="formula" type="string">
+                                        <annotation>
+                                            <documentation>A description of the formula used to
+                                                obtain the measurement result.</documentation>
+                                        </annotation>
+                                    </attribute>
+                                    <attribute name="samplingRate" type="string"> </attribute>
+                                </extension>
+                            </simpleContent>
+                        </complexType>
+                    </element>
+                    <element default="true" maxOccurs="1" minOccurs="0" name="reportable"
+                        type="boolean">
+                        <annotation>
+                            <documentation>True or false, indicates whether the value of this
+                                property can be reported outside of the context of transmission via
+                                an xml instance.</documentation>
+                        </annotation>
+                    </element>
+                    <element maxOccurs="1" minOccurs="0" name="samplingRate"
+                        type="eml:ReciprocalTimeMeasure">
+                        <annotation>
+                            <documentation>The number of measurements taken per unit time; refers to
+                                the original sampling rate from which the reported value may
+                                represent an average or some other value.</documentation>
+                        </annotation>
+                    </element>
+                </sequence>
+                <attribute name="index" use="required">
+                    <simpleType>
+                        <union>
+                            <simpleType>
+                                <restriction base="string">
+                                    <enumeration value=""/>
+                                </restriction>
+                            </simpleType>
+                            <simpleType>
+                                <restriction base="integer"/>
+                            </simpleType>
+                        </union>
+                    </simpleType>
+                </attribute>
+            </extension>
+        </complexContent>
+    </complexType>
+
+</schema>
