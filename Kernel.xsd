@@ -71,8 +71,7 @@
                     <element name="constructionEnvironment" type="diggs:EnvironmentPropertyType"
                         maxOccurs="unbounded" minOccurs="0">
                         <annotation>
-                            <documentation>Environmental properties relevant but external to the
-                                construction activity</documentation>
+                            <documentation>A reference to an Environment object containing environmental properties relevant but external to the construction activity.</documentation>
                         </annotation>
                     </element>
                     <element name="equipment" type="diggs:EquipmentPropertyType"
@@ -87,7 +86,7 @@
                     <element minOccurs="0" name="otherConstructionActivityProperty"
                         type="diggs:ParameterPropertyType" maxOccurs="unbounded">
                         <annotation>
-                            <documentation>This will typically be used to record properties that
+                            <documentation>A reference to a Parameter object used to record properties that
                                 otherwise are not included as a property of the construction
                                 activity.</documentation>
                         </annotation>
@@ -95,8 +94,7 @@
                     <element minOccurs="0" name="activityDateTime"
                         type="diggs:TimeIntervalPropertyType">
                         <annotation>
-                            <documentation>The date/time interval over which the entire construction
-                                was conducted.</documentation>
+                            <documentation>A reference to TimeInterval object identiying the  date/time interval over which the entire construction activity was conducted.</documentation>
                         </annotation>
                     </element>
                 </sequence>
@@ -173,11 +171,23 @@
                         </annotation>
                     </element>
                     <element name="serialNumber" type="diggs:DiggsStringType" minOccurs="0"
-                        maxOccurs="1"/>
+                        maxOccurs="1">
+                        <annotation>
+                            <documentation>The serial number that identifies the unique equipment item.</documentation>
+                        </annotation>
+                    </element>
                     <element name="calibrationAuditTrail" type="diggs:CalibrationPropertyType"
-                        minOccurs="0" maxOccurs="unbounded"/>
+                        minOccurs="0" maxOccurs="unbounded">
+                        <annotation>
+                            <documentation>A reference to a Calibration object that stores calibration information for the equipment</documentation>
+                        </annotation>
+                    </element>
                     <element maxOccurs="unbounded" minOccurs="0" name="otherEquipmentProperty"
-                        type="diggs:ParameterPropertyType"/>
+                        type="diggs:ParameterPropertyType">
+                        <annotation>
+                            <documentation>Reference to a Parameter object containing the name, value or range of values and unit of measure of a property or a measurement parameter (result).</documentation>
+                        </annotation>
+                    </element>
                 </sequence>
             </extension>
         </complexContent>
@@ -270,14 +280,10 @@
                                 value.</documentation>
                         </annotation>
                     </element>
-                    <element minOccurs="0" name="status" type="gml:CodeType">
-                        <annotation>
-                            <documentation>A text string to provide information used to track the QA/QC controls, review, or release status of the object t. The values used are intended to come from a controlled list of terms maintained by an organization.</documentation>
-                        </annotation>
-                    </element>
+                    <element minOccurs="0" ref="diggs:status"/>
                     <element minOccurs="0" name="implementationStatus" type="gml:CodeType">
                         <annotation>
-                            <documentation>A text string describing the implementation status of the object or the completion status of the activity. Termes used (usch as in progress, completed, etc.) are intended to come from a controlled list of terms.</documentation>
+                            <documentation>A text string describing the implementation status of the object or the completion status of the activity. Termes used (usch as in progress, completed, etc.) are intended to come from a controlled list of terms from a dictionary or authority identified in the codeSpace attribute.</documentation>
                         </annotation>
                     </element>
                     <element name="associatedFile" type="diggs:AssociatedFilePropertyType"
@@ -293,17 +299,13 @@
                     <element name="role" type="diggs:RolePropertyType" minOccurs="0"
                         maxOccurs="unbounded">
                         <annotation>
-                            <documentation>Identifies a specific role or task performed that is
-                                associated with this specific feature, the person or organization
-                                that performed the role, and associated time frame, if
-                                applicable.</documentation>
+                            <documentation>A reference to a Role object that dentifies a specific role or task performed that is associated with this specific feature, the person or organization that performed the role, and associated time frame, if applicable..</documentation>
                         </annotation>
                     </element>
                     <element name="remark" type="diggs:RemarkPropertyType" minOccurs="0"
                         maxOccurs="unbounded">
                         <annotation>
-                            <documentation>Any comment or remark associated with this specific
-                                feature.</documentation>
+                            <documentation>A reference to a Remark object that provies a comment or remark associated with this specific feature.</documentation>
                         </annotation>
                     </element>
                 </sequence>
@@ -583,17 +585,17 @@
                     <element name="centerLine" type="diggs:LinearExtentPropertyType"
                         maxOccurs="unbounded" minOccurs="1">
                         <annotation>
-                            <documentation>A linestring that represents the linear geometry of the feature, defining its shape and location. For a borehole or a sounding, the linestring would represent the borehole's trajectory in 3D space. Multiple centerlines can be defined (all associated with the same reference point) to define complex objects such as a wellbore with sidetracks, or different reference datums for a single borehole.</documentation>
+                            <documentation>A reference to a LinearExtent object that represents the linear geometry of the feature, defining its shape and location. For a borehole for example, the linestring would represent the borehole's trajectory in 3D space. Multiple centerlines can be defined (all associated with the same reference point) to define complex objects such as a wellbore with sidetracks, or different reference datums for a single borehole.</documentation>
                         </annotation>
                     </element>
                     <element name="linearReferencing"
                         type="diggs:LinearSpatialReferenceSystemPropertyType" minOccurs="0"
                         maxOccurs="unbounded">
                         <annotation>
-                            <documentation>A property defining the linear spatial reference system for this sampling feature. A linear SRS allows other objects to reference their position (location) on the sampling feature with 1D coordinates that represents distance along the linear sampling feature, typically from the centerline origin. For sampling features such as boreholes the linear SRS coordinates define measured depths down the hole's centerline.</documentation>
+                            <documentation>A reference to a LinearSpatialReferenceSystem object for this sampling feature. A linear SRS allows other objects to reference their position (location) on the sampling feature with 1D coordinates that represents distance along the linear sampling feature, typically from the centerline origin. For sampling features such as boreholes the linear SRS coordinates define measured depths down the hole's centerline.</documentation>
                         </annotation>
                     </element>
-                    <element minOccurs="0" name="plunge" type="diggs:PlungeType">
+                    <element minOccurs="0" name="plunge" type="eml:PlaneAngleMeasureExt">
                         <annotation>
                             <documentation>For an inclined feature, the plunge angle, measured from
                                 the horizontal, positive up</documentation>
@@ -1213,26 +1215,39 @@
                     <element maxOccurs="unbounded" minOccurs="0" name="environment"
                         type="diggs:EnvironmentPropertyType">
                         <annotation>
-                            <documentation>Environmental parameters recorded during construction of
+                            <documentation>Reference to an object containing environmental parameters recorded during construction of
                                 the sampling feature</documentation>
                         </annotation>
                     </element>
                     <element maxOccurs="unbounded" minOccurs="0" name="otherSamplingFeatureProperty"
-                        type="diggs:ParameterPropertyType"/>
+                        type="diggs:ParameterPropertyType">
+                        <annotation>
+                            <documentation>Reference to an Parameter object containing the name, value or range of values and unit of measure of a property or a measurement parameter.</documentation>
+                        </annotation>
+                    </element>
                     <element name="locality" type="diggs:LocalityPropertyType" minOccurs="0"
-                        maxOccurs="1"/>
+                        maxOccurs="1">
+                        <annotation>
+                            <documentation>A reference to a Locality object, containing non-coordinate location information for a feature.</documentation>
+                        </annotation>
+                    </element>
                     <element name="referencePoint" type="diggs:PointLocationPropertyType"
                         minOccurs="1">
                         <annotation>
-                            <documentation>Defines the location of the samplingFeature (usually a
+                            <documentation>Reference to a PointLocation object that defines the location of the samplingFeature (usually a
                                 location at the ground surface) within a well-known 3D CRS or
                                 combined CRS (geographic or projected, and elevation), as an
                                 extension of gml:Point object with an additional uncertainty
-                                property </documentation>
+                                property.</documentation>
                         </annotation>
                     </element>
                     <element minOccurs="0" name="localCoordinates"
-                        type="diggs:LocalCoordinatePropertyType"/>
+                        type="diggs:LocalCoordinatePropertyType">
+                        <annotation>
+                            <documentation>A reference to a LocalCoordinate object that holds the values of local coordinates for the
+                reference point of the associated feature. </documentation>
+                        </annotation>
+                    </element>
                 </sequence>
             </extension>
         </complexContent>
@@ -1716,9 +1731,7 @@
     <element name="associatedProjectRef" type="diggs:FeatureReferenceType">
         <annotation>
             <appinfo source="urn:x-gml:targetElement">Diggs:Project</appinfo>
-            <documentation>A reference to a project that uses the feature within its business
-                activity. The project is not intended to be the one that established the feature in
-                the first place. The property originalProjectRef should be used for that purpose. </documentation>
+            <documentation>A reference to a project that uses the feature within its business activity. The associated project is not intended to be the one that established the feature in the first place. The property originalProjectRef should be used for that purpose. </documentation>
             <documentation>A property element that supports a value by reference only. The target
                 value is indicated in the appinfo element.</documentation>
         </annotation>
@@ -1848,7 +1861,7 @@
     </simpleType>
     <complexType name="BearingType">
         <simpleContent>
-            <extension base="eml:PlaneAngleMeasure">
+            <extension base="eml:PlaneAngleMeasureExt">
                 <attribute name="refAzimuth" type="witsml:AziRef"/>
             </extension>
         </simpleContent>
@@ -3223,6 +3236,18 @@ selenite crystals - color caused by crystals of selenite gypsum</documentation>
             <enumeration value="visual"/>
         </restriction>
     </simpleType>
+    <complexType name="MeasurementTechniqueEnumType">
+        <simpleContent>
+            <extension base="diggs:DescriptorMethodEnumType">
+                <attribute name="formula" type="string">
+                    <annotation>
+                        <documentation>A description of the formula used to
+                                                obtain the measurement result.</documentation>
+                    </annotation>
+                </attribute>
+            </extension>
+        </simpleContent>
+    </complexType>
     <complexType name="DescriptorValueType" abstract="false">
         <simpleContent>
             <extension base="double">
@@ -4941,6 +4966,9 @@ For metamorphic rocks, this property is used to describe a set of mineral assemb
         </annotation>
     </element>
     <complexType name="LocalityPropertyType">
+        <annotation>
+            <documentation>PointLocation property choice is depreceated; use LocalCoordinate instead</documentation>
+        </annotation>
         <choice>
             <element ref="diggs:Locality" minOccurs="1" maxOccurs="1"/>
             <element ref="diggs:PointLocation"/>
@@ -6103,8 +6131,7 @@ DSB: REMOVED FROM PROFILE
     <element name="properties" substitutionGroup="gml:valueComponents"
         type="gml:ValueArrayPropertyType">
         <annotation>
-            <documentation>A property that contains a sequence of Property objects defining the
-                results of a test or monitoring activity.</documentation>
+            <documentation>A property that contains a sequence of various kinds of property objects that substitute for gml:AbstractValue (eg Property, DriveRecordProperty, etc.) that hold the results of a test or monitoring activity.</documentation>
         </annotation>
     </element>
     <element name="Property" type="diggs:PropertyType" substitutionGroup="gml:AbstractValue"
@@ -6268,7 +6295,7 @@ DSB: REMOVED FROM PROFILE
                         </annotation>
                     </element>
                     <element minOccurs="0" name="measurementTechnique"
-                        type="diggs:DescriptorMethodEnumType">
+                        type="diggs:MeasurementTechniqueEnumType">
                         <annotation>
                             <documentation>The method by which the property value is obtained. From
                                 an enumerated list.</documentation>
@@ -6331,8 +6358,7 @@ DSB: REMOVED FROM PROFILE
                     <element maxOccurs="1" minOccurs="0" name="samplingRate"
                         type="eml:ReciprocalTimeMeasure">
                         <annotation>
-                            <documentation>For well logging procedures, defines the source of the
-                                data.</documentation>
+                            <documentation>The raw rate of measurement collection from which any moving averages may be derived. This property should be reported if the value of the measurementTechnique property is moving average.</documentation>
                         </annotation>
                     </element>
                 </sequence>
@@ -9500,4 +9526,9 @@ boulder - for ASTM, particles above 300 mm; for boulder, particles above 256 mm<
             </restriction>
         </simpleContent>
     </complexType>
+    <element name="status" type="gml:CodeType">
+        <annotation>
+            <documentation>A text string to provide information about the status of the data associated with this object, for example to be used to track QA/QC controls, review or release status, etc. The values used are intended to come from a controlled list of terms maintained by an authority desingated by this element's codeSpace attribute.</documentation>
+        </annotation>
+    </element>
 </schema>

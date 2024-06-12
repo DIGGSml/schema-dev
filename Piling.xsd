@@ -30,8 +30,10 @@
                         type="eml:ForcePerLengthMeasureExt"/>
                     <element minOccurs="0" name="tipDeviationNorth" type="eml:LengthMeasureExt"/>
                     <element minOccurs="0" name="tipDeviationEast" type="eml:LengthMeasureExt"/>
-                    <element minOccurs="0" name="lengthAboveGS" type="eml:LengthMeasureExt"/>
-                    <element minOccurs="0" name="lengthBelowGS" type="eml:LengthMeasureExt"/>
+                    <element minOccurs="0" name="lengthAboveGroundSurface"
+                        type="eml:LengthMeasureExt"/>
+                    <element minOccurs="0" name="lengthBelowGroundSurface"
+                        type="eml:LengthMeasureExt"/>
                     <element minOccurs="0" name="lengthNonFriction" type="eml:LengthMeasureExt"/>
                     <element maxOccurs="unbounded" minOccurs="1" name="intervalData"
                         type="diggs:IntervalDataPropertyType"/>
@@ -51,8 +53,8 @@
             <extension base="diggs:AbstractComponentObjectBaseType">
                 <sequence>
                     <element name="intervalLocation" type="diggs:LinearExtentPropertyType"/>
-                    <element name="widthAtTop" type="eml:LengthMeasure"/>
-                    <element name="widthAtBottom" type="eml:LengthMeasure"/>
+                    <element name="widthAtTop" type="eml:LengthMeasureExt"/>
+                    <element name="widthAtBottom" type="eml:LengthMeasureExt"/>
                     <element minOccurs="0" name="pileMaterial" type="gml:CodeType"/>
                     <element minOccurs="0" name="pileShape" type="gml:CodeType"/>
                 </sequence>
@@ -65,6 +67,25 @@
             <element ref="diggs:IntervalData"/>
         </sequence>
     </complexType>
+    <element name="Splice" substitutionGroup="diggs:AbstractComponentObjectBase"
+        type="diggs:SpliceType"/>
+    <complexType name="SpliceType">
+        <complexContent>
+            <extension base="diggs:AbstractComponentObjectBaseType">
+                <sequence>
+                    <element minOccurs="0" name="spliceNumber" type="positiveInteger"/>
+                    <element minOccurs="0" name="spliceType" type="gml:CodeType"/>
+                    <element minOccurs="1" name="spliceLocation"
+                        type="diggs:PointLocationPropertyType"/>
+                </sequence>
+            </extension>
+        </complexContent>
+    </complexType>
+    <complexType name="SpliceArrayPropertyType">
+        <sequence maxOccurs="unbounded">
+            <element ref="diggs:Splice"/>
+        </sequence>
+    </complexType>
     <complexType name="SteelHPileType">
         <complexContent>
             <extension base="diggs:AbstractPileType">
@@ -72,8 +93,8 @@
                     <element minOccurs="0" name="flangeLength" type="eml:LengthMeasureExt"/>
                     <element minOccurs="0" name="flangeThickness" type="eml:LengthMeasureExt"/>
                     <element minOccurs="0" name="webThickness" type="eml:LengthMeasureExt"/>
-                    <element maxOccurs="unbounded" minOccurs="0" name="spliceLocation"
-                        type="diggs:PointLocationPropertyType"/>
+                    <element maxOccurs="1" minOccurs="0" name="splices"
+                        type="diggs:SpliceArrayPropertyType"/>
                 </sequence>
             </extension>
         </complexContent>
@@ -87,10 +108,9 @@
                     <element minOccurs="0" name="wallThickness" type="eml:LengthMeasureExt"/>
                     <element minOccurs="0" name="concreteFilled" type="boolean"/>
                     <element minOccurs="0" name="soilPlugDepth" type="eml:LengthMeasureExt"/>
-                    <element minOccurs="0" name="soilPlugElevation"
-                        type="diggs:PointLocationPropertyType"/>
-                    <element maxOccurs="unbounded" minOccurs="0" name="spliceLocation"
-                        type="diggs:PointLocationPropertyType"/>
+                    <element minOccurs="0" name="soilPlugElevation" type="eml:LengthMeasureExt"/>
+                    <element maxOccurs="1" minOccurs="0" name="splices"
+                        type="diggs:SpliceArrayPropertyType"/>
                 </sequence>
             </extension>
         </complexContent>
@@ -108,8 +128,8 @@
                     <element minOccurs="0" name="soilPlugDepth" type="eml:LengthMeasureExt"/>
                     <element minOccurs="0" name="soilPlugElevation"
                         type="diggs:PointLocationPropertyType"/>
-                    <element maxOccurs="unbounded" minOccurs="0" name="spliceLocation"
-                        type="diggs:PointLocationPropertyType"/>
+                    <element maxOccurs="unbounded" minOccurs="0" name="splices"
+                        type="diggs:SpliceArrayPropertyType"/>
                 </sequence>
             </extension>
         </complexContent>
@@ -215,7 +235,11 @@
             <extension base="diggs:AbstractComponentObjectType">
                 <sequence>
                     <element minOccurs="0" name="cushionElement" maxOccurs="unbounded"
-                        type="diggs:CushionElementPropertyType"/>
+                        type="diggs:CushionElementPropertyType">
+                        <annotation>
+                            <documentation>A reference to a CushionElement object that contains properties for a cushion element.</documentation>
+                        </annotation>
+                    </element>
                     <element minOccurs="0" name="totalThicknessBeforeDrive"
                         type="eml:LengthMeasureExt"/>
                     <element minOccurs="0" name="totalThicknessAfterDrive"
@@ -259,7 +283,7 @@
             <element ref="diggs:CushionElement"/>
         </sequence>
     </complexType>
-    <complexType name="DrivenPileInstallationType">
+    <complexType name="PileDrivingActivityType">
         <complexContent>
             <extension base="diggs:AbstractConstructionActivityType">
                 <sequence>
@@ -275,8 +299,8 @@
             </extension>
         </complexContent>
     </complexType>
-    <element name="DrivenPileInstallation" substitutionGroup="diggs:AbstractConstructionActivity"
-        type="diggs:DrivenPileInstallationType"/>
+    <element name="PileDrivingActivity" substitutionGroup="diggs:AbstractConstructionActivity"
+        type="diggs:PileDrivingActivityType"/>
     <element abstract="false" name="PileDrivingRecord" substitutionGroup="gml:AbstractCoverage"
         type="diggs:PileDrivingRecordType">
         <annotation>
@@ -379,7 +403,19 @@
             </extension>
         </complexContent>
     </complexType>
-    <element name="pileDrivingRecordParameters"/>
+    <element name="pileDrivingRecordParameters"
+        type="diggs:PileDrivingRecordPropertyInfoPropertyType"
+        substitutionGroup="gml:rangeParameters"/>
+
+    <complexType name="PileDrivingRecordPropertyInfoPropertyType">
+        <complexContent>
+            <restriction base="gml:AssociationRoleType">
+                <sequence minOccurs="0">
+                    <element ref="diggs:PileDrivingRecordPropertyParameters"/>
+                </sequence>
+            </restriction>
+        </complexContent>
+    </complexType>
     <element name="pileDrivingRecordResults" substitutionGroup="gml:rangeSet"
         type="diggs:PileDrivingRecordResultsPropertyType"/>
     <complexType name="LastBlowsDataType">
@@ -424,7 +460,7 @@
         <complexContent>
             <restriction base="gml:DataBlockType">
                 <sequence>
-                    <element ref="diggs:injectionDataParameters"/>
+                    <element ref="diggs:pileDrivingRecordParameters"/>
                     <choice>
                         <element ref="diggs:dataValues"/>
                     </choice>
@@ -432,23 +468,6 @@
             </restriction>
         </complexContent>
     </complexType>
-    <element name="PileDrivingRecordParameters" substitutionGroup="gml:rangeParameters"
-        type="diggs:PileDrivingRecordPropertyInfoPropertyType">
-        <annotation>
-            <documentation/>
-        </annotation>
-    </element>
-    <complexType name="PileDrivingRecordPropertyInfoPropertyType">
-        <complexContent>
-            <restriction base="gml:AssociationRoleType">
-                <sequence minOccurs="1">
-                    <element ref="diggs:pileDrivingRecordPropertyParameters"/>
-                </sequence>
-            </restriction>
-        </complexContent>
-    </complexType>
-    <element name="pileDrivingRecordPropertyParameters" substitutionGroup="gml:CompositeValue"
-        type="diggs:PileDrivingRecordPropertyParametersType"/>
     <element name="PileDrivingRecordPropertyParameters" substitutionGroup="gml:CompositeValue"
         type="diggs:PileDrivingRecordPropertyParametersType">
         <annotation>
@@ -465,7 +484,7 @@
         </complexContent>
     </complexType>
     <element name="DriveRecordProperty" substitutionGroup="gml:AbstractValue"
-        type="diggs:GroutInjectionPropertyType">
+        type="diggs:DriveRecordPropertyType">
         <annotation>
             <documentation>An object that specifies a property that is recorded during grout
                 injection.</documentation>
@@ -481,7 +500,7 @@
                                 provider. This value can come from a controlled list of terms or be
                                 an uncontrolled text string. The value would be commonly used to
                                 label a column of a log sheet or provide other local meaning to the
-                                property. The value of mnemonic should be unique for all of the
+                                property. The value of propertyName should be unique for all of the
                                 properties included in the dataValue block transmitted as part of
                                 this measurement.</documentation>
                         </annotation>
@@ -496,13 +515,7 @@
                     <element maxOccurs="1" minOccurs="1" name="propertyClass"
                         type="gml:CodeWithAuthorityType">
                         <annotation>
-                            <documentation>The official name of the grout injection time series
-                                property, from a dictionary of controlled terms. Standard DIGGS
-                                property class values are: - apparent_lugeon_value - column_pressure
-                                - effective_pressure - elapsed_time - grout_flow_rate -
-                                gauge_pressure - grout_specific_gravity - grout_temperature -
-                                injection_pressure - line_loss - mix - packer_pressure -
-                                stroke_count - take</documentation>
+                            <documentation>The official name of the pile driving record observed property, from a dictionary of controlled terms.</documentation>
                         </annotation>
                     </element>
                     <element maxOccurs="1" minOccurs="0" name="uom" type="diggs:AllUnits">
@@ -531,7 +544,8 @@
                                 from a controlled list.</documentation>
                         </annotation>
                     </element>
-                    <element minOccurs="0" name="measurementTechnique">
+                    <element minOccurs="0" name="measurementTechnique"
+                        type="diggs:MeasurementTechniqueEnumType">
                         <annotation>
                             <documentation>The method by which the property value is obtained. From
                                 an enumerated list. For values that are calculated, the formula
@@ -541,19 +555,6 @@
                                 the raw rate of measurement collection from which any moving
                                 averages may be derived. </documentation>
                         </annotation>
-                        <complexType>
-                            <simpleContent>
-                                <extension base="diggs:DescriptorMethodEnumType">
-                                    <attribute name="formula" type="string">
-                                        <annotation>
-                                            <documentation>A description of the formula used to
-                                                obtain the measurement result.</documentation>
-                                        </annotation>
-                                    </attribute>
-                                    <attribute name="samplingRate" type="string"> </attribute>
-                                </extension>
-                            </simpleContent>
-                        </complexType>
                     </element>
                     <element default="true" maxOccurs="1" minOccurs="0" name="reportable"
                         type="boolean">
@@ -563,8 +564,7 @@
                                 an xml instance.</documentation>
                         </annotation>
                     </element>
-                    <element maxOccurs="1" minOccurs="0" name="samplingRate"
-                        type="eml:ReciprocalTimeMeasure">
+                    <element maxOccurs="1" name="samplingRate" type="eml:ReciprocalTimeMeasure">
                         <annotation>
                             <documentation>The number of measurements taken per unit time; refers to
                                 the original sampling rate from which the reported value may
@@ -572,19 +572,10 @@
                         </annotation>
                     </element>
                 </sequence>
-                <attribute name="index" use="required">
-                    <simpleType>
-                        <union>
-                            <simpleType>
-                                <restriction base="string">
-                                    <enumeration value=""/>
-                                </restriction>
-                            </simpleType>
-                            <simpleType>
-                                <restriction base="integer"/>
-                            </simpleType>
-                        </union>
-                    </simpleType>
+                <attribute name="index" use="required" type="positiveInteger">
+                    <annotation>
+                        <documentation>An integer that indicates the position of the property result in the dataValues property.</documentation>
+                    </annotation>
                 </attribute>
             </extension>
         </complexContent>
