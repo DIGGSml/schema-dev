@@ -5277,7 +5277,7 @@ DSB: REMOVED FROM PROFILE
         substitutionGroup="diggs:AbstractTimeObject" abstract="false">
         <annotation>
             <documentation>A Diggs time object that contains a collection of time instances.
-                Deprecated as of 2.6. Use TimePositionInstance instead for time instances expressed
+                Deprecated as of 2.6. Use TimePositionList instead for time instances expressed
                 in xsd:CalDate format.</documentation>
         </annotation>
     </element>
@@ -7103,7 +7103,7 @@ DSB: REMOVED FROM PROFILE
                 value is indicated in the appinfo element.</documentation>
         </annotation>
     </element>
-    <element name="Sensor" type="diggs:SensorType" substitutionGroup="diggs:AbstractEquipment"
+    <element name="Sensor" type="diggs:SensorType" substitutionGroup="diggs:AbstractSensor"
         abstract="false">
         <annotation>
             <documentation>An object that contains properties of a sensor that takes readings as
@@ -7124,7 +7124,16 @@ DSB: REMOVED FROM PROFILE
         <attributeGroup ref="gml:AssociationAttributeGroup"/>
         <attributeGroup ref="gml:OwnershipAttributeGroup"/>
     </complexType>
-    <complexType name="SensorType">
+    <complexType name="AbstractSensorPropertyType">
+        <sequence>
+            <element ref="diggs:AbstractSensor" minOccurs="1" maxOccurs="1"/>
+        </sequence>
+        <attributeGroup ref="gml:AssociationAttributeGroup"/>
+        <attributeGroup ref="gml:OwnershipAttributeGroup"/>
+    </complexType>
+    <element name="AbstractSensor" substitutionGroup="diggs:AbstractEquipment"
+        type="diggs:AbstractSensorType"/>
+    <complexType name="AbstractSensorType" abstract="true">
         <complexContent>
             <extension base="diggs:AbstractEquipmentType">
                 <sequence>
@@ -7144,6 +7153,13 @@ DSB: REMOVED FROM PROFILE
                 </sequence>
                 <attributeGroup ref="gml:AssociationAttributeGroup"/>
                 <attributeGroup ref="gml:OwnershipAttributeGroup"/>
+            </extension>
+        </complexContent>
+    </complexType>
+    <complexType name="SensorType">
+        <complexContent>
+            <extension base="diggs:AbstractSensorType">
+                <sequence/>
             </extension>
         </complexContent>
     </complexType>
@@ -9253,4 +9269,37 @@ boulder - for ASTM, particles above 300 mm; for boulder, particles above 256 mm<
             <documentation>A text string describing the implementation or completion status of an object or activity. Termes used (usch as in progress, completed, etc.) are intended to come from a controlled list of terms from a dictionary or authority identified in the codeSpace attribute.</documentation>
         </annotation>
     </element>
+    <complexType name="MeasurementWhileDrillingType">
+        <complexContent>
+            <extension base="diggs:AbstractMeasurementType">
+                <sequence>
+                    <element name="ourcome"/>
+                    <element maxOccurs="unbounded" minOccurs="0" name="sensor"
+                        type="diggs:AbstractSensorPropertyType"/>
+                    <element minOccurs="0" name="procedure" type="diggs:SpecificationPropertyType"/>
+                </sequence>
+            </extension>
+        </complexContent>
+    </complexType>
+    <element name="MeasurementWhileDrilling" substitutionGroup="diggs:AbstractMeasurement"
+        type="diggs:MeasurementWhileDrillingType"/>
+    <element name="MWDResult" type="diggs:MWDResultType"/>
+    <complexType name="MWDResultType">
+        <complexContent>
+            <restriction base="gml:AbstractCoverageType">
+                <sequence>
+                    <choice>
+                        <element ref="diggs:location"/>
+                        <element ref="diggs:timeDomain"/>
+                    </choice>
+                    <element ref="diggs:results"/>
+                </sequence>
+            </restriction>
+        </complexContent>
+    </complexType>
+    <complexType name="MWDResultPropertyType">
+        <sequence>
+            <element ref="diggs:MWDResult"/>
+        </sequence>
+    </complexType>
 </schema>
