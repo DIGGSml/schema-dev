@@ -1962,6 +1962,17 @@
                                 reported.</documentation>
                         </annotation>
                     </element>
+                    <element minOccurs="0" name="computedBoreholeCrossSection"
+                        type="eml:AreaMeasureExt">
+                        <annotation>
+                            <documentation>Cross-sectional area of the borehole, computed from inferred borehole diameter for the interval</documentation>
+                        </annotation>
+                    </element>
+                    <element minOccurs="0" name="computedBoreholeVolume" type="eml:VolumeMeasureExt">
+                        <annotation>
+                            <documentation>Volume of the boreholein this interval, computed from the inferred borehole diameter.</documentation>
+                        </annotation>
+                    </element>
                 </sequence>
             </extension>
         </complexContent>
@@ -3555,7 +3566,6 @@ selenite crystals - color caused by crystals of selenite gypsum</documentation>
             <enumeration value="mJ/L"/>
             <enumeration value="Wh/m3"/>
             <enumeration value="Wh/L"/>
-            <pattern value=""/>
             <enumeration value="kcal/m3"/>
             <enumeration value="kcal/L"/>
             <enumeration value="BTU/gal"/>
@@ -5260,8 +5270,6 @@ DSB: REMOVED FROM PROFILE
             <extension base="diggs:AbstractGeometricAggregateType">
                 <sequence>
                     <element maxOccurs="unbounded" minOccurs="0" ref="gml:curveMember"/>
-                    <element minOccurs="0" name="uncertainty"
-                        type="diggs:LocationUncertaintyPropertyType"/>
                 </sequence>
             </extension>
         </complexContent>
@@ -6155,7 +6163,6 @@ DSB: REMOVED FROM PROFILE
         <union memberTypes="eml:QuantityClassKind diggs:UomTypeEnumType">
             <simpleType>
                 <restriction base="string">
-                    <enumeration value=""/>
                     <pattern value="Other: .{2,}"/>
                 </restriction>
             </simpleType>
@@ -9280,13 +9287,29 @@ boulder - for ASTM, particles above 300 mm; for boulder, particles above 256 mm<
                     <element name="outcome" type="diggs:MWDResultPropertyType"/>
                     <element maxOccurs="unbounded" minOccurs="0" name="sensor"
                         type="diggs:AbstractSensorPropertyType"/>
-                    <element minOccurs="0" name="procedure" type="diggs:SpecificationPropertyType"/>
+                    <element minOccurs="0" name="procedure" type="diggs:MWDProcedurePropertyType"/>
                 </sequence>
             </extension>
         </complexContent>
     </complexType>
     <element name="MeasurementWhileDrilling" substitutionGroup="diggs:AbstractMeasurement"
         type="diggs:MeasurementWhileDrillingType"/>
+    <element name="MWDProcedure" type="diggs:MWDProcedureType"/>
+    <complexType name="MWDProcedureType">
+        <complexContent>
+            <extension base="diggs:AbstractTestProcedureType">
+                <sequence>
+                    <element minOccurs="0" name="dataCaptureSoftware"
+                        type="diggs:SoftwareApplicationPropertyType"/>
+                </sequence>
+            </extension>
+        </complexContent>
+    </complexType>
+    <complexType name="MWDProcedurePropertyType">
+        <sequence>
+            <element ref="diggs:MWDProcedure"/>
+        </sequence>
+    </complexType>
     <element name="MWDResult" type="diggs:MWDResultType"/>
     <complexType name="MWDResultType">
         <complexContent>
@@ -9419,12 +9442,12 @@ boulder - for ASTM, particles above 300 mm; for boulder, particles above 256 mm<
                     </element>
                     <element minOccurs="0" name="pullDownForceMax" type="eml:ForceMeasureExt">
                         <annotation>
-                            <documentation>Maximum pulldown force of the feed system.</documentation>
+                            <documentation>Maximum crowd or pulldown force of the feed system.</documentation>
                         </annotation>
                     </element>
                     <element minOccurs="0" name="feedRateMax" type="eml:LengthPerTimeMeasureExt">
                         <annotation>
-                            <documentation>Maximum rate that the rig can feed the drill string into the ground</documentation>
+                            <documentation>Maximum rate that the rig can feed the drill pipe into the ground</documentation>
                         </annotation>
                     </element>
                     <element minOccurs="0" name="retractForceMax" type="eml:ForceMeasureExt">
@@ -9434,12 +9457,12 @@ boulder - for ASTM, particles above 300 mm; for boulder, particles above 256 mm<
                     </element>
                     <element minOccurs="0" name="retractRateMax" type="eml:LengthPerTimeMeasureExt">
                         <annotation>
-                            <documentation>Maximum rate that the rig can retract the drill string</documentation>
+                            <documentation>Maximum rate that the rig can retract the drill pipe</documentation>
                         </annotation>
                     </element>
                     <element minOccurs="0" name="stroke" type="eml:LengthMeasureExt">
                         <annotation>
-                            <documentation>Maximum stroke length of the feed system.</documentation>
+                            <documentation>Maximum stroke height of the feed system.</documentation>
                         </annotation>
                     </element>
                     <element minOccurs="0" name="crowdSystemType" type="gml:CodeType">
@@ -9450,6 +9473,50 @@ boulder - for ASTM, particles above 300 mm; for boulder, particles above 256 mm<
                     <element minOccurs="0" name="crowdCylinderArea" type="eml:AreaMeasureExt">
                         <annotation>
                             <documentation>For a cylinder crowd system, this property holds the cross-sectional area of the crowd sylinder.</documentation>
+                        </annotation>
+                    </element>
+                    <element minOccurs="0" name="baselineCroudPressure"
+                        type="eml:PressureMeasureExt">
+                        <annotation>
+                            <documentation>The standard operating pressure for crowd force application on the drill rig,</documentation>
+                        </annotation>
+                    </element>
+                    <element minOccurs="0" name="crowdConversionCoeff" type="double">
+                        <annotation>
+                            <documentation>The ratio of crowd force to the pressure applied (force/pressure) to convert crowd pressure to force.</documentation>
+                        </annotation>
+                    </element>
+                    <element minOccurs="0" name="baselineTorquePressure"
+                        type="eml:PressureMeasureExt">
+                        <annotation>
+                            <documentation>The standard operating pressure for torque application on the drill rig,</documentation>
+                        </annotation>
+                    </element>
+                    <element minOccurs="0" name="noHydraulicMotors" type="integer">
+                        <annotation>
+                            <documentation>The count of hydraulic motors used in the drilling setup.</documentation>
+                        </annotation>
+                    </element>
+                    <element minOccurs="0" name="maxHydMotorDisplacement"
+                        type="eml:VolumePerRotationMeasureExt">
+                        <annotation>
+                            <documentation>he maximum volume displaced by the hydraulic motor per revolution.</documentation>
+                        </annotation>
+                    </element>
+                    <element minOccurs="0" name="minHydMotorDisplacement"
+                        type="eml:VolumePerRotationMeasureExt">
+                        <annotation>
+                            <documentation>The minimum volume displaced by the hydraulic motor per revolution.</documentation>
+                        </annotation>
+                    </element>
+                    <element minOccurs="0" name="maxHydPressure" type="eml:PressureMeasureExt">
+                        <annotation>
+                            <documentation>The highest pressure at which the drill rig's hydraulic system can operate.</documentation>
+                        </annotation>
+                    </element>
+                    <element minOccurs="0" name="maxTorque" type="eml:MomentOfForceMeasureExt">
+                        <annotation>
+                            <documentation>The highest rotational force that can be applied by the drill rig</documentation>
                         </annotation>
                     </element>
                     <element minOccurs="0" name="mastLength" type="eml:LengthMeasureExt">
