@@ -119,6 +119,13 @@
                             <documentation>The nominal capacity of the pile.</documentation>
                         </annotation>
                     </element>
+                    <element minOccurs="0" name="allowableDrivingStress"
+                        type="eml:PressureMeasureExt">
+                        <annotation>
+                            <documentation>The maximum stress to be imposed on the pile when driving.
+</documentation>
+                        </annotation>
+                    </element>
                 </sequence>
             </extension>
         </complexContent>
@@ -184,6 +191,14 @@
             <documentation>A physical connection between two pieces of a pile, typically a single pile is constructed from multiple pieces connected by splices.</documentation>
         </annotation>
     </element>
+    <complexType name="SpliceArrayPropertyType">
+        <annotation>
+            <documentation>A property with a list of Splice objects as its value.</documentation>
+        </annotation>
+        <sequence maxOccurs="unbounded">
+            <element ref="diggs:Splice"/>
+        </sequence>
+    </complexType>
     <complexType name="SpliceType">
         <annotation>
             <documentation>The properties of a splice in a pile.</documentation>
@@ -211,14 +226,16 @@
             </extension>
         </complexContent>
     </complexType>
-    <complexType name="SpliceArrayPropertyType">
-        <annotation>
-            <documentation>A property with a list of Splice objects as its value.</documentation>
-        </annotation>
-        <sequence maxOccurs="unbounded">
-            <element ref="diggs:Splice"/>
-        </sequence>
-    </complexType>
+    <element name="weldType" type="diggs:WeldTypeEnumExtType"/>
+    <simpleType name="WeldTypeEnumType">
+        <restriction base="string">
+            <enumeration value="circular"/>
+            <enumeration value="spiral"/>
+        </restriction>
+    </simpleType>
+    <simpleType name="WeldTypeEnumExtType">
+        <union memberTypes="diggs:WeldTypeEnumType diggs:OtherNameType"/>
+    </simpleType>
     <complexType name="SteelHPileType">
         <annotation>
             <documentation>A pile made of steel with an H shaped cross section.</documentation>
@@ -229,6 +246,11 @@
                     <element name="pileSizeDesignation" type="gml:CodeType">
                         <annotation>
                             <documentation>A code or name identifying the pile size (typically diameter and weight/unit length) along with other shape parameters as applicable. Intended to come from a controlled list of terms, Example: <pileSizeDesignation codeSpace="ASTM A6 H-Piling">HP 200 x 64</pileSizeDesignation></documentation>
+                        </annotation>
+                    </element>
+                    <element minOccurs="0" ref="diggs:weldType">
+                        <annotation>
+                            <documentation>The type of weld used on the pile, from an enumerated list (circular, spiral)</documentation>
                         </annotation>
                     </element>
                     <element minOccurs="0" name="flangeLength" type="eml:LengthMeasureExt">
@@ -273,6 +295,18 @@
                         <annotation>
                             <documentation>A code or name identifying the pile size (typically diameter and weight/unit length) along with other shape parameters as applicable. Intended to come from a controlled list of terms, Example: <pileSizeDesignation codeSpace="ASTM A6 H-Piling">HP 200 x 64</pileSizeDesignation></documentation>
                         </annotation>
+                    </element>
+                    <element minOccurs="0" name="weldType">
+                        <annotation>
+                            <documentation>Length of the flange.</documentation>
+                        </annotation>
+                        <simpleType>
+                            <restriction base="string">
+                                <enumeration value="circular"/>
+                                <enumeration value="spiral"/>
+                                <enumeration value="other"/>
+                            </restriction>
+                        </simpleType>
                     </element>
                     <element minOccurs="0" name="wallThickness" type="eml:LengthMeasureExt">
                         <annotation>
@@ -878,7 +912,7 @@
         </complexContent>
     </complexType>
     <element name="pileTipLocation" substitutionGroup="gml:domainSet"
-        type="diggs:LocationPropertyType">
+        type="diggs:MultiPointPropertyType">
         <annotation>
             <documentation>The location of the pile tip.</documentation>
         </annotation>
@@ -887,6 +921,7 @@
         <complexContent>
             <extension base="diggs:PileDrivingRecordBaseType">
                 <sequence>
+                    <element name="recordType" type="diggs:RecordTypeEnumExtType"/>
                     <element minOccurs="0" name="hammerCushion" type="diggs:CushionPropertyType">
                         <annotation>
                             <documentation/>
@@ -1248,7 +1283,7 @@
                         type="eml:LengthPerTimeMeasureExt"/>
                     <element maxOccurs="1" minOccurs="0" name="waveSpeedCalc"
                         type="eml:LengthPerTimeMeasureExt"/>
-                    <element maxOccurs="1" minOccurs="0" name="dampingConst" type="double"/>
+                    <element maxOccurs="1" minOccurs="0" name="dampingConstant" type="double"/>
                 </sequence>
             </extension>
         </complexContent>
@@ -1454,4 +1489,13 @@
             </extension>
         </complexContent>
     </complexType>
+    <simpleType name="RecordTypeEnumType">
+        <restriction base="string">
+            <enumeration value="manual"/>
+            <enumeration value="saximeter"/>
+        </restriction>
+    </simpleType>
+    <simpleType name="RecordTypeEnumExtType">
+        <union memberTypes="diggs:RecordTypeEnumType diggs:OtherNameType"/>
+    </simpleType>
 </schema>
