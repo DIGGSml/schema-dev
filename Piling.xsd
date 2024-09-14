@@ -1284,11 +1284,66 @@
                     <element maxOccurs="1" minOccurs="0" name="waveSpeedCalc"
                         type="eml:LengthPerTimeMeasureExt"/>
                     <element maxOccurs="1" minOccurs="0" name="dampingConstant" type="double"/>
+                    <element minOccurs="0" name="distancePileTopToGauge" type="eml:LengthMeasureExt"/>
+                    <element minOccurs="0" name="pdaInfo" type="diggs:PDAInfoArrayPropertyType"/>
                 </sequence>
             </extension>
         </complexContent>
     </complexType>
-    <element name="pdaRecordPropertyParameters" type="diggs:PDARecordPropertyInfoPropertyType"
+    <complexType name="PDAInfoArrayPropertyType">
+        <sequence maxOccurs="unbounded">
+            <element ref="diggs:AbstractPDAInfo"/>
+        </sequence>
+    </complexType>
+    <element abstract="true" name="AbstractPDAInfo" type="diggs:AbstractPDAInfoType"/>
+    <complexType name="AbstractPDAInfoType">
+        <complexContent>
+            <extension base="diggs:AbstractComponentObjectBaseType">
+                <sequence>
+                    <element ref="gml:name"/>
+                    <element maxOccurs="1" minOccurs="0" name="serialNo" type="string">
+                        <annotation>
+                            <documentation>Serial Number for the PDA componwnt
+</documentation>
+                        </annotation>
+                    </element>
+                </sequence>
+            </extension>
+        </complexContent>
+    </complexType>
+    <element name="PDAAccelerometer" substitutionGroup="diggs:AbstractPDAInfo"
+        type="diggs:PDAAccelerometerType"/>
+    <complexType name="PDAAccelerometerType">
+        <complexContent>
+            <extension base="diggs:AbstractPDAInfoType">
+                <sequence>
+                    <element minOccurs="0" name="calibrationConstant"
+                        type="eml:LengthPerTimeMeasureExt"/>
+                </sequence>
+            </extension>
+        </complexContent>
+    </complexType>
+    <element name="PDAStrainTransducer" substitutionGroup="diggs:AbstractPDAInfo"
+        type="diggs:PDAStrainTransducerType"/>
+    <complexType name="PDAStrainTransducerType">
+        <complexContent>
+            <extension base="diggs:AbstractPDAInfoType">
+                <sequence>
+                    <element minOccurs="0" name="calibrationConstant" type="eml:ForceMeasureExt"/>
+                </sequence>
+            </extension>
+        </complexContent>
+    </complexType>
+    <element name="PDAConnectorCable" substitutionGroup="diggs:AbstractPDAInfo"
+        type="diggs:PDACableType"/>
+    <complexType name="PDACableType">
+        <complexContent>
+            <extension base="diggs:AbstractPDAInfoType">
+                <sequence/>
+            </extension>
+        </complexContent>
+    </complexType>
+    <element name="pdaRecordParameters" type="diggs:PDARecordPropertyInfoPropertyType"
         substitutionGroup="gml:rangeParameters"/>
     <complexType name="PDARecordPropertyInfoPropertyType">
         <complexContent>
@@ -1318,7 +1373,7 @@
         <complexContent>
             <restriction base="gml:DataBlockType">
                 <sequence>
-                    <element ref="diggs:pdaRecordPropertyParameters"/>
+                    <element ref="diggs:pdaRecordParameters"/>
                     <choice>
                         <element ref="diggs:dataValues"/>
                     </choice>
