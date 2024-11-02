@@ -1513,8 +1513,7 @@
                             <documentation>A measure of the energy required to remove a unit volume of rock.</documentation>
                         </annotation>
                     </element>
-                    <element name="penetrationRate" minOccurs="0"
-                        type="diggs:LengthPerTimeMeasureType">
+                    <element minOccurs="0" ref="diggs:penetrationRate">
                         <annotation>
                             <documentation>Rate of advancement of the drill head. Deprecated - use
                                 advamcementRate instead</documentation>
@@ -1624,24 +1623,80 @@
                 11) mm2/d - square millimeter per day
                 12) mm2/h - square millimeter per hour
                 13) mm2/m - square millimeter per minute
-                13) mm2/min - square millmeter pre minute - deprecated
+                13) mm2/min - square millmeter per minute - deprecated
             </documentation>
         </annotation>
         <restriction base="eml:UomEnum">
-            <enumeration value="cm2/a"/>
-            <enumeration value="cm2/d"/>
-            <enumeration value="cm2/h"/>
-            <enumeration value="cm2/m"/>
-            <enumeration value="m2/a"/>
-            <enumeration value="m2/d"/>
-            <enumeration value="m2/h"/>
-            <enumeration value="m2/m"/>
-            <enumeration value="m2/sec"/>
-            <enumeration value="mm2/a"/>
-            <enumeration value="mm2/d"/>
-            <enumeration value="mm2/h"/>
-            <enumeration value="mm2/m"/>
-            <enumeration value="mm2/min"/>
+            <enumeration value="cm2/a">
+                <annotation>
+                    <documentation>square centimeter per julian-year</documentation>
+                </annotation>
+            </enumeration>
+            <enumeration value="cm2/d">
+                <annotation>
+                    <documentation>square centimeter per day</documentation>
+                </annotation>
+            </enumeration>
+            <enumeration value="cm2/h">
+                <annotation>
+                    <documentation>square centimeter per hour</documentation>
+                </annotation>
+            </enumeration>
+            <enumeration value="cm2/m">
+                <annotation>
+                    <documentation>square centimeter per minute</documentation>
+                </annotation>
+            </enumeration>
+            <enumeration value="m2/a">
+                <annotation>
+                    <documentation>square meter per julian-year</documentation>
+                </annotation>
+            </enumeration>
+            <enumeration value="m2/d">
+                <annotation>
+                    <documentation>square meter per day</documentation>
+                </annotation>
+            </enumeration>
+            <enumeration value="m2/h">
+                <annotation>
+                    <documentation>square meter per hour</documentation>
+                </annotation>
+            </enumeration>
+            <enumeration value="m2/m">
+                <annotation>
+                    <documentation>square meter per minute</documentation>
+                </annotation>
+            </enumeration>
+            <enumeration value="m2/sec">
+                <annotation>
+                    <documentation>square meter per second - deprecated</documentation>
+                </annotation>
+            </enumeration>
+            <enumeration value="mm2/a">
+                <annotation>
+                    <documentation>square millimater per julian-year</documentation>
+                </annotation>
+            </enumeration>
+            <enumeration value="mm2/d">
+                <annotation>
+                    <documentation>square millimater per day</documentation>
+                </annotation>
+            </enumeration>
+            <enumeration value="mm2/h">
+                <annotation>
+                    <documentation>square millimater per hour</documentation>
+                </annotation>
+            </enumeration>
+            <enumeration value="mm2/m">
+                <annotation>
+                    <documentation>square millimater per minute</documentation>
+                </annotation>
+            </enumeration>
+            <enumeration value="mm2/min">
+                <annotation>
+                    <documentation>square millimater per minute - deprecated</documentation>
+                </annotation>
+            </enumeration>
         </restriction>
     </simpleType>
     <simpleType name="areaPerTimeUom">
@@ -1780,6 +1835,11 @@
                                 assigned to an authority.</documentation>
                         </annotation>
                     </element>
+                    <element name="isSanitarySeal" type="boolean" minOccurs="0">
+                        <annotation>
+                            <documentation>If true, identifies this backfill layer as a sanitary seal.</documentation>
+                        </annotation>
+                    </element>
                     <element name="backfillVolume" type="eml:VolumeMeasure" minOccurs="0">
                         <annotation>
                             <documentation>The total valume of backfill material emplaced in this
@@ -1797,6 +1857,15 @@
                         </annotation>
                     </element>
                     <element minOccurs="0" name="groutRef" type="diggs:FeatureReferenceType">
+                        <annotation>
+                            <appinfo>diggs:GroutBatch</appinfo>
+                            <documentation>If information is recorded about components of a Grout
+                                used for backfill or as part of a grouting activity,this property
+                                points to the GroutBatch object corresponding to the grout batch
+                                used in this backfill layer.</documentation>
+                        </annotation>
+                    </element>
+                    <element minOccurs="0" name="wellOpeningRef" type="diggs:FeatureReferenceType">
                         <annotation>
                             <appinfo>diggs:GroutBatch</appinfo>
                             <documentation>If information is recorded about components of a Grout
@@ -2054,18 +2123,10 @@
                                 a hole's linear referencing system.</documentation>
                         </annotation>
                     </element>
-                    <element minOccurs="0" name="holeBearing" type="eml:PlaneAngleMeasure">
-                        <annotation>
-                            <documentation>Deprecated - use bearing property from abstract
-                                type</documentation>
-                        </annotation>
-                    </element>
-                    <element minOccurs="0" name="holePlunge" type="eml:PlaneAngleMeasure">
-                        <annotation>
-                            <documentation>Depreated - use plunge property from abstract type
-                            </documentation>
-                        </annotation>
-                    </element>
+                    <element minOccurs="0" ref="diggs:holeBearing"/>
+
+                    <element minOccurs="0" ref="diggs:holePlunge"/>
+
                     <element maxOccurs="1" minOccurs="0" name="boreholePurpose" type="gml:CodeType">
                         <annotation>
                             <documentation>A description of the purpose for drilling the hole (eg.
@@ -2113,18 +2174,8 @@
                                 the borehole.</documentation>
                         </annotation>
                     </element>
-                    <element minOccurs="0" name="chiseling" type="diggs:ChiselingPropertyType"
-                        maxOccurs="unbounded">
-                        <annotation>
-                            <documentation>Information on chiseling activity in a hole. Used as
-                                legacy to directly accommodate AGS CHIS group data. This property is
-                                deprecated and instead, data on chiseling should be encoded within
-                                the BoreholeConstructionMethod object (to define the interval over
-                                which chiseling occurs and chiseling tool used, and the
-                                DrillAdvancement object to record chiseling rate of
-                                advancement.</documentation>
-                        </annotation>
-                    </element>
+                    <element minOccurs="0" maxOccurs="unbounded" ref="diggs:chiseling"/>
+
                     <element name="drillAdvancement" maxOccurs="unbounded" minOccurs="0"
                         type="diggs:DrillAdvancementArrayPropertyType"/>
                     <element minOccurs="0" name="flush" type="diggs:FlushPropertyType"
@@ -2462,46 +2513,6 @@
             </extension>
         </complexContent>
     </complexType>
-    <element name="Chiseling" substitutionGroup="diggs:AbstractObject" type="diggs:ChiselingType">
-        <annotation>
-            <documentation>An object containing properties about chiseling activity as part of
-                advancement of a borehole.</documentation>
-        </annotation>
-    </element>
-    <complexType name="ChiselingPropertyType">
-        <sequence>
-            <element maxOccurs="1" minOccurs="1" ref="diggs:Chiseling"/>
-        </sequence>
-    </complexType>
-    <complexType name="ChiselingType">
-        <complexContent>
-            <extension base="diggs:AbstractObjectType">
-                <sequence>
-                    <element name="chiselingLocation" type="diggs:LinearExtentPropertyType">
-                        <annotation>
-                            <documentation>The measured depth interval over which the chiseling
-                                takes place, recorded in the hole's linear referencing
-                                system.</documentation>
-                        </annotation>
-                    </element>
-                    <element minOccurs="0" name="timeTaken" type="eml:TimeMeasure">
-                        <annotation>
-                            <documentation>The amount of time taken to perform the chiseling
-                                task.</documentation>
-                        </annotation>
-                    </element>
-                    <element minOccurs="0" name="chiselingToolUsed" type="gml:StringOrRefType">
-                        <annotation>
-                            <documentation>Tool used to perform the chiseling. Intended to come from
-                                a controlled list. NOTE: This is a string that could come from a
-                                controlled list of terms, but could also reference an Equipment
-                                metadata object.</documentation>
-                        </annotation>
-                    </element>
-                </sequence>
-            </extension>
-        </complexContent>
-    </complexType>
     <complexType name="CodeOrPercentType">
         <choice>
             <element name="description" type="gml:CodeType"/>
@@ -2633,11 +2644,8 @@
                                 property</documentation>
                         </annotation>
                     </element>
-                    <element minOccurs="0" ref="diggs:character">
-                        <annotation>
-                            <documentation>Deprecated - use character attribute of the Color object instead</documentation>
-                        </annotation>
-                    </element>
+                    <element minOccurs="0" ref="diggs:character"/>
+
                 </sequence>
             </extension>
         </complexContent>
@@ -2647,6 +2655,7 @@
         <sequence>
             <element maxOccurs="1" minOccurs="1" ref="diggs:Color"/>
         </sequence>
+        <!-- These attributes now in Color object 
         <attribute name="character" type="diggs:ColorCharacterEnumType">
             <annotation>
                 <documentation>Deprecated - use attribute in Color object instead</documentation>
@@ -2657,6 +2666,7 @@
                 <documentation>Deprecated - use attribute in Color object instead</documentation>
             </annotation>
         </attribute>
+        -->
     </complexType>
     <complexType name="ColorType">
         <complexContent>
@@ -3633,8 +3643,7 @@ selenite crystals - color caused by crystals of selenite gypsum</documentation>
                                 time of measurement</documentation>
                         </annotation>
                     </element>
-                    <element name="gasFlow" type="eml:VolumePerTimeMeasure" minOccurs="0"
-                        maxOccurs="1">
+                    <element minOccurs="0" maxOccurs="1" ref="diggs:gasFlow">
                         <annotation>
                             <documentation>Where environmental data of interest is within an
                                 experimental chamber, a measure of the gas flow within the chamber.
@@ -3649,8 +3658,7 @@ selenite crystals - color caused by crystals of selenite gypsum</documentation>
                                 time of measurement</documentation>
                         </annotation>
                     </element>
-                    <element name="gasPressure" type="diggs:pressureMeasureType" minOccurs="0"
-                        maxOccurs="1">
+                    <element minOccurs="0" maxOccurs="1" ref="diggs:gasPressure">
                         <annotation>
                             <documentation>Where environmental data of interest is within an
                                 experimental chamber, a measure of the gas pressure within the
@@ -5246,7 +5254,7 @@ DSB: REMOVED FROM PROFILE
     <element name="MeasureOrString" type="diggs:MeasureOrStringType"
         substitutionGroup="gml:AbstractGML">
         <annotation>
-            <documentation>A object that can contain a string or numeric proerty value. Deprecated.</documentation>
+            <documentation>An object that can contain a string or numeric property value. Deprecated.</documentation>
         </annotation>
     </element>
     <complexType name="MeasureOrStringType">
@@ -5337,24 +5345,6 @@ DSB: REMOVED FROM PROFILE
                 locations.</documentation>
         </annotation>
     </element>
-    <element name="MultiTimeInstant" type="diggs:MultiTimeInstantType"
-        substitutionGroup="diggs:AbstractTimeObject" abstract="false">
-        <annotation>
-            <documentation>A Diggs time object that contains a collection of time instances.
-                Deprecated as of 2.6. Use TimePositionList instead for time instances expressed
-                in xsd:CalDate format.</documentation>
-        </annotation>
-    </element>
-    <complexType name="MultiTimeInstantType">
-        <complexContent>
-            <extension base="diggs:AbstractTimeObjectType">
-                <sequence>
-                    <element name="timeMember" type="diggs:TimeArrayPropertyType"
-                        maxOccurs="unbounded"/>
-                </sequence>
-            </extension>
-        </complexContent>
-    </complexType>
     <complexType name="NullDataType">
         <simpleContent>
             <extension base="string">
@@ -5606,7 +5596,7 @@ DSB: REMOVED FROM PROFILE
         <complexContent>
             <extension base="diggs:AbstractComponentObjectBaseType">
                 <sequence>
-                    <element minOccurs="0" name="index" type="integer">
+                    <element minOccurs="0" ref="diggs:index">
                         <annotation>
                             <documentation>Deprecated - use index attribute instead</documentation>
                         </annotation>
@@ -6431,11 +6421,13 @@ DSB: REMOVED FROM PROFILE
                     </annotation>
                     <simpleType>
                         <union>
+                            <!-- Removed option to allow for a null index value 
                             <simpleType>
-                                <restriction base="string">
+                              <restriction base="string">
                                     <enumeration value=""/>
                                 </restriction>
                             </simpleType>
+                            -->
                             <simpleType>
                                 <restriction base="integer"/>
                             </simpleType>
@@ -6493,8 +6485,7 @@ DSB: REMOVED FROM PROFILE
                                     water enters the well)</documentation>
                             </annotation>
                         </element>
-                        <element name="responseZoneLocationRef" type="gml:ReferenceType"
-                            minOccurs="1">
+                        <element minOccurs="1" ref="diggs:responseZoneLocationRef">
                             <annotation>
                                 <documentation>The location of the description referenced to the
                                     sampling feature's or sample's linear spatial reference
@@ -8894,7 +8885,7 @@ DSB: REMOVED FROM PROFILE
                                 <documentation><![CDATA[The elapsed time following an initial water strike when water level is again measured]]></documentation>
                             </annotation>
                         </element>
-                        <element name="time" type="eml:TimeMeasure">
+                        <element ref="diggs:time">
                             <annotation>
                                 <documentation><![CDATA[The elapsed time following an initial water strike when water level is again measured. Deprecated following v. 2.5. Use elapsedTime in the choice instead]]></documentation>
                             </annotation>
@@ -9010,11 +9001,12 @@ DSB: REMOVED FROM PROFILE
                                 Recorded in a linear reference system for the well.</documentation>
                         </annotation>
                     </element>
-                    <element minOccurs="0" name="filterPackInterval"
-                        type="diggs:LinearExtentPropertyType">
+                    <element minOccurs="0" ref="diggs:filterPackInterval">
                         <annotation>
                             <documentation>The depth interval in which the filter pack surrounding
-                                the well screen or well openings occur.</documentation>
+                                the well screen or well openings occur.
+                                
+DEPRECATED. Filter pack information should be entered as a Backfill object with a reference there to this well opening object.</documentation>
                         </annotation>
                     </element>
                     <element minOccurs="0" name="openingLength" type="eml:LengthMeasure"/>
@@ -9083,17 +9075,11 @@ DSB: REMOVED FROM PROFILE
                                 well and adjacent earth material</documentation>
                         </annotation>
                     </element>
-                    <element minOccurs="0" name="sanitarySealLocation"
-                        type="diggs:PointLocationPropertyType">
+                    <element minOccurs="0" ref="diggs:sanitarySealLocation"/>
+
+                    <element minOccurs="0" ref="diggs:sanitarySealType">
                         <annotation>
-                            <documentation>Distance to the base of the sanitary seal; measured in
-                                the borehole's linear reference system.</documentation>
-                        </annotation>
-                    </element>
-                    <element minOccurs="0" name="sanitarySealType" type="gml:CodeType">
-                        <annotation>
-                            <documentation>The type of material used for the sanitary or surface
-                                seal (eg. bentonite, grout, etc.)</documentation>
+                            <documentation/>
                         </annotation>
                     </element>
                     <element minOccurs="0" name="specialTreatment" type="diggs:DiggsStringType">
@@ -9203,7 +9189,6 @@ DSB: REMOVED FROM PROFILE
         </annotation>
     </element>
     <attribute name="howDetermined" type="diggs:DescriptorMethodEnumType"/>
-    <element name="character" type="diggs:ColorCharacterEnumType"/>
     <complexType name="LengthPerTimeMeasureType">
         <simpleContent>
             <extension base="eml:AbstractMeasure">
