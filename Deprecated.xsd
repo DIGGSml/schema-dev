@@ -1,0 +1,173 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<schema xmlns:diggs="http://diggsml.org/schemas/2.6"
+    xmlns:eml="http://www.energistics.org/energyml/data/commonv2"
+    xmlns:witsml="http://www.energistics.org/energyml/data/witsmlv2"
+    xmlns:g3.3="http://www.opengis.net/gml/3.3/ce" xmlns:glr="http://www.opengis.net/gml/3.3/lr"
+    xmlns:glrov="http://www.opengis.net/gml/3.3/lrov"
+    xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns="http://www.w3.org/2001/XMLSchema"
+    xmlns:xlink="http://www.w3.org/1999/xlink" xmlns:gml="http://www.opengis.net/gml/3.2"
+    xmlns:vc="http://www.w3.org/2007/XMLSchema-versioning"
+    targetNamespace="http://diggsml.org/schemas/2.6" version="2.6" elementFormDefault="qualified"
+    vc:maxVersion="1.1" vc:minVersion="1.0">
+    <!--
+ import the gml and xlinks namespaces (original local profiles)  
+-->
+    <import namespace="http://www.opengis.net/gml/3.2" schemaLocation="gml3.2Profile_diggs.xsd"/>
+    <import namespace="http://www.energistics.org/energyml/data/commonv2"
+        schemaLocation="witsml/2.0/data/common/v2.1/xsd_schemas/EmlAllObjects.xsd"/>
+    
+    <!-- This schema file containss elements deprecated from earlier DIGGS versions. They still exist within the DIGGS schema but should not be used -->
+    <element name="filterPackInterval" type="diggs:LinearExtentPropertyType">
+        <annotation>
+            <documentation>The depth interval in which the filter pack surrounding
+                the well screen or well openings occur.
+                
+                DEPRECATED. Filter pack information should be entered as a Backfill object with a reference there to this well opening object.</documentation>
+        </annotation>
+    </element>
+    <element name="penetrationRate" type="diggs:LengthPerTimeMeasureType">
+        <annotation>
+            <documentation>Rate of advancement of the drill head. Deprecated - use
+                advamcementRate instead</documentation>
+        </annotation>
+    </element>
+    <element name="holeBearing" type="eml:PlaneAngleMeasure">
+        <annotation>
+            <documentation>Deprecated - use bearing property from abstract
+                type</documentation>
+        </annotation>
+    </element>
+    <element name="holePlunge" type="eml:PlaneAngleMeasure">
+        <annotation>
+            <documentation>Depreated - use plunge property from abstract type
+            </documentation>
+        </annotation>
+    </element>
+    <element name="chiseling" type="diggs:ChiselingPropertyType">
+        <annotation>
+            <documentation>Information on chiseling activity in a hole. Used as
+                legacy to directly accommodate AGS CHIS group data. This property is
+                deprecated and instead, data on chiseling should be encoded within
+                the BoreholeConstructionMethod object (to define the interval over
+                which chiseling occurs, chiseling tool used, and the
+                DrillAdvancement object to record chiseling rate of
+                advancement.</documentation>
+        </annotation>
+    </element>
+    
+    <element name="Chiseling" substitutionGroup="diggs:AbstractObject" type="diggs:ChiselingType">
+        <annotation>
+            <documentation>An object containing properties about chiseling activity as part of
+                advancement of a borehole.</documentation>
+        </annotation>
+    </element>
+    <complexType name="ChiselingPropertyType">
+        <sequence>
+            <element maxOccurs="1" minOccurs="1" ref="diggs:Chiseling"/>
+        </sequence>
+    </complexType>
+    <complexType name="ChiselingType">
+        <complexContent>
+            <extension base="diggs:AbstractObjectType">
+                <sequence>
+                    <element name="chiselingLocation" type="diggs:LinearExtentPropertyType">
+                        <annotation>
+                            <documentation>The measured depth interval over which the chiseling
+                                takes place, recorded in the hole's linear referencing
+                                system.</documentation>
+                        </annotation>
+                    </element>
+                    <element minOccurs="0" name="timeTaken" type="eml:TimeMeasure">
+                        <annotation>
+                            <documentation>The amount of time taken to perform the chiseling
+                                task.</documentation>
+                        </annotation>
+                    </element>
+                    <element minOccurs="0" name="chiselingToolUsed" type="gml:StringOrRefType">
+                        <annotation>
+                            <documentation>Tool used to perform the chiseling. Intended to come from
+                                a controlled list. NOTE: This is a string that could come from a
+                                controlled list of terms, but could also reference an Equipment
+                                metadata object.</documentation>
+                        </annotation>
+                    </element>
+                </sequence>
+            </extension>
+        </complexContent>
+    </complexType>
+    
+    <element name="character" type="diggs:ColorCharacterEnumType"/>
+    
+    <element name="gasPressure" type="diggs:pressureMeasureType">
+        <annotation>
+            <documentation>Where environmental data of interest is within an
+                experimental chamber, a measure of the gas pressure within the
+                chamber. Deprecated; use test procedure specific properties where
+                relevant.</documentation>
+        </annotation>
+    </element>
+    
+    <element name="gasFlow" type="eml:VolumePerTimeMeasure">
+        <annotation>
+            <documentation>Where environmental data of interest is within an
+                experimental chamber, a measure of the gas flow within the chamber.
+                Deprecated; use test procedure specific properties where
+                relevant.</documentation>
+        </annotation>
+    </element>
+    
+    <element name="MultiTimeInstant" type="diggs:MultiTimeInstantType"
+        substitutionGroup="diggs:AbstractTimeObject" abstract="false">
+        <annotation>
+            <documentation>A Diggs time object that contains a collection of time instances.
+                Deprecated as of 2.6. Use TimePositionList instead for time instances expressed
+                in xsd:CalDate format.</documentation>
+        </annotation>
+    </element>
+    <complexType name="MultiTimeInstantType">
+        <complexContent>
+            <extension base="diggs:AbstractTimeObjectType">
+                <sequence>
+                    <element name="timeMember" type="diggs:TimeArrayPropertyType" maxOccurs="unbounded"
+                    />
+                </sequence>
+            </extension>
+        </complexContent>
+    </complexType>
+    
+    <element name="index" type="integer">
+        <annotation>
+            <documentation>Deprecated - use index attribute instead</documentation>
+        </annotation>
+    </element>
+    
+    <element name="responseZoneLocationRef" type="gml:ReferenceType">
+        <annotation>
+            <documentation>The location of the description referenced to the
+                sampling feature's or sample's linear spatial reference
+                system. This is deprecated in favor of using an xlink:href attribute in the resposeZoneLocation property.</documentation>
+        </annotation>
+    </element>
+    
+    <element name="time" type="eml:TimeMeasure">
+        <annotation>
+            <documentation><![CDATA[The elapsed time following an initial water strike when water level is again measured. Deprecated following v. 2.5. Use elapsedTime in the choice instead]]></documentation>
+        </annotation>
+    </element>
+    
+    <element name="sanitarySealLocation" type="diggs:PointLocationPropertyType">
+        <annotation>
+            <documentation>Distance to the base of the sanitary seal; measured in
+                the borehole's linear reference system. DEPRECATED. Use Backfill object of the borehole to represent the sanitary seal</documentation>
+        </annotation>
+    </element>
+    
+    <element name="sanitarySealType" type="gml:CodeType">
+        <annotation>
+            <documentation>The type of material used for the sanitary or surface
+                seal (eg. bentonite, grout, etc.)
+                DEPRECATED, use Backfill object to identify the sanitary seal material</documentation>
+        </annotation>
+    </element>
+    
+</schema>
