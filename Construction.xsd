@@ -370,7 +370,7 @@
                         </annotation>
                     </element>
                     <element minOccurs="0" name="specificGravityMixDesign"
-                        type="diggs:SpecificGravityType">
+                        type="diggs:SpecificGravityMeasureType">
                         <annotation>
                             <documentation>Design value for grout specific gravity.</documentation>
                         </annotation>
@@ -664,19 +664,12 @@
         <complexContent>
             <extension base="diggs:AbstractObjectType">
                 <sequence>
-                    <element minOccurs="0" name="apparentLugeonValue">
+                    <element minOccurs="0" name="apparentLugeonValue" type="diggs:LugeonValueMeasureType">
                         <annotation>
                             <documentation>The apparent Lugeon value upon which injection should
                                 terminate.</documentation>
                         </annotation>
-                        <complexType>
-                            <simpleContent>
-                                <extension base="eml:AbstractMeasure">
-                                    <attribute fixed="Lu" name="uom" use="required"/>
-                                </extension>
-                            </simpleContent>
-                        </complexType>
-                    </element>
+                    </element>                    
                     <element minOccurs="0" name="crossCommunication" type="boolean">
                         <annotation>
                             <documentation>Value is true if cross-communication of grout (eg. grout
@@ -710,35 +703,19 @@
                                 termination.</documentation>
                         </annotation>
                     </element>
-                    <element minOccurs="0" name="lateralMovement" maxOccurs="unbounded">
+                    <element minOccurs="0" name="lateralMovement" maxOccurs="unbounded" type="diggs:MovementMeasureType">
                         <annotation>
                             <documentation>Amount of lateral movement that triggers injection
                                 termination. Attribute 'displacedFeature' identifies feature being
                                 monitored for movement.</documentation>
                         </annotation>
-                        <complexType>
-                            <complexContent>
-                                <extension base="eml:LengthMeasure">
-                                    <attribute name="displacedFeature"
-                                        type="diggs:TerminationFeatureExtEnumType"/>
-                                </extension>
-                            </complexContent>
-                        </complexType>
                     </element>
-                    <element minOccurs="0" name="movement" maxOccurs="unbounded">
+                    <element minOccurs="0" name="movement" maxOccurs="unbounded" type="diggs:MovementMeasureType">
                         <annotation>
                             <documentation>Amount of total movement that triggers injection
                                 termination. Attribute 'displacedFeature' identifies feature being
                                 monitored for movement.</documentation>
                         </annotation>
-                        <complexType>
-                            <complexContent>
-                                <extension base="eml:LengthMeasure">
-                                    <attribute name="displacedFeature"
-                                        type="diggs:TerminationFeatureExtEnumType"/>
-                                </extension>
-                            </complexContent>
-                        </complexType>
                     </element>
                     <element minOccurs="0" name="pressureLimit"
                         type="diggs:GroutPressureMeasureType" maxOccurs="unbounded">
@@ -750,55 +727,56 @@
                                 (eg. pump, grout head, etc.).</documentation>
                         </annotation>
                     </element>
-                    <element minOccurs="0" name="rotation" maxOccurs="unbounded">
+                    <element minOccurs="0" name="rotation" maxOccurs="unbounded" type="diggs:RotationMeasureType">
                         <annotation>
                             <documentation>Amount of rotation that triggers injection termination.
                                 Attribute 'displacedFeature' identifies feature being monitored for
                                 movement.</documentation>
                         </annotation>
-                        <complexType>
-                            <complexContent>
-                                <extension base="eml:PlaneAngleMeasure">
-                                    <attribute name="displacedFeature"
-                                        type="diggs:TerminationFeatureExtEnumType"/>
-                                </extension>
-                            </complexContent>
-                        </complexType>
                     </element>
-                    <element minOccurs="0" name="tilt" maxOccurs="unbounded">
+                    <element minOccurs="0" name="tilt" maxOccurs="unbounded" type="diggs:RotationMeasureType">
                         <annotation>
                             <documentation>Amount of tilt that triggers injection termination.
                                 Attribute 'displacedFeature' identifies feature being monitored for
                                 movement.</documentation>
                         </annotation>
-                        <complexType>
-                            <complexContent>
-                                <extension base="eml:PlaneAngleMeasure">
-                                    <attribute name="displacedFeature"
-                                        type="diggs:TerminationFeatureExtEnumType"/>
-                                </extension>
-                            </complexContent>
-                        </complexType>
                     </element>
-                    <element minOccurs="0" name="verticalMovement" maxOccurs="unbounded">
+                    <element minOccurs="0" name="verticalMovement" maxOccurs="unbounded" type="diggs:MovementMeasureType">
                         <annotation>
                             <documentation>Amount of vertical movement that triggers injection
                                 termination. Attribute 'displacedFeature' identifies feature being
                                 monitored for movement.</documentation>
                         </annotation>
-                        <complexType>
-                            <complexContent>
-                                <extension base="eml:LengthMeasure">
-                                    <attribute name="displacedFeature"
-                                        type="diggs:TerminationFeatureExtEnumType"/>
-                                </extension>
-                            </complexContent>
-                        </complexType>
                     </element>
                 </sequence>
             </extension>
         </complexContent>
     </complexType>
+    <complexType name="MovementMeasureType">
+        <complexContent>
+            <extension base="eml:LengthMeasure">
+                <attribute name="displacedFeature"
+                    type="diggs:TerminationFeatureExtEnumType"/>
+            </extension>
+        </complexContent>
+    </complexType>
+    <complexType name="RotationMeasureType">
+        <complexContent>
+            <extension base="eml:PlaneAngleMeasure">
+                <attribute name="displacedFeature"
+                    type="diggs:TerminationFeatureExtEnumType"/>
+            </extension>
+        </complexContent>
+    </complexType>
+    
+    <complexType name="LugeonValueMeasureType">
+        <simpleContent>
+            <extension base="eml:AbstractMeasure">
+                <attribute fixed="Lu" name="uom" use="required"/>
+            </extension>
+        </simpleContent>
+    </complexType>
+    
     <element name="GroutConstructionSpecification" type="diggs:GroutConstructionSpecificationType"
         substitutionGroup="diggs:AbstractObject"/>
     <complexType name="GroutConstructionSpecificationPropertyType" mixed="false">
@@ -1139,7 +1117,7 @@
         <complexContent>
             <extension base="diggs:AbstractNamedRoleObjectType">
                 <sequence>
-                    <element minOccurs="0" name="specificGravity" type="diggs:SpecificGravityType">
+                    <element minOccurs="0" name="specificGravity" type="diggs:SpecificGravityMeasureType">
                         <annotation>
                             <documentation>Specific gravity of grout component </documentation>
                         </annotation>
@@ -1947,20 +1925,13 @@
                             <documentation>Maximum capacity of the agitator.</documentation>
                         </annotation>
                     </element>
-                    <element minOccurs="0" name="mixerVolume" maxOccurs="unbounded">
+                    <element minOccurs="0" name="mixerVolume" maxOccurs="unbounded" type="diggs:MixerVolumeMeasureType">
                         <annotation>
                             <documentation>Maximum capacity of the mixer. The optional attribute
                                 atSpecificGravity may be used to specify the maximum capacity of the
                                 mixer for a particular specific gravity of the grout
                             </documentation>
                         </annotation>
-                        <complexType>
-                            <complexContent>
-                                <extension base="eml:VolumeMeasure">
-                                    <attribute name="atSpecificGravity" type="double"/>
-                                </extension>
-                            </complexContent>
-                        </complexType>
                     </element>
                     <element minOccurs="0" name="agitatorSpeed" type="eml:AngularVelocityMeasure">
                         <annotation>
@@ -1976,6 +1947,14 @@
             </extension>
         </complexContent>
     </complexType>
+    <complexType name="MixerVolumeMeasureType">
+        <complexContent>
+            <extension base="eml:VolumeMeasure">
+                <attribute name="atSpecificGravity" type="double"/>
+            </extension>
+        </complexContent>
+    </complexType>
+    
     <complexType name="TrialGroutBatchType">
         <complexContent>
             <extension base="diggs:AbstractSampleType">
@@ -2020,13 +1999,13 @@
                         </annotation>
                     </element>
                     <element minOccurs="0" name="specificGravityMix"
-                        type="diggs:SpecificGravityType">
+                        type="diggs:SpecificGravityMeasureType">
                         <annotation>
                             <documentation>The specific gravity of the grout mix</documentation>
                         </annotation>
                     </element>
                     <element minOccurs="0" name="specificGravityWater"
-                        type="diggs:SpecificGravityType">
+                        type="diggs:SpecificGravityMeasureType">
                         <annotation>
                             <documentation>The specific gravity of water used for mix
                                 proportions,</documentation>
@@ -2186,7 +2165,7 @@
                         </annotation>
                     </element>
                     <element minOccurs="0" name="specificGravityOfSolids"
-                        type="diggs:SpecificGravityType">
+                        type="diggs:SpecificGravityMeasureType">
                         <annotation>
                             <documentation>Specific gravity of grout solids (Gs) is the ratio of the
                                 density of a substance to the density of a reference substance,
@@ -2360,14 +2339,7 @@
                                 interval filled.</documentation>
                         </annotation>
                     </element>
-                    <element minOccurs="0" name="waterLugeonValue">
-                        <complexType>
-                            <simpleContent>
-                                <extension base="eml:AbstractMeasure">
-                                    <attribute fixed="Lu" name="uom" use="required"/>
-                                </extension>
-                            </simpleContent>
-                        </complexType>
+                    <element minOccurs="0" name="waterLugeonValue" type="diggs:LugeonValueMeasureType">
                     </element>
                     <element maxOccurs="unbounded" minOccurs="0" name="groutTemperature"
                         type="diggs:TemperatureMeasurementtPropertyType">
@@ -3041,15 +3013,8 @@
                                 interval.</documentation>
                         </annotation>
                     </element>
-                    <element minOccurs="0" name="waterLugeonValue">
-                        <complexType>
-                            <simpleContent>
-                                <extension base="eml:AbstractMeasure">
-                                    <attribute fixed="Lu" name="uom" use="required"/>
-                                </extension>
-                            </simpleContent>
-                        </complexType>
-                    </element>
+                    <element minOccurs="0" name="waterLugeonValue" type="diggs:LugeonValueMeasureType">
+                   </element>
                     <element minOccurs="0" name="filteringParameters" type="diggs:DiggsStringType">
                         <annotation>
                             <documentation>A description of any parameters used for filtering any

@@ -595,13 +595,13 @@
                             <documentation>A reference to a LinearSpatialReferenceSystem object for this sampling feature. A linear SRS allows other objects to reference their position (location) on the sampling feature with 1D coordinates that represents distance along the linear sampling feature, typically from the centerline origin. For sampling features such as boreholes the linear SRS coordinates define measured depths down the hole's centerline.</documentation>
                         </annotation>
                     </element>
-                    <element minOccurs="0" name="plunge" type="eml:PlaneAngleMeasureExt">
+                    <element minOccurs="0" name="plunge" type="diggs:PlungeMeasureType">
                         <annotation>
                             <documentation>For an inclined feature, the plunge angle, measured from
                                 the horizontal, positive up</documentation>
                         </annotation>
                     </element>
-                    <element minOccurs="0" name="bearing" type="diggs:BearingType">
+                    <element minOccurs="0" name="bearing" type="diggs:BearingMeasureType">
                         <annotation>
                             <documentation>For an inclined feature, the direction of plunge,
                                 positive clockwise from the reference azimuth, as expressed in the
@@ -1928,9 +1928,9 @@
             <enumeration value="within casing"/>
         </restriction>
     </simpleType>
-    <complexType name="BearingType">
+    <complexType name="BearingMeasureType">
         <simpleContent>
-            <extension base="eml:PlaneAngleMeasureExt">
+            <extension base="diggs:BearingMeasureBaseType">
                 <attribute name="refAzimuth" type="witsml:AziRef"/>
             </extension>
         </simpleContent>
@@ -5016,7 +5016,7 @@ For metamorphic rocks, this property is used to describe a set of mineral assemb
                                 up</documentation>
                         </annotation>
                     </element>
-                    <element minOccurs="0" name="originAxisAzimuth" type="diggs:BearingType">
+                    <element minOccurs="0" name="originAxisAzimuth" type="diggs:BearingMeasureType">
                         <annotation>
                             <documentation>Origin axis azimuth for the northing and easting values,
                                 reported as a bearing, positive clockwise from the reference
@@ -7500,7 +7500,7 @@ DSB: REMOVED FROM PROFILE
             </extension>
         </complexContent>
     </complexType>
-    <complexType name="SpecificGravityType">
+    <complexType name="SpecificGravityMeasureType">
         <simpleContent>
             <extension base="diggs:DescriptorValueType">
                 <attribute name="waterTemperature" type="string"/>
@@ -7561,7 +7561,7 @@ DSB: REMOVED FROM PROFILE
                         </annotation>
                     </element>
                     <element minOccurs="0" name="specificGravityOfSolids"
-                        type="diggs:SpecificGravityType">
+                        type="diggs:SpecificGravityMeasureType">
                         <annotation>
                             <documentation>Specific gravity of soil solids (Gs) is the ratio of the
                                 density of a substance to the density of a reference substance,
@@ -7578,7 +7578,7 @@ DSB: REMOVED FROM PROFILE
                                 (eg. thin-walled sampler); 2) disturbed - specimen prepared from a
                                 disturbed sample (eg. thick walled sampler; 3) remolded - specimen
                                 prepared from a failed or otherwise disturbed intact specimen; 4)
-                                reconstituted - speciment prepared to a predetermined water content
+                                reconstituted - specimen prepared to a predetermined water content
                                 and density</documentation>
                         </annotation>
                     </element>
@@ -7740,7 +7740,7 @@ DSB: REMOVED FROM PROFILE
                             <documentation/>
                         </annotation>
                     </element>
-                    <element minOccurs="0" name="waterContent" type="diggs:WaterContentType"/>
+                    <element minOccurs="0" name="waterContent" type="diggs:WaterContentMeasureType"/>
                     <element minOccurs="0" name="wetWeight" type="eml:ForceMeasure">
                         <annotation>
                             <documentation>The weight of the sample prior to drying.</documentation>
@@ -8838,7 +8838,7 @@ DSB: REMOVED FROM PROFILE
         </annotation>
         <union memberTypes="diggs:WaterContentMethodEnumType diggs:OtherNameType"/>
     </simpleType>
-    <complexType name="WaterContentType">
+    <complexType name="WaterContentMeasureType">
         <simpleContent>
             <extension base="eml:VolumePerVolumeMeasure">
                 <attribute name="derivedFrom" type="diggs:WaterContentMethodType"/>
@@ -9295,7 +9295,7 @@ boulder - for ASTM, particles above 300 mm; for boulder, particles above 256 mm<
     <simpleType name="SizeClassEnumExtType">
         <union memberTypes="diggs:SizeClassEnumType diggs:OtherNameType"/>
     </simpleType>
-    <complexType name="PlungeType">
+    <complexType name="PlungeMeasureType">
         <simpleContent>
             <restriction base="eml:PlaneAngleMeasure">
                 <minInclusive value="-90"/>
@@ -9303,7 +9303,7 @@ boulder - for ASTM, particles above 300 mm; for boulder, particles above 256 mm<
             </restriction>
         </simpleContent>
     </complexType>
-    <complexType name="BearingBaseType">
+    <complexType name="BearingMeasureBaseType">
         <simpleContent>
             <restriction base="eml:PlaneAngleMeasure">
                 <minInclusive value="0"/>
@@ -9426,21 +9426,11 @@ boulder - for ASTM, particles above 300 mm; for boulder, particles above 256 mm<
                             <documentation>A text string describing axle information where applicable, eg. "planetary with no-spin differentials, front and rear"</documentation>
                         </annotation>
                     </element>
-                    <element minOccurs="0" name="winchCapacity">
+                    <element minOccurs="0" name="winchCapacity"
+                        type="diggs:WinchCapacityMeasureType">
                         <annotation>
                             <documentation>Maximum capacity of the winch (expressed as a weight).</documentation>
                         </annotation>
-                        <complexType>
-                            <simpleContent>
-                                <extension base="eml:ForceMeasureExt">
-                                    <attribute name="winchLocation" type="string">
-                                        <annotation>
-                                            <documentation>Location of the winch on the rig (eg. front, rear)</documentation>
-                                        </annotation>
-                                    </attribute>
-                                </extension>
-                            </simpleContent>
-                        </complexType>
                     </element>
                     <element minOccurs="0" name="waterTankCapacity" type="eml:VolumeMeasureExt">
                         <annotation>
@@ -9576,6 +9566,18 @@ boulder - for ASTM, particles above 300 mm; for boulder, particles above 256 mm<
             </extension>
         </complexContent>
     </complexType>
+    <complexType name="WinchCapacityMeasureType">
+        <simpleContent>
+            <extension base="eml:ForceMeasureExt">
+                <attribute name="winchLocation" type="string">
+                    <annotation>
+                        <documentation>Location of the winch on the rig (eg. front, rear)</documentation>
+                    </annotation>
+                </attribute>
+            </extension>
+        </simpleContent>
+    </complexType>
+
     <complexType name="DrillPipeType">
         <complexContent>
             <extension base="diggs:AbstractComponentObjectType">
