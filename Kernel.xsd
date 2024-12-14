@@ -2513,12 +2513,6 @@
             </extension>
         </complexContent>
     </complexType>
-    <complexType name="CodeOrPercentType">
-        <choice>
-            <element name="description" type="gml:CodeType"/>
-            <element name="percentage" type="diggs:Val0-100MeasureType"/>
-        </choice>
-    </complexType>
     <complexType name="CodeWithAuthorityType">
         <annotation>
             <documentation>Same as gml:CodeWithAuthorityType, only without the pattern restriction
@@ -3346,18 +3340,18 @@ selenite crystals - color caused by crystals of selenite gypsum</documentation>
             memberTypes="diggs:geotechnicalDensityUom eml:MassPerVolumeUomExt eml:ForcePerVolumeUomExt"
         />
     </simpleType>
-    <simpleType name="diggsMassUomEnumType">
+    <simpleType name="geotechnicalMassUom">
         <restriction base="string">
             <enumeration value="slug"/>
         </restriction>
     </simpleType>
-    <simpleType name="diggsMassUom">
-        <union memberTypes="diggs:diggsMassUomEnumType eml:MassUomExt"/>
+    <simpleType name="massUom">
+        <union memberTypes="diggs:geotechnicalMassUom eml:MassUomExt"/>
     </simpleType>
     <complexType name="DiggsMassMeasureType">
         <simpleContent>
             <extension base="eml:AbstractMeasure">
-                <attribute name="uom" type="diggs:diggsMassUom" use="required"/>
+                <attribute name="uom" type="diggs:massUom" use="required"/>
             </extension>
         </simpleContent>
     </complexType>
@@ -5811,8 +5805,19 @@ DSB: REMOVED FROM PROFILE
         </restriction>
     </simpleType>
     <simpleType name="PhoneNumberStringType">
+        <annotation>
+            <documentation>A string value pattern restricted to accept US or International phone numbers with some flexibility in formatting, such as:
++1 555 123 4567
++442071234567
+(555) 123-4567
+555.123.4567
+5551234567
++33 1 23 45 67 89</documentation>
+        </annotation>
         <restriction base="string">
-            <pattern value="[0-9\-\+\(\)]{4,}"/>
+            <pattern
+                value="(\+[0-9]( )?)?([0-9]( |-|\.|)){6,14}[0-9]|(\([0-9]{3}\)[-. ]?|[0-9]{3}[-. ])[0-9]{3}[-. ]?[0-9]{4} "
+            />
         </restriction>
     </simpleType>
     <complexType name="PhoneType">
