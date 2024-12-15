@@ -49,7 +49,8 @@
                                 produce a liquid_limit_oven_dried reportable result</documentation>
                         </annotation>
                     </element>
-                    <element minOccurs="0" name="sieveProcedure">
+                    <element minOccurs="0" name="sieveProcedure"
+                        type="diggs_geo:sieveProcedureEnumtType">
                         <annotation>
                             <documentation>Value is wet if wet sieving on No. 40 screen (0.425 mm)
                                 is performed; dry if dry sieving on No. 40 screen (0.425 mm) is
@@ -58,14 +59,6 @@
                                 unknown if not known. If value is None, the property handRemoved
                                 should be used.</documentation>
                         </annotation>
-                        <simpleType>
-                            <restriction base="string">
-                                <enumeration value="wet"/>
-                                <enumeration value="dry"/>
-                                <enumeration value="none"/>
-                                <enumeration value="unknown"/>
-                            </restriction>
-                        </simpleType>
                     </element>
                     <element minOccurs="0" name="handRemoved" type="boolean">
                         <annotation>
@@ -91,24 +84,17 @@
                                 test</documentation>
                         </annotation>
                     </element>
-                    <element minOccurs="0" name="waterDensity" type="diggs:SpecificGravityMeasureType">
+                    <element minOccurs="0" name="waterDensity"
+                        type="diggs:SpecificGravityMeasureType">
                         <annotation>
                             <documentation>Usually assigned a value of 1.0, this value could be modified to account for temperature differences, as indicated in the attributes of this type.
 </documentation>
                         </annotation>
                     </element>
-                    <element minOccurs="0" name="waxDensity">
+                    <element minOccurs="0" name="waxDensity" type="diggs_geo:WaxDensityMeasureType">
                         <annotation>
                             <documentation>For determination of shrinkage limit, the density of the wax used to seal the soil pat. This may be an assigned value, reported from the manufacturer or determined by a test procedure such as described in ASTM D 4943.</documentation>
                         </annotation>
-                        <complexType>
-                            <simpleContent>
-                                <extension base="diggs:DensityOrUnitWeightMeasureType">
-                                    <attribute name="howDetermined"
-                                        type="diggs:DescriptorMethodEnumType"/>
-                                </extension>
-                            </simpleContent>
-                        </complexType>
                     </element>
                     <element minOccurs="0" name="casagrandeTrial"
                         type="diggs_geo:CasagrandeTrialPropertyType" maxOccurs="unbounded">
@@ -145,6 +131,25 @@
             </extension>
         </complexContent>
     </complexType>
+
+    <simpleType name="sieveProcedureEnumtType">
+        <restriction base="string">
+            <enumeration value="wet"/>
+            <enumeration value="dry"/>
+            <enumeration value="none"/>
+            <enumeration value="unknown"/>
+        </restriction>
+    </simpleType>
+
+    <complexType name="WaxDensityMeasureType">
+        <simpleContent>
+            <extension base="diggs:DensityOrUnitWeightMeasureType">
+                <attribute name="howDetermined" type="diggs:DescriptorMethodEnumType"/>
+            </extension>
+        </simpleContent>
+    </complexType>
+
+
     <element name="CasagrandeTrial" type="diggs_geo:CasagrandeTrialType"
         substitutionGroup="diggs:AbstractProcedureTrial">
         <annotation>
@@ -2066,20 +2071,7 @@ consolidation (ch) and in situ horizontal coefficient of permeability (kh)</docu
                         </annotation>
                     </element>
                 </sequence>
-                <attribute name="index" use="required">
-                    <simpleType>
-                        <union>
-                            <simpleType>
-                                <restriction base="string">
-                                    <enumeration value=""/>
-                                </restriction>
-                            </simpleType>
-                            <simpleType>
-                                <restriction base="integer"/>
-                            </simpleType>
-                        </union>
-                    </simpleType>
-                </attribute>
+                <attribute use="required" ref="diggs:index"> </attribute>
             </extension>
         </complexContent>
     </complexType>
@@ -3006,8 +2998,8 @@ soil, which is dependent upon the water content of the soil, along with the type
         <complexContent>
             <extension base="diggs:AbstractLaboratoryTestProcedureType">
                 <sequence>
-                    <element maxOccurs="unbounded" minOccurs="0" name="reading" type="diggs_geo:ReadingMeasureType">
-                    </element>
+                    <element maxOccurs="unbounded" minOccurs="0" name="reading"
+                        type="diggs_geo:ReadingMeasureType"> </element>
                 </sequence>
             </extension>
         </complexContent>
@@ -3023,7 +3015,7 @@ soil, which is dependent upon the water content of the soil, along with the type
             </extension>
         </complexContent>
     </complexType>
-    
+
     <element name="RedoxTest" substitutionGroup="diggs:AbstractLaboratoryTestProcedure"
         type="diggs_geo:RedoxTestType">
         <annotation>
