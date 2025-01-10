@@ -549,8 +549,7 @@
                             <documentation>The area of the piston for a double acting hammer.</documentation>
                         </annotation>
                     </element>
-                    <element minOccurs="0" name="smallPistionistonAreaDifActing"
-                        type="eml:AreaMeasureExt">
+                    <element minOccurs="0" name="smallPistonAreaDifActing" type="eml:AreaMeasureExt">
                         <annotation>
                             <documentation>The area of the small piston for a differential acting hammer.</documentation>
                         </annotation>
@@ -558,6 +557,12 @@
                     <element minOccurs="0" name="strikerPlate" type="diggs:StrikerPlatePropertyType">
                         <annotation>
                             <documentation>The striker plate used with the hammer.</documentation>
+                        </annotation>
+                    </element>
+                    <element minOccurs="0" name="hammerCushion" type="diggs:CushionPropertyType"
+                        maxOccurs="unbounded">
+                        <annotation>
+                            <documentation>A property that contains a Cushion object that describes the hammer cushion. Multiple Cushon objects can be associated witht the hammer to account for multiple drives that might occur for the pile driving activity if the cushion is changed out between drives.</documentation>
                         </annotation>
                     </element>
                     <element minOccurs="0" name="blowsPerMinuteMin" type="positiveInteger">
@@ -654,9 +659,10 @@
                             <documentation>The thickness of the pile cap.</documentation>
                         </annotation>
                     </element>
-                    <element minOccurs="0" name="elasticModulus" type="eml:PressureMeasureExt">
+                    <element minOccurs="0" name="pileCushion" type="diggs:CushionPropertyType"
+                        maxOccurs="unbounded">
                         <annotation>
-                            <documentation>The elastic modulus of the cushion element.</documentation>
+                            <documentation>A property that contains a Cushion object that describes the pile cushion. Multiple Cushon objects can be associated with the cap to account for multiple drives that might occur for the pile driving activity if the cushion is changed out between drives.</documentation>
                         </annotation>
                     </element>
                 </sequence>
@@ -682,7 +688,7 @@
             <documentation>A compressible material placed between the hammer and the pile or the pile and the pile cap to distribute impact force and reduce damage.</documentation>
         </annotation>
         <complexContent>
-            <extension base="diggs:AbstractComponentObjectType">
+            <extension base="diggs:AbstractObjectType">
                 <sequence>
                     <element minOccurs="0" name="cushionElement" maxOccurs="unbounded"
                         type="diggs:CushionElementPropertyType">
@@ -712,7 +718,8 @@
                             <documentation>The area of the cushion after driving is complete.</documentation>
                         </annotation>
                     </element>
-                    <element minOccurs="0" name="coefficientOfRestitution" type="diggs:value0to1ValueType">
+                    <element minOccurs="0" name="coefficientOfRestitution"
+                        type="diggs:value0to1ValueType">
                         <annotation>
                             <documentation>A value between 0 and 1 describing the energy returned after impact, 1 is a perfectly elastic impact and 0 is a perfectly plastic impact.</documentation>
                         </annotation>
@@ -721,14 +728,14 @@
             </extension>
         </complexContent>
     </complexType>
-    
+
     <simpleType name="value0to1ValueType">
         <restriction base="double">
             <minInclusive value="0"/>
             <maxInclusive value="1"/>
         </restriction>
     </simpleType>
-    
+
     <complexType name="CushionPropertyType">
         <annotation>
             <documentation>A property with a Cushion object as its value.</documentation>
@@ -737,8 +744,7 @@
             <element ref="diggs:Cushion"/>
         </sequence>
     </complexType>
-    <element name="Cushion" substitutionGroup="diggs:AbstractComponentObject"
-        type="diggs:CushionType">
+    <element name="Cushion" substitutionGroup="diggs:AbstractObject" type="diggs:CushionType">
         <annotation>
             <documentation>A Cushion object with all its properties.</documentation>
         </annotation>
@@ -911,21 +917,25 @@
         <complexContent>
             <extension base="diggs:PileDrivingRecordBaseType">
                 <sequence>
-                    <element name="recordType" type="diggs:RecordTypeEnumExtType"/>
-                    <element minOccurs="0" name="hammerCushion" type="diggs:CushionPropertyType">
+                    <element name="recordType" type="diggs:RecordTypeEnumExtType">
                         <annotation>
-                            <documentation/>
+                            <documentation>The type of drive record, either manual or Saximeter (from an enumerated list). Manual should be used for all instances where the drive record is recorded manually by an engineer or technician.</documentation>
                         </annotation>
                     </element>
-                    <element minOccurs="0" name="pileCushion" type="diggs:CushionPropertyType">
+                    <element minOccurs="0" name="hammerCushion" type="gml:ReferenceType">
                         <annotation>
-                            <documentation/>
+                            <documentation>A reference to the hammer cushion used for this drive record (eg. a Cushion object within the PileDriveHammer equipment object</documentation>
+                        </annotation>
+                    </element>
+                    <element minOccurs="0" name="pileCushion" type="gml:ReferenceType">
+                        <annotation>
+                            <documentation>A reference to the pile cushion used for this drive record (eg. a Cushion object within the PileCap equipment object</documentation>
                         </annotation>
                     </element>
                     <element minOccurs="0" name="driveInterval"
                         type="diggs:LinearExtentPropertyType">
                         <annotation>
-                            <documentation/>
+                            <documentation>The depth interval (typically from ground surface) associated with this drive record.</documentation>
                         </annotation>
                     </element>
                     <element minOccurs="0" name="initiationTime" type="gml:TimePositionType">
@@ -1165,7 +1175,7 @@
                     </element>
                 </sequence>
                 <attribute name="index" type="positiveInteger" use="required">
-                <annotation>
+                    <annotation>
                         <documentation>An integer that indicates the position of the property result in the dataValues property.</documentation>
                     </annotation>
                 </attribute>
@@ -1217,20 +1227,20 @@
         <complexContent>
             <extension base="diggs:PDARecordBaseType">
                 <sequence>
-                    <element minOccurs="0" name="hammerCushion" type="diggs:CushionPropertyType">
+                    <element minOccurs="0" name="hammerCushion" type="gml:ReferenceType">
                         <annotation>
-                            <documentation/>
+                            <documentation>A reference to the hammer cushion used for this drive record (eg. a Cushion object within the PileDriveHammer equipment object</documentation>
                         </annotation>
                     </element>
-                    <element minOccurs="0" name="pileCushion" type="diggs:CushionPropertyType">
+                    <element minOccurs="0" name="pileCushion" type="gml:ReferenceType">
                         <annotation>
-                            <documentation/>
+                            <documentation>A reference to the pile cushion used for this drive record (eg. a Cushion object within the PileCap equipment object</documentation>
                         </annotation>
                     </element>
                     <element minOccurs="0" name="driveInterval"
                         type="diggs:LinearExtentPropertyType">
                         <annotation>
-                            <documentation/>
+                            <documentation>The depth interval (typically from ground surface) associated with this drive record.</documentation>
                         </annotation>
                     </element>
                     <element minOccurs="0" name="initiationTime" type="gml:TimePositionType">
