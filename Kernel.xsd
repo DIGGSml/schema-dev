@@ -4434,9 +4434,15 @@
                             <documentation><![CDATA[Average Fracture Spacing over zone]]></documentation>
                         </annotation>
                     </element>
-                    <element minOccurs="0" name="fracturesPerUnitLength" type="eml:LengthMeasure">
+                    <element minOccurs="0" name="fractureCount" type="positiveInteger">
                         <annotation>
-                            <documentation><![CDATA[Number of fractures per unit length as specified in the uom attribute]]></documentation>
+                            <documentation>The number of fractures identified within the extent of the DiscontinuityObservation.</documentation>
+                        </annotation>
+                    </element>
+                    <element minOccurs="0" name="fracturesPerUnitLength"
+                        type="eml:ReciprocalLengthMeasureExt">
+                        <annotation>
+                            <documentation><![CDATA[Number of fractures per unit length as specified in the uom attribute. This is a property included for compatibility with an AGS field but should generally not be otherwise used, as it is borehole specific and can be calculated from fractureCount and the length of the LinearExtent reported for the DiscontinuityObservation]]></documentation>
                         </annotation>
                     </element>
                 </sequence>
@@ -5045,11 +5051,11 @@ DSB: REMOVED FROM PROFILE
                                 <annotation>
                                     <documentation>The value that describes the lithology as a controlled term (classification code or controlled name), rather than a simply descriptive one. Examples:
 
-1) For soils described using the Unified Soil Classification, this value shall be the "group name" as defined in Figures 1,2 and 3 of ASTM D 2487 or Figures 1 and 2 of ASTM D 2488, eg "Silty sand" or "Gravelly silt with sand". Where the group name is not specified, the "group symbol" should be used instead (eg. "SM" "ML"). 
+1) For soils described using the Unified Soil Classification, this value shall be the "group name", including any modifiers as defined in Figures 1,2 and 3 of ASTM D2487 or Figures 1 and 2 of ASTM D2488, eg "Silty sand" or "Gravelly silt with sand". Where only the group symbol is reported, the unmodifed group name for the symbol should be used, as shown in Table 1 of ASTM D2487.
 
 2) For soils described using the AASHTO soil classification system, this value should be the group or subgroup classification (eg. "A-3", "A-2-6"). 
 
-3) For soils classified using the USDA, Shepard (1954), or Folk classifications based on soil textures, this value would be the textural classification, eg. "sandy loam" (USDA), "sand-silt-clay" (Shepard), or "muddy Sand" (Folk).
+3) For soils classified using the USDA, Shepard (1954), or Folk classifications based on soil textures, this value would be the full-text textural classification, eg. "sandy loam" (USDA), "sand-silt-clay" (Shepard), or "muddy Sand" (Folk).
 
 4) For soils classified using the British Soil Classification System, this value would be the recommended name (eg. "CLAY of very high plasticity"), or the group symbol if the standard name is not given (eg. "CV").
 
@@ -5057,41 +5063,25 @@ DSB: REMOVED FROM PROFILE
 
 Either a classificationCode value or lithDescription value must be present in the Lithology object. 
 
-The codespace attribute is mandatory and shall be any of the following:
+The codespace attribute is mandatory and shall be a URL to an xml dictionary that conforms to the Dictionary_diggs.xsd schema and that defines the terms used in the classification system within diggs:Definition elements. The value of classificationCode should be equivalent to the gml:name property of the associated diggs:Definition, for example: <classificationCode codespace="https://diggsml.org/def/codes/DIGGS/0.1/astmD2488.xml">Well-graded sand with gravel</classificationCode> An example diggs:Definition element within the dictionary would look as follows:
 
-1) ASTMD2487 - For the Unified Soil Classification System (ASTM D2487)
-
-2) ASTMD2488 - For the Unified Soil Classification System (Visual-Manual Procedure) (ASTM D2488)
-
-3) AASHTO - For the AASHTO Classification of Soils and Soil–Aggregate Mixtures for Highway Construction Purposes (AASHTO Designation M145-91)
-
-4) USDA - For US Dept. of Agriculture soil textural classification from Soil Survey Division Staff, 1993. Soil survey manual, Soil Conservation Service, U.S. Department of Agriculture Handbook 18, Chapter 3.
-
-5)  BSCS -  For the British Standard Classification System (BS 1990), Methods of test for soils for civil engineering purposes. British Standards Institution.
-
-6) SHEP - For the sediment clasification modified from Shepard (1954) and modified by Schlee (1973) (Shepard, F.P., 1954, Nomenclature based on sand-silt-clay ratios: Journal of Sedimentary Petrology, v. 24, p. 151-158; Schlee, J, 1973. Atlantic Continental Shelf and Slope of the United States - Sediment Texture of the Northeastern Part. US Geological Survey, Professional Paper 529-L, 64 p))
-
-7) SHEP2 - For the sediment classification modified from Shepard (1954), as modified by Schlee (1973) and Poppe and others (2004) (Poppe, L.J., Eliason, A.H., and Hastings, M.E., 2004, A Visual Basic program to generate sediment grain-size statistics and to extrapolate particle distributions: Computers and Geosciences, v. 30, no. 7, p. 791–795.)
-
-8) FOLK - For the sediment classification by Folk (1954, 1974) (Folk, R.L., 1954, The distinction between grain size and mineral composition in sedimentary rock nomenclature: Journal of Geology, v. 62, no. 4, p. 344-359.; Folk, R.L., 1974, The petrology of sedimentary rocks: Austin, Tex., Hemphill Publishing Co., 182 p.)
-
-9) AGI - Rock name as defined by the American Geosciences Institute Glossary
-
-10) a URL to an xml dictionary that conforms to the Dictionary_diggs.xsd schema and that defines the terms used in the classification system within diggs:Definition elements. The value of classificationCode should be equivalent to the gml:name property of the associated diggs:Definition, for example: <classificationCode codespace="https://mydot.org/myClassicationSystemDictionary.xml">Well-graded sand with gravel</classificationCode> The diggs:Definition element within the dictionary would look as follows:
         <diggs:Definition gml:id="SWg">
-            <gml:description>Well-graded sand with ≥ 10% gravel</gml:description>
-            <gml:identifier codeSpace="MyDOT">https://mydot.org/myClassicationSystemDictionary.xml#SWg"</gml:identifier>
+            <gml:description>SW with ≥ 15% gravel</gml:description>
+            <gml:identifier codeSpace="https://diggsml.org/def/authorities.xml#DIGGS">https://diggsml.org/def/codes/DIGGS/0.1/astmD2487.xml#SWg</gml:identifier>
             <gml:name>Well-graded sand with gravel</gml:name>
             <diggs:dataType>string</diggs:dataType>
-            <diggs:authority>MyDOT</diggs:authority>
+            <diggs:authority>ASTM D2487</diggs:authority>
+            <diggs:reference>https://www.astm.org/d2487-17.html</diggs:reference>
             <diggs:occurrences>
                 <diggs:Occurrence>
-                   <diggs:sourceElementXpath>//diggs:Lithology/diggs:classificationCode</diggs:sourceElementXpath>
+                    <diggs:sourceElementXpath>//diggs:Lithology/diggs:classificationCode</diggs:sourceElementXpath>
                 </diggs:Occurrence>
             </diggs:occurrences>
         </diggs:Definition>
+        
+The Geo-Institute has developed online dictionaries for ASTM D2487, ASTM D2488, AASHTO and USDA classification systems that may referenced in instance documents that use those classifications.
  
-11) Classification systems that do not have an online dictionary may be used, but the codeSpace attribute should be a URL to an online resource for the classification system rather than an uncontrolled string value. Such usage may limit interoperability and is not recommended - a dictionary should be developed for these cases.</documentation>
+Classification systems that do not have an online dictionary may be used, but the codeSpace attribute should be a URL to an online resource for the classification system rather than an uncontrolled string value. Such usage may limit interoperability and is not recommended - a dictionary should be developed for these cases.</documentation>
                                 </annotation>
                             </element>
                             <element minOccurs="0" name="lithDescription"
@@ -5154,8 +5144,7 @@ The codespace attribute is mandatory and shall be any of the following:
                                         this property holds the value of the group index (GI) as
                                         defined by: GI= (F–35)[0.2+0.005(LL– 40)}+(F–15)(PI–10)
                                         where F is the percentage passing the 75 μm (0.075 mm)
-                                        sieve, expressed as a whole number. This percentage is based
-                                        only on the material passing the 75 μm sieve, LL is the
+                                        sieve, expressed as a whole number, LL is the
                                         liquid limit and PI is the plasticity index.
                                     </documentation>
                         </annotation>
