@@ -941,7 +941,7 @@
         </annotation>
     </element>
     <complexType name="AbstractComponentObjectBaseType" abstract="true">
-        <sequence> </sequence>
+        <sequence/>
         <attribute ref="gml:id" use="optional"/>
     </complexType>
     <complexType name="AbstractComponentObjectType" abstract="true">
@@ -2802,6 +2802,7 @@
                             </element>
                         </sequence>
                     </choice>
+                    <element minOccurs="0" name="colorComponents"/>
                     <choice>
                         <element name="abundanceCode" type="gml:CodeType" minOccurs="0">
                             <annotation>
@@ -2810,7 +2811,7 @@
                                     few, rare, common, etc.)</documentation>
                             </annotation>
                         </element>
-                        <element name="abundancePercent" type="diggs:Val0-100MeasureType"
+                        <element name="abundancePercent" type="diggs:AbundanceMeasureType"
                             minOccurs="0">
                             <annotation>
                                 <documentation>A measure of the amount of the color present,
@@ -2875,6 +2876,45 @@
             </extension>
         </complexContent>
     </complexType>
+    <complexType name="ColorComponentsType">
+        <complexContent>
+            <extension base="diggs:AbstractComponentObjectBaseType">
+                <sequence>
+                    <element minOccurs="0" name="intensity" type="diggs:intensityEnumExtType">
+                        <annotation>
+                            <documentation>The first value in the color description if used. For soils and rock this is typically either a value or chroma term, (eg. pale, dark, brilliant, medium, dusky). From an enumerated list.
+
+</documentation>
+                        </annotation>
+                    </element>
+                    <element minOccurs="0" name="modifier" type="diggs:modifierEnumExtType">
+                        <annotation>
+                            <documentation>The second term of a color description, if used (or first if intensity is not used), that modifies the base hue value, eg. yellowish, reddish, creamy, olive, etc.</documentation>
+                        </annotation>
+                    </element>
+                    <element minOccurs="1" name="hue" type="diggs:hueEnumExtType">
+                        <annotation>
+                            <documentation>The base hue of the soil or rock color (eg. Black, Tan, Buff, Gray, Red, etc.). This property is mandatory.</documentation>
+                        </annotation>
+                    </element>
+                </sequence>
+            </extension>
+        </complexContent>
+    </complexType>
+    <complexType name="ColorComponentsPropertyType">
+        <sequence>
+            <element ref="diggs:ColorComponents"/>
+        </sequence>
+    </complexType>
+    <element name="ColorComponents" type="diggs:ColorComponentsType">
+        <annotation>
+            <documentation>An object that holds the components of a Munsell color description (intensity, modifier, and hue). These components can be used to programmatically construct a color description, for example:
+1) intensity = dark
+2) modifier = greenish
+3) hue = Gray
+can be used to construct a color name of "dark greenish Grey" which, for example, would correspond to one or more Munsell color codes.</documentation>
+        </annotation>
+    </element>
     <element name="ColorSystem" substitutionGroup="diggs:AbstractObservationSystem"
         type="diggs:ColorSystemType">
         <annotation>
@@ -2924,7 +2964,7 @@
                                     controlled list (eg. few, rare, common, etc.)</documentation>
                             </annotation>
                         </element>
-                        <element name="abundancePercent" type="diggs:Val0-100MeasureType"
+                        <element name="abundancePercent" type="diggs:AbundanceMeasureType"
                             minOccurs="0">
                             <annotation>
                                 <documentation>A measure of the amount of the subordinate lithology
@@ -2943,27 +2983,45 @@
                 zone.</documentation>
         </annotation>
     </element>
+    <simpleType name="ConstituentCategoryEnumExtType">
+        <union memberTypes="diggs:ConstituentCategoryEnumType diggs:OtherNameType"/>
+    </simpleType>
     <simpleType name="ConstituentCategoryEnumType">
-        <union>
-            <simpleType>
-                <restriction base="string">
-                    <enumeration value="bioturbation intensity"/>
-                    <enumeration value="color"/>
-                    <enumeration value="consistency"/>
-                    <enumeration value="diagenetic features"/>
-                    <enumeration value="fossils"/>
-                    <enumeration value="hydrocarbons"/>
-                    <enumeration value="lithology"/>
-                    <enumeration value="physical structures"/>
-                    <enumeration value="trace fossils"/>
-                </restriction>
-            </simpleType>
-            <simpleType>
-                <restriction base="string">
-                    <pattern value="Other: .{2,}"/>
-                </restriction>
-            </simpleType>
-        </union>
+        <annotation>
+            <documentation>Categories of constituents found in sediments and soils</documentation>
+        </annotation>
+        <restriction base="string">
+            <enumeration value="diagenetic features">
+                <annotation>
+                    <documentation>Physical, chemical, and biological changes that occur in sediments after their initial deposition and during and after their lithification. Includes features like concretions, nodules, mineral replacement, cementation, and dissolution structures.</documentation>
+                </annotation>
+            </enumeration>
+            <enumeration value="fossils">
+                <annotation>
+                    <documentation>Preserved remains, impressions, or traces of ancient life forms in sedimentary rocks. Includes body fossils such as shells, bones, teeth, leaves, and other preserved organic remains of once-living organisms.</documentation>
+                </annotation>
+            </enumeration>
+            <enumeration value="hydrocarbons">
+                <annotation>
+                    <documentation>Organic compounds consisting of hydrogen and carbon, including oil, natural gas, bitumen, and other petroleum products found within sedimentary rocks and soils. May appear as staining, residues, or accumulations.</documentation>
+                </annotation>
+            </enumeration>
+            <enumeration value="lithologic">
+                <annotation>
+                    <documentation>Rock and mineral components of the soil or sediment, including the present of sand/silt/clay, mineral or rock fragment.</documentation>
+                </annotation>
+            </enumeration>
+            <enumeration value="sedimentary structures">
+                <annotation>
+                    <documentation>Features formed during or shortly after sediment deposition, reflecting the physical processes of sedimentation. Includes bedding, lamination, cross-stratification, ripple marks, mud cracks, and graded bedding.</documentation>
+                </annotation>
+            </enumeration>
+            <enumeration value="trace fossils">
+                <annotation>
+                    <documentation>Preserved evidence of biological activity rather than preserved remains of the organism itself. Includes burrows, tracks, trails, borings, and other signs of organism behavior preserved in sedimentary rocks.</documentation>
+                </annotation>
+            </enumeration>
+        </restriction>
     </simpleType>
     <element name="ConstituentObservation" substitutionGroup="diggs:AbstractObservation"
         type="diggs:ConstituentObservationType">
@@ -3001,9 +3059,7 @@
         <sequence>
             <element maxOccurs="1" minOccurs="1" ref="diggs:Constituent">
                 <annotation>
-                    <documentation>A name that provides the classification code for the constituent
-                        (required) and optional description, along with a description of the
-                        abundance of this constituent (if applicable).</documentation>
+                    <documentation>A name (codeValue) that identifies a constituent within the extent of the described lithology (required) and optional description, along with a description of the abundance and distribution of this constituent (if applicable) within the lithologic extent described.</documentation>
                 </annotation>
             </element>
         </sequence>
@@ -3035,9 +3091,9 @@
     </complexType>
     <complexType name="ConstituentType">
         <complexContent>
-            <extension base="diggs:AbstractObjectType">
+            <extension base="diggs:AbstractComponentObjectBaseType">
                 <sequence>
-                    <element name="codeValue" type="diggs:DescriptorCodeType" minOccurs="0">
+                    <element name="codeValue" type="diggs:ConstituentCategoryCodeType" minOccurs="0">
                         <annotation>
                             <documentation>The code value that defines the consituent (eg. "SM" or
                                 "gastropod"; preferably defined by an authority identified in the
@@ -3052,7 +3108,7 @@
                                     list (eg. few, rare, common, etc.)</documentation>
                             </annotation>
                         </element>
-                        <element name="abundancePercent" type="diggs:Val0-100MeasureType"
+                        <element name="abundancePercent" type="diggs:AbundanceMeasureType"
                             minOccurs="0">
                             <annotation>
                                 <documentation>A measure of the amount of the constituent present,
@@ -3067,6 +3123,8 @@
                                 Intended to come from a controlled list</documentation>
                         </annotation>
                     </element>
+                    <element minOccurs="0" name="constituentProperties"
+                        type="diggs:ConstituentPropertiesPropertyType"/>
                 </sequence>
             </extension>
         </complexContent>
@@ -3319,9 +3377,21 @@
                             was determined. </documentation>
                     </annotation>
                 </attribute>
-                <attribute name="legendCode" type="string">
+            </extension>
+        </simpleContent>
+    </complexType>
+    <complexType name="ConstituentCategoryCodeType">
+        <simpleContent>
+            <extension base="gml:CodeType">
+                <attribute name="howDetermined" type="diggs:DescriptorMethodEnumType">
                     <annotation>
-                        <documentation>Deprecated - use legendCode property instead</documentation>
+                        <documentation>A value that describes the method by which the observation or measurement
+                            was determined. </documentation>
+                    </annotation>
+                </attribute>
+                <attribute name="category" type="diggs:ConstituentCategoryEnumExtType">
+                    <annotation>
+                        <documentation>Identifies the type of constituent being described, eg. lithology, fossils, etc. From an enumerated list.</documentation>
                     </annotation>
                 </attribute>
             </extension>
@@ -3901,21 +3971,28 @@
     </complexType>
     <complexType name="FieldPropertiesType">
         <complexContent>
-            <extension base="diggs:AbstractObjectType">
+            <extension base="diggs:AbstractComponentObjectBaseType">
                 <sequence>
+                    <element name="remark" type="diggs:RemarkPropertyType" minOccurs="0"
+                        maxOccurs="unbounded">
+                        <annotation>
+                            <documentation>Any comment or remark associated with this specific
+                                feature, the person or organization making the comment, and the time
+                                comment was made.Any comment or remark associated with this specific
+                                feature, the person or organization making the comment, and the time
+                                comment was made.</documentation>
+                        </annotation>
+                    </element>
+
                     <choice>
                         <element name="apparentDensity" type="gml:CodeType" minOccurs="0">
                             <annotation>
-                                <documentation>A text string describing the consistency of
-                                    coarse-grained soils (eg. "loose"); intended to come from a
-                                    controlled list</documentation>
+                                <documentation>A text string describing the relative density of intact coarse-grained soils. Common terms are very Loose, loose, medium dense, dense, very Dense; intended to come from a controlled list</documentation>
                             </annotation>
                         </element>
                         <element name="consistency" type="gml:CodeType" minOccurs="0">
                             <annotation>
-                                <documentation>A text string describing the consistency of
-                                    fine-grained soils (eg. "soft"); intended to come from a
-                                    controlled list</documentation>
+                                <documentation>A text string describing the consistency of intact fine-grained soils. Common terms are very soft, soft, firm, hard or very hard; intended to come from a controlled list</documentation>
                             </annotation>
                         </element>
                     </choice>
@@ -3933,65 +4010,59 @@
                     </element>
                     <element name="cementation" type="gml:CodeType" minOccurs="0">
                         <annotation>
-                            <documentation>A text string describing the degree of cementation (eg.
-                                "weakly"); intended to come from a controlled list</documentation>
+                            <documentation>A text string describing the degree of cementation of intact coarse-grained soils. Common values are weak, moderate, or strong; intended to come from a controlled list</documentation>
                         </annotation>
                     </element>
                     <element name="dilatancy" type="gml:CodeType" minOccurs="0">
                         <annotation>
-                            <documentation>A text string describing the degree of dilantancy, eg.
-                                "slow"; intended to come from a controlled list</documentation>
+                            <documentation>A text string describing the degree of dilantancy of fine grained soils. Common terms are none, slow, rapid; intended to come from a controlled list</documentation>
+                        </annotation>
+                    </element>
+                    <element minOccurs="0" name="coreDistkurbance" type="gml:CodeType">
+                        <annotation>
+                            <documentation>For describing a core sample of rock or soil, a description of the kind and intensity of disturbance to the core sample as a result of the sampling process. Common terms are biscuiting, fluid intrusion, drilling breccia, fractured, moderately disturbed, soupy, partial void, etc. Intended to come from a controlled list of terms.</documentation>
                         </annotation>
                     </element>
                     <element name="dryStrength" type="gml:CodeType" minOccurs="0">
                         <annotation>
-                            <documentation>A text string describing the degree of dry strength;
-                                intended to come from a controlled list</documentation>
+                            <documentation>A text string describing the degree of dry strength. common terms are none, low, medium, high, very high; intended to come from a controlled list</documentation>
                         </annotation>
                     </element>
                     <element name="moistureCondition" type="gml:CodeType" minOccurs="0">
                         <annotation>
-                            <documentation>A text string describing the moisture of the soil (eg.
-                                "wet"); intended to come from a controlled list</documentation>
+                            <documentation>A text string describing the moisture of the soil, Common values are dry, moist, or wet; intended to come from a controlled list</documentation>
                         </annotation>
                     </element>
                     <element name="odor" type="gml:CodeType" minOccurs="0">
                         <annotation>
-                            <documentation>A text string describing the odor of the soil (eg. H2S);
-                                intended to come from a controlled list</documentation>
+                            <documentation>A text string describing the odor of the material if organic or unusual (eg. H2S); intended to come from a controlled list</documentation>
                         </annotation>
                     </element>
                     <element minOccurs="0" name="particleAngularity" type="diggs:SizeClassCodeType"
                         maxOccurs="unbounded">
                         <annotation>
                             <documentation>A descriptive term or phrase to describe the overall
-                                angularity of grains (eg. "rounded"). Intended to come from a
-                                controlled list.</documentation>
+angularity of coarse-grained particles. Common terms are angular, subangular, subrounded, rounded). Intended to come from a controlled list.</documentation>
                         </annotation>
                     </element>
                     <element minOccurs="0" name="particleHardness" type="diggs:SizeClassCodeType"
                         maxOccurs="unbounded">
                         <annotation>
                             <documentation>A descriptive term or phrase to describe the overall
-                                hardness of grains (eg. "soft"). Intended to come from a controlled
-                                list.</documentation>
+                                hardness of sand and coarser particles by how the particles react to a hammer blow. Common terms are crack, fracture, or crumble. Hard is typically used if no cracking occurs.</documentation>
                         </annotation>
                     </element>
                     <element minOccurs="0" name="particleShape" type="diggs:SizeClassCodeType"
                         maxOccurs="unbounded">
                         <annotation>
                             <documentation>A descriptive term or phrase to describe the overall
-                                shape (typically sphericity) of particles. Intended to come from a
-                                controlled list.</documentation>
+                                shape of (typically) gravel and larger particles particles. Common terms are flat, elongated, and flat and elongated. Intended to come from a controlled list.</documentation>
                         </annotation>
                     </element>
                     <element minOccurs="0" name="particleSize" type="diggs:SizeClassCodeType"
                         maxOccurs="unbounded">
                         <annotation>
-                            <documentation>A descriptive term or phrase to describe the overall
-                                particle size distribution of the soil, eg. "fine sand", "fine to
-                                coarse". "silt and very fine sand". Intended to come from a
-                                controlled list.</documentation>
+                            <documentation>A descriptive term or phrase to describe the overall particle size distribution of sand and coarser material, eg. "fine", "fine to coarse", "medium. Intended to come from a controlled list.The sizeClass attribute identifies which grain size class within the lithology the particleSize property refers to.</documentation>
                         </annotation>
                     </element>
                     <element minOccurs="0" name="particleSizeMaximum" type="gml:CodeType">
@@ -4011,15 +4082,12 @@
                     </element>
                     <element minOccurs="0" name="plasticity" type="gml:CodeType">
                         <annotation>
-                            <documentation>A descriptive term or phrase to describe the relative
-                                plasticity of the soil, eg. "non-plastic". Intended to come from a
-                                controlled list.</documentation>
+                            <documentation>A descriptive term or phrase to describe the relative plasticity of fine-grained soil. Common terms are low, medium, high. Intended to come from a controlled list.</documentation>
                         </annotation>
                     </element>
                     <element name="reactionToHCl" type="gml:CodeType" minOccurs="0">
                         <annotation>
-                            <documentation>A text string describing the soil's reaction to HCl (eg.
-                                "weak"); intended to come from a controlled list</documentation>
+                            <documentation>A text string describing the soil's reaction to HCl. Common terms are none, weak, or strong; intended to come from a controlled list</documentation>
                         </annotation>
                     </element>
                     <element minOccurs="0" name="rockGrainSize" type="gml:CodeType">
@@ -4074,15 +4142,13 @@
                     <element minOccurs="0" name="soilStructure" type="gml:CodeType">
                         <annotation>
                             <documentation>A descriptive term or phrase to describe the relative
-                                structure of the soil, eg. "prismatic", "blocky", etc. Intended to
-                                come from a controlled list.</documentation>
+                                structure of intact soil. Common terms are stratified, laminated, fissured, slickensided, blocky, lensed, homogeneous, varved, etc. Intended to come from a controlled list.</documentation>
                         </annotation>
                     </element>
                     <element minOccurs="0" name="toughness" type="gml:CodeType">
                         <annotation>
                             <documentation>A descriptive term or phrase to describe the relative
-                                toughness of the soil, eg. "medium", etc. Intended to come from a
-                                controlled list.</documentation>
+                                toughness of fine-grained soil when kneaded near the plastic limit. Common termes are low, medium, high. Intended to come from a controlled list.</documentation>
                         </annotation>
                     </element>
                     <element minOccurs="0" name="unitRecoveryLength" type="eml:LengthMeasure">
@@ -9034,10 +9100,20 @@ DSB: REMOVED FROM PROFILE
     </complexContent>
   </complexType>
   -->
-    <complexType name="Val0-100MeasureType">
+    <complexType name="AbundanceMeasureType">
         <simpleContent>
             <extension base="diggs:Val0-100Type">
                 <attribute name="uom" type="eml:DimensionlessUom" use="required"/>
+                <attribute name="approximator">
+                    <annotation>
+                        <documentation>A term that indicates approximation or uncertainty in the reported value of the quantity.</documentation>
+                    </annotation>
+                </attribute>
+                <attribute name="byVolume" type="boolean">
+                    <annotation>
+                        <documentation>Indicates whether the value percentage is by weight or by volume. By weight is the default if the attribute is not present. True indicates that the percentage is by volume.</documentation>
+                    </annotation>
+                </attribute>
             </extension>
         </simpleContent>
     </complexType>
@@ -10303,4 +10379,267 @@ DSB: REMOVED FROM PROFILE
             </extension>
         </simpleContent>
     </complexType>
+    <simpleType name="hueEnumType">
+        <restriction base="string">
+            <enumeration value="Black"/>
+            <enumeration value="Tan"/>
+            <enumeration value="White"/>
+            <enumeration value="Blue"/>
+            <enumeration value="Brown"/>
+            <enumeration value="Cream"/>
+            <enumeration value="Red"/>
+            <enumeration value="Green"/>
+            <enumeration value="Gray"/>
+            <enumeration value="Olive"/>
+            <enumeration value="Orange"/>
+            <enumeration value="Purple"/>
+            <enumeration value="Pink"/>
+            <enumeration value="Buff"/>
+            <enumeration value="Yellow"/>
+        </restriction>
+    </simpleType>
+
+    <simpleType name="modifierEnumType">
+        <restriction base="string">
+            <enumeration value="purplish"/>
+            <enumeration value="reddish"/>
+            <enumeration value="spotty"/>
+            <enumeration value="whitish"/>
+            <enumeration value="yellowish"/>
+            <enumeration value="bluish"/>
+            <enumeration value="brownish"/>
+            <enumeration value="creamy"/>
+            <enumeration value="greenish"/>
+            <enumeration value="grayish"/>
+            <enumeration value="mottled"/>
+            <enumeration value="olive"/>
+            <enumeration value="orange"/>
+            <enumeration value="pinkish"/>
+        </restriction>
+    </simpleType>
+
+    <simpleType name="intensityEnumType">
+        <restriction base="string">
+            <enumeration value="strong"/>
+            <enumeration value="very dark"/>
+            <enumeration value="very deep"/>
+            <enumeration value="very dusky"/>
+            <enumeration value="vivid"/>
+            <enumeration value="very light"/>
+            <enumeration value="very pale"/>
+            <enumeration value="dark"/>
+            <enumeration value="deep"/>
+            <enumeration value="light"/>
+            <enumeration value="medium dark"/>
+            <enumeration value="medium"/>
+            <enumeration value="medium light"/>
+            <enumeration value="mottled"/>
+            <enumeration value="dusky"/>
+            <enumeration value="pale"/>
+            <enumeration value="brilliant"/>
+        </restriction>
+    </simpleType>
+    <simpleType name="hueEnumExtType">
+        <union memberTypes="diggs:hueEnumType diggs:OtherNameType"/>
+    </simpleType>
+    <simpleType name="modifierEnumExtType">
+        <union memberTypes="diggs:modifierEnumType diggs:OtherNameType"/>
+    </simpleType>
+    <simpleType name="intensityEnumExtType">
+        <union memberTypes="diggs:intensityEnumType diggs:OtherNameType"/>
+    </simpleType>
+    <complexType name="ConstituentPropertiesType">
+        <complexContent>
+            <extension base="diggs:AbstractComponentObjectBaseType">
+                <sequence>
+                    <element name="remark" type="diggs:RemarkPropertyType" minOccurs="0"
+                        maxOccurs="unbounded">
+                        <annotation>
+                            <documentation>Any comment or remark associated with this specific
+                                feature, the person or organization making the comment, and the time
+                                comment was made.Any comment or remark associated with this specific
+                                feature, the person or organization making the comment, and the time
+                                comment was made.</documentation>
+                        </annotation>
+                    </element>
+                    <element minOccurs="0" name="color" type="diggs:ColorPropertyType"/>
+                    <element name="dilatancy" type="gml:CodeType" minOccurs="0">
+                        <annotation>
+                            <documentation>A text string describing the degree of dilantancy of fine grained soils. Common terms are none, slow, rapid; intended to come from a controlled list</documentation>
+                        </annotation>
+                    </element>
+                    <element name="dryStrength" type="gml:CodeType" minOccurs="0">
+                        <annotation>
+                            <documentation>A text string describing the degree of dry strength. common terms are none, low, medium, high, very high; intended to come from a controlled list</documentation>
+                        </annotation>
+                    </element>
+                    <element minOccurs="0" name="particleAngularity" type="diggs:SizeClassCodeType"
+                        maxOccurs="unbounded">
+                        <annotation>
+                            <documentation>A descriptive term or phrase to describe the overall
+angularity of coarse-grained particles. Common terms are angular, subangular, subrounded, rounded). Intended to come from a controlled list.</documentation>
+                        </annotation>
+                    </element>
+                    <element minOccurs="0" name="particleHardness" type="diggs:SizeClassCodeType"
+                        maxOccurs="unbounded">
+                        <annotation>
+                            <documentation>A descriptive term or phrase to describe the overall
+                                hardness of sand and coarser particles by how the particles react to a hammer blow. Common terms are crack, fracture, or crumble. Hard is typically used if no cracking occurs.</documentation>
+                        </annotation>
+                    </element>
+                    <element minOccurs="0" name="particleShape" type="diggs:SizeClassCodeType"
+                        maxOccurs="unbounded">
+                        <annotation>
+                            <documentation>A descriptive term or phrase to describe the overall
+                                shape of (typically) gravel and larger particles particles. Common terms are flat, elongated, and flat and elongated. Intended to come from a controlled list.</documentation>
+                        </annotation>
+                    </element>
+                    <element minOccurs="0" name="particleSize" type="diggs:SizeClassCodeType"
+                        maxOccurs="unbounded">
+                        <annotation>
+                            <documentation>A descriptive term or phrase to describe the overall particle size distribution of sand and coarser material, eg. "fine", "fine to coarse", "medium. Intended to come from a controlled list.The sizeClass attribute identifies which grain size class within the lithology the particleSize property refers to.</documentation>
+                        </annotation>
+                    </element>
+                    <element minOccurs="0" name="particleSizeMaximum" type="gml:CodeType">
+                        <annotation>
+                            <documentation>A descriptive term or phrase to describe the maximum particle size of the soil, eg. "10 cm" for gravel or "medium" for sand. May come from a controlled list. </documentation>
+                        </annotation>
+                    </element>
+                    <element minOccurs="0" name="particleSorting" type="diggs:SizeClassCodeType"
+                        maxOccurs="unbounded">
+                        <annotation>
+                            <documentation>A descriptive term or phrase to describe the relative
+                                particle sorting of the soil, eg. "well-sorted". Intended to come
+                                from a controlled list.</documentation>
+                        </annotation>
+                    </element>
+                    <element minOccurs="0" name="plasticity" type="gml:CodeType">
+                        <annotation>
+                            <documentation>A descriptive term or phrase to describe the relative plasticity of fine-grained soil. Common terms are low, medium, high. Intended to come from a controlled list.</documentation>
+                        </annotation>
+                    </element>
+                    <element name="reactionToHCl" type="gml:CodeType" minOccurs="0">
+                        <annotation>
+                            <documentation>A text string describing the soil's reaction to HCl. Common terms are none, weak, or strong; intended to come from a controlled list</documentation>
+                        </annotation>
+                    </element>
+                    <element minOccurs="0" name="rockGrainSize" type="gml:CodeType">
+                        <annotation>
+                            <documentation>A descriptive term or phrase to describe the overall
+                                particle size or crystal size distribution of the rock, depending on
+                                rock origin. For example, for cystalline igneous or metamorphic
+                                rocks, terms such as pegmatitic or aphanitic may be used. For
+                                clastic sedimentary rocks, terms such as fine sand or cobbles may be
+                                used, and for pyroclastic igneous rocks, terms such as "coarse ash"
+                                or "lapili" may be used. Intended to come from a controlled list of
+                                terms.</documentation>
+                        </annotation>
+                    </element>
+                    <element minOccurs="0" name="rockHardness" type="gml:CodeType">
+                        <annotation>
+                            <documentation>A descriptive term or phrase to describe the relative
+                                hardness of rock, as governed by its mineralogy, eg. "hard".
+                                Intended to come from a controlled list.</documentation>
+                        </annotation>
+                    </element>
+                    <element minOccurs="0" name="rockMass" type="gml:CodeType">
+                        <annotation>
+                            <documentation>A descriptive term or phrase to describe the structural
+                                features that constitute mechanical discontinuities (major
+                                geological features). Rock mass refers to any in situ rock with all
+                                inherent geomechanical discontinuities (eg. fissile, blocky,
+                                fractured, etc.) </documentation>
+                        </annotation>
+                    </element>
+                    <element minOccurs="0" name="rockSlakingRate" type="gml:CodeType">
+                        <annotation>
+                            <documentation>A descriptive term or phrase to describe the relative
+                                rate of slaking of rock, eg. "slow". Intended to come from a
+                                controlled list.</documentation>
+                        </annotation>
+                    </element>
+                    <element minOccurs="0" name="rockStrength" type="gml:CodeType">
+                        <annotation>
+                            <documentation>A descriptive term or phrase to describe the relative
+                                hardness of rock, as governed by its compressive strengh, eg.
+                                "strong". Intended to come from a controlled list.</documentation>
+                        </annotation>
+                    </element>
+                    <element minOccurs="0" name="rockWeathering" type="gml:CodeType">
+                        <annotation>
+                            <documentation>A descriptive term or phrase to describe the relative
+                                degree of rock weathering, eg. "slightly decomposed", "Grade III",
+                                etc. Intended to come from a controlled list.</documentation>
+                        </annotation>
+                    </element>
+                    <element minOccurs="0" name="toughness" type="gml:CodeType">
+                        <annotation>
+                            <documentation>A descriptive term or phrase to describe the relative
+                                toughness of fine-grained soil when kneaded near the plastic limit. Common termes are low, medium, high. Intended to come from a controlled list.</documentation>
+                        </annotation>
+                    </element>
+                    <element minOccurs="0" name="otherConstituentProperty" maxOccurs="unbounded"
+                        type="diggs:ParameterPropertyType">
+                        <annotation>
+                            <documentation>Used for other properties not listed in the
+                                FieldProperties object. Uses name/value pairs of the Parameter
+                                object. Eg. name = Additional Description, value = with
+                                slag</documentation>
+                        </annotation>
+                    </element>
+                </sequence>
+            </extension>
+        </complexContent>
+    </complexType>
+    <complexType name="ConstituentPropertiesPropertyType">
+        <sequence>
+            <element ref="diggs:ConstituentProperties"/>
+        </sequence>
+    </complexType>
+    <element name="ConstituentProperties" type="diggs:ConstituentPropertiesType"/>
+    <simpleType name="ApproximatorEnumType">
+        <annotation>
+            <documentation>Enumeration of terms used to indicate approximate quantities or thresholds</documentation>
+        </annotation>
+        <restriction base="string">
+            <enumeration value="about">
+                <annotation>
+                    <documentation>Indicates a value that is close to but may vary slightly above or below the stated quantity. More informal than "approximately".</documentation>
+                </annotation>
+            </enumeration>
+            <enumeration value="approximately">
+                <annotation>
+                    <documentation>Formal term indicating a value very close to the stated quantity, with minimal deviation. More precise than "about" or "around".</documentation>
+                </annotation>
+            </enumeration>
+            <enumeration value="roughly">
+                <annotation>
+                    <documentation>Suggests an estimate with potentially significant variance from the stated value. Less precise than "approximately" or "about".</documentation>
+                </annotation>
+            </enumeration>
+            <enumeration value="at least">
+                <annotation>
+                    <documentation>Specifies a strict minimum threshold, with values equal to or greater than the stated quantity being acceptable.</documentation>
+                </annotation>
+            </enumeration>
+            <enumeration value="greater than">
+                <annotation>
+                    <documentation>Mathematical/formal version of "more than", indicating values strictly exceeding the specified quantity.</documentation>
+                </annotation>
+            </enumeration>
+            <enumeration value="at most">
+                <annotation>
+                    <documentation>Specifies a maximum threshold, with values equal to or less than the stated quantity being acceptable.</documentation>
+                </annotation>
+            </enumeration>
+            <enumeration value="less than">
+                <annotation>
+                    <documentation>Indicates values strictly below the specified quantity, excluding the stated value itself. More formal than general phrases like "under".</documentation>
+                </annotation>
+            </enumeration>
+        </restriction>
+    </simpleType>
+    <simpleType name="ApproximatorEnumExtType">
+        <union memberTypes="diggs:ApproximatorEnumType diggs:OtherNameType"/>
+    </simpleType>
 </schema>
