@@ -2302,7 +2302,7 @@
                         </annotation>
                     </element>
                     <element minOccurs="0" name="waterStrike" type="diggs:WaterStrikePropertyType"
-                        maxOccurs="1">
+                        maxOccurs="unbounded">
                         <annotation>
                             <documentation>Information on when ground water is struck during
                                 drilling of the hole. Note, option for more than one waterstrike
@@ -4181,6 +4181,11 @@ angularity of coarse-grained particles. Common terms are angular, subangular, su
                         <annotation>
                             <documentation>A descriptive term or phrase to describe the relative
                                 structure of intact soil. Common terms are stratified, laminated, fissured, slickensided, blocky, lensed, homogeneous, varved, etc. Intended to come from a controlled list.</documentation>
+                        </annotation>
+                    </element>
+                    <element minOccurs="0" name="staining" type="gml:CodeType">
+                        <annotation>
+                            <documentation>A term describing the source of any visible staining of the lithologic unit within the area of observation. Possible terms include iron, manganese, hydrocarbons, etc. Intended to come from a controlled list of terms.</documentation>
                         </annotation>
                     </element>
                     <element minOccurs="0" name="toughness" type="gml:CodeType">
@@ -9321,8 +9326,7 @@ DSB: REMOVED FROM PROFILE
     <element name="WaterStrike" substitutionGroup="diggs:AbstractObject"
         type="diggs:WaterStrikeType">
         <annotation>
-            <documentation>An object containing properties related to encountering the water table
-                or a perched water zone during borehole construction.</documentation>
+            <documentation>A water strike consists of one or more water level readings taken upon encountering or expecting to encounter water during drilling. Depending on practice, this may consist of individual reasurements taken one or more times as drilling progresses or a series of measurements taken over a short time interval when drilling is halted at a particular depth.</documentation>
         </annotation>
     </element>
     <complexType name="WaterStrikePropertyType">
@@ -9337,9 +9341,21 @@ DSB: REMOVED FROM PROFILE
                 strick.</documentation>
         </annotation>
     </element>
+    <element name="LinkedWSReading" substitutionGroup="diggs:AbstractObject"
+        type="diggs:LinkedWSReadingType">
+        <annotation>
+            <documentation>An element containing water level reading properties following a water
+                strick.</documentation>
+        </annotation>
+    </element>
     <complexType name="WaterStrikeReadingPropertyType">
         <sequence maxOccurs="1" minOccurs="1">
             <element ref="diggs:WaterStrikeReading"/>
+        </sequence>
+    </complexType>
+    <complexType name="LinkedWSReadingPropertyType">
+        <sequence maxOccurs="1" minOccurs="1">
+            <element ref="diggs:LinkedWSReading"/>
         </sequence>
     </complexType>
     <complexType name="WaterStrikeReadingType">
@@ -9347,20 +9363,9 @@ DSB: REMOVED FROM PROFILE
             <extension base="diggs:AbstractObjectType">
                 <sequence>
                     <choice minOccurs="0">
-                        <element name="howMeasured" type="eml:TimeMeasure" minOccurs="0">
-                            <annotation>
-                                <documentation>A description of how the water level was measured,
-                                    intended to come from a controlled list of terms</documentation>
-                            </annotation>
-                        </element>
                         <element name="elapsedTime" type="eml:TimeMeasure">
                             <annotation>
                                 <documentation><![CDATA[The elapsed time following an initial water strike when water level is again measured]]></documentation>
-                            </annotation>
-                        </element>
-                        <element ref="diggs:time">
-                            <annotation>
-                                <documentation><![CDATA[The elapsed time following an initial water strike when water level is again measured. Deprecated following v. 2.5. Use elapsedTime in the choice instead]]></documentation>
                             </annotation>
                         </element>
                         <element name="dateTime" type="gml:TimePositionType" minOccurs="1">
@@ -9369,10 +9374,67 @@ DSB: REMOVED FROM PROFILE
                             </annotation>
                         </element>
                     </choice>
-                    <element name="waterLocation" type="diggs:PointLocationPropertyType">
-                        <annotation>
-                            <documentation>The measure depth to water; measured in a hole's linear
+                    <choice>
+                        <element name="notEncountered" fixed="true" type="boolean" minOccurs="1"> </element>
+                        <element name="waterLocation" type="diggs:PointLocationPropertyType">
+                            <annotation>
+                                <documentation>The measure depth to water; measured in a hole's linear
                                 referencing system.</documentation>
+                            </annotation>
+                        </element>
+                    </choice>
+                    <element maxOccurs="unbounded" minOccurs="0" name="linkedReading"
+                        type="diggs:LinkedWSReadingPropertyType"/>
+                </sequence>
+
+            </extension>
+        </complexContent>
+    </complexType>
+    <complexType name="LinkedWSReadingType">
+        <complexContent>
+            <extension base="diggs:AbstractObjectType">
+                <sequence>
+                    <choice minOccurs="0">
+                        <element name="elapsedTime" type="eml:TimeMeasure">
+                            <annotation>
+                                <documentation><![CDATA[The elapsed time following an initial water strike when water level is again measured]]></documentation>
+                            </annotation>
+                        </element>
+                        <element name="dateTime" type="gml:TimePositionType" minOccurs="1">
+                            <annotation>
+                                <documentation><![CDATA[DateTime that water strike measurement occurred.]]></documentation>
+                            </annotation>
+                        </element>
+                    </choice>
+                    <choice>
+                        <element name="notEncountered" fixed="true" type="boolean" minOccurs="1"> </element>
+                        <element name="waterLocation" type="diggs:PointLocationPropertyType">
+                            <annotation>
+                                <documentation>The measure depth to water; measured in a hole's linear
+                                referencing system.</documentation>
+                            </annotation>
+                        </element>
+                    </choice>
+                </sequence>
+
+            </extension>
+        </complexContent>
+    </complexType>
+    <complexType name="WaterStrikeType">
+        <complexContent>
+            <extension base="diggs:AbstractObjectType">
+                <sequence minOccurs="0">
+                    <element name="waterStrikeReadings" type="diggs:WaterStrikeReadingPropertyType">
+                        <annotation>
+                            <documentation>Water level readings taken as part of this water strike.</documentation>
+                        </annotation>
+                    </element>
+                    <element minOccurs="0" name="sealLocation"
+                        type="diggs:PointLocationPropertyType">
+                        <annotation>
+                            <documentation>Location at which water strike is sealed by
+                                        casing; measured in borehole linear referencing
+                                        system.</documentation>
                         </annotation>
                     </element>
                     <element minOccurs="0" name="bottomCasing"
@@ -9383,41 +9445,11 @@ DSB: REMOVED FROM PROFILE
                                 system.</documentation>
                         </annotation>
                     </element>
-                </sequence>
-            </extension>
-        </complexContent>
-    </complexType>
-    <complexType name="WaterStrikeType">
-        <complexContent>
-            <extension base="diggs:AbstractObjectType">
-                <sequence minOccurs="0">
-                    <choice>
-                        <element name="notEncountered" fixed="true" type="boolean"> </element>
-                        <sequence>
-                            <element name="initialWaterStrikeReading"
-                                type="diggs:WaterStrikeReadingPropertyType">
-                                <annotation>
-                                    <documentation>Water level information at time of initial water
-                                        strike</documentation>
-                                </annotation>
-                            </element>
-                            <element maxOccurs="unbounded" minOccurs="0" name="postStrikeReading"
-                                type="diggs:WaterStrikeReadingPropertyType">
-                                <annotation>
-                                    <documentation>A series of water level readings that occur at
-                                        times following the initial water strike</documentation>
-                                </annotation>
-                            </element>
-                            <element minOccurs="0" name="sealLocation"
-                                type="diggs:PointLocationPropertyType">
-                                <annotation>
-                                    <documentation>Location at which water strike is sealed by
-                                        casing; measured in borehole linear referencing
-                                        system.</documentation>
-                                </annotation>
-                            </element>
-                        </sequence>
-                    </choice>
+                    <element minOccurs="0" name="bottomHole" type="diggs:PointLocationPropertyType">
+                        <annotation>
+                            <documentation>Location of the bottom of the hole when the water strike readings are made, given in the hole's linear referencing system.</documentation>
+                        </annotation>
+                    </element>
                 </sequence>
             </extension>
         </complexContent>
@@ -10576,11 +10608,6 @@ angularity of coarse-grained particles. Common terms are angular, subangular, su
                             <documentation>A descriptive term or phrase to describe the overall particle size distribution of sand and coarser material, eg. "fine", "fine to coarse", "medium. Intended to come from a controlled list.The sizeClass attribute identifies which grain size class within the lithology the particleSize property refers to.</documentation>
                         </annotation>
                     </element>
-                    <element minOccurs="0" name="particleSizeMaximum" type="gml:CodeType">
-                        <annotation>
-                            <documentation>A descriptive term or phrase to describe the maximum particle size of the soil, eg. "10 cm" for gravel or "medium" for sand. May come from a controlled list. </documentation>
-                        </annotation>
-                    </element>
                     <element minOccurs="0" name="particleSorting" type="diggs:SizeClassCodeType"
                         maxOccurs="unbounded">
                         <annotation>
@@ -10594,57 +10621,10 @@ angularity of coarse-grained particles. Common terms are angular, subangular, su
                             <documentation>A descriptive term or phrase to describe the relative plasticity of fine-grained soil. Common terms are low, medium, high. Intended to come from a controlled list.</documentation>
                         </annotation>
                     </element>
-                    <element name="reactionToHCl" type="gml:CodeType" minOccurs="0">
-                        <annotation>
-                            <documentation>A text string describing the soil's reaction to HCl. Common terms are none, weak, or strong; intended to come from a controlled list</documentation>
-                        </annotation>
-                    </element>
-                    <element minOccurs="0" name="rockGrainSize" type="gml:CodeType">
-                        <annotation>
-                            <documentation>A descriptive term or phrase to describe the overall
-                                particle size or crystal size distribution of the rock, depending on
-                                rock origin. For example, for cystalline igneous or metamorphic
-                                rocks, terms such as pegmatitic or aphanitic may be used. For
-                                clastic sedimentary rocks, terms such as fine sand or cobbles may be
-                                used, and for pyroclastic igneous rocks, terms such as "coarse ash"
-                                or "lapili" may be used. Intended to come from a controlled list of
-                                terms.</documentation>
-                        </annotation>
-                    </element>
-                    <element minOccurs="0" name="rockHardness" type="gml:CodeType">
+                    <element minOccurs="0" name="weathering" type="gml:CodeType">
                         <annotation>
                             <documentation>A descriptive term or phrase to describe the relative
-                                hardness of rock, as governed by its mineralogy, eg. "hard".
-                                Intended to come from a controlled list.</documentation>
-                        </annotation>
-                    </element>
-                    <element minOccurs="0" name="rockMass" type="gml:CodeType">
-                        <annotation>
-                            <documentation>A descriptive term or phrase to describe the structural
-                                features that constitute mechanical discontinuities (major
-                                geological features). Rock mass refers to any in situ rock with all
-                                inherent geomechanical discontinuities (eg. fissile, blocky,
-                                fractured, etc.) </documentation>
-                        </annotation>
-                    </element>
-                    <element minOccurs="0" name="rockSlakingRate" type="gml:CodeType">
-                        <annotation>
-                            <documentation>A descriptive term or phrase to describe the relative
-                                rate of slaking of rock, eg. "slow". Intended to come from a
-                                controlled list.</documentation>
-                        </annotation>
-                    </element>
-                    <element minOccurs="0" name="rockStrength" type="gml:CodeType">
-                        <annotation>
-                            <documentation>A descriptive term or phrase to describe the relative
-                                hardness of rock, as governed by its compressive strengh, eg.
-                                "strong". Intended to come from a controlled list.</documentation>
-                        </annotation>
-                    </element>
-                    <element minOccurs="0" name="rockWeathering" type="gml:CodeType">
-                        <annotation>
-                            <documentation>A descriptive term or phrase to describe the relative
-                                degree of rock weathering, eg. "slightly decomposed", "Grade III",
+                                degree of weathering of a lithologic component, eg. "slightly decomposed", "Grade III",
                                 etc. Intended to come from a controlled list.</documentation>
                         </annotation>
                     </element>
