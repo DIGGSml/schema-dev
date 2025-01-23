@@ -1355,6 +1355,11 @@
             <extension base="diggs:AbstractFeatureType">
                 <sequence>
                     <element maxOccurs="unbounded" ref="diggs:sampleRef"/>
+                    <element minOccurs="0" name="specimenLocation" type="diggs:LocationPropertyType">
+                        <annotation>
+                            <documentation>In cases where the specimen location may be different from the host sample's location (for example, a specimeen derived from a core sample at a specific location, instead of a specimen encompassing the entire extent of the sample), this property is used to indicate the specific location. When not present, the spcecimen location will be the same as the host sample's location if relevant. </documentation>
+                        </annotation>
+                    </element>
                     <element minOccurs="0" name="extractionTime" type="gml:TimePositionType">
                         <annotation>
                             <documentation>The time instant when this specimen was extracted from
@@ -2881,6 +2886,11 @@
                             crystals - color caused by crystals of selenite gypsum</documentation>
                     </annotation>
                 </attribute>
+                <attribute name="rank" type="positiveInteger" use="optional">
+                    <annotation>
+                        <documentation>A positive integer value that identifies the relative significance or importance of the color, with 1 signifying the highest rank. Using this attribute eliminates possible ambiguity when using abundanceCode to infer significance.</documentation>
+                    </annotation>
+                </attribute>
             </extension>
         </complexContent>
     </complexType>
@@ -2964,7 +2974,7 @@ can be used to construct a color name of "dark greenish Grey" which, for example
                     <element maxOccurs="1" minOccurs="1" name="lithology"
                         type="diggs:ComponentLithPropertyType">
                         <annotation>
-                            <documentation>A property that contains a Lithology object that describes the component lithology.</documentation>
+                            <documentation>A property that contains a ComponentLith object that describes the component lithology.</documentation>
                         </annotation>
                     </element>
                     <choice>
@@ -2990,9 +3000,9 @@ can be used to construct a color name of "dark greenish Grey" which, for example
                     </choice>
                 </sequence>
                 <attribute name="association" type="diggs:LithologyCharacterEnumExtType"/>
-                <attribute name="rank" type="positiveInteger" use="required">
+                <attribute name="rank" type="positiveInteger" use="optional">
                     <annotation>
-                        <documentation>A required positive integer value that identifies the relative significance or importance of the component lithology, with 1 signifying the highest rank. While rank might be inferred from component abundance, this propertry is not required nor controlled.</documentation>
+                        <documentation>A positive integer value that identifies the relative significance or importance of the compomemt lithology, with 1 signifying the highest rank. Using this attribute eliminates possible ambiguity when using abundanceCode to infer significance.</documentation>
                     </annotation>
                 </attribute>
             </extension>
@@ -3174,6 +3184,11 @@ can be used to construct a color name of "dark greenish Grey" which, for example
                         </annotation>
                     </element>
                 </sequence>
+                <attribute name="rank" type="positiveInteger" use="optional">
+                    <annotation>
+                        <documentation>A positive integer value that identifies the relative significance or importance of the constituent, with 1 signifying the highest rank. Using this attribute eliminates possible ambiguity when using abundanceCode to infer significance.</documentation>
+                    </annotation>
+                </attribute>
             </extension>
         </complexContent>
     </complexType>
@@ -4010,17 +4025,17 @@ can be used to construct a color name of "dark greenish Grey" which, for example
             </extension>
         </complexContent>
     </complexType>
-    <element name="FieldProperties" type="diggs:FieldPropertiesType">
+    <element name="LithProperties" type="diggs:LithPropertiesType">
         <annotation>
             <documentation>Soil geotechnical and geologic properties derived solely from visual/manual techniques, such as that defined in ASTM D2488.</documentation>
         </annotation>
     </element>
-    <complexType name="FieldPropertiesPropertyType">
+    <complexType name="LithPropertiesPropertyType">
         <sequence>
-            <element maxOccurs="1" ref="diggs:FieldProperties"/>
+            <element maxOccurs="1" ref="diggs:LithProperties"/>
         </sequence>
     </complexType>
-    <complexType name="FieldPropertiesType">
+    <complexType name="LithPropertiesType">
         <complexContent>
             <extension base="diggs:AbstractComponentObjectBaseType">
                 <sequence>
@@ -4036,6 +4051,9 @@ can be used to construct a color name of "dark greenish Grey" which, for example
                     </element>
 
                     <choice>
+                        <annotation>
+                            <documentation>apparentDensity is used for granular soils, consistency used for fine-grained soil. Both cannot be used in the context of a single lithology class.</documentation>
+                        </annotation>
                         <element name="apparentDensity" type="gml:CodeType" minOccurs="0">
                             <annotation>
                                 <documentation>A text string describing the relative density of intact coarse-grained soils. Common terms are very Loose, loose, medium dense, dense, very Dense; intended to come from a controlled list</documentation>
@@ -4047,6 +4065,17 @@ can be used to construct a color name of "dark greenish Grey" which, for example
                             </annotation>
                         </element>
                     </choice>
+                    <element name="beddingOrientation" type="diggs:DiggsStringType" minOccurs="0">
+                        <annotation>
+                            <documentation>A text string describing the bedding orientationfor stratified material (eg.
+                                horizontal, inclined, inclined 30 deg NW, etc.)</documentation>
+                        </annotation>
+                    </element>
+                    <element name="beddingSpacing" type="gml:CodeType" minOccurs="0">
+                        <annotation>
+                            <documentation>For stratified material, this property records the average thickness between beds as either a descriptive term (eg. thick, thin, etc., from a controlled list of terms, or as a string representation of a numeric value (eg. 10 cm).</documentation>
+                        </annotation>
+                    </element>
                     <element name="cementation" type="gml:CodeType" minOccurs="0">
                         <annotation>
                             <documentation>A text string describing the degree of cementation of intact coarse-grained soils. Common values are weak, moderate, or strong; intended to come from a controlled list</documentation>
@@ -4062,6 +4091,12 @@ can be used to construct a color name of "dark greenish Grey" which, for example
                             <documentation>A text string describing the degree of dry strength. common terms are none, low, medium, high, very high; intended to come from a controlled list</documentation>
                         </annotation>
                     </element>
+                    <element minOccurs="0" name="fabric" type="gml:CodeType" maxOccurs="1">
+                        <annotation>
+                            <documentation>A descriptive term or phrase to describe the spatial arrangement of grains, Common terms are random, oriented, imbricated, etc. Intended to come from a controlled list of terms.
+I</documentation>
+                        </annotation>
+                    </element>
                     <element name="moistureCondition" type="gml:CodeType" minOccurs="0">
                         <annotation>
                             <documentation>A text string describing the moisture of the soil, Common values are dry, moist, or wet; intended to come from a controlled list</documentation>
@@ -4072,11 +4107,43 @@ can be used to construct a color name of "dark greenish Grey" which, for example
                             <documentation>A text string describing the odor of the material if organic or unusual (eg. H2S); intended to come from a controlled list</documentation>
                         </annotation>
                     </element>
-                    <element minOccurs="0" name="particleHardness" type="diggs:SizeClassCodeType"
-                        maxOccurs="unbounded">
+                    <element minOccurs="0" name="particleAngularity" type="gml:CodeType"
+                        maxOccurs="1">
                         <annotation>
                             <documentation>A descriptive term or phrase to describe the overall
-                                hardness of sand and coarser particles by how the particles react to a hammer blow. Common terms are crack, fracture, or crumble. Hard is typically used if no cracking occurs.</documentation>
+angularity of coarse-grained particles. Common terms are angular, subangular, subrounded, rounded). Intended to come from a controlled list.</documentation>
+                        </annotation>
+                    </element>
+                    <element minOccurs="0" name="particleHardness" type="diggs:SizeClassCodeType"
+                        maxOccurs="1">
+                        <annotation>
+                            <documentation>A descriptive term or phrase to describe the overall
+                                hardness of sand and coarser particles by how the particles react to a hammer blow. Common terms are crack, fracture, or crumble. Hard is typically used if no cracking occurs. Intended to come from a controlled list.</documentation>
+                        </annotation>
+                    </element>
+                    <element minOccurs="0" name="particleShape" type="gml:CodeType" maxOccurs="1">
+                        <annotation>
+                            <documentation>A descriptive term or phrase to describe the overall
+                                shape of (typically) gravel and larger particles particles. Common terms are flat, elongated, and flat and elongated. Intended to come from a controlled list.</documentation>
+                        </annotation>
+                    </element>
+                    <element minOccurs="0" name="particleSize" type="gml:CodeType" maxOccurs="1">
+                        <annotation>
+                            <documentation>A descriptive term or phrase to describe the overall particle size distribution of sand and coarser material, eg. "fine", "fine to coarse", "medium. Intended to come from a controlled list. </documentation>
+                        </annotation>
+                    </element>
+                    <element minOccurs="0" name="particleSizeDistribution"
+                        type="diggs:ParticleSizeDistributionPropertyType" maxOccurs="1">
+                        <annotation>
+                            <documentation>Particle size distribution information providing details such as mean grain size, maximum grain size, etc. As opposed to Properties in this object support quantitative values derived from laboratory analyses can carry descriptive terms. Detailed properties of a grain size distribution curve should be reported as test results of a ParticleSizeTest</documentation>
+                        </annotation>
+                    </element>
+                    <element minOccurs="0" name="particleSorting" type="gml:CodeType"
+                        maxOccurs="unbounded">
+                        <annotation>
+                            <documentation>A descriptive term or phrase to describe the relative
+                                particle sorting of soil or rock particles, eg. "well-sorted". Intended to come
+                                from a controlled list.</documentation>
                         </annotation>
                     </element>
                     <element minOccurs="0" name="plasticity" type="gml:CodeType">
@@ -4138,9 +4205,21 @@ can be used to construct a color name of "dark greenish Grey" which, for example
                                 etc. Intended to come from a controlled list.</documentation>
                         </annotation>
                     </element>
+                    <element minOccurs="0" name="soilStructure" type="gml:CodeType">
+                        <annotation>
+                            <documentation>A descriptive term or phrase to describe the relative
+                                structure of intact soil. Common terms are stratified, laminated, fissured, slickensided, blocky, lensed, homogeneous, varved, etc. Intended to come from a controlled list.</documentation>
+                        </annotation>
+                    </element>
                     <element minOccurs="0" name="staining" type="gml:CodeType">
                         <annotation>
                             <documentation>A term describing the source of any visible staining of the lithologic unit within the area of observation. Possible terms include iron, manganese, hydrocarbons, etc. Intended to come from a controlled list of terms.</documentation>
+                        </annotation>
+                    </element>
+                    <element minOccurs="0" name="surfaceTexture" type="gml:CodeType" maxOccurs="1">
+                        <annotation>
+                            <documentation>A descriptive term or phrase to describe the microscale features on grain surfaces. Common terms include: polished, smooth, pitted, striated, etc. Intended to come from a controlled list of terms.
+Includes:</documentation>
                         </annotation>
                     </element>
                     <element minOccurs="0" name="toughness" type="gml:CodeType">
@@ -4169,7 +4248,7 @@ can be used to construct a color name of "dark greenish Grey" which, for example
                                 interval.</documentation>
                         </annotation>
                     </element>
-                    <element minOccurs="0" name="otherFieldProperty" maxOccurs="unbounded"
+                    <element minOccurs="0" name="otherLithProperty" maxOccurs="unbounded"
                         type="diggs:ParameterPropertyType">
                         <annotation>
                             <documentation>Used for other properties not listed in the
@@ -4977,27 +5056,23 @@ DSB: REMOVED FROM PROFILE
         </annotation>
     </element>
     <simpleType name="LithologyCharacterEnumType">
-        <union>
-            <simpleType>
-                <restriction base="string">
-                    <enumeration value="disseminated">
-                        <annotation>
-                            <documentation>This lithology is uniformly distributed as a component that serves to classify the primary lithology, such as sand within a sandy clay primary lithology</documentation>
-                        </annotation>
-                    </enumeration>
-                    <enumeration value="interbedded">
-                        <annotation>
-                            <documentation>This lithology is interbedded within the primary lithology</documentation>
-                        </annotation>
-                    </enumeration>
-                    <enumeration value="inclusions">
-                        <annotation>
-                            <documentation>This lithology is contained in discrete masses within the primary lithology</documentation>
-                        </annotation>
-                    </enumeration>
-                </restriction>
-            </simpleType>
-        </union>
+        <restriction base="string">
+            <enumeration value="disseminated">
+                <annotation>
+                    <documentation>This lithology is uniformly distributed as a component that serves to classify the primary lithology, such as sand within a sandy clay primary lithology</documentation>
+                </annotation>
+            </enumeration>
+            <enumeration value="interbedded">
+                <annotation>
+                    <documentation>This lithology is interbedded within the primary lithology</documentation>
+                </annotation>
+            </enumeration>
+            <enumeration value="inclusions">
+                <annotation>
+                    <documentation>This lithology is contained in discrete masses within the primary lithology</documentation>
+                </annotation>
+            </enumeration>
+        </restriction>
     </simpleType>
     <simpleType name="LithologyCharacterEnumExtType">
         <union memberTypes="diggs:LithologyCharacterEnumType diggs:OtherNameType"/>
@@ -5255,7 +5330,7 @@ Classification systems that do not have an online dictionary may be used, but th
                     <element minOccurs="0" name="matrixType" type="diggs:MaterialEnumType">
                         <annotation>
                             <documentation>Specifies the engineering characteristics of the
-                                lithology matrix, in this case either soil or rock. This property
+                                lithology matrix, either soil, rock or solid organic matter. This property
                                 can typically be inferred from the classificationCode, but is
                                 included here to simplify data ingestion into data systems that may
                                 store rock and soil physical property information in different
@@ -5293,31 +5368,8 @@ Classification systems that do not have an online dictionary may be used, but th
                                 fractures</documentation>
                         </annotation>
                     </element>
-                    <element minOccurs="0" name="fieldProperties"
-                        type="diggs:FieldPropertiesPropertyType"/>
-                    <element minOccurs="0" name="texturalProperties"
-                        type="diggs:TexturalPropertiesPropertyType" maxOccurs="unbounded">
-                        <annotation>
-                            <documentation>Particle size distribution information providing details such as mean grain size, maximum grain size, etc. As opposed to particle size ranges described in the FieldProperties object, properties in this object typically derive from laboratory analyses extrapolated to the overall geologic unit</documentation>
-                        </annotation>
-                    </element>
-                    <element minOccurs="0" name="soilStructure" type="gml:CodeType">
-                        <annotation>
-                            <documentation>A descriptive term or phrase to describe the relative
-                                structure of intact soil. Common terms are stratified, laminated, fissured, slickensided, blocky, lensed, homogeneous, varved, etc. Intended to come from a controlled list.</documentation>
-                        </annotation>
-                    </element>
-                    <element name="beddingOrientation" type="diggs:DiggsStringType" minOccurs="0">
-                        <annotation>
-                            <documentation>A text string describing the bedding orientation (eg.
-                                horizontal, inclined, inclined 30 deg NW, etc.)</documentation>
-                        </annotation>
-                    </element>
-                    <element name="beddingSpacing" type="gml:CodeType" minOccurs="0">
-                        <annotation>
-                            <documentation>For lithologies with stratified structure, this property records the average thickness between beds as either a descriptive term (eg. thick, thin, etc., from a controlled list of terms, or as a string representation of a numeric value (eg. 10 cm).</documentation>
-                        </annotation>
-                    </element>
+                    <element minOccurs="0" name="lithProperties"
+                        type="diggs:LithPropertiesPropertyType"/>
                 </sequence>
             </extension>
         </complexContent>
@@ -5751,23 +5803,11 @@ DSB: REMOVED FROM PROFILE
         </complexContent>
     </complexType>
     <simpleType name="MaterialEnumType">
-        <union>
-            <simpleType>
-                <restriction base="string">
-                    <enumeration value="fluid"/>
-                    <enumeration value="gas"/>
-                    <enumeration value="oil"/>
-                    <enumeration value="rock"/>
-                    <enumeration value="soil"/>
-                    <enumeration value="water"/>
-                </restriction>
-            </simpleType>
-            <simpleType>
-                <restriction base="string">
-                    <pattern value="Other: .{2,}"/>
-                </restriction>
-            </simpleType>
-        </union>
+        <restriction base="string">
+            <enumeration value="soil"/>
+            <enumeration value="rock"/>
+            <enumeration value="solid organic matter"/>
+        </restriction>
     </simpleType>
     <!-- Removed 2.5.b. Not used 
     <element name="MeasureOrString" type="diggs:MeasureOrStringType"
@@ -5787,6 +5827,9 @@ DSB: REMOVED FROM PROFILE
         </complexContent>
     </complexType>
   -->
+    <simpleType name="MaterialEnumExtType">
+        <union memberTypes="diggs:MaterialEnumType diggs:OtherNameType"> </union>
+    </simpleType>
     <element name="measurementRef" type="diggs:FeatureReferenceType">
         <annotation>
             <appinfo source="urn:x-gml:targetElement">Diggs:Measurement</appinfo>
@@ -10709,6 +10752,7 @@ DSB: REMOVED FROM PROFILE
         <complexContent>
             <extension base="diggs:AbstractComponentObjectBaseType">
                 <sequence>
+
                     <element name="remark" type="diggs:RemarkPropertyType" minOccurs="0"
                         maxOccurs="unbounded">
                         <annotation>
@@ -10717,6 +10761,32 @@ DSB: REMOVED FROM PROFILE
                                 comment was made.Any comment or remark associated with this specific
                                 feature, the person or organization making the comment, and the time
                                 comment was made.</documentation>
+                        </annotation>
+                    </element>
+                    <choice>
+                        <annotation>
+                            <documentation>apparentDensity is used for granular soils, consistency used for fine-grained soil. Both cannot be used in the context of a single lithology class.</documentation>
+                        </annotation>
+                        <element name="apparentDensity" type="gml:CodeType" minOccurs="0">
+                            <annotation>
+                                <documentation>A text string describing the relative density of intact coarse-grained soils. Common terms are very Loose, loose, medium dense, dense, very Dense; intended to come from a controlled list</documentation>
+                            </annotation>
+                        </element>
+                        <element name="consistency" type="gml:CodeType" minOccurs="0">
+                            <annotation>
+                                <documentation>A text string describing the consistency of intact fine-grained soils. Common terms are very soft, soft, firm, hard or very hard; intended to come from a controlled list</documentation>
+                            </annotation>
+                        </element>
+                    </choice>
+                    <element name="beddingOrientation" type="diggs:DiggsStringType" minOccurs="0">
+                        <annotation>
+                            <documentation>A text string describing the bedding orientationfor stratified material (eg.
+                                horizontal, inclined, inclined 30 deg NW, etc.)</documentation>
+                        </annotation>
+                    </element>
+                    <element name="beddingSpacing" type="gml:CodeType" minOccurs="0">
+                        <annotation>
+                            <documentation>For stratified material, this property records the average thickness between beds as either a descriptive term (eg. thick, thin, etc., from a controlled list of terms, or as a string representation of a numeric value (eg. 10 cm).</documentation>
                         </annotation>
                     </element>
                     <element name="cementation" type="gml:CodeType" minOccurs="0">
@@ -10734,11 +10804,54 @@ DSB: REMOVED FROM PROFILE
                             <documentation>A text string describing the degree of dry strength. common terms are none, low, medium, high, very high; intended to come from a controlled list</documentation>
                         </annotation>
                     </element>
-                    <element minOccurs="0" name="particleHardness" type="diggs:SizeClassCodeType"
-                        maxOccurs="unbounded">
+                    <element minOccurs="0" name="fabric" type="gml:CodeType" maxOccurs="1">
+                        <annotation>
+                            <documentation>A descriptive term or phrase to describe the spatial arrangement of grains, Common terms are random, oriented, imbricated, etc. Intended to come from a controlled list of terms.
+I</documentation>
+                        </annotation>
+                    </element>
+                    <element name="moistureCondition" type="gml:CodeType" minOccurs="0">
+                        <annotation>
+                            <documentation>A text string describing the moisture of the soil, Common values are dry, moist, or wet; intended to come from a controlled list</documentation>
+                        </annotation>
+                    </element>
+                    <element minOccurs="0" name="particleAngularity" type="gml:CodeType"
+                        maxOccurs="1">
                         <annotation>
                             <documentation>A descriptive term or phrase to describe the overall
-                                hardness of sand and coarser particles by how the particles react to a hammer blow. Common terms are crack, fracture, or crumble. Hard is typically used if no cracking occurs.</documentation>
+angularity of coarse-grained particles. Common terms are angular, subangular, subrounded, rounded). Intended to come from a controlled list.</documentation>
+                        </annotation>
+                    </element>
+                    <element minOccurs="0" name="particleHardness" type="diggs:SizeClassCodeType"
+                        maxOccurs="1">
+                        <annotation>
+                            <documentation>A descriptive term or phrase to describe the overall
+                                hardness of sand and coarser particles by how the particles react to a hammer blow. Common terms are crack, fracture, or crumble. Hard is typically used if no cracking occurs. Intended to come from a controlled list.</documentation>
+                        </annotation>
+                    </element>
+                    <element minOccurs="0" name="particleShape" type="gml:CodeType" maxOccurs="1">
+                        <annotation>
+                            <documentation>A descriptive term or phrase to describe the overall
+                                shape of (typically) gravel and larger particles particles. Common terms are flat, elongated, and flat and elongated. Intended to come from a controlled list.</documentation>
+                        </annotation>
+                    </element>
+                    <element minOccurs="0" name="particleSize" type="gml:CodeType" maxOccurs="1">
+                        <annotation>
+                            <documentation>A descriptive term or phrase to describe the overall particle size distribution of sand and coarser material, eg. "fine", "fine to coarse", "medium. Intended to come from a controlled list. </documentation>
+                        </annotation>
+                    </element>
+                    <element minOccurs="0" name="particleSizeDistribution"
+                        type="diggs:ParticleSizeDistributionPropertyType" maxOccurs="1">
+                        <annotation>
+                            <documentation>Particle size distribution information providing details such as mean grain size, maximum grain size, etc. As opposed to Properties in this object support quantitative values derived from laboratory analyses can carry descriptive terms. Detailed properties of a grain size distribution curve should be reported as test results of a ParticleSizeTest</documentation>
+                        </annotation>
+                    </element>
+                    <element minOccurs="0" name="particleSorting" type="gml:CodeType"
+                        maxOccurs="unbounded">
+                        <annotation>
+                            <documentation>A descriptive term or phrase to describe the relative
+                                particle sorting of soil or rock particles, eg. "well-sorted". Intended to come
+                                from a controlled list.</documentation>
                         </annotation>
                     </element>
                     <element minOccurs="0" name="plasticity" type="gml:CodeType">
@@ -10798,6 +10911,23 @@ DSB: REMOVED FROM PROFILE
                             <documentation>A descriptive term or phrase to describe the relative
                                 degree of rock weathering, eg. "slightly decomposed", "Grade III",
                                 etc. Intended to come from a controlled list.</documentation>
+                        </annotation>
+                    </element>
+                    <element minOccurs="0" name="soilStructure" type="gml:CodeType">
+                        <annotation>
+                            <documentation>A descriptive term or phrase to describe the relative
+                                structure of intact soil. Common terms are stratified, laminated, fissured, slickensided, blocky, lensed, homogeneous, varved, etc. Intended to come from a controlled list.</documentation>
+                        </annotation>
+                    </element>
+                    <element minOccurs="0" name="staining" type="gml:CodeType">
+                        <annotation>
+                            <documentation>A term describing the source of any visible staining of the lithologic unit within the area of observation. Possible terms include iron, manganese, hydrocarbons, etc. Intended to come from a controlled list of terms.</documentation>
+                        </annotation>
+                    </element>
+                    <element minOccurs="0" name="surfaceTexture" type="gml:CodeType" maxOccurs="1">
+                        <annotation>
+                            <documentation>A descriptive term or phrase to describe the microscale features on grain surfaces. Common terms include: polished, smooth, pitted, striated, etc. Intended to come from a controlled list of terms.
+Includes:</documentation>
                         </annotation>
                     </element>
                     <element minOccurs="0" name="toughness" type="gml:CodeType">
