@@ -1480,8 +1480,7 @@
             <element ref="diggs:Address" minOccurs="1" maxOccurs="1">
                 <annotation>
                     <documentation>The address object contains properties of a physical address, eg.
-                        the location where a person or entity can be communicated
-                        with.</documentation>
+                        the location where a person or entity can be reached personally or by mail.</documentation>
                 </annotation>
             </element>
         </sequence>
@@ -2382,26 +2381,99 @@
     </complexType>
     <complexType name="BusinessAssociateType">
         <complexContent>
-            <extension base="diggs:AbstractNamedFeatureType">
+            <extension base="diggs:BusinessAssociateBaseType">
                 <sequence>
-                    <element name="title" type="gml:CodeType" minOccurs="0" maxOccurs="1"/>
+                    <element name="title" type="gml:CodeType" minOccurs="0" maxOccurs="1">
+                        <annotation>
+                            <documentation>A title for a person (eg. Mr., Ms., Sra., Dr. etc) that precedes the name. Corporate titles (eg. Inc., Ltd., etc) or suffixes (eg. PhD) would not be entered here, but included in the BusinessAssociate's name.</documentation>
+                        </annotation>
+                    </element>
                     <element name="address" type="diggs:AddressPropertyType" minOccurs="0"
-                        maxOccurs="unbounded"/>
+                        maxOccurs="unbounded">
+                        <annotation>
+                            <documentation>Mailing address for the BusinessAssociate</documentation>
+                        </annotation>
+                    </element>
                     <element name="emailAddress" type="diggs:EmailType" minOccurs="0"
-                        maxOccurs="unbounded"/>
+                        maxOccurs="unbounded">
+                        <annotation>
+                            <documentation>An email address for the BusinessAssociate. The type of email (eg. business or personal) is defined in the type attribute.</documentation>
+                        </annotation>
+                    </element>
                     <element name="phoneNumber" type="diggs:PhoneType" minOccurs="0"
-                        maxOccurs="unbounded"/>
+                        maxOccurs="unbounded">
+                        <annotation>
+                            <documentation>A telephone number for the BusinessAssociate. The type of number (eg. mobile, fax, etc.) is described in the type attribute.</documentation>
+                        </annotation>
+                    </element>
                     <element name="associatedWith" type="diggs:BusinessAssociatePropertyType"
                         minOccurs="0" maxOccurs="unbounded">
                         <annotation>
                             <appinfo source="urn:x-gml:targetElement">diggs:BusinessAssociate</appinfo>
-                            <documentation>A property element that supports a value by reference
-                                only. The target value is indicated in the appinfo
-                                element.</documentation>
+                            <documentation>A BusinessAssociate that is associated with this one. This can be an xlink:href pointer to the gml:id of another BusinessAssociate object or an embedded BusinessAssociate object</documentation>
                         </annotation>
                     </element>
                 </sequence>
             </extension>
+        </complexContent>
+    </complexType>
+    <complexType name="BusinessAssociateBaseType">
+        <complexContent>
+            <restriction base="diggs:AbstractNamedFeatureType">
+
+                <sequence>
+                    <sequence>
+                        <element minOccurs="0" ref="gml:description"/>
+                        <element minOccurs="0" ref="gml:identifier"/>
+                    </sequence>
+                    <sequence>
+                        <element maxOccurs="unbounded" minOccurs="1" ref="gml:name"/>
+                        <element minOccurs="0" name="internalIdentifier"
+                            type="gml:CodeWithAuthorityType">
+                            <annotation>
+                                <documentation>The value of this property is the identifier
+                                    originally created by the authority for this feature, or that is
+                                    used as the identifier in the authority's internal data
+                                    management system. There is no assumption as to the unique scope
+                                    or persistence of this identifier. In cases where the original
+                                    or internal identifier does not meet the semantic requirements
+                                    for gml:id or gml:identifier, the internal identifier may be
+                                    included in this property in order for the originating authority
+                                    to "map back" the identifier to an internal data management
+                                    system. The codeSpace attribute must be populated to identify
+                                    the authority that uses the internalIdentifier
+                                    value.</documentation>
+                            </annotation>
+                        </element>
+                        <element minOccurs="0" ref="diggs:status">
+                            <annotation>
+                                <documentation>A text string to provide information about the status
+                                    of the object to be used to track QA/QC controls, review or
+                                    release status, etc. The values used are intended to come from a
+                                    controlled list of terms maintained by an
+                                    organization.</documentation>
+                            </annotation>
+                        </element>
+                        <element maxOccurs="unbounded" minOccurs="0" name="associatedFile"
+                            type="diggs:AssociatedFilePropertyType">
+                            <annotation>
+                                <documentation>Identifies external files associated with this
+                                    feature. This allows for the feature to be further elaborated
+                                    with information that cannot be represented by ASCII text, such
+                                    as a photograph or other media, binary data, or a formatted
+                                    report.</documentation>
+                            </annotation>
+                        </element>
+                        <element maxOccurs="unbounded" minOccurs="0" name="remark"
+                            type="diggs:RemarkPropertyType">
+                            <annotation>
+                                <documentation>Any comment or remark associated with this specific
+                                    feature.</documentation>
+                            </annotation>
+                        </element>
+                    </sequence>
+                </sequence>
+            </restriction>
         </complexContent>
     </complexType>
     <element name="Calibration" type="diggs:CalibrationType"
@@ -3738,7 +3810,8 @@ can be used to construct a color name of "dark greenish Grey" which, for example
         </complexContent>
     </complexType>
     <element name="DocumentInformation" type="diggs:DocumentInformationType"
-        substitutionGroup="diggs:AbstractFeatureBase" abstract="false" block="" nillable="false">
+        substitutionGroup="diggs:AbstractComponentObjectBase" abstract="false" block=""
+        nillable="false">
         <annotation>
             <documentation>An object that contains metadata about the specific xml
                 instance.</documentation>
@@ -3751,8 +3824,12 @@ can be used to construct a color name of "dark greenish Grey" which, for example
     </complexType>
     <complexType name="DocumentInformationType">
         <complexContent>
-            <extension base="diggs:AbstractFeatureBaseType">
+            <extension base="diggs:AbstractComponentObjectBaseType">
                 <sequence>
+                    <sequence>
+                        <element ref="gml:description" minOccurs="0"/>
+                        <element minOccurs="0" ref="gml:identifier"/>
+                    </sequence>
                     <element name="creationDate" type="gml:TimePositionType">
                         <annotation>
                             <documentation>The date that this instance file was
@@ -10983,77 +11060,4 @@ Includes:</documentation>
     <simpleType name="ApproximatorEnumExtType">
         <union memberTypes="diggs:ApproximatorEnumType diggs:OtherNameType"/>
     </simpleType>
-    <element name="TexturalProperties" type="diggs:TexturallPropertiesType">
-        <annotation>
-            <documentation>An object that describes the textural properties of the described lithology. These include particle size, shape, sorting, etc.</documentation>
-        </annotation>
-    </element>
-    <complexType name="TexturallPropertiesType">
-        <complexContent>
-            <extension base="diggs:AbstractComponentObjectBaseType">
-                <sequence>
-                    <element name="remark" type="diggs:RemarkPropertyType" minOccurs="0"
-                        maxOccurs="unbounded">
-                        <annotation>
-                            <documentation>Any comment or remark associated with this specific
-                                feature, the person or organization making the comment, and the time
-                                comment was made.Any comment or remark associated with this specific
-                                feature, the person or organization making the comment, and the time
-                                comment was made.</documentation>
-                        </annotation>
-                    </element>
-                    <element minOccurs="0" name="Fabric" type="gml:CodeType" maxOccurs="1">
-                        <annotation>
-                            <documentation>A descriptive term or phrase to describe the patial arrangement of grains, Common terms are random, oriented, imbricated, etc. Intended to come from a controlled list of terms.
-I</documentation>
-                        </annotation>
-                    </element>
-                    <element minOccurs="0" name="particleAngularity" type="gml:CodeType"
-                        maxOccurs="1">
-                        <annotation>
-                            <documentation>A descriptive term or phrase to describe the overall
-angularity of coarse-grained particles. Common terms are angular, subangular, subrounded, rounded). Intended to come from a controlled list.</documentation>
-                        </annotation>
-                    </element>
-                    <element minOccurs="0" name="particleShape" type="gml:CodeType" maxOccurs="1">
-                        <annotation>
-                            <documentation>A descriptive term or phrase to describe the overall
-                                shape of (typically) gravel and larger particles particles. Common terms are flat, elongated, and flat and elongated. Intended to come from a controlled list.</documentation>
-                        </annotation>
-                    </element>
-                    <element minOccurs="0" name="particleSize" type="gml:CodeType" maxOccurs="1">
-                        <annotation>
-                            <documentation>A descriptive term or phrase to describe the overall particle size distribution of sand and coarser material, eg. "fine", "fine to coarse", "medium. Intended to come from a controlled list. </documentation>
-                        </annotation>
-                    </element>
-                    <element minOccurs="0" name="particleSizeDistribution"
-                        type="diggs:ParticleSizeDistributionPropertyType" maxOccurs="1">
-                        <annotation>
-                            <documentation>Particle size distribution information providing details such as mean grain size, maximum grain size, etc. As opposed to Properties in this object support quantitative values derived from laboratory analyses can carry descriptive terms. Detailed properties of a grain size distribution curve should be reported as test results of a ParticleSizeTest</documentation>
-                        </annotation>
-                    </element>
-                    <element minOccurs="0" name="particleSorting" type="diggs:SizeClassCodeType"
-                        maxOccurs="unbounded">
-                        <annotation>
-                            <documentation>A descriptive term or phrase to describe the relative
-                                particle sorting of the soil, eg. "well-sorted". Intended to come
-                                from a controlled list.</documentation>
-                        </annotation>
-                    </element>
-                    <element minOccurs="0" name="surfaceTexture" type="gml:CodeType" maxOccurs="1">
-                        <annotation>
-                            <documentation>A descriptive term or phrase to describe the microscale features on grain surfaces. Common terms include: polished, smooth, pitted, striated, etc. Intended to come from a controlled list of terms.
-Includes:</documentation>
-                        </annotation>
-                    </element>
-                </sequence>
-            </extension>
-        </complexContent>
-    </complexType>
-    <complexType name="TexturalPropertiesPropertyType">
-        <sequence>
-            <element ref="diggs:TexturalProperties"/>
-        </sequence>
-        <attribute name="sizeClass" type="diggs:SizeClassEnumExtType"/>
-    </complexType>
 </schema>
