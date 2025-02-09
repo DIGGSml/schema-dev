@@ -3339,11 +3339,27 @@ can be used to construct a color name of "dark greenish Grey" which, for example
         <complexContent>
             <extension base="diggs:AbstractFeatureType">
                 <sequence>
-                    <element name="version" type="diggs:DiggsStringType" minOccurs="0" maxOccurs="1"/>
-                    <element minOccurs="0" name="contractDate" type="gml:TimePositionType"/>
+                    <element name="version" type="diggs:DiggsStringType" minOccurs="0" maxOccurs="1">
+                        <annotation>
+                            <documentation>The version number or name of this contract</documentation>
+                        </annotation>
+                    </element>
+                    <element minOccurs="0" name="contractDate" type="gml:TimePositionType">
+                        <annotation>
+                            <documentation>The date the contrat went into effect.</documentation>
+                        </annotation>
+                    </element>
                     <element minOccurs="0" name="revisionDate" type="gml:TimePositionType"
-                        maxOccurs="unbounded"/>
-                    <element name="type" type="gml:CodeType" minOccurs="0" maxOccurs="1"/>
+                        maxOccurs="unbounded">
+                        <annotation>
+                            <documentation>The date when the contract was revised.</documentation>
+                        </annotation>
+                    </element>
+                    <element name="type" type="gml:CodeType" minOccurs="0" maxOccurs="1">
+                        <annotation>
+                            <documentation>The type of contract. Intended to come from a controlled list of terms (eg. Time and Materials, Fixed Price, etc.)</documentation>
+                        </annotation>
+                    </element>
                     <element name="value" type="witsml:Cost" minOccurs="0" maxOccurs="1">
                         <annotation>
                             <documentation>The total value of the contract; the currency attribute
@@ -3467,9 +3483,21 @@ can be used to construct a color name of "dark greenish Grey" which, for example
         <complexContent>
             <extension base="diggs:AbstractObjectType">
                 <sequence>
-                    <element name="timeOfDelay" type="diggs:TimeIntervalPropertyType" minOccurs="0"
-                        maxOccurs="1"/>
-                    <element name="delayType" type="gml:CodeType" minOccurs="0" maxOccurs="1"/>
+                    <choice>
+                        <element name="timeOfDelay" type="diggs:TimeIntervalPropertyType"
+                            minOccurs="1" maxOccurs="1">
+                            <annotation>
+                                <documentation>The time interval of the delay. Requies an absolute time for the start of the delay and either an end time or duration.
+</documentation>
+                            </annotation>
+                        </element>
+                        <element name="delayDuration" type="eml:TimeMeasure"/>
+                    </choice>
+                    <element name="delayType" type="gml:CodeType" minOccurs="0" maxOccurs="1">
+                        <annotation>
+                            <documentation>A description of the type of delay, intended to come from a ontrolled list of terms (eg. mechanical, operational, soil-response, etc.)</documentation>
+                        </annotation>
+                    </element>
                 </sequence>
             </extension>
         </complexContent>
@@ -4586,7 +4614,11 @@ Includes:</documentation>
                             <documentation><![CDATA[Discontinuity wall weathering]]></documentation>
                         </annotation>
                     </element>
-                    <element minOccurs="0" name="fractureHealing" type="gml:CodeType"/>
+                    <element minOccurs="0" name="fractureHealing" type="diggs:DiggsStringType">
+                        <annotation>
+                            <documentation>A description of fracture healing or the state of healed fractures in rock. These might include mineral filling/mineralization (eg. crystallization, precipitation), physical charactceristics (eg. cementation, recrystallization), quality descriptors (eg. partial healing, etc.) and age/time of healing (eg. ancient, recent).</documentation>
+                        </annotation>
+                    </element>
                     <element minOccurs="0" name="waterFlow" type="eml:VolumePerTimeMeasure">
                         <annotation>
                             <documentation><![CDATA[Water flow estimate]]></documentation>
@@ -7321,7 +7353,12 @@ DSB: REMOVED FROM PROFILE
         <complexContent>
             <extension base="gml:AbstractMetadataPropertyType">
                 <sequence>
-                    <element name="rolePerformed" type="gml:CodeType" minOccurs="1" maxOccurs="1"/>
+                    <element name="rolePerformed" type="gml:CodeType" minOccurs="1" maxOccurs="1">
+                        <annotation>
+                            <documentation>A term describing the role that was performed; intended to come from a controlled list of terms. In many types of practice, the rolw performed will map to a specific database field (eg. driller for a borehole) and therefore use of a a DIGGS dictionary is important to ensure interoperability berween data systems.
+</documentation>
+                        </annotation>
+                    </element>
                     <element name="timePerformed" type="diggs:TimeIntervalPropertyType"
                         minOccurs="0" maxOccurs="1"/>
                     <element name="remark" type="diggs:RemarkPropertyType" minOccurs="0"
@@ -8914,7 +8951,11 @@ DSB: REMOVED FROM PROFILE
                     <choice>
                         <element ref="diggs:fileReference"/>
                     </choice>
-                    <element ref="diggs:fileStructure"/>
+                    <element ref="diggs:fileStructure">
+                        <annotation>
+                            <documentation>A controlled term describing how the file is structured (eg. Record Interleaved)</documentation>
+                        </annotation>
+                    </element>
                 </sequence>
             </restriction>
         </complexContent>
