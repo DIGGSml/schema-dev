@@ -8855,7 +8855,7 @@ DSB: REMOVED FROM PROFILE
             </extension>
         </complexContent>
     </complexType>
-    <element name="Test" type="diggs:TestType" substitutionGroup="diggs:AbstractMeasurement">
+    <element name="Test" type="diggs:NewTestType" substitutionGroup="diggs:AbstractMeasurement">
         <annotation>
             <documentation>An act ("event"), whose results are estimates of the value of a property
                 of the investigation target, measured at a time instant or within a time interval,
@@ -8870,9 +8870,10 @@ DSB: REMOVED FROM PROFILE
         </annotation>
     </element>
     <complexType name="TestResultPropertyType">
-        <sequence>
+        <choice>
             <element ref="diggs:TestResult"/>
-        </sequence>
+            <element ref="diggs:MonitorResult"/>
+        </choice>
     </complexType>
     <complexType name="TestResultBaseType">
         <complexContent>
@@ -11138,4 +11139,73 @@ Includes:</documentation>
     <simpleType name="offsetDirectionEnumExtType">
         <union memberTypes="diggs:offsetDirectionEnumType diggs:OtherNameType"/>
     </simpleType>
+    <complexType name="NewTestType">
+        <complexContent>
+            <extension base="diggs:AbstractMeasurementType">
+                <sequence>
+                    <choice>
+                        <sequence>
+                            <element minOccurs="0" name="samplingTime"
+                                type="diggs:TimeIntervalOrInstantPropertyType">
+                                <annotation>
+                                    <documentation>Describes the time that the result applies to the
+                                property of the investigation target. This is often the time of
+                                interaction by a sampling activity or measurement procedure with a
+                                real-world feature. </documentation>
+                                </annotation>
+                            </element>
+                            <element minOccurs="0" name="resultTime"
+                                type="diggs:TimeIntervalOrInstantPropertyType">
+                                <annotation>
+                                    <documentation>Describes the time when the result became available,
+                                typically when the procedure associated with the observation was
+                                completed. For some observations this is identical to the
+                                samplingTime. However, there are important cases where they differ.
+                                Example: Where a measurement is made on a specimen in a laboratory,
+                                the samplingTime should record the time the specimen was retrieved
+                                from its host, while the resultTime should record the time the
+                                laboratory procedure was applied. Example: Where monitoring
+                                observation results are post-processed, the resultTime is the
+                                post-processing time, while the samplingTime preserves the time of
+                                initial interaction with the world. </documentation>
+                                </annotation>
+                            </element>
+                            <element minOccurs="0" name="validTime"
+                                type="diggs:TimeIntervalOrInstantPropertyType">
+                                <annotation>
+                                    <documentation>Describes the time period during which the result is
+                                intended to be used.</documentation>
+                                </annotation>
+                            </element>
+                            <element name="outcome" type="diggs:TestResultPropertyType">
+                                <annotation>
+                                    <documentation>A property that contains the information about what
+                                properties are being measured, the results of the measurement, and
+                                the associated locations that the measurement results relate
+                                to.</documentation>
+                                </annotation>
+                            </element>
+                        </sequence>
+                        <sequence>
+                            <element name="responseZoneLocation" type="diggs:LocationPropertyType">
+                                <annotation>
+                                    <documentation>Identifies the location of the response zone within
+                                    the sampling feature that is being monitored. For example, for a
+                                    water level measurement, the location would be the depth
+                                    interval in the well where perforations are located (or where
+                                    water enters the well)</documentation>
+                                </annotation>
+                            </element>
+                        </sequence>
+                    </choice>
+                    <choice minOccurs="0">
+                        <element minOccurs="1" name="procedure"
+                            type="diggs:TestProcedurePropertyType" maxOccurs="unbounded"/>
+                        <element name="sensor" type="diggs:SensorPropertyType" maxOccurs="unbounded"
+                            minOccurs="1"/>
+                    </choice>
+                </sequence>
+            </extension>
+        </complexContent>
+    </complexType>
 </schema>
