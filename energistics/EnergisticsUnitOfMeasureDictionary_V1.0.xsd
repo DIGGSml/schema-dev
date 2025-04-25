@@ -1,0 +1,1469 @@
+<?xml version="1.0"?>
+<xsd:schema 
+	elementFormDefault="qualified"
+	attributeFormDefault="unqualified"  
+	xmlns:xsd="http://www.w3.org/2001/XMLSchema"
+	xmlns:tns="http://www.energistics.org/energyml/data/uomv1"
+	targetNamespace="http://www.energistics.org/energyml/data/uomv1"
+	version="1.0">
+	<!--                                                         -->
+	<!-- Energistics License Agreement
+	This file is distributed under the Energistics License Agreement at
+	http://www.energistics.org
+	Use of this file constitutes agreement with the Energistics License Agreement.
+	Copyright (c) 2014 Energistics. All rights reserved.
+	-->
+	<!--                                                         -->
+	<!--                                                         -->
+	<xsd:annotation>
+		<xsd:documentation>This schema is designed to support three variations of the following content:
+			Energistics Unit of Measure Dictionary
+			Energistics Integer Code Set
+			Energistics Class Mapping Set
+			Energistics Unit Mapping Set
+		One variation is for all of the above to exist in one file utilizing the following element as the root:
+			uomAggregate
+		Another variation is for each of the above to exist in separate files with the following elements as roots:
+			uomDictionary
+			integerCodeSet
+			classMappingSet
+			unitMappingSet
+		The final variataion is for each child set of the Energistics Unit of Measure Dictionary to exist in separate files with the following elements as roots:
+			unitDimensionSet
+			quantityClassSet
+			unitSet
+			referenceSet
+			prefixSet
+		This final variation is intended to facilitate splitting out parts of the data for easier loading. 
+		In this variation, each set will retain a version attribute which encodes information about the parent sets name and version.
+		If manually splitting an existing file, remember to copy the namespace information to the new file root.</xsd:documentation>
+	</xsd:annotation>
+	<!--                                                         -->
+	<!-- ======================================================= -->
+	<!-- ======================================================= -->
+	<xsd:element name="uomAggregate" type="tns:uomAggregate">
+		<xsd:annotation>
+			<xsd:documentation>The root of a schema for aggregating other independent XML data.</xsd:documentation>
+		</xsd:annotation>
+	</xsd:element>
+	<xsd:complexType name="uomAggregate">
+		<xsd:sequence>
+			<xsd:element ref="tns:uomDictionary" minOccurs="0" maxOccurs="1">
+				<xsd:annotation>
+					<xsd:documentation>The unit of measure dictionary.</xsd:documentation>
+				</xsd:annotation>
+			</xsd:element>
+			<xsd:element ref="tns:integerCodeSet" minOccurs="0" maxOccurs="1">
+				<xsd:annotation>
+					<xsd:documentation>The integer code dictionary.</xsd:documentation>
+				</xsd:annotation>
+			</xsd:element>
+			<xsd:element ref="tns:classMappingSet" minOccurs="0" maxOccurs="unbounded">
+				<xsd:annotation>
+					<xsd:documentation>A mapping from an external dictionary to the quantity class dictionary.</xsd:documentation>
+				</xsd:annotation>
+			</xsd:element>
+			<xsd:element ref="tns:unitMappingSet" minOccurs="0" maxOccurs="unbounded">
+				<xsd:annotation>
+					<xsd:documentation>A mapping from an external dictionary to the unit of measure dictionary.</xsd:documentation>
+				</xsd:annotation>
+			</xsd:element>
+		</xsd:sequence>
+	</xsd:complexType>
+	<!-- ======================================================= -->
+	<!-- ======================================================= -->
+	<xsd:element name="uomDictionary" type="tns:uomDictionary">
+		<xsd:annotation>
+			<xsd:documentation>The root of a schema for the Energistics Unit of Measure Dictionary.</xsd:documentation>
+		</xsd:annotation>
+	</xsd:element>
+	<xsd:complexType name="uomDictionary">
+		<xsd:sequence>
+			<xsd:group ref="tns:grp_citation" minOccurs="1" maxOccurs="1">
+				<xsd:annotation>
+					<xsd:documentation>The metadata information about the specification.</xsd:documentation>
+				</xsd:annotation>
+			</xsd:group>
+			<xsd:element ref="tns:unitDimensionSet" minOccurs="1" maxOccurs="1">
+				<xsd:annotation>
+					<xsd:documentation>The unit of measure dimensional concepts.</xsd:documentation>
+				</xsd:annotation>
+			</xsd:element>
+			<xsd:element ref="tns:quantityClassSet" minOccurs="1" maxOccurs="1">
+				<xsd:annotation>
+					<xsd:documentation>The quantity classs.</xsd:documentation>
+				</xsd:annotation>
+			</xsd:element>
+			<xsd:element ref="tns:unitSet" minOccurs="1" maxOccurs="1">
+				<xsd:annotation>
+					<xsd:documentation>The units of measure.</xsd:documentation>
+				</xsd:annotation>
+			</xsd:element>
+			<xsd:element ref="tns:referenceSet" minOccurs="1" maxOccurs="1">
+				<xsd:annotation>
+					<xsd:documentation>The conversion references.</xsd:documentation>
+				</xsd:annotation>
+			</xsd:element>
+			<xsd:element ref="tns:prefixSet" minOccurs="1" maxOccurs="1">
+				<xsd:annotation>
+					<xsd:documentation>The allowed atom prefixes.</xsd:documentation>
+				</xsd:annotation>
+			</xsd:element>
+		</xsd:sequence>
+		<xsd:attribute name="version" type="tns:collapsedNonEmptyString" use="required">
+			<xsd:annotation>
+				<xsd:documentation>The version of the specification.</xsd:documentation>
+			</xsd:annotation>
+		</xsd:attribute>
+	</xsd:complexType>
+	<!--                                                         -->
+	<!-- ======================================================= -->
+	<!-- ======================================================= -->
+	<xsd:element name="unitDimensionSet" type="tns:unitDimensionSet">
+		<xsd:annotation>
+			<xsd:documentation>The containing element of all unit dimensions.</xsd:documentation>
+		</xsd:annotation>
+	</xsd:element>
+	<xsd:complexType name="unitDimensionSet">
+		<xsd:sequence>
+			<xsd:element name="unitDimension" type="tns:unitDimension" minOccurs="1" maxOccurs="unbounded">
+				<xsd:annotation>
+					<xsd:documentation>A single unit dimension concept.</xsd:documentation>
+				</xsd:annotation>
+			</xsd:element>
+		</xsd:sequence>
+		<xsd:attribute name="version" type="tns:collapsedNonEmptyString" use="required">
+			<xsd:annotation>
+				<xsd:documentation>The version of the specification.
+				This copy of the version should also retain knowledge of the specification name.
+				The purpose is to allow the set to be copied to a stand-alone file to function as a loading file without loosing knowledge of the source.</xsd:documentation>
+			</xsd:annotation>
+		</xsd:attribute>
+	</xsd:complexType>
+	<!--                                                         -->
+	<xsd:complexType name="unitDimension">
+		<xsd:sequence>
+			<xsd:element name="name" type="tns:nameString" minOccurs="1" maxOccurs="1">
+				<xsd:annotation>
+					<xsd:documentation>The name of the unit dimension concept.</xsd:documentation>
+				</xsd:annotation>
+			</xsd:element>
+			<xsd:element name="dimension" type="tns:quantityDimension" minOccurs="1" maxOccurs="1">
+				<xsd:annotation>
+					<xsd:documentation>The dimensional analysis.</xsd:documentation>
+				</xsd:annotation>
+			</xsd:element>
+			<xsd:element name="baseForConversion" type="tns:dimemsionalSymbolString" minOccurs="1" maxOccurs="1">
+				<xsd:annotation>
+					<xsd:documentation>The symbol of the unit which is used for conversion for of all members of this dimension.
+					The corresponding baseForConversion must have this dimension.
+					To convert from one member to another member, you logically convert from the source member 
+					to the base and then convert from the base to the target member.</xsd:documentation>
+				</xsd:annotation>
+			</xsd:element>
+			<xsd:element name="canonicalUnit" type="tns:dimemsionalSymbolString" minOccurs="1" maxOccurs="1">
+				<xsd:annotation>
+					<xsd:documentation>An expression of the dimensional concept in terms of the SI base units.
+					This reduces the concept to its most elemental SI form and is equivalent to the base unit (conversion factor of "1" between them) .
+					The corresponding expression may or may not be a member of this class and may or may not be a supported unit.
+					The atoms of canonical units are sorted alphabetically within the numerator or denominator. 
+					For example, "rad" will come after "m" .
+					The following dimensionless SI units are retained in the reduction:
+						rad	radian
+						sr	steradian
+					</xsd:documentation>
+				</xsd:annotation>
+			</xsd:element>
+			<xsd:element name="description" type="tns:collapsedNonEmptyString" minOccurs="0" maxOccurs="1">
+				<xsd:annotation>
+					<xsd:documentation>A textual comment abbout the dimension.</xsd:documentation>
+				</xsd:annotation>
+			</xsd:element>
+		</xsd:sequence>
+	</xsd:complexType>
+	<!--                                                         -->
+	<!-- ======================================================= -->
+	<!-- ======================================================= -->
+	<xsd:element name="quantityClassSet" type="tns:quantityClassSet">
+		<xsd:annotation>
+			<xsd:documentation>TThe containing element of all quantity classes.</xsd:documentation>
+		</xsd:annotation>
+	</xsd:element>
+	<xsd:complexType name="quantityClassSet">
+		<xsd:sequence>
+			<xsd:element name="quantityClass" type="tns:quantityClass" minOccurs="1" maxOccurs="unbounded">
+				<xsd:annotation>
+					<xsd:documentation>A single quantity class representing a superclass of mutually comparable quantity kinds.
+					The class may or may not represent a recognized quantity kind (i.e., it may logically be abstract). 
+					Quantities of the same class will have the same quantity dimension. 
+					However, quantities of the same dimension are not necessarily of the same class.
+					The term "quantity class" is intended to have the same general 
+					meaning as the term "kind of quantity" as defined by the 
+					"International vocabulary of metrology - Basic and general concepts and associated terms (VIM)"
+					(JCGM 200:2008).</xsd:documentation>
+				</xsd:annotation>
+			</xsd:element>
+		</xsd:sequence>
+		<xsd:attribute name="version" type="tns:collapsedNonEmptyString" use="required">
+			<xsd:annotation>
+				<xsd:documentation>The version of the specification.
+				This copy of the version should also retain knowledge of the specification name.
+				The purpose is to allow the set to be copied to a stand-alone file to function as a loading file without loosing knowledge of the source.</xsd:documentation>
+			</xsd:annotation>
+		</xsd:attribute>
+	</xsd:complexType>
+	<!--                                                         -->
+	<xsd:complexType name="quantityClass">
+		<xsd:sequence>
+			<xsd:element name="name" type="tns:nameString" minOccurs="1" maxOccurs="1">
+				<xsd:annotation>
+					<xsd:documentation>The name of the quantity class.</xsd:documentation>
+				</xsd:annotation>
+			</xsd:element>
+			<xsd:element name="dimension" type="tns:quantityDimension" minOccurs="1" maxOccurs="1">
+				<xsd:annotation>
+					<xsd:documentation>The dimensional analysis of the class.</xsd:documentation>
+				</xsd:annotation>
+			</xsd:element>
+			<xsd:element name="baseForConversion" type="tns:symbolString" minOccurs="1" maxOccurs="1">
+				<xsd:annotation>
+					<xsd:documentation>The symbol of the unit which is used for conversion for of all members of this class.
+					The corresponding baseForConversion must be a member of this class.
+					To convert from one member to another member, you logically convert from the source member 
+					to the base and then convert from the base to the target member.</xsd:documentation>
+				</xsd:annotation>
+			</xsd:element>
+			<xsd:element name="alternativeBase" type="tns:symbolString" minOccurs="0" maxOccurs="1">
+				<xsd:annotation>
+					<xsd:documentation>This specifies the symbol for an alternative base for conversion.
+					This should match the base of the dimension and should be equivalent to the base for conversion (i.e., a conversion factor between them is one). 
+					It should only be defined when multiple classes have the same dimension.</xsd:documentation>
+				</xsd:annotation>
+			</xsd:element>
+			<xsd:element name="description" type="tns:collapsedNonEmptyString" minOccurs="0" maxOccurs="1">
+				<xsd:annotation>
+					<xsd:documentation>A textual comment abbout the class.</xsd:documentation>
+				</xsd:annotation>
+			</xsd:element>
+			<xsd:element name="memberUnit" type="tns:symbolString" minOccurs="1" maxOccurs="unbounded">
+				<xsd:annotation>
+					<xsd:documentation>Specifies the symbol of a unit of which is a member of this class.
+					Membership indicates that a value of that class can be converted to any other member unit of that class without loss of semantics.
+					This because the conversion formula represents a unitless factor of one.</xsd:documentation>
+				</xsd:annotation>
+			</xsd:element>
+		</xsd:sequence>
+	</xsd:complexType>
+	<!--                                                         -->
+	<!-- ======================================================= -->
+	<!-- ======================================================= -->
+	<xsd:element name="unitSet" type="tns:unitSet">
+		<xsd:annotation>
+			<xsd:documentation>The containing element of all units of measure.</xsd:documentation>
+		</xsd:annotation>
+	</xsd:element>
+	<!--                                                         -->
+	<xsd:complexType name="unitSet">
+		<xsd:sequence>
+			<xsd:element name="unit" type="tns:unit" minOccurs="1" maxOccurs="unbounded">
+				<xsd:annotation>
+					<xsd:documentation>A single unit of measure.</xsd:documentation>
+				</xsd:annotation>
+			</xsd:element>
+		</xsd:sequence>
+		<xsd:attribute name="version" type="tns:collapsedNonEmptyString" use="required">
+			<xsd:annotation>
+				<xsd:documentation>The version of the specification.
+				This copy of the version should also retain knowledge of the specification name.
+				The purpose is to allow the set to be copied to a stand-alone file to function as a loading file without loosing knowledge of the source.</xsd:documentation>
+			</xsd:annotation>
+		</xsd:attribute>
+	</xsd:complexType>
+	<!--                                                         -->
+	<xsd:complexType name="unit">
+		<xsd:sequence>
+			<xsd:element name="symbol" type="tns:symbolString" minOccurs="1" maxOccurs="1">
+				<xsd:annotation>
+					<xsd:documentation>The symbol of this unit.
+					This value must be unique within the context of all units.
+					The symbol will be constructed according to the Energistics symbol construction guidelines.</xsd:documentation>
+				</xsd:annotation>
+			</xsd:element>
+			<xsd:element name="name" type="tns:nameString" minOccurs="1" maxOccurs="1">
+				<xsd:annotation>
+					<xsd:documentation>The name of this unit.
+					This value must be unique within the context of all units.</xsd:documentation>
+				</xsd:annotation>
+			</xsd:element>
+			<xsd:element name="dimension" type="tns:quantityDimension" minOccurs="1" maxOccurs="1">
+				<xsd:annotation>
+					<xsd:documentation>The dimensional analysis of the unit.
+					This must match the dimensional analysis of all classes of which this unit is a member.</xsd:documentation>
+				</xsd:annotation>
+			</xsd:element>
+			<xsd:element name="isSI" type="xsd:boolean" minOccurs="1" maxOccurs="1">
+				<xsd:annotation>
+					<xsd:documentation>True ("true" or "1") indicates that the symbol is SI compliant.
+					A symbol is compiant if it contains only SI base, special or allowed atoms and 
+					does not contain a numeric multiplier (which would require a space character).
+					False ("false" or "0") indicates otherwise.</xsd:documentation>
+				</xsd:annotation>
+			</xsd:element>
+			<xsd:element name="category" type="tns:collapsedNonEmptyString" minOccurs="1" maxOccurs="1">
+				<xsd:annotation>
+					<xsd:documentation>The category of the unit. 
+					A category of "atom" or which begins with "atom-" indicates an elemental-unit whose 
+					  symbol (e.g., "m") cannot be parsed into sub-components. 
+					  It may represent something with components but the string does not contain those components (e.g., "psi"="lbf/in2", "Pa"="N/m2").
+					A category of "prefixed" indicates a symbol which is the concatenation of an SI prefix with an atom (e.g., "kg", "kpsi", "kPa" versus "knot"). 
+					  The atom must independently exist. Prefixed atoms cannot themselves be prefixed.
+					A category of "derived" indicates a symbol which contains a space, period, solidus, parenthesis or power. 
+					  It contains component atoms and prefixed-atoms (possibly raised to a power, such as "m2", "km2"). 
+					  The atom must independently exist.
+					A category of "atom-base" will indicate an SI base atom (g, not kg). 
+					A category of "atom-special" will indicate an atom which represents combinations of other units (e.g., "psi, "Pa").
+					A category or "atom-allowed" will indicate an atom which is not SI but is allowed in SI. 
+					</xsd:documentation>
+				</xsd:annotation>
+			</xsd:element>
+			<xsd:choice>
+				<xsd:element name="isBase" type="tns:emptyElement" minOccurs="1" maxOccurs="1">
+					<xsd:annotation>
+						<xsd:documentation>The existence of this element indicates that the unit is a base unit.</xsd:documentation>
+					</xsd:annotation>
+				</xsd:element>
+				<xsd:sequence>
+					<xsd:element name="baseUnit" type="tns:symbolString" minOccurs="1" maxOccurs="1">
+						<xsd:annotation>
+							<xsd:documentation>The symbol of the unit to which the conversion formula will convert a value of the containing unit.</xsd:documentation>
+						</xsd:annotation>
+					</xsd:element>
+					<xsd:element name="conversionRef" type="tns:collapsedNonEmptyString" minOccurs="1" maxOccurs="1">
+						<xsd:annotation>
+							<xsd:documentation>A pointer to the reference for the source of the conversion information.</xsd:documentation>
+						</xsd:annotation>
+					</xsd:element>
+					<xsd:element name="isExact" type="xsd:boolean" minOccurs="1" maxOccurs="1">
+						<xsd:annotation>
+							<xsd:documentation>True ("true" or "1") indicates that the conversion information is exact.
+							A conversion to the base unit is defined as "y=(A + Bx)/(C + Dx)", where x is the unit to be converted and y is a value in the base unit.
+							False ("false" or "0") indicates otherwise.</xsd:documentation>
+						</xsd:annotation>
+					</xsd:element>
+					<xsd:element name="A" type="tns:collapsedNonEmptyString" minOccurs="1" maxOccurs="1">
+						<xsd:annotation>
+							<xsd:documentation>The value "A" within the formula "(A + Bx)/(C + Dx)".</xsd:documentation>
+						</xsd:annotation>
+					</xsd:element>
+					<xsd:element name="B" type="tns:collapsedNonEmptyString" minOccurs="1" maxOccurs="1">
+						<xsd:annotation>
+							<xsd:documentation>The value "B" within the formula "(A + Bx)/(C + Dx)".</xsd:documentation>
+						</xsd:annotation>
+					</xsd:element>
+					<xsd:element name="C" type="tns:collapsedNonEmptyString" minOccurs="1" maxOccurs="1">
+						<xsd:annotation>
+							<xsd:documentation>The value "C" within the formula "(A + Bx)/(C + Dx)".</xsd:documentation>
+						</xsd:annotation>
+					</xsd:element>
+					<xsd:element name="D" type="tns:collapsedNonEmptyString" minOccurs="1" maxOccurs="1">
+						<xsd:annotation>
+							<xsd:documentation>The value "D" within the formula "(A + Bx)/(C + Dx)".</xsd:documentation>
+						</xsd:annotation>
+					</xsd:element>
+				</xsd:sequence>
+			</xsd:choice>
+			<xsd:element name="underlyingDef" type="tns:collapsedNonEmptyString" minOccurs="0" maxOccurs="1">
+				<xsd:annotation>
+					<xsd:documentation>An expression which represents the underlying definition of the unit.
+					This should not duplicate the semantics of the conversion informaion.
+					That is, it should be defined using atoms that do not match the base unit.
+					For example, a yard would be defined as "3 ft".</xsd:documentation>
+				</xsd:annotation>
+			</xsd:element>
+			<xsd:element name="description" type="tns:collapsedNonEmptyString" minOccurs="0" maxOccurs="1">
+				<xsd:annotation>
+					<xsd:documentation>A textual comment associated with the unit.</xsd:documentation>
+				</xsd:annotation>
+			</xsd:element>
+		</xsd:sequence>
+	</xsd:complexType>
+	<!--                                                         -->
+	<!-- ======================================================= -->
+	<!-- ======================================================= -->
+	<xsd:element name="referenceSet" type="tns:referenceSet">
+		<xsd:annotation>
+			<xsd:documentation>The containing element of all converson references.</xsd:documentation>
+		</xsd:annotation>
+	</xsd:element>
+	<!--                                                         -->
+	<xsd:complexType name="referenceSet">
+		<xsd:sequence>
+			<xsd:element name="reference" type="tns:reference" minOccurs="1" maxOccurs="unbounded">
+				<xsd:annotation>
+					<xsd:documentation>A single conversion reference.</xsd:documentation>
+				</xsd:annotation>
+			</xsd:element>
+		</xsd:sequence>
+		<xsd:attribute name="version" type="tns:collapsedNonEmptyString" use="required">
+			<xsd:annotation>
+				<xsd:documentation>The version of the specification.
+				This copy of the version should also retain knowledge of the specification name.
+				The purpose is to allow the set to be copied to a stand-alone file to function as a loading file without loosing knowledge of the source.</xsd:documentation>
+			</xsd:annotation>
+		</xsd:attribute>
+	</xsd:complexType>
+	<!--                                                         -->
+	<xsd:complexType name="reference">
+		<xsd:sequence>
+			<xsd:element name="ID" type="tns:collapsedNonEmptyString" minOccurs="1" maxOccurs="1">
+				<xsd:annotation>
+					<xsd:documentation>The identifier string for this reference.</xsd:documentation>
+				</xsd:annotation>
+			</xsd:element>
+			<xsd:element name="description" type="tns:collapsedNonEmptyString" minOccurs="1" maxOccurs="1">
+				<xsd:annotation>
+					<xsd:documentation>The description of the reference.</xsd:documentation>
+				</xsd:annotation>
+			</xsd:element>
+		</xsd:sequence>
+	</xsd:complexType>
+	<!--                                                         -->
+	<!-- ======================================================= -->
+	<!-- ======================================================= -->
+	<xsd:element name="prefixSet" type="tns:prefixSet">
+		<xsd:annotation>
+			<xsd:documentation>The containing element of all prefixes.</xsd:documentation>
+		</xsd:annotation>
+	</xsd:element>
+	<!--                                                         -->
+	<xsd:complexType name="prefixSet">
+		<xsd:sequence>
+			<xsd:element name="prefix" type="tns:prefix" minOccurs="1" maxOccurs="unbounded">
+				<xsd:annotation>
+					<xsd:documentation>A single prefix.</xsd:documentation>
+				</xsd:annotation>
+			</xsd:element>
+		</xsd:sequence>
+		<xsd:attribute name="version" type="tns:collapsedNonEmptyString" use="required">
+			<xsd:annotation>
+				<xsd:documentation>The version of the specification.
+				This copy of the version should also retain knowledge of the specification name.
+				The purpose is to allow the set to be copied to a stand-alone file to function as a loading file without loosing knowledge of the source.</xsd:documentation>
+			</xsd:annotation>
+		</xsd:attribute>
+	</xsd:complexType>
+	<!--                                                         -->
+	<xsd:complexType name="prefix">
+		<xsd:sequence>
+			<xsd:element name="symbol" type="tns:symbolString" minOccurs="1" maxOccurs="1">
+				<xsd:annotation>
+					<xsd:documentation>The symbol associated with the prefix.</xsd:documentation>
+				</xsd:annotation>
+			</xsd:element>
+			<xsd:element name="name" type="tns:nameString" minOccurs="1" maxOccurs="1">
+				<xsd:annotation>
+					<xsd:documentation>The name of the prefix.</xsd:documentation>
+				</xsd:annotation>
+			</xsd:element>
+			<xsd:element name="multiplier" type="tns:nameString" minOccurs="1" maxOccurs="1">
+				<xsd:annotation>
+					<xsd:documentation>The numeric multiplier associated with the prefix.</xsd:documentation>
+				</xsd:annotation>
+			</xsd:element>
+			<xsd:element name="commonName" type="tns:nameString" minOccurs="0" maxOccurs="1">
+				<xsd:annotation>
+					<xsd:documentation>A widely accecpted English phrase associated representing the multiplier. 
+					Note that some terms such as "billion" mean different things in different parts of the world.
+					</xsd:documentation>
+				</xsd:annotation>
+			</xsd:element>
+		</xsd:sequence>
+	</xsd:complexType>
+	<!--                                                         -->
+	<!-- ======================================================= -->
+	<!-- ======================================================= -->
+	<xsd:element name="integerCodeSet" type="tns:integerCodeSet">
+		<xsd:annotation>
+			<xsd:documentation>The root of the quantity class schema.</xsd:documentation>
+		</xsd:annotation>
+	</xsd:element>
+	<xsd:complexType name="integerCodeSet">
+		<xsd:sequence>
+			<xsd:group ref="tns:grp_citation" minOccurs="1" maxOccurs="1">
+				<xsd:annotation>
+					<xsd:documentation>The metadata information about the specification.</xsd:documentation>
+				</xsd:annotation>
+			</xsd:group>
+			<xsd:element name="classCodeSet" type="tns:classCodeSet" minOccurs="1" maxOccurs="1">
+				<xsd:annotation>
+					<xsd:documentation>The set of associations between an integer code and a quantity class.</xsd:documentation>
+				</xsd:annotation>
+			</xsd:element>
+			<xsd:element name="unitCodeSet" type="tns:unitCodeSet" minOccurs="1" maxOccurs="1">
+				<xsd:annotation>
+					<xsd:documentation>The set of associations between an integer code and a quantity class.</xsd:documentation>
+				</xsd:annotation>
+			</xsd:element>
+		</xsd:sequence>
+		<xsd:attribute name="version" type="tns:collapsedNonEmptyString" use="required">
+			<xsd:annotation>
+				<xsd:documentation>The version of the specification.</xsd:documentation>
+			</xsd:annotation>
+		</xsd:attribute>
+	</xsd:complexType>
+	<!--                                                         -->
+	<xsd:complexType name="classCodeSet">
+		<xsd:sequence>
+			<xsd:element name="classCode" type="tns:classCode" minOccurs="1" maxOccurs="unbounded">
+				<xsd:annotation>
+					<xsd:documentation>Associates an integer code with a quantity class name.
+					Each integer must be unique within the context of the set.
+					Each class must be unique within the context of the set.</xsd:documentation>
+				</xsd:annotation>
+			</xsd:element>
+		</xsd:sequence>
+	</xsd:complexType>
+	<!--                                                         -->
+	<xsd:complexType name="unitCodeSet">
+		<xsd:sequence>
+			<xsd:element name="unitCode" type="tns:unitCode" minOccurs="1" maxOccurs="unbounded">
+				<xsd:annotation>
+					<xsd:documentation>Associates an integer code with a unit symbol.
+					Each integer must be unique within the context of the set.
+					Each symbol must be unique within the context of the set.</xsd:documentation>
+				</xsd:annotation>
+			</xsd:element>
+		</xsd:sequence>
+	</xsd:complexType>
+	<!--                                                         -->
+	<xsd:complexType name="classCode">
+		<xsd:sequence>
+			<xsd:element name="term" type="tns:collapsedNonEmptyString" minOccurs="1" maxOccurs="1">
+				<xsd:annotation>
+					<xsd:documentation>The term with with a code is being associated.</xsd:documentation>
+				</xsd:annotation>
+			</xsd:element>
+			<xsd:element name="code" type="xsd:positiveInteger" minOccurs="1" maxOccurs="1">
+				<xsd:annotation>
+					<xsd:documentation>The integer code associated with the term.</xsd:documentation>
+				</xsd:annotation>
+			</xsd:element>
+			<xsd:element name="deprecated" type="tns:collapsedNonEmptyString" minOccurs="0" maxOccurs="1">
+				<xsd:annotation>
+					<xsd:documentation>If specified, then the value has been deprecated and should not be utilized in new usages of this specification.</xsd:documentation>
+				</xsd:annotation>
+			</xsd:element>
+			<xsd:element name="unit" type="tns:unitCodeStruct" minOccurs="1" maxOccurs="1">
+				<xsd:annotation>
+					<xsd:documentation>The integer code associated with the term.
+					This will represent one of the following which are numerically equivalent and of the same dimension:
+					1) The base for conversion of the class.
+					2) The alternative base for the class.
+					3) The underlying definition of the base for conversion of the class.
+					</xsd:documentation>
+				</xsd:annotation>
+			</xsd:element>
+		</xsd:sequence>
+	</xsd:complexType>
+	<!--                                                         -->
+	<xsd:complexType name="unitCode">
+		<xsd:sequence>
+			<xsd:element name="term" type="tns:collapsedNonEmptyString" minOccurs="1" maxOccurs="1">
+				<xsd:annotation>
+					<xsd:documentation>The term with with a code is being associated.</xsd:documentation>
+				</xsd:annotation>
+			</xsd:element>
+			<xsd:element name="code" type="xsd:positiveInteger" minOccurs="1" maxOccurs="1">
+				<xsd:annotation>
+					<xsd:documentation>The integer code associated with the term.</xsd:documentation>
+				</xsd:annotation>
+			</xsd:element>
+			<xsd:element name="deprecated" type="tns:collapsedNonEmptyString" minOccurs="0" maxOccurs="1">
+				<xsd:annotation>
+					<xsd:documentation>If specified, then the value has been deprecated and should not be utilized in new usages of this specification.</xsd:documentation>
+				</xsd:annotation>
+			</xsd:element>
+		</xsd:sequence>
+	</xsd:complexType>
+	<!--                                                         -->
+	<!-- ======================================================= -->
+	<!-- ======================================================= -->
+	<xsd:element name="unitMappingSet" type="tns:unitMappingSet">
+		<xsd:annotation>
+			<xsd:documentation>The root of the schema for mapping an external dictionary to units of measure.</xsd:documentation>
+		</xsd:annotation>
+	</xsd:element>
+	<xsd:complexType name="unitMappingSet">
+		<xsd:sequence>
+			<xsd:group ref="tns:grp_citation" minOccurs="1" maxOccurs="1">
+				<xsd:annotation>
+					<xsd:documentation>The metadata information about the specification.</xsd:documentation>
+				</xsd:annotation>
+			</xsd:group>
+			<xsd:element name="unitMap" type="tns:mapFromToUnit" minOccurs="1" maxOccurs="unbounded">
+				<xsd:annotation>
+					<xsd:documentation>Asserts the mapping to one unit.</xsd:documentation>
+				</xsd:annotation>
+			</xsd:element>
+		</xsd:sequence>
+		<xsd:attribute name="version" type="tns:collapsedNonEmptyString" use="required">
+			<xsd:annotation>
+				<xsd:documentation>The version of the specification.</xsd:documentation>
+			</xsd:annotation>
+		</xsd:attribute>
+	</xsd:complexType>
+	<!--                                                         -->
+	<xsd:complexType name="mapFromToUnit">
+		<xsd:sequence>
+			<xsd:element name="mapsFrom" type="tns:collapsedNonEmptyString" minOccurs="1" maxOccurs="1">
+				<xsd:annotation>
+					<xsd:documentation>The value being mapped.</xsd:documentation>
+				</xsd:annotation>
+			</xsd:element>
+			<xsd:element name="mapsTo" type="xsd:string" minOccurs="1" maxOccurs="1">
+				<xsd:annotation>
+					<xsd:documentation>The item to which the from value is being associated.
+					An empty value indicates that there is no associated TO value for the FROM value.</xsd:documentation>
+				</xsd:annotation>
+			</xsd:element>
+			<xsd:element name="state" type="tns:stateEnum" minOccurs="1" maxOccurs="1">
+				<xsd:annotation>
+					<xsd:documentation>The state of the mapping relative to a comparison of the respective conversion factors.</xsd:documentation>
+				</xsd:annotation>
+			</xsd:element>
+			<xsd:element name="note" type="xsd:string" minOccurs="0" maxOccurs="1">
+				<xsd:annotation>
+					<xsd:documentation>A note about the mapping. This will generally be provided for "conditional" or "conversion" states.</xsd:documentation>
+				</xsd:annotation>
+			</xsd:element>
+		</xsd:sequence>
+	</xsd:complexType>
+	<!--                                                         -->
+	<xsd:simpleType name="stateEnum">
+		<xsd:restriction base="xsd:string">
+			<xsd:enumeration value="identical">
+				<xsd:annotation>
+					<xsd:documentation>Indicates that the TO factor is identical to the FROM factor.</xsd:documentation>
+				</xsd:annotation>
+			</xsd:enumeration>
+			<xsd:enumeration value="precision">
+				<xsd:annotation>
+					<xsd:documentation>Indicates that the TO factor has greater precision (i.e., changes in least significant digits).</xsd:documentation>
+				</xsd:annotation>
+			</xsd:enumeration>
+			<xsd:enumeration value="corrected">
+				<xsd:annotation>
+					<xsd:documentation>Indicates that the TO factor represents a correction to the FROM factor. That is, the FROM factor has a problem.</xsd:documentation>
+				</xsd:annotation>
+			</xsd:enumeration>
+			<xsd:enumeration value="conditional">
+				<xsd:annotation>
+					<xsd:documentation>Indicates a mapping to a very similar alternative with a different factor in the less significant digits. Other alternatives may be available.</xsd:documentation>
+				</xsd:annotation>
+			</xsd:enumeration>
+			<xsd:enumeration value="conversion">
+				<xsd:annotation>
+					<xsd:documentation>There is no direct mapping but the value can be converted to a supported unit if the FROM definition is presumed to be valid.</xsd:documentation>
+				</xsd:annotation>
+			</xsd:enumeration>
+			<xsd:enumeration value="unsupported">
+				<xsd:annotation>
+					<xsd:documentation>There is no mapping because the underlying concept is not supported.</xsd:documentation>
+				</xsd:annotation>
+			</xsd:enumeration>
+		</xsd:restriction>
+	</xsd:simpleType>
+	<!--                                                         -->
+	<!-- ======================================================= -->
+	<!-- ======================================================= -->
+	<xsd:element name="classMappingSet" type="tns:classMappingSet">
+		<xsd:annotation>
+			<xsd:documentation>The root of the schema for mapping an external dictionary to quantity classes.</xsd:documentation>
+		</xsd:annotation>
+	</xsd:element>
+	<xsd:complexType name="classMappingSet">
+		<xsd:sequence>
+			<xsd:group ref="tns:grp_citation" minOccurs="1" maxOccurs="1">
+				<xsd:annotation>
+					<xsd:documentation>The metadata information about the specification.</xsd:documentation>
+				</xsd:annotation>
+			</xsd:group>
+			<xsd:element name="classMap" type="tns:mapFromToClass" minOccurs="1" maxOccurs="unbounded">
+				<xsd:annotation>
+					<xsd:documentation>Asserts the mapping to one class.</xsd:documentation>
+				</xsd:annotation>
+			</xsd:element>
+		</xsd:sequence>
+		<xsd:attribute name="version" type="tns:collapsedNonEmptyString" use="required">
+			<xsd:annotation>
+				<xsd:documentation>The version of the specification.</xsd:documentation>
+			</xsd:annotation>
+		</xsd:attribute>
+	</xsd:complexType>
+	<!--                                                         -->
+	<xsd:complexType name="mapFromToClass">
+		<xsd:sequence>
+			<xsd:element name="mapsFrom" type="tns:collapsedNonEmptyString" minOccurs="1" maxOccurs="1">
+				<xsd:annotation>
+					<xsd:documentation>The value being mapped.</xsd:documentation>
+				</xsd:annotation>
+			</xsd:element>
+			<xsd:element name="mapsTo" type="xsd:string" minOccurs="1" maxOccurs="1">
+				<xsd:annotation>
+					<xsd:documentation>The item to which the from value is being associated.
+					An empty value indicates that there is no associated TO value for the FROM value.</xsd:documentation>
+				</xsd:annotation>
+			</xsd:element>
+		</xsd:sequence>
+	</xsd:complexType>
+	<!--                                                         -->
+	<!-- ======================================================= -->
+	<!-- ======================================================= -->
+	<!--                                                         -->
+	<xsd:group name="grp_citation">
+		<xsd:annotation>
+			<xsd:documentation>The contextual Dublin Core information about the specification.</xsd:documentation>
+		</xsd:annotation>
+		<xsd:sequence>
+			<xsd:element name="title" type="tns:descriptionString" minOccurs="1" maxOccurs="1">
+				<xsd:annotation>
+					<xsd:documentation>Title of the specification.
+					This is the equivalent in ISO 19115 of CI_Citation.title</xsd:documentation>
+				</xsd:annotation>
+			</xsd:element>
+			<xsd:element name="originator" type="tns:nameString" minOccurs="1" maxOccurs="1">
+				<xsd:annotation>
+					<xsd:documentation>Who published the specification.
+					This is the equivalent in ISO 19115 to the CI_Individual.name or the CI_Organization.name of the citedResponsibleParty whose role is "originator".</xsd:documentation>
+				</xsd:annotation>
+			</xsd:element>
+			<xsd:element name="description" type="tns:commentString" minOccurs="1" maxOccurs="1">
+				<xsd:annotation>
+					<xsd:documentation>A textual remark about the specification.
+					This is the equivalent of the ISO 19115 abstract.CharacterString.</xsd:documentation>
+				</xsd:annotation>
+			</xsd:element>
+		</xsd:sequence>
+	</xsd:group>
+	<!--                                                         -->
+	<xsd:complexType name="emptyElement">
+		<xsd:annotation>
+			<xsd:documentation>An element which cannot have any content.</xsd:documentation>
+		</xsd:annotation>
+	</xsd:complexType>
+	<!--                                                         -->
+	<xsd:simpleType name="nameString">
+		<xsd:annotation>
+			<xsd:documentation>The name of a item.</xsd:documentation>
+		</xsd:annotation>
+		<xsd:restriction base="tns:collapsedNonEmptyString">
+			<xsd:maxLength value="64"/>
+		</xsd:restriction>
+	</xsd:simpleType>
+	<!--                                                         -->
+	<xsd:simpleType name="descriptionString">
+		<xsd:annotation>
+			<xsd:documentation>A textual description of something.</xsd:documentation>
+		</xsd:annotation>
+		<xsd:restriction base="tns:collapsedNonEmptyString">
+			<xsd:maxLength value="256"/>
+		</xsd:restriction>
+	</xsd:simpleType>
+	<!--                                                         -->
+	<xsd:simpleType name="commentString">
+		<xsd:annotation>
+			<xsd:documentation>A comment or remark intended for human consumption.</xsd:documentation>
+		</xsd:annotation>
+		<xsd:restriction base="tns:collapsedNonEmptyString">
+			<xsd:maxLength value="4000">
+				<xsd:annotation>
+					<xsd:documentation>This value should be the smallest  
+					"maximum size of a variable length character type" in commonly used DBMSs. 
+					This is the maximum size of a VARCHAR2 in Oracle 8.</xsd:documentation>
+				</xsd:annotation>
+			</xsd:maxLength>
+		</xsd:restriction>
+	</xsd:simpleType>
+	<!--                                                         -->
+	<xsd:simpleType name="quantityDimension" final="#all">
+		<xsd:annotation>
+			<xsd:documentation>The dimensional analysis of a quantity. 
+			For example, a meter (m) would be of class "L", which represents length. 
+			A foot (ft) would also be in this dimension.
+			Note that angle       is considered to be dimensionless ratio of length.
+			Note that solid angle is considered to be dimensionless ratio of area.
+			The following nomenclature is used: 
+				A = angle 			(SI unit = radian)
+				D = temperature difference	(SI unit = kelvin)
+				I = electrical current 		(SI unit = ampere)
+				J = luminous intensity 		(SI unit = candela)
+				K = thermodynamic temperature 	(SI unit = kelvin)
+				L = length 			(SI unit = metre)
+				M = mass 			(SI unit = kilogram)
+				N = amount of substance 	(SI unit = mole)
+				S = solid angle 		(SI unit = steradian)
+				T = time 			(SI unit = second)
+				1 = dimensionless
+				2 = squared			(e.g., "M2")
+				3 = cubed
+				4 = 4th power
+				5 = 5th power
+				6 = 6th power
+				7 = 7th power
+				8 = 8th power
+				/ = division
+				none = special case for non-dimensional concepts such as logarithmic functions and fractional powers.
+			Neither "none" nor "K" can be combined with any other character.
+			The values may be broken into numerator and denominator separated by a slash "/" but multiple slashes must not be used. 
+			A slash must not terminate the string. For example, length per time would be indicated by "L/T"
+			A slash may exist within the ratio notation (e.g., to represent a ratio of higher level concepts).
+			A number will always follow a single dimensional character (e.g., "M2") and will represent the power of that component.
+			The number "1" will only exist by itself or as the whole numerator (e.g., "1" or "1/T"). 
+			The number "1" must not be used as a power or denominator because it is implied (e.g., "M" implies "M1/1").
+			For consistency, the items within a numerator or denominator are listed in alphabetical order (i.e., LM - not ML).
+			Each letter must only exist once in the result.
+			</xsd:documentation>
+		</xsd:annotation>
+		<xsd:restriction base="xsd:string">
+			<xsd:minLength value='1'/>
+			<xsd:pattern value="none|K|1(
+){0}|((A[2-9]?)?(D[2-9]?)?(I[2-9]?)?(J[2-9]?)?(L[2-9]?)?(M[2-9]?)?(N[2-9]?)?(S[2-9]?)?(T[2-9]?)?)+(
+){0}|1/((A[2-9]?)?(D[2-9]?)?(I[2-9]?)?(J[2-9]?)?(L[2-9]?)?(M[2-9]?)?(N[2-9]?)?(S[2-9]?)?(T[2-9]?)?)+(
+){0}|((T[2-9]?)?)+/((A[2-9]?)?(D[2-9]?)?(I[2-9]?)?(J[2-9]?)?(L[2-9]?)?(M[2-9]?)?(N[2-9]?)?(S[2-9]?)?)+(
+){0}|((S[2-9]?)?)+/((A[2-9]?)?(D[2-9]?)?(I[2-9]?)?(J[2-9]?)?(L[2-9]?)?(M[2-9]?)?(N[2-9]?)?(T[2-9]?)?)+(
+){0}|((S[2-9]?)?(T[2-9]?)?)+/((A[2-9]?)?(D[2-9]?)?(I[2-9]?)?(J[2-9]?)?(L[2-9]?)?(M[2-9]?)?(N[2-9]?)?)+(
+){0}|((N[2-9]?)?)+/((A[2-9]?)?(D[2-9]?)?(I[2-9]?)?(J[2-9]?)?(L[2-9]?)?(M[2-9]?)?(S[2-9]?)?(T[2-9]?)?)+(
+){0}|((N[2-9]?)?(T[2-9]?)?)+/((A[2-9]?)?(D[2-9]?)?(I[2-9]?)?(J[2-9]?)?(L[2-9]?)?(M[2-9]?)?(S[2-9]?)?)+(
+){0}|((N[2-9]?)?(S[2-9]?)?)+/((A[2-9]?)?(D[2-9]?)?(I[2-9]?)?(J[2-9]?)?(L[2-9]?)?(M[2-9]?)?(T[2-9]?)?)+(
+){0}|((N[2-9]?)?(S[2-9]?)?(T[2-9]?)?)+/((A[2-9]?)?(D[2-9]?)?(I[2-9]?)?(J[2-9]?)?(L[2-9]?)?(M[2-9]?)?)+(
+){0}|((M[2-9]?)?)+/((A[2-9]?)?(D[2-9]?)?(I[2-9]?)?(J[2-9]?)?(L[2-9]?)?(N[2-9]?)?(S[2-9]?)?(T[2-9]?)?)+(
+){0}|((M[2-9]?)?(T[2-9]?)?)+/((A[2-9]?)?(D[2-9]?)?(I[2-9]?)?(J[2-9]?)?(L[2-9]?)?(N[2-9]?)?(S[2-9]?)?)+(
+){0}|((M[2-9]?)?(S[2-9]?)?)+/((A[2-9]?)?(D[2-9]?)?(I[2-9]?)?(J[2-9]?)?(L[2-9]?)?(N[2-9]?)?(T[2-9]?)?)+(
+){0}|((M[2-9]?)?(S[2-9]?)?(T[2-9]?)?)+/((A[2-9]?)?(D[2-9]?)?(I[2-9]?)?(J[2-9]?)?(L[2-9]?)?(N[2-9]?)?)+(
+){0}|((M[2-9]?)?(N[2-9]?)?)+/((A[2-9]?)?(D[2-9]?)?(I[2-9]?)?(J[2-9]?)?(L[2-9]?)?(S[2-9]?)?(T[2-9]?)?)+(
+){0}|((M[2-9]?)?(N[2-9]?)?(T[2-9]?)?)+/((A[2-9]?)?(D[2-9]?)?(I[2-9]?)?(J[2-9]?)?(L[2-9]?)?(S[2-9]?)?)+(
+){0}|((M[2-9]?)?(N[2-9]?)?(S[2-9]?)?)+/((A[2-9]?)?(D[2-9]?)?(I[2-9]?)?(J[2-9]?)?(L[2-9]?)?(T[2-9]?)?)+(
+){0}|((M[2-9]?)?(N[2-9]?)?(S[2-9]?)?(T[2-9]?)?)+/((A[2-9]?)?(D[2-9]?)?(I[2-9]?)?(J[2-9]?)?(L[2-9]?)?)+(
+){0}|((L[2-9]?)?)+/((A[2-9]?)?(D[2-9]?)?(I[2-9]?)?(J[2-9]?)?(M[2-9]?)?(N[2-9]?)?(S[2-9]?)?(T[2-9]?)?)+(
+){0}|((L[2-9]?)?(T[2-9]?)?)+/((A[2-9]?)?(D[2-9]?)?(I[2-9]?)?(J[2-9]?)?(M[2-9]?)?(N[2-9]?)?(S[2-9]?)?)+(
+){0}|((L[2-9]?)?(S[2-9]?)?)+/((A[2-9]?)?(D[2-9]?)?(I[2-9]?)?(J[2-9]?)?(M[2-9]?)?(N[2-9]?)?(T[2-9]?)?)+(
+){0}|((L[2-9]?)?(S[2-9]?)?(T[2-9]?)?)+/((A[2-9]?)?(D[2-9]?)?(I[2-9]?)?(J[2-9]?)?(M[2-9]?)?(N[2-9]?)?)+(
+){0}|((L[2-9]?)?(N[2-9]?)?)+/((A[2-9]?)?(D[2-9]?)?(I[2-9]?)?(J[2-9]?)?(M[2-9]?)?(S[2-9]?)?(T[2-9]?)?)+(
+){0}|((L[2-9]?)?(N[2-9]?)?(T[2-9]?)?)+/((A[2-9]?)?(D[2-9]?)?(I[2-9]?)?(J[2-9]?)?(M[2-9]?)?(S[2-9]?)?)+(
+){0}|((L[2-9]?)?(N[2-9]?)?(S[2-9]?)?)+/((A[2-9]?)?(D[2-9]?)?(I[2-9]?)?(J[2-9]?)?(M[2-9]?)?(T[2-9]?)?)+(
+){0}|((L[2-9]?)?(N[2-9]?)?(S[2-9]?)?(T[2-9]?)?)+/((A[2-9]?)?(D[2-9]?)?(I[2-9]?)?(J[2-9]?)?(M[2-9]?)?)+(
+){0}|((L[2-9]?)?(M[2-9]?)?)+/((A[2-9]?)?(D[2-9]?)?(I[2-9]?)?(J[2-9]?)?(N[2-9]?)?(S[2-9]?)?(T[2-9]?)?)+(
+){0}|((L[2-9]?)?(M[2-9]?)?(T[2-9]?)?)+/((A[2-9]?)?(D[2-9]?)?(I[2-9]?)?(J[2-9]?)?(N[2-9]?)?(S[2-9]?)?)+(
+){0}|((L[2-9]?)?(M[2-9]?)?(S[2-9]?)?)+/((A[2-9]?)?(D[2-9]?)?(I[2-9]?)?(J[2-9]?)?(N[2-9]?)?(T[2-9]?)?)+(
+){0}|((L[2-9]?)?(M[2-9]?)?(S[2-9]?)?(T[2-9]?)?)+/((A[2-9]?)?(D[2-9]?)?(I[2-9]?)?(J[2-9]?)?(N[2-9]?)?)+(
+){0}|((L[2-9]?)?(M[2-9]?)?(N[2-9]?)?)+/((A[2-9]?)?(D[2-9]?)?(I[2-9]?)?(J[2-9]?)?(S[2-9]?)?(T[2-9]?)?)+(
+){0}|((L[2-9]?)?(M[2-9]?)?(N[2-9]?)?(T[2-9]?)?)+/((A[2-9]?)?(D[2-9]?)?(I[2-9]?)?(J[2-9]?)?(S[2-9]?)?)+(
+){0}|((L[2-9]?)?(M[2-9]?)?(N[2-9]?)?(S[2-9]?)?)+/((A[2-9]?)?(D[2-9]?)?(I[2-9]?)?(J[2-9]?)?(T[2-9]?)?)+(
+){0}|((L[2-9]?)?(M[2-9]?)?(N[2-9]?)?(S[2-9]?)?(T[2-9]?)?)+/((A[2-9]?)?(D[2-9]?)?(I[2-9]?)?(J[2-9]?)?)+(
+){0}|((J[2-9]?)?)+/((A[2-9]?)?(D[2-9]?)?(I[2-9]?)?(L[2-9]?)?(M[2-9]?)?(N[2-9]?)?(S[2-9]?)?(T[2-9]?)?)+(
+){0}|((J[2-9]?)?(T[2-9]?)?)+/((A[2-9]?)?(D[2-9]?)?(I[2-9]?)?(L[2-9]?)?(M[2-9]?)?(N[2-9]?)?(S[2-9]?)?)+(
+){0}|((J[2-9]?)?(S[2-9]?)?)+/((A[2-9]?)?(D[2-9]?)?(I[2-9]?)?(L[2-9]?)?(M[2-9]?)?(N[2-9]?)?(T[2-9]?)?)+(
+){0}|((J[2-9]?)?(S[2-9]?)?(T[2-9]?)?)+/((A[2-9]?)?(D[2-9]?)?(I[2-9]?)?(L[2-9]?)?(M[2-9]?)?(N[2-9]?)?)+(
+){0}|((J[2-9]?)?(N[2-9]?)?)+/((A[2-9]?)?(D[2-9]?)?(I[2-9]?)?(L[2-9]?)?(M[2-9]?)?(S[2-9]?)?(T[2-9]?)?)+(
+){0}|((J[2-9]?)?(N[2-9]?)?(T[2-9]?)?)+/((A[2-9]?)?(D[2-9]?)?(I[2-9]?)?(L[2-9]?)?(M[2-9]?)?(S[2-9]?)?)+(
+){0}|((J[2-9]?)?(N[2-9]?)?(S[2-9]?)?)+/((A[2-9]?)?(D[2-9]?)?(I[2-9]?)?(L[2-9]?)?(M[2-9]?)?(T[2-9]?)?)+(
+){0}|((J[2-9]?)?(N[2-9]?)?(S[2-9]?)?(T[2-9]?)?)+/((A[2-9]?)?(D[2-9]?)?(I[2-9]?)?(L[2-9]?)?(M[2-9]?)?)+(
+){0}|((J[2-9]?)?(M[2-9]?)?)+/((A[2-9]?)?(D[2-9]?)?(I[2-9]?)?(L[2-9]?)?(N[2-9]?)?(S[2-9]?)?(T[2-9]?)?)+(
+){0}|((J[2-9]?)?(M[2-9]?)?(T[2-9]?)?)+/((A[2-9]?)?(D[2-9]?)?(I[2-9]?)?(L[2-9]?)?(N[2-9]?)?(S[2-9]?)?)+(
+){0}|((J[2-9]?)?(M[2-9]?)?(S[2-9]?)?)+/((A[2-9]?)?(D[2-9]?)?(I[2-9]?)?(L[2-9]?)?(N[2-9]?)?(T[2-9]?)?)+(
+){0}|((J[2-9]?)?(M[2-9]?)?(S[2-9]?)?(T[2-9]?)?)+/((A[2-9]?)?(D[2-9]?)?(I[2-9]?)?(L[2-9]?)?(N[2-9]?)?)+(
+){0}|((J[2-9]?)?(M[2-9]?)?(N[2-9]?)?)+/((A[2-9]?)?(D[2-9]?)?(I[2-9]?)?(L[2-9]?)?(S[2-9]?)?(T[2-9]?)?)+(
+){0}|((J[2-9]?)?(M[2-9]?)?(N[2-9]?)?(T[2-9]?)?)+/((A[2-9]?)?(D[2-9]?)?(I[2-9]?)?(L[2-9]?)?(S[2-9]?)?)+(
+){0}|((J[2-9]?)?(M[2-9]?)?(N[2-9]?)?(S[2-9]?)?)+/((A[2-9]?)?(D[2-9]?)?(I[2-9]?)?(L[2-9]?)?(T[2-9]?)?)+(
+){0}|((J[2-9]?)?(M[2-9]?)?(N[2-9]?)?(S[2-9]?)?(T[2-9]?)?)+/((A[2-9]?)?(D[2-9]?)?(I[2-9]?)?(L[2-9]?)?)+(
+){0}|((J[2-9]?)?(L[2-9]?)?)+/((A[2-9]?)?(D[2-9]?)?(I[2-9]?)?(M[2-9]?)?(N[2-9]?)?(S[2-9]?)?(T[2-9]?)?)+(
+){0}|((J[2-9]?)?(L[2-9]?)?(T[2-9]?)?)+/((A[2-9]?)?(D[2-9]?)?(I[2-9]?)?(M[2-9]?)?(N[2-9]?)?(S[2-9]?)?)+(
+){0}|((J[2-9]?)?(L[2-9]?)?(S[2-9]?)?)+/((A[2-9]?)?(D[2-9]?)?(I[2-9]?)?(M[2-9]?)?(N[2-9]?)?(T[2-9]?)?)+(
+){0}|((J[2-9]?)?(L[2-9]?)?(S[2-9]?)?(T[2-9]?)?)+/((A[2-9]?)?(D[2-9]?)?(I[2-9]?)?(M[2-9]?)?(N[2-9]?)?)+(
+){0}|((J[2-9]?)?(L[2-9]?)?(N[2-9]?)?)+/((A[2-9]?)?(D[2-9]?)?(I[2-9]?)?(M[2-9]?)?(S[2-9]?)?(T[2-9]?)?)+(
+){0}|((J[2-9]?)?(L[2-9]?)?(N[2-9]?)?(T[2-9]?)?)+/((A[2-9]?)?(D[2-9]?)?(I[2-9]?)?(M[2-9]?)?(S[2-9]?)?)+(
+){0}|((J[2-9]?)?(L[2-9]?)?(N[2-9]?)?(S[2-9]?)?)+/((A[2-9]?)?(D[2-9]?)?(I[2-9]?)?(M[2-9]?)?(T[2-9]?)?)+(
+){0}|((J[2-9]?)?(L[2-9]?)?(N[2-9]?)?(S[2-9]?)?(T[2-9]?)?)+/((A[2-9]?)?(D[2-9]?)?(I[2-9]?)?(M[2-9]?)?)+(
+){0}|((J[2-9]?)?(L[2-9]?)?(M[2-9]?)?)+/((A[2-9]?)?(D[2-9]?)?(I[2-9]?)?(N[2-9]?)?(S[2-9]?)?(T[2-9]?)?)+(
+){0}|((J[2-9]?)?(L[2-9]?)?(M[2-9]?)?(T[2-9]?)?)+/((A[2-9]?)?(D[2-9]?)?(I[2-9]?)?(N[2-9]?)?(S[2-9]?)?)+(
+){0}|((J[2-9]?)?(L[2-9]?)?(M[2-9]?)?(S[2-9]?)?)+/((A[2-9]?)?(D[2-9]?)?(I[2-9]?)?(N[2-9]?)?(T[2-9]?)?)+(
+){0}|((J[2-9]?)?(L[2-9]?)?(M[2-9]?)?(S[2-9]?)?(T[2-9]?)?)+/((A[2-9]?)?(D[2-9]?)?(I[2-9]?)?(N[2-9]?)?)+(
+){0}|((J[2-9]?)?(L[2-9]?)?(M[2-9]?)?(N[2-9]?)?)+/((A[2-9]?)?(D[2-9]?)?(I[2-9]?)?(S[2-9]?)?(T[2-9]?)?)+(
+){0}|((J[2-9]?)?(L[2-9]?)?(M[2-9]?)?(N[2-9]?)?(T[2-9]?)?)+/((A[2-9]?)?(D[2-9]?)?(I[2-9]?)?(S[2-9]?)?)+(
+){0}|((J[2-9]?)?(L[2-9]?)?(M[2-9]?)?(N[2-9]?)?(S[2-9]?)?)+/((A[2-9]?)?(D[2-9]?)?(I[2-9]?)?(T[2-9]?)?)+(
+){0}|((J[2-9]?)?(L[2-9]?)?(M[2-9]?)?(N[2-9]?)?(S[2-9]?)?(T[2-9]?)?)+/((A[2-9]?)?(D[2-9]?)?(I[2-9]?)?)+(
+){0}|((I[2-9]?)?)+/((A[2-9]?)?(D[2-9]?)?(J[2-9]?)?(L[2-9]?)?(M[2-9]?)?(N[2-9]?)?(S[2-9]?)?(T[2-9]?)?)+(
+){0}|((I[2-9]?)?(T[2-9]?)?)+/((A[2-9]?)?(D[2-9]?)?(J[2-9]?)?(L[2-9]?)?(M[2-9]?)?(N[2-9]?)?(S[2-9]?)?)+(
+){0}|((I[2-9]?)?(S[2-9]?)?)+/((A[2-9]?)?(D[2-9]?)?(J[2-9]?)?(L[2-9]?)?(M[2-9]?)?(N[2-9]?)?(T[2-9]?)?)+(
+){0}|((I[2-9]?)?(S[2-9]?)?(T[2-9]?)?)+/((A[2-9]?)?(D[2-9]?)?(J[2-9]?)?(L[2-9]?)?(M[2-9]?)?(N[2-9]?)?)+(
+){0}|((I[2-9]?)?(N[2-9]?)?)+/((A[2-9]?)?(D[2-9]?)?(J[2-9]?)?(L[2-9]?)?(M[2-9]?)?(S[2-9]?)?(T[2-9]?)?)+(
+){0}|((I[2-9]?)?(N[2-9]?)?(T[2-9]?)?)+/((A[2-9]?)?(D[2-9]?)?(J[2-9]?)?(L[2-9]?)?(M[2-9]?)?(S[2-9]?)?)+(
+){0}|((I[2-9]?)?(N[2-9]?)?(S[2-9]?)?)+/((A[2-9]?)?(D[2-9]?)?(J[2-9]?)?(L[2-9]?)?(M[2-9]?)?(T[2-9]?)?)+(
+){0}|((I[2-9]?)?(N[2-9]?)?(S[2-9]?)?(T[2-9]?)?)+/((A[2-9]?)?(D[2-9]?)?(J[2-9]?)?(L[2-9]?)?(M[2-9]?)?)+(
+){0}|((I[2-9]?)?(M[2-9]?)?)+/((A[2-9]?)?(D[2-9]?)?(J[2-9]?)?(L[2-9]?)?(N[2-9]?)?(S[2-9]?)?(T[2-9]?)?)+(
+){0}|((I[2-9]?)?(M[2-9]?)?(T[2-9]?)?)+/((A[2-9]?)?(D[2-9]?)?(J[2-9]?)?(L[2-9]?)?(N[2-9]?)?(S[2-9]?)?)+(
+){0}|((I[2-9]?)?(M[2-9]?)?(S[2-9]?)?)+/((A[2-9]?)?(D[2-9]?)?(J[2-9]?)?(L[2-9]?)?(N[2-9]?)?(T[2-9]?)?)+(
+){0}|((I[2-9]?)?(M[2-9]?)?(S[2-9]?)?(T[2-9]?)?)+/((A[2-9]?)?(D[2-9]?)?(J[2-9]?)?(L[2-9]?)?(N[2-9]?)?)+(
+){0}|((I[2-9]?)?(M[2-9]?)?(N[2-9]?)?)+/((A[2-9]?)?(D[2-9]?)?(J[2-9]?)?(L[2-9]?)?(S[2-9]?)?(T[2-9]?)?)+(
+){0}|((I[2-9]?)?(M[2-9]?)?(N[2-9]?)?(T[2-9]?)?)+/((A[2-9]?)?(D[2-9]?)?(J[2-9]?)?(L[2-9]?)?(S[2-9]?)?)+(
+){0}|((I[2-9]?)?(M[2-9]?)?(N[2-9]?)?(S[2-9]?)?)+/((A[2-9]?)?(D[2-9]?)?(J[2-9]?)?(L[2-9]?)?(T[2-9]?)?)+(
+){0}|((I[2-9]?)?(M[2-9]?)?(N[2-9]?)?(S[2-9]?)?(T[2-9]?)?)+/((A[2-9]?)?(D[2-9]?)?(J[2-9]?)?(L[2-9]?)?)+(
+){0}|((I[2-9]?)?(L[2-9]?)?)+/((A[2-9]?)?(D[2-9]?)?(J[2-9]?)?(M[2-9]?)?(N[2-9]?)?(S[2-9]?)?(T[2-9]?)?)+(
+){0}|((I[2-9]?)?(L[2-9]?)?(T[2-9]?)?)+/((A[2-9]?)?(D[2-9]?)?(J[2-9]?)?(M[2-9]?)?(N[2-9]?)?(S[2-9]?)?)+(
+){0}|((I[2-9]?)?(L[2-9]?)?(S[2-9]?)?)+/((A[2-9]?)?(D[2-9]?)?(J[2-9]?)?(M[2-9]?)?(N[2-9]?)?(T[2-9]?)?)+(
+){0}|((I[2-9]?)?(L[2-9]?)?(S[2-9]?)?(T[2-9]?)?)+/((A[2-9]?)?(D[2-9]?)?(J[2-9]?)?(M[2-9]?)?(N[2-9]?)?)+(
+){0}|((I[2-9]?)?(L[2-9]?)?(N[2-9]?)?)+/((A[2-9]?)?(D[2-9]?)?(J[2-9]?)?(M[2-9]?)?(S[2-9]?)?(T[2-9]?)?)+(
+){0}|((I[2-9]?)?(L[2-9]?)?(N[2-9]?)?(T[2-9]?)?)+/((A[2-9]?)?(D[2-9]?)?(J[2-9]?)?(M[2-9]?)?(S[2-9]?)?)+(
+){0}|((I[2-9]?)?(L[2-9]?)?(N[2-9]?)?(S[2-9]?)?)+/((A[2-9]?)?(D[2-9]?)?(J[2-9]?)?(M[2-9]?)?(T[2-9]?)?)+(
+){0}|((I[2-9]?)?(L[2-9]?)?(N[2-9]?)?(S[2-9]?)?(T[2-9]?)?)+/((A[2-9]?)?(D[2-9]?)?(J[2-9]?)?(M[2-9]?)?)+(
+){0}|((I[2-9]?)?(L[2-9]?)?(M[2-9]?)?)+/((A[2-9]?)?(D[2-9]?)?(J[2-9]?)?(N[2-9]?)?(S[2-9]?)?(T[2-9]?)?)+(
+){0}|((I[2-9]?)?(L[2-9]?)?(M[2-9]?)?(T[2-9]?)?)+/((A[2-9]?)?(D[2-9]?)?(J[2-9]?)?(N[2-9]?)?(S[2-9]?)?)+(
+){0}|((I[2-9]?)?(L[2-9]?)?(M[2-9]?)?(S[2-9]?)?)+/((A[2-9]?)?(D[2-9]?)?(J[2-9]?)?(N[2-9]?)?(T[2-9]?)?)+(
+){0}|((I[2-9]?)?(L[2-9]?)?(M[2-9]?)?(S[2-9]?)?(T[2-9]?)?)+/((A[2-9]?)?(D[2-9]?)?(J[2-9]?)?(N[2-9]?)?)+(
+){0}|((I[2-9]?)?(L[2-9]?)?(M[2-9]?)?(N[2-9]?)?)+/((A[2-9]?)?(D[2-9]?)?(J[2-9]?)?(S[2-9]?)?(T[2-9]?)?)+(
+){0}|((I[2-9]?)?(L[2-9]?)?(M[2-9]?)?(N[2-9]?)?(T[2-9]?)?)+/((A[2-9]?)?(D[2-9]?)?(J[2-9]?)?(S[2-9]?)?)+(
+){0}|((I[2-9]?)?(L[2-9]?)?(M[2-9]?)?(N[2-9]?)?(S[2-9]?)?)+/((A[2-9]?)?(D[2-9]?)?(J[2-9]?)?(T[2-9]?)?)+(
+){0}|((I[2-9]?)?(L[2-9]?)?(M[2-9]?)?(N[2-9]?)?(S[2-9]?)?(T[2-9]?)?)+/((A[2-9]?)?(D[2-9]?)?(J[2-9]?)?)+(
+){0}|((I[2-9]?)?(J[2-9]?)?)+/((A[2-9]?)?(D[2-9]?)?(L[2-9]?)?(M[2-9]?)?(N[2-9]?)?(S[2-9]?)?(T[2-9]?)?)+(
+){0}|((I[2-9]?)?(J[2-9]?)?(T[2-9]?)?)+/((A[2-9]?)?(D[2-9]?)?(L[2-9]?)?(M[2-9]?)?(N[2-9]?)?(S[2-9]?)?)+(
+){0}|((I[2-9]?)?(J[2-9]?)?(S[2-9]?)?)+/((A[2-9]?)?(D[2-9]?)?(L[2-9]?)?(M[2-9]?)?(N[2-9]?)?(T[2-9]?)?)+(
+){0}|((I[2-9]?)?(J[2-9]?)?(S[2-9]?)?(T[2-9]?)?)+/((A[2-9]?)?(D[2-9]?)?(L[2-9]?)?(M[2-9]?)?(N[2-9]?)?)+(
+){0}|((I[2-9]?)?(J[2-9]?)?(N[2-9]?)?)+/((A[2-9]?)?(D[2-9]?)?(L[2-9]?)?(M[2-9]?)?(S[2-9]?)?(T[2-9]?)?)+(
+){0}|((I[2-9]?)?(J[2-9]?)?(N[2-9]?)?(T[2-9]?)?)+/((A[2-9]?)?(D[2-9]?)?(L[2-9]?)?(M[2-9]?)?(S[2-9]?)?)+(
+){0}|((I[2-9]?)?(J[2-9]?)?(N[2-9]?)?(S[2-9]?)?)+/((A[2-9]?)?(D[2-9]?)?(L[2-9]?)?(M[2-9]?)?(T[2-9]?)?)+(
+){0}|((I[2-9]?)?(J[2-9]?)?(N[2-9]?)?(S[2-9]?)?(T[2-9]?)?)+/((A[2-9]?)?(D[2-9]?)?(L[2-9]?)?(M[2-9]?)?)+(
+){0}|((I[2-9]?)?(J[2-9]?)?(M[2-9]?)?)+/((A[2-9]?)?(D[2-9]?)?(L[2-9]?)?(N[2-9]?)?(S[2-9]?)?(T[2-9]?)?)+(
+){0}|((I[2-9]?)?(J[2-9]?)?(M[2-9]?)?(T[2-9]?)?)+/((A[2-9]?)?(D[2-9]?)?(L[2-9]?)?(N[2-9]?)?(S[2-9]?)?)+(
+){0}|((I[2-9]?)?(J[2-9]?)?(M[2-9]?)?(S[2-9]?)?)+/((A[2-9]?)?(D[2-9]?)?(L[2-9]?)?(N[2-9]?)?(T[2-9]?)?)+(
+){0}|((I[2-9]?)?(J[2-9]?)?(M[2-9]?)?(S[2-9]?)?(T[2-9]?)?)+/((A[2-9]?)?(D[2-9]?)?(L[2-9]?)?(N[2-9]?)?)+(
+){0}|((I[2-9]?)?(J[2-9]?)?(M[2-9]?)?(N[2-9]?)?)+/((A[2-9]?)?(D[2-9]?)?(L[2-9]?)?(S[2-9]?)?(T[2-9]?)?)+(
+){0}|((I[2-9]?)?(J[2-9]?)?(M[2-9]?)?(N[2-9]?)?(T[2-9]?)?)+/((A[2-9]?)?(D[2-9]?)?(L[2-9]?)?(S[2-9]?)?)+(
+){0}|((I[2-9]?)?(J[2-9]?)?(M[2-9]?)?(N[2-9]?)?(S[2-9]?)?)+/((A[2-9]?)?(D[2-9]?)?(L[2-9]?)?(T[2-9]?)?)+(
+){0}|((I[2-9]?)?(J[2-9]?)?(M[2-9]?)?(N[2-9]?)?(S[2-9]?)?(T[2-9]?)?)+/((A[2-9]?)?(D[2-9]?)?(L[2-9]?)?)+(
+){0}|((I[2-9]?)?(J[2-9]?)?(L[2-9]?)?)+/((A[2-9]?)?(D[2-9]?)?(M[2-9]?)?(N[2-9]?)?(S[2-9]?)?(T[2-9]?)?)+(
+){0}|((I[2-9]?)?(J[2-9]?)?(L[2-9]?)?(T[2-9]?)?)+/((A[2-9]?)?(D[2-9]?)?(M[2-9]?)?(N[2-9]?)?(S[2-9]?)?)+(
+){0}|((I[2-9]?)?(J[2-9]?)?(L[2-9]?)?(S[2-9]?)?)+/((A[2-9]?)?(D[2-9]?)?(M[2-9]?)?(N[2-9]?)?(T[2-9]?)?)+(
+){0}|((I[2-9]?)?(J[2-9]?)?(L[2-9]?)?(S[2-9]?)?(T[2-9]?)?)+/((A[2-9]?)?(D[2-9]?)?(M[2-9]?)?(N[2-9]?)?)+(
+){0}|((I[2-9]?)?(J[2-9]?)?(L[2-9]?)?(N[2-9]?)?)+/((A[2-9]?)?(D[2-9]?)?(M[2-9]?)?(S[2-9]?)?(T[2-9]?)?)+(
+){0}|((I[2-9]?)?(J[2-9]?)?(L[2-9]?)?(N[2-9]?)?(T[2-9]?)?)+/((A[2-9]?)?(D[2-9]?)?(M[2-9]?)?(S[2-9]?)?)+(
+){0}|((I[2-9]?)?(J[2-9]?)?(L[2-9]?)?(N[2-9]?)?(S[2-9]?)?)+/((A[2-9]?)?(D[2-9]?)?(M[2-9]?)?(T[2-9]?)?)+(
+){0}|((I[2-9]?)?(J[2-9]?)?(L[2-9]?)?(N[2-9]?)?(S[2-9]?)?(T[2-9]?)?)+/((A[2-9]?)?(D[2-9]?)?(M[2-9]?)?)+(
+){0}|((I[2-9]?)?(J[2-9]?)?(L[2-9]?)?(M[2-9]?)?)+/((A[2-9]?)?(D[2-9]?)?(N[2-9]?)?(S[2-9]?)?(T[2-9]?)?)+(
+){0}|((I[2-9]?)?(J[2-9]?)?(L[2-9]?)?(M[2-9]?)?(T[2-9]?)?)+/((A[2-9]?)?(D[2-9]?)?(N[2-9]?)?(S[2-9]?)?)+(
+){0}|((I[2-9]?)?(J[2-9]?)?(L[2-9]?)?(M[2-9]?)?(S[2-9]?)?)+/((A[2-9]?)?(D[2-9]?)?(N[2-9]?)?(T[2-9]?)?)+(
+){0}|((I[2-9]?)?(J[2-9]?)?(L[2-9]?)?(M[2-9]?)?(S[2-9]?)?(T[2-9]?)?)+/((A[2-9]?)?(D[2-9]?)?(N[2-9]?)?)+(
+){0}|((I[2-9]?)?(J[2-9]?)?(L[2-9]?)?(M[2-9]?)?(N[2-9]?)?)+/((A[2-9]?)?(D[2-9]?)?(S[2-9]?)?(T[2-9]?)?)+(
+){0}|((I[2-9]?)?(J[2-9]?)?(L[2-9]?)?(M[2-9]?)?(N[2-9]?)?(T[2-9]?)?)+/((A[2-9]?)?(D[2-9]?)?(S[2-9]?)?)+(
+){0}|((I[2-9]?)?(J[2-9]?)?(L[2-9]?)?(M[2-9]?)?(N[2-9]?)?(S[2-9]?)?)+/((A[2-9]?)?(D[2-9]?)?(T[2-9]?)?)+(
+){0}|((I[2-9]?)?(J[2-9]?)?(L[2-9]?)?(M[2-9]?)?(N[2-9]?)?(S[2-9]?)?(T[2-9]?)?)+/((A[2-9]?)?(D[2-9]?)?)+(
+){0}|((D[2-9]?)?)+/((A[2-9]?)?(I[2-9]?)?(J[2-9]?)?(L[2-9]?)?(M[2-9]?)?(N[2-9]?)?(S[2-9]?)?(T[2-9]?)?)+(
+){0}|((D[2-9]?)?(T[2-9]?)?)+/((A[2-9]?)?(I[2-9]?)?(J[2-9]?)?(L[2-9]?)?(M[2-9]?)?(N[2-9]?)?(S[2-9]?)?)+(
+){0}|((D[2-9]?)?(S[2-9]?)?)+/((A[2-9]?)?(I[2-9]?)?(J[2-9]?)?(L[2-9]?)?(M[2-9]?)?(N[2-9]?)?(T[2-9]?)?)+(
+){0}|((D[2-9]?)?(S[2-9]?)?(T[2-9]?)?)+/((A[2-9]?)?(I[2-9]?)?(J[2-9]?)?(L[2-9]?)?(M[2-9]?)?(N[2-9]?)?)+(
+){0}|((D[2-9]?)?(N[2-9]?)?)+/((A[2-9]?)?(I[2-9]?)?(J[2-9]?)?(L[2-9]?)?(M[2-9]?)?(S[2-9]?)?(T[2-9]?)?)+(
+){0}|((D[2-9]?)?(N[2-9]?)?(T[2-9]?)?)+/((A[2-9]?)?(I[2-9]?)?(J[2-9]?)?(L[2-9]?)?(M[2-9]?)?(S[2-9]?)?)+(
+){0}|((D[2-9]?)?(N[2-9]?)?(S[2-9]?)?)+/((A[2-9]?)?(I[2-9]?)?(J[2-9]?)?(L[2-9]?)?(M[2-9]?)?(T[2-9]?)?)+(
+){0}|((D[2-9]?)?(N[2-9]?)?(S[2-9]?)?(T[2-9]?)?)+/((A[2-9]?)?(I[2-9]?)?(J[2-9]?)?(L[2-9]?)?(M[2-9]?)?)+(
+){0}|((D[2-9]?)?(M[2-9]?)?)+/((A[2-9]?)?(I[2-9]?)?(J[2-9]?)?(L[2-9]?)?(N[2-9]?)?(S[2-9]?)?(T[2-9]?)?)+(
+){0}|((D[2-9]?)?(M[2-9]?)?(T[2-9]?)?)+/((A[2-9]?)?(I[2-9]?)?(J[2-9]?)?(L[2-9]?)?(N[2-9]?)?(S[2-9]?)?)+(
+){0}|((D[2-9]?)?(M[2-9]?)?(S[2-9]?)?)+/((A[2-9]?)?(I[2-9]?)?(J[2-9]?)?(L[2-9]?)?(N[2-9]?)?(T[2-9]?)?)+(
+){0}|((D[2-9]?)?(M[2-9]?)?(S[2-9]?)?(T[2-9]?)?)+/((A[2-9]?)?(I[2-9]?)?(J[2-9]?)?(L[2-9]?)?(N[2-9]?)?)+(
+){0}|((D[2-9]?)?(M[2-9]?)?(N[2-9]?)?)+/((A[2-9]?)?(I[2-9]?)?(J[2-9]?)?(L[2-9]?)?(S[2-9]?)?(T[2-9]?)?)+(
+){0}|((D[2-9]?)?(M[2-9]?)?(N[2-9]?)?(T[2-9]?)?)+/((A[2-9]?)?(I[2-9]?)?(J[2-9]?)?(L[2-9]?)?(S[2-9]?)?)+(
+){0}|((D[2-9]?)?(M[2-9]?)?(N[2-9]?)?(S[2-9]?)?)+/((A[2-9]?)?(I[2-9]?)?(J[2-9]?)?(L[2-9]?)?(T[2-9]?)?)+(
+){0}|((D[2-9]?)?(M[2-9]?)?(N[2-9]?)?(S[2-9]?)?(T[2-9]?)?)+/((A[2-9]?)?(I[2-9]?)?(J[2-9]?)?(L[2-9]?)?)+(
+){0}|((D[2-9]?)?(L[2-9]?)?)+/((A[2-9]?)?(I[2-9]?)?(J[2-9]?)?(M[2-9]?)?(N[2-9]?)?(S[2-9]?)?(T[2-9]?)?)+(
+){0}|((D[2-9]?)?(L[2-9]?)?(T[2-9]?)?)+/((A[2-9]?)?(I[2-9]?)?(J[2-9]?)?(M[2-9]?)?(N[2-9]?)?(S[2-9]?)?)+(
+){0}|((D[2-9]?)?(L[2-9]?)?(S[2-9]?)?)+/((A[2-9]?)?(I[2-9]?)?(J[2-9]?)?(M[2-9]?)?(N[2-9]?)?(T[2-9]?)?)+(
+){0}|((D[2-9]?)?(L[2-9]?)?(S[2-9]?)?(T[2-9]?)?)+/((A[2-9]?)?(I[2-9]?)?(J[2-9]?)?(M[2-9]?)?(N[2-9]?)?)+(
+){0}|((D[2-9]?)?(L[2-9]?)?(N[2-9]?)?)+/((A[2-9]?)?(I[2-9]?)?(J[2-9]?)?(M[2-9]?)?(S[2-9]?)?(T[2-9]?)?)+(
+){0}|((D[2-9]?)?(L[2-9]?)?(N[2-9]?)?(T[2-9]?)?)+/((A[2-9]?)?(I[2-9]?)?(J[2-9]?)?(M[2-9]?)?(S[2-9]?)?)+(
+){0}|((D[2-9]?)?(L[2-9]?)?(N[2-9]?)?(S[2-9]?)?)+/((A[2-9]?)?(I[2-9]?)?(J[2-9]?)?(M[2-9]?)?(T[2-9]?)?)+(
+){0}|((D[2-9]?)?(L[2-9]?)?(N[2-9]?)?(S[2-9]?)?(T[2-9]?)?)+/((A[2-9]?)?(I[2-9]?)?(J[2-9]?)?(M[2-9]?)?)+(
+){0}|((D[2-9]?)?(L[2-9]?)?(M[2-9]?)?)+/((A[2-9]?)?(I[2-9]?)?(J[2-9]?)?(N[2-9]?)?(S[2-9]?)?(T[2-9]?)?)+(
+){0}|((D[2-9]?)?(L[2-9]?)?(M[2-9]?)?(T[2-9]?)?)+/((A[2-9]?)?(I[2-9]?)?(J[2-9]?)?(N[2-9]?)?(S[2-9]?)?)+(
+){0}|((D[2-9]?)?(L[2-9]?)?(M[2-9]?)?(S[2-9]?)?)+/((A[2-9]?)?(I[2-9]?)?(J[2-9]?)?(N[2-9]?)?(T[2-9]?)?)+(
+){0}|((D[2-9]?)?(L[2-9]?)?(M[2-9]?)?(S[2-9]?)?(T[2-9]?)?)+/((A[2-9]?)?(I[2-9]?)?(J[2-9]?)?(N[2-9]?)?)+(
+){0}|((D[2-9]?)?(L[2-9]?)?(M[2-9]?)?(N[2-9]?)?)+/((A[2-9]?)?(I[2-9]?)?(J[2-9]?)?(S[2-9]?)?(T[2-9]?)?)+(
+){0}|((D[2-9]?)?(L[2-9]?)?(M[2-9]?)?(N[2-9]?)?(T[2-9]?)?)+/((A[2-9]?)?(I[2-9]?)?(J[2-9]?)?(S[2-9]?)?)+(
+){0}|((D[2-9]?)?(L[2-9]?)?(M[2-9]?)?(N[2-9]?)?(S[2-9]?)?)+/((A[2-9]?)?(I[2-9]?)?(J[2-9]?)?(T[2-9]?)?)+(
+){0}|((D[2-9]?)?(L[2-9]?)?(M[2-9]?)?(N[2-9]?)?(S[2-9]?)?(T[2-9]?)?)+/((A[2-9]?)?(I[2-9]?)?(J[2-9]?)?)+(
+){0}|((D[2-9]?)?(J[2-9]?)?)+/((A[2-9]?)?(I[2-9]?)?(L[2-9]?)?(M[2-9]?)?(N[2-9]?)?(S[2-9]?)?(T[2-9]?)?)+(
+){0}|((D[2-9]?)?(J[2-9]?)?(T[2-9]?)?)+/((A[2-9]?)?(I[2-9]?)?(L[2-9]?)?(M[2-9]?)?(N[2-9]?)?(S[2-9]?)?)+(
+){0}|((D[2-9]?)?(J[2-9]?)?(S[2-9]?)?)+/((A[2-9]?)?(I[2-9]?)?(L[2-9]?)?(M[2-9]?)?(N[2-9]?)?(T[2-9]?)?)+(
+){0}|((D[2-9]?)?(J[2-9]?)?(S[2-9]?)?(T[2-9]?)?)+/((A[2-9]?)?(I[2-9]?)?(L[2-9]?)?(M[2-9]?)?(N[2-9]?)?)+(
+){0}|((D[2-9]?)?(J[2-9]?)?(N[2-9]?)?)+/((A[2-9]?)?(I[2-9]?)?(L[2-9]?)?(M[2-9]?)?(S[2-9]?)?(T[2-9]?)?)+(
+){0}|((D[2-9]?)?(J[2-9]?)?(N[2-9]?)?(T[2-9]?)?)+/((A[2-9]?)?(I[2-9]?)?(L[2-9]?)?(M[2-9]?)?(S[2-9]?)?)+(
+){0}|((D[2-9]?)?(J[2-9]?)?(N[2-9]?)?(S[2-9]?)?)+/((A[2-9]?)?(I[2-9]?)?(L[2-9]?)?(M[2-9]?)?(T[2-9]?)?)+(
+){0}|((D[2-9]?)?(J[2-9]?)?(N[2-9]?)?(S[2-9]?)?(T[2-9]?)?)+/((A[2-9]?)?(I[2-9]?)?(L[2-9]?)?(M[2-9]?)?)+(
+){0}|((D[2-9]?)?(J[2-9]?)?(M[2-9]?)?)+/((A[2-9]?)?(I[2-9]?)?(L[2-9]?)?(N[2-9]?)?(S[2-9]?)?(T[2-9]?)?)+(
+){0}|((D[2-9]?)?(J[2-9]?)?(M[2-9]?)?(T[2-9]?)?)+/((A[2-9]?)?(I[2-9]?)?(L[2-9]?)?(N[2-9]?)?(S[2-9]?)?)+(
+){0}|((D[2-9]?)?(J[2-9]?)?(M[2-9]?)?(S[2-9]?)?)+/((A[2-9]?)?(I[2-9]?)?(L[2-9]?)?(N[2-9]?)?(T[2-9]?)?)+(
+){0}|((D[2-9]?)?(J[2-9]?)?(M[2-9]?)?(S[2-9]?)?(T[2-9]?)?)+/((A[2-9]?)?(I[2-9]?)?(L[2-9]?)?(N[2-9]?)?)+(
+){0}|((D[2-9]?)?(J[2-9]?)?(M[2-9]?)?(N[2-9]?)?)+/((A[2-9]?)?(I[2-9]?)?(L[2-9]?)?(S[2-9]?)?(T[2-9]?)?)+(
+){0}|((D[2-9]?)?(J[2-9]?)?(M[2-9]?)?(N[2-9]?)?(T[2-9]?)?)+/((A[2-9]?)?(I[2-9]?)?(L[2-9]?)?(S[2-9]?)?)+(
+){0}|((D[2-9]?)?(J[2-9]?)?(M[2-9]?)?(N[2-9]?)?(S[2-9]?)?)+/((A[2-9]?)?(I[2-9]?)?(L[2-9]?)?(T[2-9]?)?)+(
+){0}|((D[2-9]?)?(J[2-9]?)?(M[2-9]?)?(N[2-9]?)?(S[2-9]?)?(T[2-9]?)?)+/((A[2-9]?)?(I[2-9]?)?(L[2-9]?)?)+(
+){0}|((D[2-9]?)?(J[2-9]?)?(L[2-9]?)?)+/((A[2-9]?)?(I[2-9]?)?(M[2-9]?)?(N[2-9]?)?(S[2-9]?)?(T[2-9]?)?)+(
+){0}|((D[2-9]?)?(J[2-9]?)?(L[2-9]?)?(T[2-9]?)?)+/((A[2-9]?)?(I[2-9]?)?(M[2-9]?)?(N[2-9]?)?(S[2-9]?)?)+(
+){0}|((D[2-9]?)?(J[2-9]?)?(L[2-9]?)?(S[2-9]?)?)+/((A[2-9]?)?(I[2-9]?)?(M[2-9]?)?(N[2-9]?)?(T[2-9]?)?)+(
+){0}|((D[2-9]?)?(J[2-9]?)?(L[2-9]?)?(S[2-9]?)?(T[2-9]?)?)+/((A[2-9]?)?(I[2-9]?)?(M[2-9]?)?(N[2-9]?)?)+(
+){0}|((D[2-9]?)?(J[2-9]?)?(L[2-9]?)?(N[2-9]?)?)+/((A[2-9]?)?(I[2-9]?)?(M[2-9]?)?(S[2-9]?)?(T[2-9]?)?)+(
+){0}|((D[2-9]?)?(J[2-9]?)?(L[2-9]?)?(N[2-9]?)?(T[2-9]?)?)+/((A[2-9]?)?(I[2-9]?)?(M[2-9]?)?(S[2-9]?)?)+(
+){0}|((D[2-9]?)?(J[2-9]?)?(L[2-9]?)?(N[2-9]?)?(S[2-9]?)?)+/((A[2-9]?)?(I[2-9]?)?(M[2-9]?)?(T[2-9]?)?)+(
+){0}|((D[2-9]?)?(J[2-9]?)?(L[2-9]?)?(N[2-9]?)?(S[2-9]?)?(T[2-9]?)?)+/((A[2-9]?)?(I[2-9]?)?(M[2-9]?)?)+(
+){0}|((D[2-9]?)?(J[2-9]?)?(L[2-9]?)?(M[2-9]?)?)+/((A[2-9]?)?(I[2-9]?)?(N[2-9]?)?(S[2-9]?)?(T[2-9]?)?)+(
+){0}|((D[2-9]?)?(J[2-9]?)?(L[2-9]?)?(M[2-9]?)?(T[2-9]?)?)+/((A[2-9]?)?(I[2-9]?)?(N[2-9]?)?(S[2-9]?)?)+(
+){0}|((D[2-9]?)?(J[2-9]?)?(L[2-9]?)?(M[2-9]?)?(S[2-9]?)?)+/((A[2-9]?)?(I[2-9]?)?(N[2-9]?)?(T[2-9]?)?)+(
+){0}|((D[2-9]?)?(J[2-9]?)?(L[2-9]?)?(M[2-9]?)?(S[2-9]?)?(T[2-9]?)?)+/((A[2-9]?)?(I[2-9]?)?(N[2-9]?)?)+(
+){0}|((D[2-9]?)?(J[2-9]?)?(L[2-9]?)?(M[2-9]?)?(N[2-9]?)?)+/((A[2-9]?)?(I[2-9]?)?(S[2-9]?)?(T[2-9]?)?)+(
+){0}|((D[2-9]?)?(J[2-9]?)?(L[2-9]?)?(M[2-9]?)?(N[2-9]?)?(T[2-9]?)?)+/((A[2-9]?)?(I[2-9]?)?(S[2-9]?)?)+(
+){0}|((D[2-9]?)?(J[2-9]?)?(L[2-9]?)?(M[2-9]?)?(N[2-9]?)?(S[2-9]?)?)+/((A[2-9]?)?(I[2-9]?)?(T[2-9]?)?)+(
+){0}|((D[2-9]?)?(J[2-9]?)?(L[2-9]?)?(M[2-9]?)?(N[2-9]?)?(S[2-9]?)?(T[2-9]?)?)+/((A[2-9]?)?(I[2-9]?)?)+(
+){0}|((D[2-9]?)?(I[2-9]?)?)+/((A[2-9]?)?(J[2-9]?)?(L[2-9]?)?(M[2-9]?)?(N[2-9]?)?(S[2-9]?)?(T[2-9]?)?)+(
+){0}|((D[2-9]?)?(I[2-9]?)?(T[2-9]?)?)+/((A[2-9]?)?(J[2-9]?)?(L[2-9]?)?(M[2-9]?)?(N[2-9]?)?(S[2-9]?)?)+(
+){0}|((D[2-9]?)?(I[2-9]?)?(S[2-9]?)?)+/((A[2-9]?)?(J[2-9]?)?(L[2-9]?)?(M[2-9]?)?(N[2-9]?)?(T[2-9]?)?)+(
+){0}|((D[2-9]?)?(I[2-9]?)?(S[2-9]?)?(T[2-9]?)?)+/((A[2-9]?)?(J[2-9]?)?(L[2-9]?)?(M[2-9]?)?(N[2-9]?)?)+(
+){0}|((D[2-9]?)?(I[2-9]?)?(N[2-9]?)?)+/((A[2-9]?)?(J[2-9]?)?(L[2-9]?)?(M[2-9]?)?(S[2-9]?)?(T[2-9]?)?)+(
+){0}|((D[2-9]?)?(I[2-9]?)?(N[2-9]?)?(T[2-9]?)?)+/((A[2-9]?)?(J[2-9]?)?(L[2-9]?)?(M[2-9]?)?(S[2-9]?)?)+(
+){0}|((D[2-9]?)?(I[2-9]?)?(N[2-9]?)?(S[2-9]?)?)+/((A[2-9]?)?(J[2-9]?)?(L[2-9]?)?(M[2-9]?)?(T[2-9]?)?)+(
+){0}|((D[2-9]?)?(I[2-9]?)?(N[2-9]?)?(S[2-9]?)?(T[2-9]?)?)+/((A[2-9]?)?(J[2-9]?)?(L[2-9]?)?(M[2-9]?)?)+(
+){0}|((D[2-9]?)?(I[2-9]?)?(M[2-9]?)?)+/((A[2-9]?)?(J[2-9]?)?(L[2-9]?)?(N[2-9]?)?(S[2-9]?)?(T[2-9]?)?)+(
+){0}|((D[2-9]?)?(I[2-9]?)?(M[2-9]?)?(T[2-9]?)?)+/((A[2-9]?)?(J[2-9]?)?(L[2-9]?)?(N[2-9]?)?(S[2-9]?)?)+(
+){0}|((D[2-9]?)?(I[2-9]?)?(M[2-9]?)?(S[2-9]?)?)+/((A[2-9]?)?(J[2-9]?)?(L[2-9]?)?(N[2-9]?)?(T[2-9]?)?)+(
+){0}|((D[2-9]?)?(I[2-9]?)?(M[2-9]?)?(S[2-9]?)?(T[2-9]?)?)+/((A[2-9]?)?(J[2-9]?)?(L[2-9]?)?(N[2-9]?)?)+(
+){0}|((D[2-9]?)?(I[2-9]?)?(M[2-9]?)?(N[2-9]?)?)+/((A[2-9]?)?(J[2-9]?)?(L[2-9]?)?(S[2-9]?)?(T[2-9]?)?)+(
+){0}|((D[2-9]?)?(I[2-9]?)?(M[2-9]?)?(N[2-9]?)?(T[2-9]?)?)+/((A[2-9]?)?(J[2-9]?)?(L[2-9]?)?(S[2-9]?)?)+(
+){0}|((D[2-9]?)?(I[2-9]?)?(M[2-9]?)?(N[2-9]?)?(S[2-9]?)?)+/((A[2-9]?)?(J[2-9]?)?(L[2-9]?)?(T[2-9]?)?)+(
+){0}|((D[2-9]?)?(I[2-9]?)?(M[2-9]?)?(N[2-9]?)?(S[2-9]?)?(T[2-9]?)?)+/((A[2-9]?)?(J[2-9]?)?(L[2-9]?)?)+(
+){0}|((D[2-9]?)?(I[2-9]?)?(L[2-9]?)?)+/((A[2-9]?)?(J[2-9]?)?(M[2-9]?)?(N[2-9]?)?(S[2-9]?)?(T[2-9]?)?)+(
+){0}|((D[2-9]?)?(I[2-9]?)?(L[2-9]?)?(T[2-9]?)?)+/((A[2-9]?)?(J[2-9]?)?(M[2-9]?)?(N[2-9]?)?(S[2-9]?)?)+(
+){0}|((D[2-9]?)?(I[2-9]?)?(L[2-9]?)?(S[2-9]?)?)+/((A[2-9]?)?(J[2-9]?)?(M[2-9]?)?(N[2-9]?)?(T[2-9]?)?)+(
+){0}|((D[2-9]?)?(I[2-9]?)?(L[2-9]?)?(S[2-9]?)?(T[2-9]?)?)+/((A[2-9]?)?(J[2-9]?)?(M[2-9]?)?(N[2-9]?)?)+(
+){0}|((D[2-9]?)?(I[2-9]?)?(L[2-9]?)?(N[2-9]?)?)+/((A[2-9]?)?(J[2-9]?)?(M[2-9]?)?(S[2-9]?)?(T[2-9]?)?)+(
+){0}|((D[2-9]?)?(I[2-9]?)?(L[2-9]?)?(N[2-9]?)?(T[2-9]?)?)+/((A[2-9]?)?(J[2-9]?)?(M[2-9]?)?(S[2-9]?)?)+(
+){0}|((D[2-9]?)?(I[2-9]?)?(L[2-9]?)?(N[2-9]?)?(S[2-9]?)?)+/((A[2-9]?)?(J[2-9]?)?(M[2-9]?)?(T[2-9]?)?)+(
+){0}|((D[2-9]?)?(I[2-9]?)?(L[2-9]?)?(N[2-9]?)?(S[2-9]?)?(T[2-9]?)?)+/((A[2-9]?)?(J[2-9]?)?(M[2-9]?)?)+(
+){0}|((D[2-9]?)?(I[2-9]?)?(L[2-9]?)?(M[2-9]?)?)+/((A[2-9]?)?(J[2-9]?)?(N[2-9]?)?(S[2-9]?)?(T[2-9]?)?)+(
+){0}|((D[2-9]?)?(I[2-9]?)?(L[2-9]?)?(M[2-9]?)?(T[2-9]?)?)+/((A[2-9]?)?(J[2-9]?)?(N[2-9]?)?(S[2-9]?)?)+(
+){0}|((D[2-9]?)?(I[2-9]?)?(L[2-9]?)?(M[2-9]?)?(S[2-9]?)?)+/((A[2-9]?)?(J[2-9]?)?(N[2-9]?)?(T[2-9]?)?)+(
+){0}|((D[2-9]?)?(I[2-9]?)?(L[2-9]?)?(M[2-9]?)?(S[2-9]?)?(T[2-9]?)?)+/((A[2-9]?)?(J[2-9]?)?(N[2-9]?)?)+(
+){0}|((D[2-9]?)?(I[2-9]?)?(L[2-9]?)?(M[2-9]?)?(N[2-9]?)?)+/((A[2-9]?)?(J[2-9]?)?(S[2-9]?)?(T[2-9]?)?)+(
+){0}|((D[2-9]?)?(I[2-9]?)?(L[2-9]?)?(M[2-9]?)?(N[2-9]?)?(T[2-9]?)?)+/((A[2-9]?)?(J[2-9]?)?(S[2-9]?)?)+(
+){0}|((D[2-9]?)?(I[2-9]?)?(L[2-9]?)?(M[2-9]?)?(N[2-9]?)?(S[2-9]?)?)+/((A[2-9]?)?(J[2-9]?)?(T[2-9]?)?)+(
+){0}|((D[2-9]?)?(I[2-9]?)?(L[2-9]?)?(M[2-9]?)?(N[2-9]?)?(S[2-9]?)?(T[2-9]?)?)+/((A[2-9]?)?(J[2-9]?)?)+(
+){0}|((D[2-9]?)?(I[2-9]?)?(J[2-9]?)?)+/((A[2-9]?)?(L[2-9]?)?(M[2-9]?)?(N[2-9]?)?(S[2-9]?)?(T[2-9]?)?)+(
+){0}|((D[2-9]?)?(I[2-9]?)?(J[2-9]?)?(T[2-9]?)?)+/((A[2-9]?)?(L[2-9]?)?(M[2-9]?)?(N[2-9]?)?(S[2-9]?)?)+(
+){0}|((D[2-9]?)?(I[2-9]?)?(J[2-9]?)?(S[2-9]?)?)+/((A[2-9]?)?(L[2-9]?)?(M[2-9]?)?(N[2-9]?)?(T[2-9]?)?)+(
+){0}|((D[2-9]?)?(I[2-9]?)?(J[2-9]?)?(S[2-9]?)?(T[2-9]?)?)+/((A[2-9]?)?(L[2-9]?)?(M[2-9]?)?(N[2-9]?)?)+(
+){0}|((D[2-9]?)?(I[2-9]?)?(J[2-9]?)?(N[2-9]?)?)+/((A[2-9]?)?(L[2-9]?)?(M[2-9]?)?(S[2-9]?)?(T[2-9]?)?)+(
+){0}|((D[2-9]?)?(I[2-9]?)?(J[2-9]?)?(N[2-9]?)?(T[2-9]?)?)+/((A[2-9]?)?(L[2-9]?)?(M[2-9]?)?(S[2-9]?)?)+(
+){0}|((D[2-9]?)?(I[2-9]?)?(J[2-9]?)?(N[2-9]?)?(S[2-9]?)?)+/((A[2-9]?)?(L[2-9]?)?(M[2-9]?)?(T[2-9]?)?)+(
+){0}|((D[2-9]?)?(I[2-9]?)?(J[2-9]?)?(N[2-9]?)?(S[2-9]?)?(T[2-9]?)?)+/((A[2-9]?)?(L[2-9]?)?(M[2-9]?)?)+(
+){0}|((D[2-9]?)?(I[2-9]?)?(J[2-9]?)?(M[2-9]?)?)+/((A[2-9]?)?(L[2-9]?)?(N[2-9]?)?(S[2-9]?)?(T[2-9]?)?)+(
+){0}|((D[2-9]?)?(I[2-9]?)?(J[2-9]?)?(M[2-9]?)?(T[2-9]?)?)+/((A[2-9]?)?(L[2-9]?)?(N[2-9]?)?(S[2-9]?)?)+(
+){0}|((D[2-9]?)?(I[2-9]?)?(J[2-9]?)?(M[2-9]?)?(S[2-9]?)?)+/((A[2-9]?)?(L[2-9]?)?(N[2-9]?)?(T[2-9]?)?)+(
+){0}|((D[2-9]?)?(I[2-9]?)?(J[2-9]?)?(M[2-9]?)?(S[2-9]?)?(T[2-9]?)?)+/((A[2-9]?)?(L[2-9]?)?(N[2-9]?)?)+(
+){0}|((D[2-9]?)?(I[2-9]?)?(J[2-9]?)?(M[2-9]?)?(N[2-9]?)?)+/((A[2-9]?)?(L[2-9]?)?(S[2-9]?)?(T[2-9]?)?)+(
+){0}|((D[2-9]?)?(I[2-9]?)?(J[2-9]?)?(M[2-9]?)?(N[2-9]?)?(T[2-9]?)?)+/((A[2-9]?)?(L[2-9]?)?(S[2-9]?)?)+(
+){0}|((D[2-9]?)?(I[2-9]?)?(J[2-9]?)?(M[2-9]?)?(N[2-9]?)?(S[2-9]?)?)+/((A[2-9]?)?(L[2-9]?)?(T[2-9]?)?)+(
+){0}|((D[2-9]?)?(I[2-9]?)?(J[2-9]?)?(M[2-9]?)?(N[2-9]?)?(S[2-9]?)?(T[2-9]?)?)+/((A[2-9]?)?(L[2-9]?)?)+(
+){0}|((D[2-9]?)?(I[2-9]?)?(J[2-9]?)?(L[2-9]?)?)+/((A[2-9]?)?(M[2-9]?)?(N[2-9]?)?(S[2-9]?)?(T[2-9]?)?)+(
+){0}|((D[2-9]?)?(I[2-9]?)?(J[2-9]?)?(L[2-9]?)?(T[2-9]?)?)+/((A[2-9]?)?(M[2-9]?)?(N[2-9]?)?(S[2-9]?)?)+(
+){0}|((D[2-9]?)?(I[2-9]?)?(J[2-9]?)?(L[2-9]?)?(S[2-9]?)?)+/((A[2-9]?)?(M[2-9]?)?(N[2-9]?)?(T[2-9]?)?)+(
+){0}|((D[2-9]?)?(I[2-9]?)?(J[2-9]?)?(L[2-9]?)?(S[2-9]?)?(T[2-9]?)?)+/((A[2-9]?)?(M[2-9]?)?(N[2-9]?)?)+(
+){0}|((D[2-9]?)?(I[2-9]?)?(J[2-9]?)?(L[2-9]?)?(N[2-9]?)?)+/((A[2-9]?)?(M[2-9]?)?(S[2-9]?)?(T[2-9]?)?)+(
+){0}|((D[2-9]?)?(I[2-9]?)?(J[2-9]?)?(L[2-9]?)?(N[2-9]?)?(T[2-9]?)?)+/((A[2-9]?)?(M[2-9]?)?(S[2-9]?)?)+(
+){0}|((D[2-9]?)?(I[2-9]?)?(J[2-9]?)?(L[2-9]?)?(N[2-9]?)?(S[2-9]?)?)+/((A[2-9]?)?(M[2-9]?)?(T[2-9]?)?)+(
+){0}|((D[2-9]?)?(I[2-9]?)?(J[2-9]?)?(L[2-9]?)?(N[2-9]?)?(S[2-9]?)?(T[2-9]?)?)+/((A[2-9]?)?(M[2-9]?)?)+(
+){0}|((D[2-9]?)?(I[2-9]?)?(J[2-9]?)?(L[2-9]?)?(M[2-9]?)?)+/((A[2-9]?)?(N[2-9]?)?(S[2-9]?)?(T[2-9]?)?)+(
+){0}|((D[2-9]?)?(I[2-9]?)?(J[2-9]?)?(L[2-9]?)?(M[2-9]?)?(T[2-9]?)?)+/((A[2-9]?)?(N[2-9]?)?(S[2-9]?)?)+(
+){0}|((D[2-9]?)?(I[2-9]?)?(J[2-9]?)?(L[2-9]?)?(M[2-9]?)?(S[2-9]?)?)+/((A[2-9]?)?(N[2-9]?)?(T[2-9]?)?)+(
+){0}|((D[2-9]?)?(I[2-9]?)?(J[2-9]?)?(L[2-9]?)?(M[2-9]?)?(S[2-9]?)?(T[2-9]?)?)+/((A[2-9]?)?(N[2-9]?)?)+(
+){0}|((D[2-9]?)?(I[2-9]?)?(J[2-9]?)?(L[2-9]?)?(M[2-9]?)?(N[2-9]?)?)+/((A[2-9]?)?(S[2-9]?)?(T[2-9]?)?)+(
+){0}|((D[2-9]?)?(I[2-9]?)?(J[2-9]?)?(L[2-9]?)?(M[2-9]?)?(N[2-9]?)?(T[2-9]?)?)+/((A[2-9]?)?(S[2-9]?)?)+(
+){0}|((D[2-9]?)?(I[2-9]?)?(J[2-9]?)?(L[2-9]?)?(M[2-9]?)?(N[2-9]?)?(S[2-9]?)?)+/((A[2-9]?)?(T[2-9]?)?)+(
+){0}|((D[2-9]?)?(I[2-9]?)?(J[2-9]?)?(L[2-9]?)?(M[2-9]?)?(N[2-9]?)?(S[2-9]?)?(T[2-9]?)?)+/((A[2-9]?)?)+(
+){0}|((A[2-9]?)?)+/((D[2-9]?)?(I[2-9]?)?(J[2-9]?)?(L[2-9]?)?(M[2-9]?)?(N[2-9]?)?(S[2-9]?)?(T[2-9]?)?)+(
+){0}|((A[2-9]?)?(T[2-9]?)?)+/((D[2-9]?)?(I[2-9]?)?(J[2-9]?)?(L[2-9]?)?(M[2-9]?)?(N[2-9]?)?(S[2-9]?)?)+(
+){0}|((A[2-9]?)?(S[2-9]?)?)+/((D[2-9]?)?(I[2-9]?)?(J[2-9]?)?(L[2-9]?)?(M[2-9]?)?(N[2-9]?)?(T[2-9]?)?)+(
+){0}|((A[2-9]?)?(S[2-9]?)?(T[2-9]?)?)+/((D[2-9]?)?(I[2-9]?)?(J[2-9]?)?(L[2-9]?)?(M[2-9]?)?(N[2-9]?)?)+(
+){0}|((A[2-9]?)?(N[2-9]?)?)+/((D[2-9]?)?(I[2-9]?)?(J[2-9]?)?(L[2-9]?)?(M[2-9]?)?(S[2-9]?)?(T[2-9]?)?)+(
+){0}|((A[2-9]?)?(N[2-9]?)?(T[2-9]?)?)+/((D[2-9]?)?(I[2-9]?)?(J[2-9]?)?(L[2-9]?)?(M[2-9]?)?(S[2-9]?)?)+(
+){0}|((A[2-9]?)?(N[2-9]?)?(S[2-9]?)?)+/((D[2-9]?)?(I[2-9]?)?(J[2-9]?)?(L[2-9]?)?(M[2-9]?)?(T[2-9]?)?)+(
+){0}|((A[2-9]?)?(N[2-9]?)?(S[2-9]?)?(T[2-9]?)?)+/((D[2-9]?)?(I[2-9]?)?(J[2-9]?)?(L[2-9]?)?(M[2-9]?)?)+(
+){0}|((A[2-9]?)?(M[2-9]?)?)+/((D[2-9]?)?(I[2-9]?)?(J[2-9]?)?(L[2-9]?)?(N[2-9]?)?(S[2-9]?)?(T[2-9]?)?)+(
+){0}|((A[2-9]?)?(M[2-9]?)?(T[2-9]?)?)+/((D[2-9]?)?(I[2-9]?)?(J[2-9]?)?(L[2-9]?)?(N[2-9]?)?(S[2-9]?)?)+(
+){0}|((A[2-9]?)?(M[2-9]?)?(S[2-9]?)?)+/((D[2-9]?)?(I[2-9]?)?(J[2-9]?)?(L[2-9]?)?(N[2-9]?)?(T[2-9]?)?)+(
+){0}|((A[2-9]?)?(M[2-9]?)?(S[2-9]?)?(T[2-9]?)?)+/((D[2-9]?)?(I[2-9]?)?(J[2-9]?)?(L[2-9]?)?(N[2-9]?)?)+(
+){0}|((A[2-9]?)?(M[2-9]?)?(N[2-9]?)?)+/((D[2-9]?)?(I[2-9]?)?(J[2-9]?)?(L[2-9]?)?(S[2-9]?)?(T[2-9]?)?)+(
+){0}|((A[2-9]?)?(M[2-9]?)?(N[2-9]?)?(T[2-9]?)?)+/((D[2-9]?)?(I[2-9]?)?(J[2-9]?)?(L[2-9]?)?(S[2-9]?)?)+(
+){0}|((A[2-9]?)?(M[2-9]?)?(N[2-9]?)?(S[2-9]?)?)+/((D[2-9]?)?(I[2-9]?)?(J[2-9]?)?(L[2-9]?)?(T[2-9]?)?)+(
+){0}|((A[2-9]?)?(M[2-9]?)?(N[2-9]?)?(S[2-9]?)?(T[2-9]?)?)+/((D[2-9]?)?(I[2-9]?)?(J[2-9]?)?(L[2-9]?)?)+(
+){0}|((A[2-9]?)?(L[2-9]?)?)+/((D[2-9]?)?(I[2-9]?)?(J[2-9]?)?(M[2-9]?)?(N[2-9]?)?(S[2-9]?)?(T[2-9]?)?)+(
+){0}|((A[2-9]?)?(L[2-9]?)?(T[2-9]?)?)+/((D[2-9]?)?(I[2-9]?)?(J[2-9]?)?(M[2-9]?)?(N[2-9]?)?(S[2-9]?)?)+(
+){0}|((A[2-9]?)?(L[2-9]?)?(S[2-9]?)?)+/((D[2-9]?)?(I[2-9]?)?(J[2-9]?)?(M[2-9]?)?(N[2-9]?)?(T[2-9]?)?)+(
+){0}|((A[2-9]?)?(L[2-9]?)?(S[2-9]?)?(T[2-9]?)?)+/((D[2-9]?)?(I[2-9]?)?(J[2-9]?)?(M[2-9]?)?(N[2-9]?)?)+(
+){0}|((A[2-9]?)?(L[2-9]?)?(N[2-9]?)?)+/((D[2-9]?)?(I[2-9]?)?(J[2-9]?)?(M[2-9]?)?(S[2-9]?)?(T[2-9]?)?)+(
+){0}|((A[2-9]?)?(L[2-9]?)?(N[2-9]?)?(T[2-9]?)?)+/((D[2-9]?)?(I[2-9]?)?(J[2-9]?)?(M[2-9]?)?(S[2-9]?)?)+(
+){0}|((A[2-9]?)?(L[2-9]?)?(N[2-9]?)?(S[2-9]?)?)+/((D[2-9]?)?(I[2-9]?)?(J[2-9]?)?(M[2-9]?)?(T[2-9]?)?)+(
+){0}|((A[2-9]?)?(L[2-9]?)?(N[2-9]?)?(S[2-9]?)?(T[2-9]?)?)+/((D[2-9]?)?(I[2-9]?)?(J[2-9]?)?(M[2-9]?)?)+(
+){0}|((A[2-9]?)?(L[2-9]?)?(M[2-9]?)?)+/((D[2-9]?)?(I[2-9]?)?(J[2-9]?)?(N[2-9]?)?(S[2-9]?)?(T[2-9]?)?)+(
+){0}|((A[2-9]?)?(L[2-9]?)?(M[2-9]?)?(T[2-9]?)?)+/((D[2-9]?)?(I[2-9]?)?(J[2-9]?)?(N[2-9]?)?(S[2-9]?)?)+(
+){0}|((A[2-9]?)?(L[2-9]?)?(M[2-9]?)?(S[2-9]?)?)+/((D[2-9]?)?(I[2-9]?)?(J[2-9]?)?(N[2-9]?)?(T[2-9]?)?)+(
+){0}|((A[2-9]?)?(L[2-9]?)?(M[2-9]?)?(S[2-9]?)?(T[2-9]?)?)+/((D[2-9]?)?(I[2-9]?)?(J[2-9]?)?(N[2-9]?)?)+(
+){0}|((A[2-9]?)?(L[2-9]?)?(M[2-9]?)?(N[2-9]?)?)+/((D[2-9]?)?(I[2-9]?)?(J[2-9]?)?(S[2-9]?)?(T[2-9]?)?)+(
+){0}|((A[2-9]?)?(L[2-9]?)?(M[2-9]?)?(N[2-9]?)?(T[2-9]?)?)+/((D[2-9]?)?(I[2-9]?)?(J[2-9]?)?(S[2-9]?)?)+(
+){0}|((A[2-9]?)?(L[2-9]?)?(M[2-9]?)?(N[2-9]?)?(S[2-9]?)?)+/((D[2-9]?)?(I[2-9]?)?(J[2-9]?)?(T[2-9]?)?)+(
+){0}|((A[2-9]?)?(L[2-9]?)?(M[2-9]?)?(N[2-9]?)?(S[2-9]?)?(T[2-9]?)?)+/((D[2-9]?)?(I[2-9]?)?(J[2-9]?)?)+(
+){0}|((A[2-9]?)?(J[2-9]?)?)+/((D[2-9]?)?(I[2-9]?)?(L[2-9]?)?(M[2-9]?)?(N[2-9]?)?(S[2-9]?)?(T[2-9]?)?)+(
+){0}|((A[2-9]?)?(J[2-9]?)?(T[2-9]?)?)+/((D[2-9]?)?(I[2-9]?)?(L[2-9]?)?(M[2-9]?)?(N[2-9]?)?(S[2-9]?)?)+(
+){0}|((A[2-9]?)?(J[2-9]?)?(S[2-9]?)?)+/((D[2-9]?)?(I[2-9]?)?(L[2-9]?)?(M[2-9]?)?(N[2-9]?)?(T[2-9]?)?)+(
+){0}|((A[2-9]?)?(J[2-9]?)?(S[2-9]?)?(T[2-9]?)?)+/((D[2-9]?)?(I[2-9]?)?(L[2-9]?)?(M[2-9]?)?(N[2-9]?)?)+(
+){0}|((A[2-9]?)?(J[2-9]?)?(N[2-9]?)?)+/((D[2-9]?)?(I[2-9]?)?(L[2-9]?)?(M[2-9]?)?(S[2-9]?)?(T[2-9]?)?)+(
+){0}|((A[2-9]?)?(J[2-9]?)?(N[2-9]?)?(T[2-9]?)?)+/((D[2-9]?)?(I[2-9]?)?(L[2-9]?)?(M[2-9]?)?(S[2-9]?)?)+(
+){0}|((A[2-9]?)?(J[2-9]?)?(N[2-9]?)?(S[2-9]?)?)+/((D[2-9]?)?(I[2-9]?)?(L[2-9]?)?(M[2-9]?)?(T[2-9]?)?)+(
+){0}|((A[2-9]?)?(J[2-9]?)?(N[2-9]?)?(S[2-9]?)?(T[2-9]?)?)+/((D[2-9]?)?(I[2-9]?)?(L[2-9]?)?(M[2-9]?)?)+(
+){0}|((A[2-9]?)?(J[2-9]?)?(M[2-9]?)?)+/((D[2-9]?)?(I[2-9]?)?(L[2-9]?)?(N[2-9]?)?(S[2-9]?)?(T[2-9]?)?)+(
+){0}|((A[2-9]?)?(J[2-9]?)?(M[2-9]?)?(T[2-9]?)?)+/((D[2-9]?)?(I[2-9]?)?(L[2-9]?)?(N[2-9]?)?(S[2-9]?)?)+(
+){0}|((A[2-9]?)?(J[2-9]?)?(M[2-9]?)?(S[2-9]?)?)+/((D[2-9]?)?(I[2-9]?)?(L[2-9]?)?(N[2-9]?)?(T[2-9]?)?)+(
+){0}|((A[2-9]?)?(J[2-9]?)?(M[2-9]?)?(S[2-9]?)?(T[2-9]?)?)+/((D[2-9]?)?(I[2-9]?)?(L[2-9]?)?(N[2-9]?)?)+(
+){0}|((A[2-9]?)?(J[2-9]?)?(M[2-9]?)?(N[2-9]?)?)+/((D[2-9]?)?(I[2-9]?)?(L[2-9]?)?(S[2-9]?)?(T[2-9]?)?)+(
+){0}|((A[2-9]?)?(J[2-9]?)?(M[2-9]?)?(N[2-9]?)?(T[2-9]?)?)+/((D[2-9]?)?(I[2-9]?)?(L[2-9]?)?(S[2-9]?)?)+(
+){0}|((A[2-9]?)?(J[2-9]?)?(M[2-9]?)?(N[2-9]?)?(S[2-9]?)?)+/((D[2-9]?)?(I[2-9]?)?(L[2-9]?)?(T[2-9]?)?)+(
+){0}|((A[2-9]?)?(J[2-9]?)?(M[2-9]?)?(N[2-9]?)?(S[2-9]?)?(T[2-9]?)?)+/((D[2-9]?)?(I[2-9]?)?(L[2-9]?)?)+(
+){0}|((A[2-9]?)?(J[2-9]?)?(L[2-9]?)?)+/((D[2-9]?)?(I[2-9]?)?(M[2-9]?)?(N[2-9]?)?(S[2-9]?)?(T[2-9]?)?)+(
+){0}|((A[2-9]?)?(J[2-9]?)?(L[2-9]?)?(T[2-9]?)?)+/((D[2-9]?)?(I[2-9]?)?(M[2-9]?)?(N[2-9]?)?(S[2-9]?)?)+(
+){0}|((A[2-9]?)?(J[2-9]?)?(L[2-9]?)?(S[2-9]?)?)+/((D[2-9]?)?(I[2-9]?)?(M[2-9]?)?(N[2-9]?)?(T[2-9]?)?)+(
+){0}|((A[2-9]?)?(J[2-9]?)?(L[2-9]?)?(S[2-9]?)?(T[2-9]?)?)+/((D[2-9]?)?(I[2-9]?)?(M[2-9]?)?(N[2-9]?)?)+(
+){0}|((A[2-9]?)?(J[2-9]?)?(L[2-9]?)?(N[2-9]?)?)+/((D[2-9]?)?(I[2-9]?)?(M[2-9]?)?(S[2-9]?)?(T[2-9]?)?)+(
+){0}|((A[2-9]?)?(J[2-9]?)?(L[2-9]?)?(N[2-9]?)?(T[2-9]?)?)+/((D[2-9]?)?(I[2-9]?)?(M[2-9]?)?(S[2-9]?)?)+(
+){0}|((A[2-9]?)?(J[2-9]?)?(L[2-9]?)?(N[2-9]?)?(S[2-9]?)?)+/((D[2-9]?)?(I[2-9]?)?(M[2-9]?)?(T[2-9]?)?)+(
+){0}|((A[2-9]?)?(J[2-9]?)?(L[2-9]?)?(N[2-9]?)?(S[2-9]?)?(T[2-9]?)?)+/((D[2-9]?)?(I[2-9]?)?(M[2-9]?)?)+(
+){0}|((A[2-9]?)?(J[2-9]?)?(L[2-9]?)?(M[2-9]?)?)+/((D[2-9]?)?(I[2-9]?)?(N[2-9]?)?(S[2-9]?)?(T[2-9]?)?)+(
+){0}|((A[2-9]?)?(J[2-9]?)?(L[2-9]?)?(M[2-9]?)?(T[2-9]?)?)+/((D[2-9]?)?(I[2-9]?)?(N[2-9]?)?(S[2-9]?)?)+(
+){0}|((A[2-9]?)?(J[2-9]?)?(L[2-9]?)?(M[2-9]?)?(S[2-9]?)?)+/((D[2-9]?)?(I[2-9]?)?(N[2-9]?)?(T[2-9]?)?)+(
+){0}|((A[2-9]?)?(J[2-9]?)?(L[2-9]?)?(M[2-9]?)?(S[2-9]?)?(T[2-9]?)?)+/((D[2-9]?)?(I[2-9]?)?(N[2-9]?)?)+(
+){0}|((A[2-9]?)?(J[2-9]?)?(L[2-9]?)?(M[2-9]?)?(N[2-9]?)?)+/((D[2-9]?)?(I[2-9]?)?(S[2-9]?)?(T[2-9]?)?)+(
+){0}|((A[2-9]?)?(J[2-9]?)?(L[2-9]?)?(M[2-9]?)?(N[2-9]?)?(T[2-9]?)?)+/((D[2-9]?)?(I[2-9]?)?(S[2-9]?)?)+(
+){0}|((A[2-9]?)?(J[2-9]?)?(L[2-9]?)?(M[2-9]?)?(N[2-9]?)?(S[2-9]?)?)+/((D[2-9]?)?(I[2-9]?)?(T[2-9]?)?)+(
+){0}|((A[2-9]?)?(J[2-9]?)?(L[2-9]?)?(M[2-9]?)?(N[2-9]?)?(S[2-9]?)?(T[2-9]?)?)+/((D[2-9]?)?(I[2-9]?)?)+(
+){0}|((A[2-9]?)?(I[2-9]?)?)+/((D[2-9]?)?(J[2-9]?)?(L[2-9]?)?(M[2-9]?)?(N[2-9]?)?(S[2-9]?)?(T[2-9]?)?)+(
+){0}|((A[2-9]?)?(I[2-9]?)?(T[2-9]?)?)+/((D[2-9]?)?(J[2-9]?)?(L[2-9]?)?(M[2-9]?)?(N[2-9]?)?(S[2-9]?)?)+(
+){0}|((A[2-9]?)?(I[2-9]?)?(S[2-9]?)?)+/((D[2-9]?)?(J[2-9]?)?(L[2-9]?)?(M[2-9]?)?(N[2-9]?)?(T[2-9]?)?)+(
+){0}|((A[2-9]?)?(I[2-9]?)?(S[2-9]?)?(T[2-9]?)?)+/((D[2-9]?)?(J[2-9]?)?(L[2-9]?)?(M[2-9]?)?(N[2-9]?)?)+(
+){0}|((A[2-9]?)?(I[2-9]?)?(N[2-9]?)?)+/((D[2-9]?)?(J[2-9]?)?(L[2-9]?)?(M[2-9]?)?(S[2-9]?)?(T[2-9]?)?)+(
+){0}|((A[2-9]?)?(I[2-9]?)?(N[2-9]?)?(T[2-9]?)?)+/((D[2-9]?)?(J[2-9]?)?(L[2-9]?)?(M[2-9]?)?(S[2-9]?)?)+(
+){0}|((A[2-9]?)?(I[2-9]?)?(N[2-9]?)?(S[2-9]?)?)+/((D[2-9]?)?(J[2-9]?)?(L[2-9]?)?(M[2-9]?)?(T[2-9]?)?)+(
+){0}|((A[2-9]?)?(I[2-9]?)?(N[2-9]?)?(S[2-9]?)?(T[2-9]?)?)+/((D[2-9]?)?(J[2-9]?)?(L[2-9]?)?(M[2-9]?)?)+(
+){0}|((A[2-9]?)?(I[2-9]?)?(M[2-9]?)?)+/((D[2-9]?)?(J[2-9]?)?(L[2-9]?)?(N[2-9]?)?(S[2-9]?)?(T[2-9]?)?)+(
+){0}|((A[2-9]?)?(I[2-9]?)?(M[2-9]?)?(T[2-9]?)?)+/((D[2-9]?)?(J[2-9]?)?(L[2-9]?)?(N[2-9]?)?(S[2-9]?)?)+(
+){0}|((A[2-9]?)?(I[2-9]?)?(M[2-9]?)?(S[2-9]?)?)+/((D[2-9]?)?(J[2-9]?)?(L[2-9]?)?(N[2-9]?)?(T[2-9]?)?)+(
+){0}|((A[2-9]?)?(I[2-9]?)?(M[2-9]?)?(S[2-9]?)?(T[2-9]?)?)+/((D[2-9]?)?(J[2-9]?)?(L[2-9]?)?(N[2-9]?)?)+(
+){0}|((A[2-9]?)?(I[2-9]?)?(M[2-9]?)?(N[2-9]?)?)+/((D[2-9]?)?(J[2-9]?)?(L[2-9]?)?(S[2-9]?)?(T[2-9]?)?)+(
+){0}|((A[2-9]?)?(I[2-9]?)?(M[2-9]?)?(N[2-9]?)?(T[2-9]?)?)+/((D[2-9]?)?(J[2-9]?)?(L[2-9]?)?(S[2-9]?)?)+(
+){0}|((A[2-9]?)?(I[2-9]?)?(M[2-9]?)?(N[2-9]?)?(S[2-9]?)?)+/((D[2-9]?)?(J[2-9]?)?(L[2-9]?)?(T[2-9]?)?)+(
+){0}|((A[2-9]?)?(I[2-9]?)?(M[2-9]?)?(N[2-9]?)?(S[2-9]?)?(T[2-9]?)?)+/((D[2-9]?)?(J[2-9]?)?(L[2-9]?)?)+(
+){0}|((A[2-9]?)?(I[2-9]?)?(L[2-9]?)?)+/((D[2-9]?)?(J[2-9]?)?(M[2-9]?)?(N[2-9]?)?(S[2-9]?)?(T[2-9]?)?)+(
+){0}|((A[2-9]?)?(I[2-9]?)?(L[2-9]?)?(T[2-9]?)?)+/((D[2-9]?)?(J[2-9]?)?(M[2-9]?)?(N[2-9]?)?(S[2-9]?)?)+(
+){0}|((A[2-9]?)?(I[2-9]?)?(L[2-9]?)?(S[2-9]?)?)+/((D[2-9]?)?(J[2-9]?)?(M[2-9]?)?(N[2-9]?)?(T[2-9]?)?)+(
+){0}|((A[2-9]?)?(I[2-9]?)?(L[2-9]?)?(S[2-9]?)?(T[2-9]?)?)+/((D[2-9]?)?(J[2-9]?)?(M[2-9]?)?(N[2-9]?)?)+(
+){0}|((A[2-9]?)?(I[2-9]?)?(L[2-9]?)?(N[2-9]?)?)+/((D[2-9]?)?(J[2-9]?)?(M[2-9]?)?(S[2-9]?)?(T[2-9]?)?)+(
+){0}|((A[2-9]?)?(I[2-9]?)?(L[2-9]?)?(N[2-9]?)?(T[2-9]?)?)+/((D[2-9]?)?(J[2-9]?)?(M[2-9]?)?(S[2-9]?)?)+(
+){0}|((A[2-9]?)?(I[2-9]?)?(L[2-9]?)?(N[2-9]?)?(S[2-9]?)?)+/((D[2-9]?)?(J[2-9]?)?(M[2-9]?)?(T[2-9]?)?)+(
+){0}|((A[2-9]?)?(I[2-9]?)?(L[2-9]?)?(N[2-9]?)?(S[2-9]?)?(T[2-9]?)?)+/((D[2-9]?)?(J[2-9]?)?(M[2-9]?)?)+(
+){0}|((A[2-9]?)?(I[2-9]?)?(L[2-9]?)?(M[2-9]?)?)+/((D[2-9]?)?(J[2-9]?)?(N[2-9]?)?(S[2-9]?)?(T[2-9]?)?)+(
+){0}|((A[2-9]?)?(I[2-9]?)?(L[2-9]?)?(M[2-9]?)?(T[2-9]?)?)+/((D[2-9]?)?(J[2-9]?)?(N[2-9]?)?(S[2-9]?)?)+(
+){0}|((A[2-9]?)?(I[2-9]?)?(L[2-9]?)?(M[2-9]?)?(S[2-9]?)?)+/((D[2-9]?)?(J[2-9]?)?(N[2-9]?)?(T[2-9]?)?)+(
+){0}|((A[2-9]?)?(I[2-9]?)?(L[2-9]?)?(M[2-9]?)?(S[2-9]?)?(T[2-9]?)?)+/((D[2-9]?)?(J[2-9]?)?(N[2-9]?)?)+(
+){0}|((A[2-9]?)?(I[2-9]?)?(L[2-9]?)?(M[2-9]?)?(N[2-9]?)?)+/((D[2-9]?)?(J[2-9]?)?(S[2-9]?)?(T[2-9]?)?)+(
+){0}|((A[2-9]?)?(I[2-9]?)?(L[2-9]?)?(M[2-9]?)?(N[2-9]?)?(T[2-9]?)?)+/((D[2-9]?)?(J[2-9]?)?(S[2-9]?)?)+(
+){0}|((A[2-9]?)?(I[2-9]?)?(L[2-9]?)?(M[2-9]?)?(N[2-9]?)?(S[2-9]?)?)+/((D[2-9]?)?(J[2-9]?)?(T[2-9]?)?)+(
+){0}|((A[2-9]?)?(I[2-9]?)?(L[2-9]?)?(M[2-9]?)?(N[2-9]?)?(S[2-9]?)?(T[2-9]?)?)+/((D[2-9]?)?(J[2-9]?)?)+(
+){0}|((A[2-9]?)?(I[2-9]?)?(J[2-9]?)?)+/((D[2-9]?)?(L[2-9]?)?(M[2-9]?)?(N[2-9]?)?(S[2-9]?)?(T[2-9]?)?)+(
+){0}|((A[2-9]?)?(I[2-9]?)?(J[2-9]?)?(T[2-9]?)?)+/((D[2-9]?)?(L[2-9]?)?(M[2-9]?)?(N[2-9]?)?(S[2-9]?)?)+(
+){0}|((A[2-9]?)?(I[2-9]?)?(J[2-9]?)?(S[2-9]?)?)+/((D[2-9]?)?(L[2-9]?)?(M[2-9]?)?(N[2-9]?)?(T[2-9]?)?)+(
+){0}|((A[2-9]?)?(I[2-9]?)?(J[2-9]?)?(S[2-9]?)?(T[2-9]?)?)+/((D[2-9]?)?(L[2-9]?)?(M[2-9]?)?(N[2-9]?)?)+(
+){0}|((A[2-9]?)?(I[2-9]?)?(J[2-9]?)?(N[2-9]?)?)+/((D[2-9]?)?(L[2-9]?)?(M[2-9]?)?(S[2-9]?)?(T[2-9]?)?)+(
+){0}|((A[2-9]?)?(I[2-9]?)?(J[2-9]?)?(N[2-9]?)?(T[2-9]?)?)+/((D[2-9]?)?(L[2-9]?)?(M[2-9]?)?(S[2-9]?)?)+(
+){0}|((A[2-9]?)?(I[2-9]?)?(J[2-9]?)?(N[2-9]?)?(S[2-9]?)?)+/((D[2-9]?)?(L[2-9]?)?(M[2-9]?)?(T[2-9]?)?)+(
+){0}|((A[2-9]?)?(I[2-9]?)?(J[2-9]?)?(N[2-9]?)?(S[2-9]?)?(T[2-9]?)?)+/((D[2-9]?)?(L[2-9]?)?(M[2-9]?)?)+(
+){0}|((A[2-9]?)?(I[2-9]?)?(J[2-9]?)?(M[2-9]?)?)+/((D[2-9]?)?(L[2-9]?)?(N[2-9]?)?(S[2-9]?)?(T[2-9]?)?)+(
+){0}|((A[2-9]?)?(I[2-9]?)?(J[2-9]?)?(M[2-9]?)?(T[2-9]?)?)+/((D[2-9]?)?(L[2-9]?)?(N[2-9]?)?(S[2-9]?)?)+(
+){0}|((A[2-9]?)?(I[2-9]?)?(J[2-9]?)?(M[2-9]?)?(S[2-9]?)?)+/((D[2-9]?)?(L[2-9]?)?(N[2-9]?)?(T[2-9]?)?)+(
+){0}|((A[2-9]?)?(I[2-9]?)?(J[2-9]?)?(M[2-9]?)?(S[2-9]?)?(T[2-9]?)?)+/((D[2-9]?)?(L[2-9]?)?(N[2-9]?)?)+(
+){0}|((A[2-9]?)?(I[2-9]?)?(J[2-9]?)?(M[2-9]?)?(N[2-9]?)?)+/((D[2-9]?)?(L[2-9]?)?(S[2-9]?)?(T[2-9]?)?)+(
+){0}|((A[2-9]?)?(I[2-9]?)?(J[2-9]?)?(M[2-9]?)?(N[2-9]?)?(T[2-9]?)?)+/((D[2-9]?)?(L[2-9]?)?(S[2-9]?)?)+(
+){0}|((A[2-9]?)?(I[2-9]?)?(J[2-9]?)?(M[2-9]?)?(N[2-9]?)?(S[2-9]?)?)+/((D[2-9]?)?(L[2-9]?)?(T[2-9]?)?)+(
+){0}|((A[2-9]?)?(I[2-9]?)?(J[2-9]?)?(M[2-9]?)?(N[2-9]?)?(S[2-9]?)?(T[2-9]?)?)+/((D[2-9]?)?(L[2-9]?)?)+(
+){0}|((A[2-9]?)?(I[2-9]?)?(J[2-9]?)?(L[2-9]?)?)+/((D[2-9]?)?(M[2-9]?)?(N[2-9]?)?(S[2-9]?)?(T[2-9]?)?)+(
+){0}|((A[2-9]?)?(I[2-9]?)?(J[2-9]?)?(L[2-9]?)?(T[2-9]?)?)+/((D[2-9]?)?(M[2-9]?)?(N[2-9]?)?(S[2-9]?)?)+(
+){0}|((A[2-9]?)?(I[2-9]?)?(J[2-9]?)?(L[2-9]?)?(S[2-9]?)?)+/((D[2-9]?)?(M[2-9]?)?(N[2-9]?)?(T[2-9]?)?)+(
+){0}|((A[2-9]?)?(I[2-9]?)?(J[2-9]?)?(L[2-9]?)?(S[2-9]?)?(T[2-9]?)?)+/((D[2-9]?)?(M[2-9]?)?(N[2-9]?)?)+(
+){0}|((A[2-9]?)?(I[2-9]?)?(J[2-9]?)?(L[2-9]?)?(N[2-9]?)?)+/((D[2-9]?)?(M[2-9]?)?(S[2-9]?)?(T[2-9]?)?)+(
+){0}|((A[2-9]?)?(I[2-9]?)?(J[2-9]?)?(L[2-9]?)?(N[2-9]?)?(T[2-9]?)?)+/((D[2-9]?)?(M[2-9]?)?(S[2-9]?)?)+(
+){0}|((A[2-9]?)?(I[2-9]?)?(J[2-9]?)?(L[2-9]?)?(N[2-9]?)?(S[2-9]?)?)+/((D[2-9]?)?(M[2-9]?)?(T[2-9]?)?)+(
+){0}|((A[2-9]?)?(I[2-9]?)?(J[2-9]?)?(L[2-9]?)?(N[2-9]?)?(S[2-9]?)?(T[2-9]?)?)+/((D[2-9]?)?(M[2-9]?)?)+(
+){0}|((A[2-9]?)?(I[2-9]?)?(J[2-9]?)?(L[2-9]?)?(M[2-9]?)?)+/((D[2-9]?)?(N[2-9]?)?(S[2-9]?)?(T[2-9]?)?)+(
+){0}|((A[2-9]?)?(I[2-9]?)?(J[2-9]?)?(L[2-9]?)?(M[2-9]?)?(T[2-9]?)?)+/((D[2-9]?)?(N[2-9]?)?(S[2-9]?)?)+(
+){0}|((A[2-9]?)?(I[2-9]?)?(J[2-9]?)?(L[2-9]?)?(M[2-9]?)?(S[2-9]?)?)+/((D[2-9]?)?(N[2-9]?)?(T[2-9]?)?)+(
+){0}|((A[2-9]?)?(I[2-9]?)?(J[2-9]?)?(L[2-9]?)?(M[2-9]?)?(S[2-9]?)?(T[2-9]?)?)+/((D[2-9]?)?(N[2-9]?)?)+(
+){0}|((A[2-9]?)?(I[2-9]?)?(J[2-9]?)?(L[2-9]?)?(M[2-9]?)?(N[2-9]?)?)+/((D[2-9]?)?(S[2-9]?)?(T[2-9]?)?)+(
+){0}|((A[2-9]?)?(I[2-9]?)?(J[2-9]?)?(L[2-9]?)?(M[2-9]?)?(N[2-9]?)?(T[2-9]?)?)+/((D[2-9]?)?(S[2-9]?)?)+(
+){0}|((A[2-9]?)?(I[2-9]?)?(J[2-9]?)?(L[2-9]?)?(M[2-9]?)?(N[2-9]?)?(S[2-9]?)?)+/((D[2-9]?)?(T[2-9]?)?)+(
+){0}|((A[2-9]?)?(I[2-9]?)?(J[2-9]?)?(L[2-9]?)?(M[2-9]?)?(N[2-9]?)?(S[2-9]?)?(T[2-9]?)?)+/((D[2-9]?)?)+(
+){0}|((A[2-9]?)?(D[2-9]?)?)+/((I[2-9]?)?(J[2-9]?)?(L[2-9]?)?(M[2-9]?)?(N[2-9]?)?(S[2-9]?)?(T[2-9]?)?)+(
+){0}|((A[2-9]?)?(D[2-9]?)?(T[2-9]?)?)+/((I[2-9]?)?(J[2-9]?)?(L[2-9]?)?(M[2-9]?)?(N[2-9]?)?(S[2-9]?)?)+(
+){0}|((A[2-9]?)?(D[2-9]?)?(S[2-9]?)?)+/((I[2-9]?)?(J[2-9]?)?(L[2-9]?)?(M[2-9]?)?(N[2-9]?)?(T[2-9]?)?)+(
+){0}|((A[2-9]?)?(D[2-9]?)?(S[2-9]?)?(T[2-9]?)?)+/((I[2-9]?)?(J[2-9]?)?(L[2-9]?)?(M[2-9]?)?(N[2-9]?)?)+(
+){0}|((A[2-9]?)?(D[2-9]?)?(N[2-9]?)?)+/((I[2-9]?)?(J[2-9]?)?(L[2-9]?)?(M[2-9]?)?(S[2-9]?)?(T[2-9]?)?)+(
+){0}|((A[2-9]?)?(D[2-9]?)?(N[2-9]?)?(T[2-9]?)?)+/((I[2-9]?)?(J[2-9]?)?(L[2-9]?)?(M[2-9]?)?(S[2-9]?)?)+(
+){0}|((A[2-9]?)?(D[2-9]?)?(N[2-9]?)?(S[2-9]?)?)+/((I[2-9]?)?(J[2-9]?)?(L[2-9]?)?(M[2-9]?)?(T[2-9]?)?)+(
+){0}|((A[2-9]?)?(D[2-9]?)?(N[2-9]?)?(S[2-9]?)?(T[2-9]?)?)+/((I[2-9]?)?(J[2-9]?)?(L[2-9]?)?(M[2-9]?)?)+(
+){0}|((A[2-9]?)?(D[2-9]?)?(M[2-9]?)?)+/((I[2-9]?)?(J[2-9]?)?(L[2-9]?)?(N[2-9]?)?(S[2-9]?)?(T[2-9]?)?)+(
+){0}|((A[2-9]?)?(D[2-9]?)?(M[2-9]?)?(T[2-9]?)?)+/((I[2-9]?)?(J[2-9]?)?(L[2-9]?)?(N[2-9]?)?(S[2-9]?)?)+(
+){0}|((A[2-9]?)?(D[2-9]?)?(M[2-9]?)?(S[2-9]?)?)+/((I[2-9]?)?(J[2-9]?)?(L[2-9]?)?(N[2-9]?)?(T[2-9]?)?)+(
+){0}|((A[2-9]?)?(D[2-9]?)?(M[2-9]?)?(S[2-9]?)?(T[2-9]?)?)+/((I[2-9]?)?(J[2-9]?)?(L[2-9]?)?(N[2-9]?)?)+(
+){0}|((A[2-9]?)?(D[2-9]?)?(M[2-9]?)?(N[2-9]?)?)+/((I[2-9]?)?(J[2-9]?)?(L[2-9]?)?(S[2-9]?)?(T[2-9]?)?)+(
+){0}|((A[2-9]?)?(D[2-9]?)?(M[2-9]?)?(N[2-9]?)?(T[2-9]?)?)+/((I[2-9]?)?(J[2-9]?)?(L[2-9]?)?(S[2-9]?)?)+(
+){0}|((A[2-9]?)?(D[2-9]?)?(M[2-9]?)?(N[2-9]?)?(S[2-9]?)?)+/((I[2-9]?)?(J[2-9]?)?(L[2-9]?)?(T[2-9]?)?)+(
+){0}|((A[2-9]?)?(D[2-9]?)?(M[2-9]?)?(N[2-9]?)?(S[2-9]?)?(T[2-9]?)?)+/((I[2-9]?)?(J[2-9]?)?(L[2-9]?)?)+(
+){0}|((A[2-9]?)?(D[2-9]?)?(L[2-9]?)?)+/((I[2-9]?)?(J[2-9]?)?(M[2-9]?)?(N[2-9]?)?(S[2-9]?)?(T[2-9]?)?)+(
+){0}|((A[2-9]?)?(D[2-9]?)?(L[2-9]?)?(T[2-9]?)?)+/((I[2-9]?)?(J[2-9]?)?(M[2-9]?)?(N[2-9]?)?(S[2-9]?)?)+(
+){0}|((A[2-9]?)?(D[2-9]?)?(L[2-9]?)?(S[2-9]?)?)+/((I[2-9]?)?(J[2-9]?)?(M[2-9]?)?(N[2-9]?)?(T[2-9]?)?)+(
+){0}|((A[2-9]?)?(D[2-9]?)?(L[2-9]?)?(S[2-9]?)?(T[2-9]?)?)+/((I[2-9]?)?(J[2-9]?)?(M[2-9]?)?(N[2-9]?)?)+(
+){0}|((A[2-9]?)?(D[2-9]?)?(L[2-9]?)?(N[2-9]?)?)+/((I[2-9]?)?(J[2-9]?)?(M[2-9]?)?(S[2-9]?)?(T[2-9]?)?)+(
+){0}|((A[2-9]?)?(D[2-9]?)?(L[2-9]?)?(N[2-9]?)?(T[2-9]?)?)+/((I[2-9]?)?(J[2-9]?)?(M[2-9]?)?(S[2-9]?)?)+(
+){0}|((A[2-9]?)?(D[2-9]?)?(L[2-9]?)?(N[2-9]?)?(S[2-9]?)?)+/((I[2-9]?)?(J[2-9]?)?(M[2-9]?)?(T[2-9]?)?)+(
+){0}|((A[2-9]?)?(D[2-9]?)?(L[2-9]?)?(N[2-9]?)?(S[2-9]?)?(T[2-9]?)?)+/((I[2-9]?)?(J[2-9]?)?(M[2-9]?)?)+(
+){0}|((A[2-9]?)?(D[2-9]?)?(L[2-9]?)?(M[2-9]?)?)+/((I[2-9]?)?(J[2-9]?)?(N[2-9]?)?(S[2-9]?)?(T[2-9]?)?)+(
+){0}|((A[2-9]?)?(D[2-9]?)?(L[2-9]?)?(M[2-9]?)?(T[2-9]?)?)+/((I[2-9]?)?(J[2-9]?)?(N[2-9]?)?(S[2-9]?)?)+(
+){0}|((A[2-9]?)?(D[2-9]?)?(L[2-9]?)?(M[2-9]?)?(S[2-9]?)?)+/((I[2-9]?)?(J[2-9]?)?(N[2-9]?)?(T[2-9]?)?)+(
+){0}|((A[2-9]?)?(D[2-9]?)?(L[2-9]?)?(M[2-9]?)?(S[2-9]?)?(T[2-9]?)?)+/((I[2-9]?)?(J[2-9]?)?(N[2-9]?)?)+(
+){0}|((A[2-9]?)?(D[2-9]?)?(L[2-9]?)?(M[2-9]?)?(N[2-9]?)?)+/((I[2-9]?)?(J[2-9]?)?(S[2-9]?)?(T[2-9]?)?)+(
+){0}|((A[2-9]?)?(D[2-9]?)?(L[2-9]?)?(M[2-9]?)?(N[2-9]?)?(T[2-9]?)?)+/((I[2-9]?)?(J[2-9]?)?(S[2-9]?)?)+(
+){0}|((A[2-9]?)?(D[2-9]?)?(L[2-9]?)?(M[2-9]?)?(N[2-9]?)?(S[2-9]?)?)+/((I[2-9]?)?(J[2-9]?)?(T[2-9]?)?)+(
+){0}|((A[2-9]?)?(D[2-9]?)?(L[2-9]?)?(M[2-9]?)?(N[2-9]?)?(S[2-9]?)?(T[2-9]?)?)+/((I[2-9]?)?(J[2-9]?)?)+(
+){0}|((A[2-9]?)?(D[2-9]?)?(J[2-9]?)?)+/((I[2-9]?)?(L[2-9]?)?(M[2-9]?)?(N[2-9]?)?(S[2-9]?)?(T[2-9]?)?)+(
+){0}|((A[2-9]?)?(D[2-9]?)?(J[2-9]?)?(T[2-9]?)?)+/((I[2-9]?)?(L[2-9]?)?(M[2-9]?)?(N[2-9]?)?(S[2-9]?)?)+(
+){0}|((A[2-9]?)?(D[2-9]?)?(J[2-9]?)?(S[2-9]?)?)+/((I[2-9]?)?(L[2-9]?)?(M[2-9]?)?(N[2-9]?)?(T[2-9]?)?)+(
+){0}|((A[2-9]?)?(D[2-9]?)?(J[2-9]?)?(S[2-9]?)?(T[2-9]?)?)+/((I[2-9]?)?(L[2-9]?)?(M[2-9]?)?(N[2-9]?)?)+(
+){0}|((A[2-9]?)?(D[2-9]?)?(J[2-9]?)?(N[2-9]?)?)+/((I[2-9]?)?(L[2-9]?)?(M[2-9]?)?(S[2-9]?)?(T[2-9]?)?)+(
+){0}|((A[2-9]?)?(D[2-9]?)?(J[2-9]?)?(N[2-9]?)?(T[2-9]?)?)+/((I[2-9]?)?(L[2-9]?)?(M[2-9]?)?(S[2-9]?)?)+(
+){0}|((A[2-9]?)?(D[2-9]?)?(J[2-9]?)?(N[2-9]?)?(S[2-9]?)?)+/((I[2-9]?)?(L[2-9]?)?(M[2-9]?)?(T[2-9]?)?)+(
+){0}|((A[2-9]?)?(D[2-9]?)?(J[2-9]?)?(N[2-9]?)?(S[2-9]?)?(T[2-9]?)?)+/((I[2-9]?)?(L[2-9]?)?(M[2-9]?)?)+(
+){0}|((A[2-9]?)?(D[2-9]?)?(J[2-9]?)?(M[2-9]?)?)+/((I[2-9]?)?(L[2-9]?)?(N[2-9]?)?(S[2-9]?)?(T[2-9]?)?)+(
+){0}|((A[2-9]?)?(D[2-9]?)?(J[2-9]?)?(M[2-9]?)?(T[2-9]?)?)+/((I[2-9]?)?(L[2-9]?)?(N[2-9]?)?(S[2-9]?)?)+(
+){0}|((A[2-9]?)?(D[2-9]?)?(J[2-9]?)?(M[2-9]?)?(S[2-9]?)?)+/((I[2-9]?)?(L[2-9]?)?(N[2-9]?)?(T[2-9]?)?)+(
+){0}|((A[2-9]?)?(D[2-9]?)?(J[2-9]?)?(M[2-9]?)?(S[2-9]?)?(T[2-9]?)?)+/((I[2-9]?)?(L[2-9]?)?(N[2-9]?)?)+(
+){0}|((A[2-9]?)?(D[2-9]?)?(J[2-9]?)?(M[2-9]?)?(N[2-9]?)?)+/((I[2-9]?)?(L[2-9]?)?(S[2-9]?)?(T[2-9]?)?)+(
+){0}|((A[2-9]?)?(D[2-9]?)?(J[2-9]?)?(M[2-9]?)?(N[2-9]?)?(T[2-9]?)?)+/((I[2-9]?)?(L[2-9]?)?(S[2-9]?)?)+(
+){0}|((A[2-9]?)?(D[2-9]?)?(J[2-9]?)?(M[2-9]?)?(N[2-9]?)?(S[2-9]?)?)+/((I[2-9]?)?(L[2-9]?)?(T[2-9]?)?)+(
+){0}|((A[2-9]?)?(D[2-9]?)?(J[2-9]?)?(M[2-9]?)?(N[2-9]?)?(S[2-9]?)?(T[2-9]?)?)+/((I[2-9]?)?(L[2-9]?)?)+(
+){0}|((A[2-9]?)?(D[2-9]?)?(J[2-9]?)?(L[2-9]?)?)+/((I[2-9]?)?(M[2-9]?)?(N[2-9]?)?(S[2-9]?)?(T[2-9]?)?)+(
+){0}|((A[2-9]?)?(D[2-9]?)?(J[2-9]?)?(L[2-9]?)?(T[2-9]?)?)+/((I[2-9]?)?(M[2-9]?)?(N[2-9]?)?(S[2-9]?)?)+(
+){0}|((A[2-9]?)?(D[2-9]?)?(J[2-9]?)?(L[2-9]?)?(S[2-9]?)?)+/((I[2-9]?)?(M[2-9]?)?(N[2-9]?)?(T[2-9]?)?)+(
+){0}|((A[2-9]?)?(D[2-9]?)?(J[2-9]?)?(L[2-9]?)?(S[2-9]?)?(T[2-9]?)?)+/((I[2-9]?)?(M[2-9]?)?(N[2-9]?)?)+(
+){0}|((A[2-9]?)?(D[2-9]?)?(J[2-9]?)?(L[2-9]?)?(N[2-9]?)?)+/((I[2-9]?)?(M[2-9]?)?(S[2-9]?)?(T[2-9]?)?)+(
+){0}|((A[2-9]?)?(D[2-9]?)?(J[2-9]?)?(L[2-9]?)?(N[2-9]?)?(T[2-9]?)?)+/((I[2-9]?)?(M[2-9]?)?(S[2-9]?)?)+(
+){0}|((A[2-9]?)?(D[2-9]?)?(J[2-9]?)?(L[2-9]?)?(N[2-9]?)?(S[2-9]?)?)+/((I[2-9]?)?(M[2-9]?)?(T[2-9]?)?)+(
+){0}|((A[2-9]?)?(D[2-9]?)?(J[2-9]?)?(L[2-9]?)?(N[2-9]?)?(S[2-9]?)?(T[2-9]?)?)+/((I[2-9]?)?(M[2-9]?)?)+(
+){0}|((A[2-9]?)?(D[2-9]?)?(J[2-9]?)?(L[2-9]?)?(M[2-9]?)?)+/((I[2-9]?)?(N[2-9]?)?(S[2-9]?)?(T[2-9]?)?)+(
+){0}|((A[2-9]?)?(D[2-9]?)?(J[2-9]?)?(L[2-9]?)?(M[2-9]?)?(T[2-9]?)?)+/((I[2-9]?)?(N[2-9]?)?(S[2-9]?)?)+(
+){0}|((A[2-9]?)?(D[2-9]?)?(J[2-9]?)?(L[2-9]?)?(M[2-9]?)?(S[2-9]?)?)+/((I[2-9]?)?(N[2-9]?)?(T[2-9]?)?)+(
+){0}|((A[2-9]?)?(D[2-9]?)?(J[2-9]?)?(L[2-9]?)?(M[2-9]?)?(S[2-9]?)?(T[2-9]?)?)+/((I[2-9]?)?(N[2-9]?)?)+(
+){0}|((A[2-9]?)?(D[2-9]?)?(J[2-9]?)?(L[2-9]?)?(M[2-9]?)?(N[2-9]?)?)+/((I[2-9]?)?(S[2-9]?)?(T[2-9]?)?)+(
+){0}|((A[2-9]?)?(D[2-9]?)?(J[2-9]?)?(L[2-9]?)?(M[2-9]?)?(N[2-9]?)?(T[2-9]?)?)+/((I[2-9]?)?(S[2-9]?)?)+(
+){0}|((A[2-9]?)?(D[2-9]?)?(J[2-9]?)?(L[2-9]?)?(M[2-9]?)?(N[2-9]?)?(S[2-9]?)?)+/((I[2-9]?)?(T[2-9]?)?)+(
+){0}|((A[2-9]?)?(D[2-9]?)?(J[2-9]?)?(L[2-9]?)?(M[2-9]?)?(N[2-9]?)?(S[2-9]?)?(T[2-9]?)?)+/((I[2-9]?)?)+(
+){0}|((A[2-9]?)?(D[2-9]?)?(I[2-9]?)?)+/((J[2-9]?)?(L[2-9]?)?(M[2-9]?)?(N[2-9]?)?(S[2-9]?)?(T[2-9]?)?)+(
+){0}|((A[2-9]?)?(D[2-9]?)?(I[2-9]?)?(T[2-9]?)?)+/((J[2-9]?)?(L[2-9]?)?(M[2-9]?)?(N[2-9]?)?(S[2-9]?)?)+(
+){0}|((A[2-9]?)?(D[2-9]?)?(I[2-9]?)?(S[2-9]?)?)+/((J[2-9]?)?(L[2-9]?)?(M[2-9]?)?(N[2-9]?)?(T[2-9]?)?)+(
+){0}|((A[2-9]?)?(D[2-9]?)?(I[2-9]?)?(S[2-9]?)?(T[2-9]?)?)+/((J[2-9]?)?(L[2-9]?)?(M[2-9]?)?(N[2-9]?)?)+(
+){0}|((A[2-9]?)?(D[2-9]?)?(I[2-9]?)?(N[2-9]?)?)+/((J[2-9]?)?(L[2-9]?)?(M[2-9]?)?(S[2-9]?)?(T[2-9]?)?)+(
+){0}|((A[2-9]?)?(D[2-9]?)?(I[2-9]?)?(N[2-9]?)?(T[2-9]?)?)+/((J[2-9]?)?(L[2-9]?)?(M[2-9]?)?(S[2-9]?)?)+(
+){0}|((A[2-9]?)?(D[2-9]?)?(I[2-9]?)?(N[2-9]?)?(S[2-9]?)?)+/((J[2-9]?)?(L[2-9]?)?(M[2-9]?)?(T[2-9]?)?)+(
+){0}|((A[2-9]?)?(D[2-9]?)?(I[2-9]?)?(N[2-9]?)?(S[2-9]?)?(T[2-9]?)?)+/((J[2-9]?)?(L[2-9]?)?(M[2-9]?)?)+(
+){0}|((A[2-9]?)?(D[2-9]?)?(I[2-9]?)?(M[2-9]?)?)+/((J[2-9]?)?(L[2-9]?)?(N[2-9]?)?(S[2-9]?)?(T[2-9]?)?)+(
+){0}|((A[2-9]?)?(D[2-9]?)?(I[2-9]?)?(M[2-9]?)?(T[2-9]?)?)+/((J[2-9]?)?(L[2-9]?)?(N[2-9]?)?(S[2-9]?)?)+(
+){0}|((A[2-9]?)?(D[2-9]?)?(I[2-9]?)?(M[2-9]?)?(S[2-9]?)?)+/((J[2-9]?)?(L[2-9]?)?(N[2-9]?)?(T[2-9]?)?)+(
+){0}|((A[2-9]?)?(D[2-9]?)?(I[2-9]?)?(M[2-9]?)?(S[2-9]?)?(T[2-9]?)?)+/((J[2-9]?)?(L[2-9]?)?(N[2-9]?)?)+(
+){0}|((A[2-9]?)?(D[2-9]?)?(I[2-9]?)?(M[2-9]?)?(N[2-9]?)?)+/((J[2-9]?)?(L[2-9]?)?(S[2-9]?)?(T[2-9]?)?)+(
+){0}|((A[2-9]?)?(D[2-9]?)?(I[2-9]?)?(M[2-9]?)?(N[2-9]?)?(T[2-9]?)?)+/((J[2-9]?)?(L[2-9]?)?(S[2-9]?)?)+(
+){0}|((A[2-9]?)?(D[2-9]?)?(I[2-9]?)?(M[2-9]?)?(N[2-9]?)?(S[2-9]?)?)+/((J[2-9]?)?(L[2-9]?)?(T[2-9]?)?)+(
+){0}|((A[2-9]?)?(D[2-9]?)?(I[2-9]?)?(M[2-9]?)?(N[2-9]?)?(S[2-9]?)?(T[2-9]?)?)+/((J[2-9]?)?(L[2-9]?)?)+(
+){0}|((A[2-9]?)?(D[2-9]?)?(I[2-9]?)?(L[2-9]?)?)+/((J[2-9]?)?(M[2-9]?)?(N[2-9]?)?(S[2-9]?)?(T[2-9]?)?)+(
+){0}|((A[2-9]?)?(D[2-9]?)?(I[2-9]?)?(L[2-9]?)?(T[2-9]?)?)+/((J[2-9]?)?(M[2-9]?)?(N[2-9]?)?(S[2-9]?)?)+(
+){0}|((A[2-9]?)?(D[2-9]?)?(I[2-9]?)?(L[2-9]?)?(S[2-9]?)?)+/((J[2-9]?)?(M[2-9]?)?(N[2-9]?)?(T[2-9]?)?)+(
+){0}|((A[2-9]?)?(D[2-9]?)?(I[2-9]?)?(L[2-9]?)?(S[2-9]?)?(T[2-9]?)?)+/((J[2-9]?)?(M[2-9]?)?(N[2-9]?)?)+(
+){0}|((A[2-9]?)?(D[2-9]?)?(I[2-9]?)?(L[2-9]?)?(N[2-9]?)?)+/((J[2-9]?)?(M[2-9]?)?(S[2-9]?)?(T[2-9]?)?)+(
+){0}|((A[2-9]?)?(D[2-9]?)?(I[2-9]?)?(L[2-9]?)?(N[2-9]?)?(T[2-9]?)?)+/((J[2-9]?)?(M[2-9]?)?(S[2-9]?)?)+(
+){0}|((A[2-9]?)?(D[2-9]?)?(I[2-9]?)?(L[2-9]?)?(N[2-9]?)?(S[2-9]?)?)+/((J[2-9]?)?(M[2-9]?)?(T[2-9]?)?)+(
+){0}|((A[2-9]?)?(D[2-9]?)?(I[2-9]?)?(L[2-9]?)?(N[2-9]?)?(S[2-9]?)?(T[2-9]?)?)+/((J[2-9]?)?(M[2-9]?)?)+(
+){0}|((A[2-9]?)?(D[2-9]?)?(I[2-9]?)?(L[2-9]?)?(M[2-9]?)?)+/((J[2-9]?)?(N[2-9]?)?(S[2-9]?)?(T[2-9]?)?)+(
+){0}|((A[2-9]?)?(D[2-9]?)?(I[2-9]?)?(L[2-9]?)?(M[2-9]?)?(T[2-9]?)?)+/((J[2-9]?)?(N[2-9]?)?(S[2-9]?)?)+(
+){0}|((A[2-9]?)?(D[2-9]?)?(I[2-9]?)?(L[2-9]?)?(M[2-9]?)?(S[2-9]?)?)+/((J[2-9]?)?(N[2-9]?)?(T[2-9]?)?)+(
+){0}|((A[2-9]?)?(D[2-9]?)?(I[2-9]?)?(L[2-9]?)?(M[2-9]?)?(S[2-9]?)?(T[2-9]?)?)+/((J[2-9]?)?(N[2-9]?)?)+(
+){0}|((A[2-9]?)?(D[2-9]?)?(I[2-9]?)?(L[2-9]?)?(M[2-9]?)?(N[2-9]?)?)+/((J[2-9]?)?(S[2-9]?)?(T[2-9]?)?)+(
+){0}|((A[2-9]?)?(D[2-9]?)?(I[2-9]?)?(L[2-9]?)?(M[2-9]?)?(N[2-9]?)?(T[2-9]?)?)+/((J[2-9]?)?(S[2-9]?)?)+(
+){0}|((A[2-9]?)?(D[2-9]?)?(I[2-9]?)?(L[2-9]?)?(M[2-9]?)?(N[2-9]?)?(S[2-9]?)?)+/((J[2-9]?)?(T[2-9]?)?)+(
+){0}|((A[2-9]?)?(D[2-9]?)?(I[2-9]?)?(L[2-9]?)?(M[2-9]?)?(N[2-9]?)?(S[2-9]?)?(T[2-9]?)?)+/((J[2-9]?)?)+(
+){0}|((A[2-9]?)?(D[2-9]?)?(I[2-9]?)?(J[2-9]?)?)+/((L[2-9]?)?(M[2-9]?)?(N[2-9]?)?(S[2-9]?)?(T[2-9]?)?)+(
+){0}|((A[2-9]?)?(D[2-9]?)?(I[2-9]?)?(J[2-9]?)?(T[2-9]?)?)+/((L[2-9]?)?(M[2-9]?)?(N[2-9]?)?(S[2-9]?)?)+(
+){0}|((A[2-9]?)?(D[2-9]?)?(I[2-9]?)?(J[2-9]?)?(S[2-9]?)?)+/((L[2-9]?)?(M[2-9]?)?(N[2-9]?)?(T[2-9]?)?)+(
+){0}|((A[2-9]?)?(D[2-9]?)?(I[2-9]?)?(J[2-9]?)?(S[2-9]?)?(T[2-9]?)?)+/((L[2-9]?)?(M[2-9]?)?(N[2-9]?)?)+(
+){0}|((A[2-9]?)?(D[2-9]?)?(I[2-9]?)?(J[2-9]?)?(N[2-9]?)?)+/((L[2-9]?)?(M[2-9]?)?(S[2-9]?)?(T[2-9]?)?)+(
+){0}|((A[2-9]?)?(D[2-9]?)?(I[2-9]?)?(J[2-9]?)?(N[2-9]?)?(T[2-9]?)?)+/((L[2-9]?)?(M[2-9]?)?(S[2-9]?)?)+(
+){0}|((A[2-9]?)?(D[2-9]?)?(I[2-9]?)?(J[2-9]?)?(N[2-9]?)?(S[2-9]?)?)+/((L[2-9]?)?(M[2-9]?)?(T[2-9]?)?)+(
+){0}|((A[2-9]?)?(D[2-9]?)?(I[2-9]?)?(J[2-9]?)?(N[2-9]?)?(S[2-9]?)?(T[2-9]?)?)+/((L[2-9]?)?(M[2-9]?)?)+(
+){0}|((A[2-9]?)?(D[2-9]?)?(I[2-9]?)?(J[2-9]?)?(M[2-9]?)?)+/((L[2-9]?)?(N[2-9]?)?(S[2-9]?)?(T[2-9]?)?)+(
+){0}|((A[2-9]?)?(D[2-9]?)?(I[2-9]?)?(J[2-9]?)?(M[2-9]?)?(T[2-9]?)?)+/((L[2-9]?)?(N[2-9]?)?(S[2-9]?)?)+(
+){0}|((A[2-9]?)?(D[2-9]?)?(I[2-9]?)?(J[2-9]?)?(M[2-9]?)?(S[2-9]?)?)+/((L[2-9]?)?(N[2-9]?)?(T[2-9]?)?)+(
+){0}|((A[2-9]?)?(D[2-9]?)?(I[2-9]?)?(J[2-9]?)?(M[2-9]?)?(S[2-9]?)?(T[2-9]?)?)+/((L[2-9]?)?(N[2-9]?)?)+(
+){0}|((A[2-9]?)?(D[2-9]?)?(I[2-9]?)?(J[2-9]?)?(M[2-9]?)?(N[2-9]?)?)+/((L[2-9]?)?(S[2-9]?)?(T[2-9]?)?)+(
+){0}|((A[2-9]?)?(D[2-9]?)?(I[2-9]?)?(J[2-9]?)?(M[2-9]?)?(N[2-9]?)?(T[2-9]?)?)+/((L[2-9]?)?(S[2-9]?)?)+(
+){0}|((A[2-9]?)?(D[2-9]?)?(I[2-9]?)?(J[2-9]?)?(M[2-9]?)?(N[2-9]?)?(S[2-9]?)?)+/((L[2-9]?)?(T[2-9]?)?)+(
+){0}|((A[2-9]?)?(D[2-9]?)?(I[2-9]?)?(J[2-9]?)?(M[2-9]?)?(N[2-9]?)?(S[2-9]?)?(T[2-9]?)?)+/((L[2-9]?)?)+(
+){0}|((A[2-9]?)?(D[2-9]?)?(I[2-9]?)?(J[2-9]?)?(L[2-9]?)?)+/((M[2-9]?)?(N[2-9]?)?(S[2-9]?)?(T[2-9]?)?)+(
+){0}|((A[2-9]?)?(D[2-9]?)?(I[2-9]?)?(J[2-9]?)?(L[2-9]?)?(T[2-9]?)?)+/((M[2-9]?)?(N[2-9]?)?(S[2-9]?)?)+(
+){0}|((A[2-9]?)?(D[2-9]?)?(I[2-9]?)?(J[2-9]?)?(L[2-9]?)?(S[2-9]?)?)+/((M[2-9]?)?(N[2-9]?)?(T[2-9]?)?)+(
+){0}|((A[2-9]?)?(D[2-9]?)?(I[2-9]?)?(J[2-9]?)?(L[2-9]?)?(S[2-9]?)?(T[2-9]?)?)+/((M[2-9]?)?(N[2-9]?)?)+(
+){0}|((A[2-9]?)?(D[2-9]?)?(I[2-9]?)?(J[2-9]?)?(L[2-9]?)?(N[2-9]?)?)+/((M[2-9]?)?(S[2-9]?)?(T[2-9]?)?)+(
+){0}|((A[2-9]?)?(D[2-9]?)?(I[2-9]?)?(J[2-9]?)?(L[2-9]?)?(N[2-9]?)?(T[2-9]?)?)+/((M[2-9]?)?(S[2-9]?)?)+(
+){0}|((A[2-9]?)?(D[2-9]?)?(I[2-9]?)?(J[2-9]?)?(L[2-9]?)?(N[2-9]?)?(S[2-9]?)?)+/((M[2-9]?)?(T[2-9]?)?)+(
+){0}|((A[2-9]?)?(D[2-9]?)?(I[2-9]?)?(J[2-9]?)?(L[2-9]?)?(N[2-9]?)?(S[2-9]?)?(T[2-9]?)?)+/((M[2-9]?)?)+(
+){0}|((A[2-9]?)?(D[2-9]?)?(I[2-9]?)?(J[2-9]?)?(L[2-9]?)?(M[2-9]?)?)+/((N[2-9]?)?(S[2-9]?)?(T[2-9]?)?)+(
+){0}|((A[2-9]?)?(D[2-9]?)?(I[2-9]?)?(J[2-9]?)?(L[2-9]?)?(M[2-9]?)?(T[2-9]?)?)+/((N[2-9]?)?(S[2-9]?)?)+(
+){0}|((A[2-9]?)?(D[2-9]?)?(I[2-9]?)?(J[2-9]?)?(L[2-9]?)?(M[2-9]?)?(S[2-9]?)?)+/((N[2-9]?)?(T[2-9]?)?)+(
+){0}|((A[2-9]?)?(D[2-9]?)?(I[2-9]?)?(J[2-9]?)?(L[2-9]?)?(M[2-9]?)?(S[2-9]?)?(T[2-9]?)?)+/((N[2-9]?)?)+(
+){0}|((A[2-9]?)?(D[2-9]?)?(I[2-9]?)?(J[2-9]?)?(L[2-9]?)?(M[2-9]?)?(N[2-9]?)?)+/((S[2-9]?)?(T[2-9]?)?)+(
+){0}|((A[2-9]?)?(D[2-9]?)?(I[2-9]?)?(J[2-9]?)?(L[2-9]?)?(M[2-9]?)?(N[2-9]?)?(T[2-9]?)?)+/((S[2-9]?)?)+(
+){0}|((A[2-9]?)?(D[2-9]?)?(I[2-9]?)?(J[2-9]?)?(L[2-9]?)?(M[2-9]?)?(N[2-9]?)?(S[2-9]?)?)+/((T[2-9]?)?)+">
+				<xsd:annotation>
+					<xsd:documentation>This pattern DOES handle the constraint that each letter must only exist ONCE in the result.
+					In the pattern:
+					(S[2-9]?)?	represents one optional letter "S" possibly with a single digit exponent.
+					()+		The parentheis with a plus sign surrounding the numerator or denominator indicate that at least one letter must be specified.
+					(
+){0}							A trick to allow the pattern to exist on multiple lines. 
+							The open paren on one line followed by the closed paren on the next line with {0} to indicate that none are allowed.
+							This will occur immediately before each "|".</xsd:documentation>
+				</xsd:annotation>
+			</xsd:pattern>
+		</xsd:restriction>
+	</xsd:simpleType>
+	<!--                                                         -->
+	<xsd:simpleType name="collapsedNonEmptyString">
+		<xsd:annotation>
+			<xsd:documentation>The intended abstract supertype of all strings.
+			This abstract type allows the control over whitespace for all strings to be defined at a high level. 
+			This type should not be used directly except to derive another type.</xsd:documentation>
+		</xsd:annotation>
+		<xsd:restriction base="xsd:string">
+			<xsd:whiteSpace value='collapse'>
+				<xsd:annotation>
+					<xsd:documentation>Replace tab, line feed and carriage return with 
+					a space, collapse contiguous sequences of spaces to a single space 
+					and then remove leading and trailing spaces.</xsd:documentation>
+				</xsd:annotation>
+			</xsd:whiteSpace>
+			<xsd:minLength value='1'>
+				<xsd:annotation>
+					<xsd:documentation>The empty string is not allowed.
+					This constraint conbined with the whiteSpace collapse constraint means
+					that a blank value is not allowed.</xsd:documentation>
+				</xsd:annotation>
+			</xsd:minLength>
+		</xsd:restriction>
+	</xsd:simpleType>
+	<!--                                                         -->
+	<xsd:complexType name="unitCodeStruct" final="#all">
+		<xsd:annotation>
+			<xsd:documentation>A unit and its integer code.</xsd:documentation>
+		</xsd:annotation>
+		<xsd:simpleContent>
+			<xsd:extension base="tns:symbolString">
+				<xsd:attribute name="code" type="xsd:positiveInteger" use="required">
+					<xsd:annotation>
+						<xsd:documentation>The integer code associated with the unit symbol.</xsd:documentation>
+					</xsd:annotation>
+				</xsd:attribute>
+			</xsd:extension>
+		</xsd:simpleContent>
+	</xsd:complexType>
+	<!--                                                         -->
+	<xsd:simpleType name="symbolString">
+		<xsd:annotation>
+			<xsd:documentation>A unit symbol. 
+			The regular expression snippets correspond to the Grammar Tokens using the following syntax:
+			+ = One or more occurrences of preceeding item.
+			* = Zero or more occurrences of preceeding item.
+			? = Zero or one occurrences of preceeding item.
+			| = The "or" operator
+			[] = Range.
+			() = Grouping.
+			\ = Precedes metacharacter to be treated as normal character. Escape sequence for ()[]-.?*+|\.
+
+			UnitSymbol      ::= ((MULTIPLIER) )?(FACTOREXPRESSION)
+					::= ((1E((-)?([2-9]|[1-9][0-9]+))(/([2-9]|[1-9][0-9]+))?|1/([2-9]|[1-9][0-9]+)|(([2-9]|[1-9][0-9]+)|[1-9][0-9]*\.[0-9]*[1-9]|0\.[0-9]*[1-9])(E((-)?([2-9]|[1-9][0-9]+)))?(/([2-9]|[1-9][0-9]+))?) )?(((([A-Za-z]+|%|inH2O|cmH2O)(\[@?[A-Za-z0-9]+(,[A-Za-z0-9]+)*\])?([2-9]|\([1-9][0-9]*\.[0-9]*[1-9]\)|\(0\.[0-9]*[1-9]\))?)|(([A-Za-z]+|%|inH2O|cmH2O)(\[@?[A-Za-z0-9]+(,[A-Za-z0-9]+)*\])?([2-9]|\([1-9][0-9]*\.[0-9]*[1-9]\)|\(0\.[0-9]*[1-9]\))?(\.([A-Za-z]+|%|inH2O|cmH2O)(\[@?[A-Za-z0-9]+(,[A-Za-z0-9]+)*\])?([2-9]|\([1-9][0-9]*\.[0-9]*[1-9]\)|\(0\.[0-9]*[1-9]\))?)+))|(1|((([A-Za-z]+|%|inH2O|cmH2O)(\[@?[A-Za-z0-9]+(,[A-Za-z0-9]+)*\])?([2-9]|\([1-9][0-9]*\.[0-9]*[1-9]\)|\(0\.[0-9]*[1-9]\))?)|(([A-Za-z]+|%|inH2O|cmH2O)(\[@?[A-Za-z0-9]+(,[A-Za-z0-9]+)*\])?([2-9]|\([1-9][0-9]*\.[0-9]*[1-9]\)|\(0\.[0-9]*[1-9]\))?(\.([A-Za-z]+|%|inH2O|cmH2O)(\[@?[A-Za-z0-9]+(,[A-Za-z0-9]+)*\])?([2-9]|\([1-9][0-9]*\.[0-9]*[1-9]\)|\(0\.[0-9]*[1-9]\))?)+))|(\(((([A-Za-z]+|%|inH2O|cmH2O)(\[@?[A-Za-z0-9]+(,[A-Za-z0-9]+)*\])?([2-9]|\([1-9][0-9]*\.[0-9]*[1-9]\)|\(0\.[0-9]*[1-9]\))?)|(([A-Za-z]+|%|inH2O|cmH2O)(\[@?[A-Za-z0-9]+(,[A-Za-z0-9]+)*\])?([2-9]|\([1-9][0-9]*\.[0-9]*[1-9]\)|\(0\.[0-9]*[1-9]\))?(\.([A-Za-z]+|%|inH2O|cmH2O)(\[@?[A-Za-z0-9]+(,[A-Za-z0-9]+)*\])?([2-9]|\([1-9][0-9]*\.[0-9]*[1-9]\)|\(0\.[0-9]*[1-9]\))?)+))/(([A-Za-z]+|%|inH2O|cmH2O)(\[@?[A-Za-z0-9]+(,[A-Za-z0-9]+)*\])?([2-9]|\([1-9][0-9]*\.[0-9]*[1-9]\)|\(0\.[0-9]*[1-9]\))?|\(([A-Za-z]+|%|inH2O|cmH2O)(\[@?[A-Za-z0-9]+(,[A-Za-z0-9]+)*\])?([2-9]|\([1-9][0-9]*\.[0-9]*[1-9]\)|\(0\.[0-9]*[1-9]\))?(\.([A-Za-z]+|%|inH2O|cmH2O)(\[@?[A-Za-z0-9]+(,[A-Za-z0-9]+)*\])?([2-9]|\([1-9][0-9]*\.[0-9]*[1-9]\)|\(0\.[0-9]*[1-9]\))?)+\))\)))/((([A-Za-z]+|%|inH2O|cmH2O)(\[@?[A-Za-z0-9]+(,[A-Za-z0-9]+)*\])?([2-9]|\([1-9][0-9]*\.[0-9]*[1-9]\)|\(0\.[0-9]*[1-9]\))?|\(([A-Za-z]+|%|inH2O|cmH2O)(\[@?[A-Za-z0-9]+(,[A-Za-z0-9]+)*\])?([2-9]|\([1-9][0-9]*\.[0-9]*[1-9]\)|\(0\.[0-9]*[1-9]\))?(\.([A-Za-z]+|%|inH2O|cmH2O)(\[@?[A-Za-z0-9]+(,[A-Za-z0-9]+)*\])?([2-9]|\([1-9][0-9]*\.[0-9]*[1-9]\)|\(0\.[0-9]*[1-9]\))?)+\))|(\(((([A-Za-z]+|%|inH2O|cmH2O)(\[@?[A-Za-z0-9]+(,[A-Za-z0-9]+)*\])?([2-9]|\([1-9][0-9]*\.[0-9]*[1-9]\)|\(0\.[0-9]*[1-9]\))?)|(([A-Za-z]+|%|inH2O|cmH2O)(\[@?[A-Za-z0-9]+(,[A-Za-z0-9]+)*\])?([2-9]|\([1-9][0-9]*\.[0-9]*[1-9]\)|\(0\.[0-9]*[1-9]\))?(\.([A-Za-z]+|%|inH2O|cmH2O)(\[@?[A-Za-z0-9]+(,[A-Za-z0-9]+)*\])?([2-9]|\([1-9][0-9]*\.[0-9]*[1-9]\)|\(0\.[0-9]*[1-9]\))?)+))/(([A-Za-z]+|%|inH2O|cmH2O)(\[@?[A-Za-z0-9]+(,[A-Za-z0-9]+)*\])?([2-9]|\([1-9][0-9]*\.[0-9]*[1-9]\)|\(0\.[0-9]*[1-9]\))?|\(([A-Za-z]+|%|inH2O|cmH2O)(\[@?[A-Za-z0-9]+(,[A-Za-z0-9]+)*\])?([2-9]|\([1-9][0-9]*\.[0-9]*[1-9]\)|\(0\.[0-9]*[1-9]\))?(\.([A-Za-z]+|%|inH2O|cmH2O)(\[@?[A-Za-z0-9]+(,[A-Za-z0-9]+)*\])?([2-9]|\([1-9][0-9]*\.[0-9]*[1-9]\)|\(0\.[0-9]*[1-9]\))?)+\))\))))
+			FactorExpression::= (ONEORMORE)|(1|(ONEORMORE)|(DIVISION))/((DIVISOR)|(DIVISION))
+					::= ((([A-Za-z]+|%|inH2O|cmH2O)(\[@?[A-Za-z0-9]+(,[A-Za-z0-9]+)*\])?([2-9]|\([1-9][0-9]*\.[0-9]*[1-9]\)|\(0\.[0-9]*[1-9]\))?)|(([A-Za-z]+|%|inH2O|cmH2O)(\[@?[A-Za-z0-9]+(,[A-Za-z0-9]+)*\])?([2-9]|\([1-9][0-9]*\.[0-9]*[1-9]\)|\(0\.[0-9]*[1-9]\))?(\.([A-Za-z]+|%|inH2O|cmH2O)(\[@?[A-Za-z0-9]+(,[A-Za-z0-9]+)*\])?([2-9]|\([1-9][0-9]*\.[0-9]*[1-9]\)|\(0\.[0-9]*[1-9]\))?)+))|(1|((([A-Za-z]+|%|inH2O|cmH2O)(\[@?[A-Za-z0-9]+(,[A-Za-z0-9]+)*\])?([2-9]|\([1-9][0-9]*\.[0-9]*[1-9]\)|\(0\.[0-9]*[1-9]\))?)|(([A-Za-z]+|%|inH2O|cmH2O)(\[@?[A-Za-z0-9]+(,[A-Za-z0-9]+)*\])?([2-9]|\([1-9][0-9]*\.[0-9]*[1-9]\)|\(0\.[0-9]*[1-9]\))?(\.([A-Za-z]+|%|inH2O|cmH2O)(\[@?[A-Za-z0-9]+(,[A-Za-z0-9]+)*\])?([2-9]|\([1-9][0-9]*\.[0-9]*[1-9]\)|\(0\.[0-9]*[1-9]\))?)+))|(\(((([A-Za-z]+|%|inH2O|cmH2O)(\[@?[A-Za-z0-9]+(,[A-Za-z0-9]+)*\])?([2-9]|\([1-9][0-9]*\.[0-9]*[1-9]\)|\(0\.[0-9]*[1-9]\))?)|(([A-Za-z]+|%|inH2O|cmH2O)(\[@?[A-Za-z0-9]+(,[A-Za-z0-9]+)*\])?([2-9]|\([1-9][0-9]*\.[0-9]*[1-9]\)|\(0\.[0-9]*[1-9]\))?(\.([A-Za-z]+|%|inH2O|cmH2O)(\[@?[A-Za-z0-9]+(,[A-Za-z0-9]+)*\])?([2-9]|\([1-9][0-9]*\.[0-9]*[1-9]\)|\(0\.[0-9]*[1-9]\))?)+))/(([A-Za-z]+|%|inH2O|cmH2O)(\[@?[A-Za-z0-9]+(,[A-Za-z0-9]+)*\])?([2-9]|\([1-9][0-9]*\.[0-9]*[1-9]\)|\(0\.[0-9]*[1-9]\))?|\(([A-Za-z]+|%|inH2O|cmH2O)(\[@?[A-Za-z0-9]+(,[A-Za-z0-9]+)*\])?([2-9]|\([1-9][0-9]*\.[0-9]*[1-9]\)|\(0\.[0-9]*[1-9]\))?(\.([A-Za-z]+|%|inH2O|cmH2O)(\[@?[A-Za-z0-9]+(,[A-Za-z0-9]+)*\])?([2-9]|\([1-9][0-9]*\.[0-9]*[1-9]\)|\(0\.[0-9]*[1-9]\))?)+\))\)))/((([A-Za-z]+|%|inH2O|cmH2O)(\[@?[A-Za-z0-9]+(,[A-Za-z0-9]+)*\])?([2-9]|\([1-9][0-9]*\.[0-9]*[1-9]\)|\(0\.[0-9]*[1-9]\))?|\(([A-Za-z]+|%|inH2O|cmH2O)(\[@?[A-Za-z0-9]+(,[A-Za-z0-9]+)*\])?([2-9]|\([1-9][0-9]*\.[0-9]*[1-9]\)|\(0\.[0-9]*[1-9]\))?(\.([A-Za-z]+|%|inH2O|cmH2O)(\[@?[A-Za-z0-9]+(,[A-Za-z0-9]+)*\])?([2-9]|\([1-9][0-9]*\.[0-9]*[1-9]\)|\(0\.[0-9]*[1-9]\))?)+\))|(\(((([A-Za-z]+|%|inH2O|cmH2O)(\[@?[A-Za-z0-9]+(,[A-Za-z0-9]+)*\])?([2-9]|\([1-9][0-9]*\.[0-9]*[1-9]\)|\(0\.[0-9]*[1-9]\))?)|(([A-Za-z]+|%|inH2O|cmH2O)(\[@?[A-Za-z0-9]+(,[A-Za-z0-9]+)*\])?([2-9]|\([1-9][0-9]*\.[0-9]*[1-9]\)|\(0\.[0-9]*[1-9]\))?(\.([A-Za-z]+|%|inH2O|cmH2O)(\[@?[A-Za-z0-9]+(,[A-Za-z0-9]+)*\])?([2-9]|\([1-9][0-9]*\.[0-9]*[1-9]\)|\(0\.[0-9]*[1-9]\))?)+))/(([A-Za-z]+|%|inH2O|cmH2O)(\[@?[A-Za-z0-9]+(,[A-Za-z0-9]+)*\])?([2-9]|\([1-9][0-9]*\.[0-9]*[1-9]\)|\(0\.[0-9]*[1-9]\))?|\(([A-Za-z]+|%|inH2O|cmH2O)(\[@?[A-Za-z0-9]+(,[A-Za-z0-9]+)*\])?([2-9]|\([1-9][0-9]*\.[0-9]*[1-9]\)|\(0\.[0-9]*[1-9]\))?(\.([A-Za-z]+|%|inH2O|cmH2O)(\[@?[A-Za-z0-9]+(,[A-Za-z0-9]+)*\])?([2-9]|\([1-9][0-9]*\.[0-9]*[1-9]\)|\(0\.[0-9]*[1-9]\))?)+\))\)))
+			Division        ::= \((ONEORMORE)/(DIVISOR)\)
+					::= \(((([A-Za-z]+|%|inH2O|cmH2O)(\[@?[A-Za-z0-9]+(,[A-Za-z0-9]+)*\])?([2-9]|\([1-9][0-9]*\.[0-9]*[1-9]\)|\(0\.[0-9]*[1-9]\))?)|(([A-Za-z]+|%|inH2O|cmH2O)(\[@?[A-Za-z0-9]+(,[A-Za-z0-9]+)*\])?([2-9]|\([1-9][0-9]*\.[0-9]*[1-9]\)|\(0\.[0-9]*[1-9]\))?(\.([A-Za-z]+|%|inH2O|cmH2O)(\[@?[A-Za-z0-9]+(,[A-Za-z0-9]+)*\])?([2-9]|\([1-9][0-9]*\.[0-9]*[1-9]\)|\(0\.[0-9]*[1-9]\))?)+))/(([A-Za-z]+|%|inH2O|cmH2O)(\[@?[A-Za-z0-9]+(,[A-Za-z0-9]+)*\])?([2-9]|\([1-9][0-9]*\.[0-9]*[1-9]\)|\(0\.[0-9]*[1-9]\))?|\(([A-Za-z]+|%|inH2O|cmH2O)(\[@?[A-Za-z0-9]+(,[A-Za-z0-9]+)*\])?([2-9]|\([1-9][0-9]*\.[0-9]*[1-9]\)|\(0\.[0-9]*[1-9]\))?(\.([A-Za-z]+|%|inH2O|cmH2O)(\[@?[A-Za-z0-9]+(,[A-Za-z0-9]+)*\])?([2-9]|\([1-9][0-9]*\.[0-9]*[1-9]\)|\(0\.[0-9]*[1-9]\))?)+\))\)
+			OneOrMore       ::= (FACTOR)|(FACTORS)
+					::= (([A-Za-z]+|%|inH2O|cmH2O)(\[@?[A-Za-z0-9]+(,[A-Za-z0-9]+)*\])?([2-9]|\([1-9][0-9]*\.[0-9]*[1-9]\)|\(0\.[0-9]*[1-9]\))?)|(([A-Za-z]+|%|inH2O|cmH2O)(\[@?[A-Za-z0-9]+(,[A-Za-z0-9]+)*\])?([2-9]|\([1-9][0-9]*\.[0-9]*[1-9]\)|\(0\.[0-9]*[1-9]\))?(\.([A-Za-z]+|%|inH2O|cmH2O)(\[@?[A-Za-z0-9]+(,[A-Za-z0-9]+)*\])?([2-9]|\([1-9][0-9]*\.[0-9]*[1-9]\)|\(0\.[0-9]*[1-9]\))?)+)
+			Divisor         ::= FACTOR|\(FACTORS\)
+					::= ([A-Za-z]+|%|inH2O|cmH2O)(\[@?[A-Za-z0-9]+(,[A-Za-z0-9]+)*\])?([2-9]|\([1-9][0-9]*\.[0-9]*[1-9]\)|\(0\.[0-9]*[1-9]\))?|\(([A-Za-z]+|%|inH2O|cmH2O)(\[@?[A-Za-z0-9]+(,[A-Za-z0-9]+)*\])?([2-9]|\([1-9][0-9]*\.[0-9]*[1-9]\)|\(0\.[0-9]*[1-9]\))?(\.([A-Za-z]+|%|inH2O|cmH2O)(\[@?[A-Za-z0-9]+(,[A-Za-z0-9]+)*\])?([2-9]|\([1-9][0-9]*\.[0-9]*[1-9]\)|\(0\.[0-9]*[1-9]\))?)+\)
+			Factors         ::= FACTOR(\.FACTOR)+
+					::= ([A-Za-z]+|%|inH2O|cmH2O)(\[@?[A-Za-z0-9]+(,[A-Za-z0-9]+)*\])?([2-9]|\([1-9][0-9]*\.[0-9]*[1-9]\)|\(0\.[0-9]*[1-9]\))?(\.([A-Za-z]+|%|inH2O|cmH2O)(\[@?[A-Za-z0-9]+(,[A-Za-z0-9]+)*\])?([2-9]|\([1-9][0-9]*\.[0-9]*[1-9]\)|\(0\.[0-9]*[1-9]\))?)+
+			Factor          ::= UNITCOMPONENT(EXPONENT)?
+					::= ([A-Za-z]+|%|inH2O|cmH2O)(\[@?[A-Za-z0-9]+(,[A-Za-z0-9]+)*\])?([2-9]|\([1-9][0-9]*\.[0-9]*[1-9]\)|\(0\.[0-9]*[1-9]\))?
+			UnitComponent   ::= (LETTER+|SPECIALATOM)(QUALIFIER)?				(NOTE: The grammar cannot effectively distinguish prefixes from any other character combination.)
+					::= ([A-Za-z]+|%|inH2O|cmH2O)(\[@?[A-Za-z0-9]+(,[A-Za-z0-9]+)*\])?
+			SpecialAtom 	::= %|inH2O|cmH2O
+			Qualifier	::= \[[@]QualPart[,QualPart]*\]
+					::= \[@?[A-Za-z0-9]+(,[A-Za-z0-9]+)*\]
+			QualPart	::= [A-Za-z0-9]+
+			LetterOrDigit   ::= [A-Za-z0-9]
+			Letter          ::= [A-Za-z]
+			Exponent        ::= GTONEDIGIT|\(NONZEROINT\.FRACTIONALPART\)|\(0\.FRACTIONALPART\)
+					::= [2-9]|\([1-9][0-9]*\.[0-9]*[1-9]\)|\(0\.[0-9]*[1-9]\)
+			Multiplier      ::= 1E(POWEROFTEN)(/(GTONEINT))?|1/(GTONEINT)|(NUMBER)(E(POWEROFTEN))?(/(GTONEINT))?
+					::= 1E((-)?([2-9]|[1-9][0-9]+))(/([2-9]|[1-9][0-9]+))?|1/([2-9]|[1-9][0-9]+)|(([2-9]|[1-9][0-9]+)|[1-9][0-9]*\.[0-9]*[1-9]|0\.[0-9]*[1-9])(E((-)?([2-9]|[1-9][0-9]+)))?(/([2-9]|[1-9][0-9]+))?
+			PowerOfTen      ::= (-)?(GTONEINT)
+					::= (-)?([2-9]|[1-9][0-9]+)
+			Number          ::= (GTONEINT)|NONZEROINT\.FRACTIONALPART|0\.FRACTIONALPART
+					::= ([2-9]|[1-9][0-9]+)|[1-9][0-9]*\.[0-9]*[1-9]|0\.[0-9]*[1-9]
+			GtOneInt        ::= GTONEDIGIT|NONZERODIGIT(DIGIT)+				(Parens around digit are not needed in pattern.)
+					::= [2-9]|[1-9][0-9]+
+			FractionalPart  ::= (DIGIT)*NONZERODIGIT
+					::= [0-9]*[1-9]
+			NonZeroInt      ::= NONZERODIGIT(DIGIT)*					(Parens around digit are not needed in pattern.)
+					::= [1-9][0-9]*
+			Digit           ::= [0-9]
+			GtOneDigit	::= [2-9]
+			NonZeroDigit    ::= [1-9]
+			</xsd:documentation>
+		</xsd:annotation>
+		<xsd:restriction base="xsd:string">
+			<!-- Do not use collapse restriction or it will "allow" multiple spaces in a symbol by collapsing them to one space in the background. -->
+			<xsd:maxLength value="40"/>
+			<xsd:minLength value='1'/>
+			<xsd:pattern value="((1E((-)?([2-9]|[1-9][0-9]+))(/([2-9]|[1-9][0-9]+))?|1/([2-9]|[1-9][0-9]+)|(([2-9]|[1-9][0-9]+)|[1-9][0-9]*\.[0-9]*[1-9]|0\.[0-9]*[1-9])(E((-)?([2-9]|[1-9][0-9]+)))?(/([2-9]|[1-9][0-9]+))?) )?(((([A-Za-z]+|%|inH2O|cmH2O)(\[@?[A-Za-z0-9]+(,[A-Za-z0-9]+)*\])?([2-9]|\([1-9][0-9]*\.[0-9]*[1-9]\)|\(0\.[0-9]*[1-9]\))?)|(([A-Za-z]+|%|inH2O|cmH2O)(\[@?[A-Za-z0-9]+(,[A-Za-z0-9]+)*\])?([2-9]|\([1-9][0-9]*\.[0-9]*[1-9]\)|\(0\.[0-9]*[1-9]\))?(\.([A-Za-z]+|%|inH2O|cmH2O)(\[@?[A-Za-z0-9]+(,[A-Za-z0-9]+)*\])?([2-9]|\([1-9][0-9]*\.[0-9]*[1-9]\)|\(0\.[0-9]*[1-9]\))?)+))|(1|((([A-Za-z]+|%|inH2O|cmH2O)(\[@?[A-Za-z0-9]+(,[A-Za-z0-9]+)*\])?([2-9]|\([1-9][0-9]*\.[0-9]*[1-9]\)|\(0\.[0-9]*[1-9]\))?)|(([A-Za-z]+|%|inH2O|cmH2O)(\[@?[A-Za-z0-9]+(,[A-Za-z0-9]+)*\])?([2-9]|\([1-9][0-9]*\.[0-9]*[1-9]\)|\(0\.[0-9]*[1-9]\))?(\.([A-Za-z]+|%|inH2O|cmH2O)(\[@?[A-Za-z0-9]+(,[A-Za-z0-9]+)*\])?([2-9]|\([1-9][0-9]*\.[0-9]*[1-9]\)|\(0\.[0-9]*[1-9]\))?)+))|(\(((([A-Za-z]+|%|inH2O|cmH2O)(\[@?[A-Za-z0-9]+(,[A-Za-z0-9]+)*\])?([2-9]|\([1-9][0-9]*\.[0-9]*[1-9]\)|\(0\.[0-9]*[1-9]\))?)|(([A-Za-z]+|%|inH2O|cmH2O)(\[@?[A-Za-z0-9]+(,[A-Za-z0-9]+)*\])?([2-9]|\([1-9][0-9]*\.[0-9]*[1-9]\)|\(0\.[0-9]*[1-9]\))?(\.([A-Za-z]+|%|inH2O|cmH2O)(\[@?[A-Za-z0-9]+(,[A-Za-z0-9]+)*\])?([2-9]|\([1-9][0-9]*\.[0-9]*[1-9]\)|\(0\.[0-9]*[1-9]\))?)+))/(([A-Za-z]+|%|inH2O|cmH2O)(\[@?[A-Za-z0-9]+(,[A-Za-z0-9]+)*\])?([2-9]|\([1-9][0-9]*\.[0-9]*[1-9]\)|\(0\.[0-9]*[1-9]\))?|\(([A-Za-z]+|%|inH2O|cmH2O)(\[@?[A-Za-z0-9]+(,[A-Za-z0-9]+)*\])?([2-9]|\([1-9][0-9]*\.[0-9]*[1-9]\)|\(0\.[0-9]*[1-9]\))?(\.([A-Za-z]+|%|inH2O|cmH2O)(\[@?[A-Za-z0-9]+(,[A-Za-z0-9]+)*\])?([2-9]|\([1-9][0-9]*\.[0-9]*[1-9]\)|\(0\.[0-9]*[1-9]\))?)+\))\)))/((([A-Za-z]+|%|inH2O|cmH2O)(\[@?[A-Za-z0-9]+(,[A-Za-z0-9]+)*\])?([2-9]|\([1-9][0-9]*\.[0-9]*[1-9]\)|\(0\.[0-9]*[1-9]\))?|\(([A-Za-z]+|%|inH2O|cmH2O)(\[@?[A-Za-z0-9]+(,[A-Za-z0-9]+)*\])?([2-9]|\([1-9][0-9]*\.[0-9]*[1-9]\)|\(0\.[0-9]*[1-9]\))?(\.([A-Za-z]+|%|inH2O|cmH2O)(\[@?[A-Za-z0-9]+(,[A-Za-z0-9]+)*\])?([2-9]|\([1-9][0-9]*\.[0-9]*[1-9]\)|\(0\.[0-9]*[1-9]\))?)+\))|(\(((([A-Za-z]+|%|inH2O|cmH2O)(\[@?[A-Za-z0-9]+(,[A-Za-z0-9]+)*\])?([2-9]|\([1-9][0-9]*\.[0-9]*[1-9]\)|\(0\.[0-9]*[1-9]\))?)|(([A-Za-z]+|%|inH2O|cmH2O)(\[@?[A-Za-z0-9]+(,[A-Za-z0-9]+)*\])?([2-9]|\([1-9][0-9]*\.[0-9]*[1-9]\)|\(0\.[0-9]*[1-9]\))?(\.([A-Za-z]+|%|inH2O|cmH2O)(\[@?[A-Za-z0-9]+(,[A-Za-z0-9]+)*\])?([2-9]|\([1-9][0-9]*\.[0-9]*[1-9]\)|\(0\.[0-9]*[1-9]\))?)+))/(([A-Za-z]+|%|inH2O|cmH2O)(\[@?[A-Za-z0-9]+(,[A-Za-z0-9]+)*\])?([2-9]|\([1-9][0-9]*\.[0-9]*[1-9]\)|\(0\.[0-9]*[1-9]\))?|\(([A-Za-z]+|%|inH2O|cmH2O)(\[@?[A-Za-z0-9]+(,[A-Za-z0-9]+)*\])?([2-9]|\([1-9][0-9]*\.[0-9]*[1-9]\)|\(0\.[0-9]*[1-9]\))?(\.([A-Za-z]+|%|inH2O|cmH2O)(\[@?[A-Za-z0-9]+(,[A-Za-z0-9]+)*\])?([2-9]|\([1-9][0-9]*\.[0-9]*[1-9]\)|\(0\.[0-9]*[1-9]\))?)+\))\))))"/>
+		</xsd:restriction>
+	</xsd:simpleType>
+	<!--                                                         -->
+	<xsd:simpleType name="dimemsionalSymbolString">
+		<xsd:annotation>
+			<xsd:documentation>Identical to the "symbolString" except that it also allows "0".</xsd:documentation>
+		</xsd:annotation>
+		<xsd:union memberTypes="tns:zero tns:symbolString" />
+	</xsd:simpleType>
+	<!--                                                         -->
+	<xsd:simpleType name="zero">
+		<xsd:restriction base="xsd:string">
+			<xsd:enumeration value="0"/>
+		</xsd:restriction>
+	</xsd:simpleType> 
+	<!--                                                         -->
+</xsd:schema>
