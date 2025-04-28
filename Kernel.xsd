@@ -2331,7 +2331,7 @@
             <extension base="diggs:AbstractObjectType">
                 <sequence>
                     <element minOccurs="0" ref="diggs:location"/>
-                    <element minOccurs="0" name="dipAngle" type="eml:PlaneAngleMeasure">
+                    <element minOccurs="0" name="dipAngle" type="diggs:DipMeasureType">
                         <annotation>
                             <documentation><![CDATA[The inclinaton angle in degrees of the boundary surface, as measured downward from the horizontal.]]></documentation>
                         </annotation>
@@ -4153,12 +4153,24 @@ can be used to construct a color name of "dark greenish Grey" which, for example
                             </annotation>
                         </element>
                     </choice>
-                    <element name="beddingOrientation" type="diggs:DiggsStringType" minOccurs="0">
-                        <annotation>
-                            <documentation>A text string describing the bedding orientationfor stratified material (eg.
-                                horizontal, inclined, inclined 30 deg NW, etc.)</documentation>
-                        </annotation>
-                    </element>
+                    <choice minOccurs="0">
+                        <element name="beddingOrientation" type="diggs:DiggsStringType"
+                            minOccurs="1">
+                            <annotation>
+                                <documentation>A text string describing the bedding orientationfor stratified material (eg. horizontal, inclined, inclined). If quantitative strike and or dip data is available, dipAngle and dipDirection properties instead.
+</documentation>
+                            </annotation>
+                        </element>
+                        <choice>
+                            <sequence>
+                                <element name="dipAngle" type="diggs:DipMeasureType"/>
+                                <element minOccurs="0" name="dipDirection"
+                                    type="eml:PlaneAngleMeasure"/>
+                            </sequence>
+                            <element minOccurs="1" name="dipDirection" type="eml:PlaneAngleMeasure"
+                            />
+                        </choice>
+                    </choice>
                     <element name="beddingSpacing" type="gml:CodeType" minOccurs="0">
                         <annotation>
                             <documentation>For stratified material, this property records the average thickness between beds as either a descriptive term (eg. thick, thin, etc., from a controlled list of terms, or as a string representation of a numeric value (eg. 10 cm).</documentation>
@@ -4529,7 +4541,7 @@ Includes:</documentation>
                             <documentation><![CDATA[Discontinuity aperture observation]]></documentation>
                         </annotation>
                     </element>
-                    <element minOccurs="0" name="dipAngle" type="eml:PlaneAngleMeasure">
+                    <element minOccurs="0" name="dipAngle" type="diggs:DipMeasureType">
                         <annotation>
                             <documentation><![CDATA[Dip of discontinuity]]></documentation>
                         </annotation>
@@ -6124,7 +6136,7 @@ DSB: REMOVED FROM PROFILE
     <element name="Orientation" substitutionGroup="diggs:AbstractObject"
         type="diggs:OrientationType">
         <annotation>
-            <documentation>An object containing properties of of zone orientation.</documentation>
+            <documentation>An object containing properties of of bedding, fracture, or zone orientation.</documentation>
         </annotation>
     </element>
     <element name="OrientationObservation" substitutionGroup="diggs:AbstractObservation"
@@ -6218,7 +6230,7 @@ DSB: REMOVED FROM PROFILE
                                 etc.</documentation>
                         </annotation>
                     </element>
-                    <element name="dipOrPlunge" type="eml:PlaneAngleMeasure">
+                    <element name="dipOrPlunge" type="diggs:DipMeasureType">
                         <annotation>
                             <documentation>The inclination of the feature from horizontal (eg. 0 is
                                 vertical, 90 degrees is vertical DOWN)</documentation>
@@ -7791,7 +7803,13 @@ DSB: REMOVED FROM PROFILE
                         <annotation>
                             <documentation>For soil or rock cores, this property is the length of
                                 the total amount of sample recovered during the activity. If no
-                                sample is recovered, this value is 0. </documentation>
+                                sample is recovered, this value is 0. This value can also be derived if totalSampleRecovery is reported.</documentation>
+                        </annotation>
+                    </element>
+                    <element minOccurs="0" name="totalSampleRecovery"
+                        type="eml:DimensionlessMeasure">
+                        <annotation>
+                            <documentation>A derived result for core samples from boreholes, defined by the totalSampleRecoveryLength divided by the length of the samplingActivity intervsl, typically reported as a percent.</documentation>
                         </annotation>
                     </element>
                     <element minOccurs="0" name="mixingTime" type="eml:TimeMeasure">
@@ -10899,12 +10917,24 @@ DSB: REMOVED FROM PROFILE
                             </annotation>
                         </element>
                     </choice>
-                    <element name="beddingOrientation" type="diggs:DiggsStringType" minOccurs="0">
-                        <annotation>
-                            <documentation>A text string describing the bedding orientationfor stratified material (eg.
-                                horizontal, inclined, inclined 30 deg NW, etc.)</documentation>
-                        </annotation>
-                    </element>
+                    <choice minOccurs="0">
+                        <element name="beddingOrientation" type="diggs:DiggsStringType"
+                            minOccurs="1">
+                            <annotation>
+                                <documentation>A text string describing the bedding orientationfor stratified material (eg. horizontal, inclined, inclined). If quantitative strike and or dip data is available, dipAngle and dipDirection properties instead.
+</documentation>
+                            </annotation>
+                        </element>
+                        <choice>
+                            <sequence>
+                                <element name="dipAngle" type="diggs:DipMeasureType"/>
+                                <element minOccurs="0" name="dipDirection"
+                                    type="eml:PlaneAngleMeasure"/>
+                            </sequence>
+                            <element minOccurs="1" name="dipDirection" type="eml:PlaneAngleMeasure"
+                            />
+                        </choice>
+                    </choice>
                     <element name="beddingSpacing" type="gml:CodeType" minOccurs="0">
                         <annotation>
                             <documentation>For stratified material, this property records the average thickness between beds as either a descriptive term (eg. thick, thin, etc., from a controlled list of terms, or as a string representation of a numeric value (eg. 10 cm).</documentation>
@@ -11215,5 +11245,16 @@ Includes:</documentation>
                 </sequence>
             </extension>
         </complexContent>
+    </complexType>
+    <complexType name="DipMeasureType">
+        <simpleContent>
+            <extension base="eml:PlaneAngleMeasure">
+                <attribute name="apparent" type="boolean">
+                    <annotation>
+                        <documentation>Defines whether the dip angle reported is an apparent dip (true) or a true dip (false or omitted).</documentation>
+                    </annotation>
+                </attribute>
+            </extension>
+        </simpleContent>
     </complexType>
 </schema>
