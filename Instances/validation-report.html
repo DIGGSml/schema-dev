@@ -1,0 +1,2832 @@
+<!DOCTYPE HTML>
+<html>
+   <head>
+      <meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
+      <title>DIGGS Validation Report</title>
+      <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/codemirror/5.65.5/codemirror.min.css">
+      <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/codemirror/5.65.5/theme/eclipse.min.css">
+      <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/codemirror/5.65.5/addon/dialog/dialog.min.css">
+      <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/codemirror/5.65.5/addon/fold/foldgutter.min.css">
+      <style>
+/* CSS Variables for consistent colors and spacing */
+:root {
+    /* Severity colors */
+    --color-error-bg: #fdd5d1;
+    --color-error-border: #b02819;
+    --color-warning-bg: #fde5be;
+    --color-warning-border: #9c7008;
+    --color-info-bg: #d1e7f2;
+    --color-info-border: #0b68a7;
+    --color-success-bg: #e9f7ef;
+    --color-success-border: #2ecc71;
+    
+    /* Banner specific variations */
+    --color-error-banner: #f5b7b1;
+    --color-warning-banner: #fae5d3;
+    --color-info-banner: #d4e6f1;
+    --color-success-banner: #d4efdf;
+
+    /* Highlight Colors */
+    --color-highlight-bg: rgba(111, 172, 202, 0.5); /* Blue-gray with 50% transparency for selection */
+    --color-search-match: rgba(255, 140, 0, 0.3); /* Light orange for search matches */
+    
+    /* Common spacing values */
+    --spacing-xs: 0px;
+    --spacing-sm: 2px;
+    --spacing-md: 5px;
+    --spacing-lg: 10px;
+    --spacing-xl: 20px;
+    --spacing-xxl: 30px;
+    
+    /* Table dimensions */
+    --col-1-width: 80px;
+    --col-2-width: 100px;
+    --col-3-width: 150px;
+    --col-4-width: 600px;
+}
+
+/* Base styles */
+body {
+    font-family: Arial, sans-serif;
+    margin: 0;
+    padding: 0;
+    background-color: #f5f5f5;
+    color: #333;
+    line-height: 1.6;
+}
+
+.container {
+    max-width: 1200px;
+    margin: 0 auto;
+    background-color: white;
+    padding: 0 var(--spacing-xxl) var(--spacing-xl);
+    border-radius: 8px;
+    box-shadow: 0 2px 15px rgba(0, 0, 0, 0.3);
+}
+
+/* Header styles */
+h1 {
+    color: #2c3e50;
+    text-align: center;
+    margin-bottom: var(--spacing-xs);
+    padding-bottom: var(--spacing-xs);
+    width: 100%;
+}
+
+.header-container {
+    position: relative;
+    text-align: center;
+    border-bottom: 2px solid #f0f0f0;
+    padding-bottom: var(--spacing-xs);
+    margin-top: var(--spacing-xs);
+    margin-bottom: var(--spacing-md);
+    height: auto;
+}
+
+.header-logo {
+    position: absolute;
+    left: 0;
+    top: 50%;
+    transform: translateY(-50%);
+    width: 150px;
+}
+
+/* Validation result styles - base classes for colors */
+.error {
+    background-color: var(--color-error-bg);
+    border-left: 4px solid var(--color-error-border);
+}
+
+.warning {
+    background-color: var(--color-warning-bg);
+    border-left: 4px solid var(--color-warning-border);
+}
+
+.info {
+    background-color: var(--color-info-bg);
+    border-left: 4px solid var(--color-info-border);
+}
+
+.success {
+    background-color: var(--color-success-bg);
+    border-left: 4px solid var(--color-success-border);
+}
+
+/* Summary banner - override background colors */
+.summary-banner {
+    padding: var(--spacing-xs);
+    margin: var(--spacing-sm);
+    text-align: center;
+    border-radius: 4px;
+    font-weight: bold;
+    font-size: 18px;
+}
+
+.summary-banner.success { background-color: var(--color-success-banner); }
+.summary-banner.info { background-color: var(--color-info-banner); }
+.summary-banner.warning { background-color: var(--color-warning-banner); }
+.summary-banner.error { background-color: var(--color-error-banner); }
+
+/* Table styles */
+.table-container {
+    max-height: 350px;
+    overflow-y: auto;
+    margin-bottom: var(--spacing-md);
+    overflow-x: auto;
+    -webkit-overflow-scrolling: touch;
+}
+
+table {
+    width: 100%;
+    border-collapse: collapse;
+    margin-top: var(--spacing-xs);
+    font-size: 13px;
+    table-layout: fixed;
+    line-height: 1.2;
+}
+
+/* Column widths */
+table th:nth-child(1), table td:nth-child(1) { width: var(--col-1-width); }
+table th:nth-child(2), table td:nth-child(2) { width: var(--col-2-width); }
+table th:nth-child(3), table td:nth-child(3) { width: var(--col-3-width); }
+table th:nth-child(4), table td:nth-child(4) { width: var(--col-4-width); }
+table th:nth-child(5), table td:nth-child(5) { width: auto; }
+
+th, td {
+    padding: 8px;
+    text-align: left;
+    border-bottom: 1px solid black;
+    vertical-align: middle;
+    word-wrap: break-word;
+    overflow-wrap: break-word;
+    line-height: 1.1;
+}
+
+/* Headers */
+th {
+    background-color: #f2f2f2;
+    position: sticky;
+    top: 0;
+    z-index: 10;
+    white-space: nowrap;
+    padding: 5px 8px
+    ;
+}
+
+/* Severity badges */
+.severity-badge {
+    display: inline-block;
+    padding: 2px 6px;
+    border-radius: 4px;
+    font-weight: bold;
+    color: white;
+    margin: 0 3px;
+    line-height: 1;
+}
+
+.severity-badge.error { background-color: var(--color-error-border); }
+.severity-badge.warning { background-color: var(--color-warning-border); }
+.severity-badge.info { background-color: var(--color-info-border); }
+
+/* XML content styles */
+/* Source XML in table - sans-serif and transparent background */
+table td pre.source-xml {
+    font-family: sans-serif;
+    font-size: inherit;
+    white-space: pre-wrap;
+    word-wrap: break-word;
+    overflow-wrap: break-word;
+    word-break: break-word;
+    background-color: transparent;
+    padding: 8px;
+    margin: 0;
+    display: inline;
+    line-height: 1.1;
+    text-indent:0
+}
+
+/* Source XML outside table (editor box) - monospace */
+.source-xml {
+    font-family: monospace;
+    font-size: inherit;
+    white-space: pre-wrap;
+    word-break: break-all;
+    background-color: #f5f5f5;
+    padding: 0;
+    border-radius: 4px;
+    margin: 0;
+    max-width: 100%;
+    overflow-x: auto;
+    overflow-wrap: break-word;
+}
+
+/* Controls and filter sections */
+.controls {
+    display: flex;
+    justify-content: space-between;
+    margin-top: var(--spacing-md);
+    padding: var(--spacing-sm);
+    background-color: #f8f9fa;
+    border-radius: 4px;
+    position: relative;
+}
+
+.filter-controls {
+    display: flex;
+    align-items: center;
+    width: 100%;
+    justify-content: center;
+}
+
+.section-title {
+    font-weight: bold;
+    margin-right: var(--spacing-xl);
+    font-size: 16px;
+    text-align: left;
+    position: absolute;
+    left: var(--spacing-sm);
+}
+
+.export-controls {
+    position: absolute;
+    right: var(--spacing-sm);
+}
+
+/* Common button styles */
+.button-common {
+    padding: 5px 10px;
+    background-color: #3498db;
+    color: white;
+    border: none;
+    border-radius: 4px;
+    cursor: pointer;
+}
+
+.button-common:hover {
+    background-color: #2980b9;
+}
+
+.export-button {
+    padding: 5px 10px;
+    background-color: #3498db;
+    color: white;
+    border: none;
+    border-radius: 4px;
+    cursor: pointer;
+    margin-left: var(--spacing-lg);
+    white-space: nowrap;
+}
+
+.export-button:hover {
+    background-color: #2980b9;
+}
+
+/* Validation summary section */
+.validation-summary {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-top: var(--spacing-xs);
+    padding: var(--spacing-sm);
+    background-color: #f8f9fa;
+    border-radius: 4px;
+}
+
+.file-info {
+    flex: 1;
+    text-align: left;
+}
+
+.summary-badges {
+    flex: 1;
+    text-align: center;
+}
+
+.timestamp-info {
+    flex: 1;
+    text-align: right;
+}
+
+/* XML Editor styles */
+.editor-container {
+    margin-top: var(--spacing-xs);
+    border: 1px solid #ddd;
+    border-radius: 4px;
+    overflow: hidden;
+}
+
+.editor-header {
+    background-color: #f2f2f2;
+    padding: 10px;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    border-bottom: 1px solid #ddd;
+}
+
+.editor-title {
+    font-weight: bold;
+    margin: 0;
+}
+
+.editor-actions {
+    display: flex;
+    gap: 10px;
+}
+
+.editor-button {
+    padding: 5px 10px;
+    background-color: #3498db;
+    color: white;
+    border: none;
+    border-radius: 4px;
+    cursor: pointer;
+}
+
+.editor-button:hover {
+    background-color: #2980b9;
+}
+
+.editor-body {
+    padding: 0;
+    max-height: 0;
+    overflow: hidden;
+    transition: max-height 0.5s ease;
+    position: relative;
+}
+
+.editor-body.open {
+    max-height: 500px;
+    overflow: visible;
+    display: block;
+}
+
+/* CodeMirror customizations */
+.CodeMirror {
+    height: 350px;
+    font-family: monospace;
+    font-size: 14px;
+    line-height: 1.5;
+}
+
+.editor-body:not(.open) .CodeMirror {
+    display: none;
+}
+
+/* Editor status bar */
+.editor-statusbar {
+    display: flex;
+    justify-content: space-between;
+    background-color: #f0f0f0;
+    padding: 5px 10px;
+    border-top: 1px solid #ddd;
+    font-size: 12px;
+    color: #666;
+}
+
+/* CodeMirror highlighting */
+/* Current line highlighting */
+.CodeMirror-activeline-background {
+background-color: rgba(255, 240, 220, 0.3); /* Light orange with transparency */
+}
+
+/* All search matches - make sure to use !important to override any conflicting styles */
+.CodeMirror-matchingbracket,
+.CodeMirror-matchhighlight, 
+.cm-matchhighlight {
+background-color: var(--color-search-match) !important; /* Light orange */
+color: inherit !important;
+}
+
+/* Regular matching brackets */
+.CodeMirror-matchingbracket {
+color: inherit !important;
+}
+
+/* The current search match - these are the critical selectors */
+.CodeMirror-selectedtext,
+.cm-searching,
+.CodeMirror-searching,
+span.cm-searching,
+.CodeMirror-focused .CodeMirror-selectedtext {
+background-color: var(--color-highlight-bg) !important; /* Same as regular selection */
+color: black !important;
+text-decoration: none !important;
+border-radius: 2px;
+}
+
+/* Regular selection */
+.CodeMirror-selected {
+background-color: var(--color-highlight-bg) !important;
+}
+
+/* XPath link styles */
+.xpath-link {
+    color: #3498db;
+    text-decoration: underline;
+    cursor: pointer;
+}
+
+.xpath-link:hover {
+    color: #2980b9;
+}
+
+/* Tooltip styling */
+.tooltip {
+    position: relative;
+    display: inline-block;
+}
+
+.tooltip .tooltiptext {
+    visibility: hidden;
+    width: auto;
+    max-width: 500px;
+    background-color: #555;
+    color: #fff;
+    text-align: left;
+    border-radius: 6px;
+    padding: 5px 10px;
+    position: absolute;
+    z-index: 50;
+    top: -5px;
+    left: 105%;
+    opacity: 0;
+    transition: opacity 0.3s;
+    white-space: normal;
+    word-wrap: break-word;
+    overflow-wrap: break-word;
+    hyphens: auto;
+}
+
+.tooltip:hover .tooltiptext {
+    visibility: visible;
+    opacity: 1;
+}
+
+/* Responsive design */
+@media (max-width: 768px) {
+    .editor-actions {
+        flex-direction: column;
+        gap: 5px;
+    }
+
+    .CodeMirror {
+        font-size: 12px;
+    }
+}
+        </style>
+   </head>
+   <body>
+      <div class="container">
+         <div class="header-container"><img src="https://diggsml.org/def/img/diggs-logo.png" alt="DIGGS Logo" class="header-logo"><h1>DIGGS Validation Report</h1>
+         </div>
+         <div class="validation-summary">
+            <div class="file-info"><strong>Document: </strong><span>RockGroutingExample.xml</span></div>
+            <div class="summary-badges"><span class="severity-badge error">15 Errors</span><span class="severity-badge warning">4
+                  Warnings</span><span class="severity-badge info">2 Info</span></div>
+            <div class="timestamp-info"><strong>Timestamp: </strong>2025-05-28T17:25:23.506688-07:00</div>
+         </div>
+         <div class="summary-banner error">Result: Fail. Correct errors and rescan.</div>
+         <div class="controls">
+            <div class="filter-controls"><span class="section-title">Validation Report</span><label for="severity-filter">Filter by severity:</label><select id="severity-filter">
+                  <option value="all">All</option>
+                  <option value="error">Errors</option>
+                  <option value="warning">Warnings</option>
+                  <option value="info">Info</option></select></div>
+            <div class="export-controls"><button id="export-csv" class="export-button">Save Report as CSV</button></div>
+         </div>
+         <div class="table-container">
+            <table id="validation-table">
+               <thead>
+                  <tr>
+                     <th>Severity</th>
+                     <th>Location</th>
+                     <th>Validation Check</th>
+                     <th>Message</th>
+                     <th>Element Value</th>
+                  </tr>
+               </thead>
+               <tbody>
+                  <tr class="warning">
+                     <td><span class="severity-badge warning">WARNING</span></td>
+                     <td>
+                        <div class="tooltip"><span class="xpath-link" data-xpath="/Diggs[1]/measurement[1]/MaterialTest[1]/outcome[1]/MaterialTestResult[1]/results[1]/ResultSet[1]/parameters[1]/PropertyParameters[1]/properties[1]/Property[1]/propertyClass[1]"> View Element </span><span class="tooltiptext">/Diggs[1]/measurement[1]/MaterialTest[1]/outcome[1]/MaterialTestResult[1]/results[1]/ResultSet[1]/parameters[1]/PropertyParameters[1]/properties[1]/Property[1]/propertyClass[1]</span></div>
+                     </td>
+                     <td>CodeType Validation</td>
+                     <td>
+                        <pre class="source-xml">&lt;propertyClass&gt; references a custom dictionary ("http://dictionary.xml") which may limit interoperability. If possible, use a DIGGS Standard code list dictionary:
+          https://diggsml.org/def/codes/DIGGS/0.1/gp_properties.xml
+          https://diggsml.org/def/codes/DIGGS/0.1/gr_inj_properties.xml
+          https://diggsml.org/def/codes/DIGGS/0.1/mwd_properties.xml
+          https://diggsml.org/def/codes/DIGGS/0.1/pil_properties.xml
+          https://diggsml.org/def/codes/DIGGS/0.1/properties.xml</pre>
+                     </td>
+                     <td>
+                        <pre class="source-xml">marsh_funnel_time</pre>
+                     </td>
+                  </tr>
+                  <tr class="warning">
+                     <td><span class="severity-badge warning">WARNING</span></td>
+                     <td>
+                        <div class="tooltip"><span class="xpath-link" data-xpath="/Diggs[1]/measurement[2]/Test[1]/outcome[1]/TestResult[1]/results[1]/ResultSet[1]/parameters[1]/PropertyParameters[1]/properties[1]/Property[1]/propertyClass[1]"> View Element </span><span class="tooltiptext">/Diggs[1]/measurement[2]/Test[1]/outcome[1]/TestResult[1]/results[1]/ResultSet[1]/parameters[1]/PropertyParameters[1]/properties[1]/Property[1]/propertyClass[1]</span></div>
+                     </td>
+                     <td>CodeType Validation</td>
+                     <td>
+                        <pre class="source-xml">&lt;propertyClass&gt; references a custom dictionary ("coef_permeability") which may limit interoperability. If possible, use a DIGGS Standard code list dictionary:
+          https://diggsml.org/def/codes/DIGGS/0.1/gp_properties.xml
+          https://diggsml.org/def/codes/DIGGS/0.1/gr_inj_properties.xml
+          https://diggsml.org/def/codes/DIGGS/0.1/mwd_properties.xml
+          https://diggsml.org/def/codes/DIGGS/0.1/pil_properties.xml
+          https://diggsml.org/def/codes/DIGGS/0.1/properties.xml</pre>
+                     </td>
+                     <td>
+                        <pre class="source-xml">hydraulic conductivity</pre>
+                     </td>
+                  </tr>
+                  <tr class="warning">
+                     <td><span class="severity-badge warning">WARNING</span></td>
+                     <td>
+                        <div class="tooltip"><span class="xpath-link" data-xpath="/Diggs[1]/measurement[2]/Test[1]/outcome[1]/TestResult[1]/results[1]/ResultSet[1]/parameters[1]/PropertyParameters[1]/properties[1]/Property[2]/propertyClass[1]"> View Element </span><span class="tooltiptext">/Diggs[1]/measurement[2]/Test[1]/outcome[1]/TestResult[1]/results[1]/ResultSet[1]/parameters[1]/PropertyParameters[1]/properties[1]/Property[2]/propertyClass[1]</span></div>
+                     </td>
+                     <td>CodeType Validation</td>
+                     <td>
+                        <pre class="source-xml">&lt;propertyClass&gt; references a custom dictionary ("lugeon_value") which may limit interoperability. If possible, use a DIGGS Standard code list dictionary:
+          https://diggsml.org/def/codes/DIGGS/0.1/gp_properties.xml
+          https://diggsml.org/def/codes/DIGGS/0.1/gr_inj_properties.xml
+          https://diggsml.org/def/codes/DIGGS/0.1/mwd_properties.xml
+          https://diggsml.org/def/codes/DIGGS/0.1/pil_properties.xml
+          https://diggsml.org/def/codes/DIGGS/0.1/properties.xml</pre>
+                     </td>
+                     <td>
+                        <pre class="source-xml">Lugeon value</pre>
+                     </td>
+                  </tr>
+                  <tr class="error">
+                     <td><span class="severity-badge error">ERROR</span></td>
+                     <td>
+                        <div class="tooltip"><span class="xpath-link" data-xpath="/Diggs[1]/project[1]/Project[1]/role[1]/Role[1]/rolePerformed[1]"> View Element </span><span class="tooltiptext">/Diggs[1]/project[1]/Project[1]/role[1]/Role[1]/rolePerformed[1]</span></div>
+                     </td>
+                     <td>CodeType Validation</td>
+                     <td>
+                        <pre class="source-xml">&lt;rolePerformed&gt; should reference a DIGGS Standard code list dictionary using the codeSpace attribute. Use one of these dictionaries to maximize interoperability:
+          https://diggsml.org/def/codes/DIGGS/0.1/roles.xml</pre>
+                     </td>
+                     <td>
+                        <pre class="source-xml">General Contractor</pre>
+                     </td>
+                  </tr>
+                  <tr class="error">
+                     <td><span class="severity-badge error">ERROR</span></td>
+                     <td>
+                        <div class="tooltip"><span class="xpath-link" data-xpath="/Diggs[1]/samplingFeature[1]/Borehole[1]/constructionMethod[1]/BoreholeConstructionMethod[1]/constructionEquipment[1]/Equipment[1]/role[1]/Role[1]/rolePerformed[1]"> View Element </span><span class="tooltiptext">/Diggs[1]/samplingFeature[1]/Borehole[1]/constructionMethod[1]/BoreholeConstructionMethod[1]/constructionEquipment[1]/Equipment[1]/role[1]/Role[1]/rolePerformed[1]</span></div>
+                     </td>
+                     <td>CodeType Validation</td>
+                     <td>
+                        <pre class="source-xml">&lt;rolePerformed&gt; should reference a DIGGS Standard code list dictionary using the codeSpace attribute. Use one of these dictionaries to maximize interoperability:
+          https://diggsml.org/def/codes/DIGGS/0.1/roles.xml</pre>
+                     </td>
+                     <td>
+                        <pre class="source-xml">Drilling Agency</pre>
+                     </td>
+                  </tr>
+                  <tr class="error">
+                     <td><span class="severity-badge error">ERROR</span></td>
+                     <td>
+                        <div class="tooltip"><span class="xpath-link" data-xpath="/Diggs[1]/samplingActivity[1]/SamplingActivity[1]/role[1]/Role[1]/rolePerformed[1]"> View Element </span><span class="tooltiptext">/Diggs[1]/samplingActivity[1]/SamplingActivity[1]/role[1]/Role[1]/rolePerformed[1]</span></div>
+                     </td>
+                     <td>CodeType Validation</td>
+                     <td>
+                        <pre class="source-xml">&lt;rolePerformed&gt; should reference a DIGGS Standard code list dictionary using the codeSpace attribute. Use one of these dictionaries to maximize interoperability:
+          https://diggsml.org/def/codes/DIGGS/0.1/roles.xml</pre>
+                     </td>
+                     <td>
+                        <pre class="source-xml">Supply Plant</pre>
+                     </td>
+                  </tr>
+                  <tr class="error">
+                     <td><span class="severity-badge error">ERROR</span></td>
+                     <td>
+                        <div class="tooltip"><span class="xpath-link" data-xpath="/Diggs[1]/sample[1]/TrialGroutBatch[1]/admixture[1]/Admixture[1]/role[1]/Role[1]/rolePerformed[1]"> View Element </span><span class="tooltiptext">/Diggs[1]/sample[1]/TrialGroutBatch[1]/admixture[1]/Admixture[1]/role[1]/Role[1]/rolePerformed[1]</span></div>
+                     </td>
+                     <td>CodeType Validation</td>
+                     <td>
+                        <pre class="source-xml">&lt;rolePerformed&gt; should reference a DIGGS Standard code list dictionary using the codeSpace attribute. Use one of these dictionaries to maximize interoperability:
+          https://diggsml.org/def/codes/DIGGS/0.1/roles.xml</pre>
+                     </td>
+                     <td>
+                        <pre class="source-xml">Supplier</pre>
+                     </td>
+                  </tr>
+                  <tr class="warning">
+                     <td><span class="severity-badge warning">WARNING</span></td>
+                     <td>
+                        <div class="tooltip"><span class="xpath-link" data-xpath="/Diggs[1]/measurement[1]/MaterialTest[1]/outcome[1]/MaterialTestResult[1]/results[1]/ResultSet[1]/parameters[1]/PropertyParameters[1]/properties[1]/Property[1]/propertyClass[1]"> View Element </span><span class="tooltiptext">/Diggs[1]/measurement[1]/MaterialTest[1]/outcome[1]/MaterialTestResult[1]/results[1]/ResultSet[1]/parameters[1]/PropertyParameters[1]/properties[1]/Property[1]/propertyClass[1]</span></div>
+                     </td>
+                     <td>Dictionary Validation</td>
+                     <td>
+                        <pre class="source-xml">Check 2:
+The code list dictionary "" is not on the white list of approved URL's. Choose a DIGGS standard code list dictionary or add this URL to a whiteList.xml parameter file and validate locally.</pre>
+                     </td>
+                     <td>
+                        <pre class="source-xml">marsh_funnel_time</pre>
+                     </td>
+                  </tr>
+                  <tr class="info">
+                     <td><span class="severity-badge info">INFO</span></td>
+                     <td>
+                        <div class="tooltip"><span class="xpath-link" data-xpath="/Diggs[1]/measurement[2]/Test[1]/outcome[1]/TestResult[1]/results[1]/ResultSet[1]/parameters[1]/PropertyParameters[1]/properties[1]/Property[1]/propertyClass[1]"> View Element </span><span class="tooltiptext">/Diggs[1]/measurement[2]/Test[1]/outcome[1]/TestResult[1]/results[1]/ResultSet[1]/parameters[1]/PropertyParameters[1]/properties[1]/Property[1]/propertyClass[1]</span></div>
+                     </td>
+                     <td>Dictionary Validation</td>
+                     <td>
+                        <pre class="source-xml">Check 1:
+The value of propertyClass cannot be validated against a code list dictionary. If "coef_permeability" references an authority, be sure that the value "hydraulic conductivity" is a valid term controlled by coef_permeability.</pre>
+                     </td>
+                     <td>
+                        <pre class="source-xml">hydraulic conductivity</pre>
+                     </td>
+                  </tr>
+                  <tr class="info">
+                     <td><span class="severity-badge info">INFO</span></td>
+                     <td>
+                        <div class="tooltip"><span class="xpath-link" data-xpath="/Diggs[1]/measurement[2]/Test[1]/outcome[1]/TestResult[1]/results[1]/ResultSet[1]/parameters[1]/PropertyParameters[1]/properties[1]/Property[2]/propertyClass[1]"> View Element </span><span class="tooltiptext">/Diggs[1]/measurement[2]/Test[1]/outcome[1]/TestResult[1]/results[1]/ResultSet[1]/parameters[1]/PropertyParameters[1]/properties[1]/Property[2]/propertyClass[1]</span></div>
+                     </td>
+                     <td>Dictionary Validation</td>
+                     <td>
+                        <pre class="source-xml">Check 1:
+The value of propertyClass cannot be validated against a code list dictionary. If "lugeon_value" references an authority, be sure that the value "Lugeon value" is a valid term controlled by lugeon_value.</pre>
+                     </td>
+                     <td>
+                        <pre class="source-xml">Lugeon value</pre>
+                     </td>
+                  </tr>
+                  <tr class="error">
+                     <td><span class="severity-badge error">ERROR</span></td>
+                     <td>
+                        <div class="tooltip"><span class="xpath-link" data-xpath="/Diggs[1]/measurement[2]/Test[1]/procedure[1]/LugeonTest[1]/lugeonStep[1]/LugeonStep[1]/lugeonStepTimeSeries[1]/TemporalResult[1]/results[1]/ResultSet[1]/parameters[1]/PropertyParameters[1]/properties[1]/Property[2]/propertyClass[1]"> View Element </span><span class="tooltiptext">/Diggs[1]/measurement[2]/Test[1]/procedure[1]/LugeonTest[1]/lugeonStep[1]/LugeonStep[1]/lugeonStepTimeSeries[1]/TemporalResult[1]/results[1]/ResultSet[1]/parameters[1]/PropertyParameters[1]/properties[1]/Property[2]/propertyClass[1]</span></div>
+                     </td>
+                     <td>Dictionary Validation</td>
+                     <td>
+                        <pre class="source-xml">Check 12:
+The unit of measure "L/min" is not valid for quantity class "time". Valid units include: 1/2 ms, 100 ka[t], Ea[t], Ga[t], Ma[t], Ta[t], a, a[t], ca, cs, ... and 14 more.</pre>
+                     </td>
+                     <td>
+                        <pre class="source-xml">Elapsed Time</pre>
+                     </td>
+                  </tr>
+                  <tr class="error">
+                     <td><span class="severity-badge error">ERROR</span></td>
+                     <td>
+                        <div class="tooltip"><span class="xpath-link" data-xpath="/Diggs[1]/measurement[2]/Test[1]/procedure[1]/LugeonTest[1]/lugeonStep[2]/LugeonStep[1]/lugeonStepTimeSeries[1]/TemporalResult[1]/results[1]/ResultSet[1]/parameters[1]/PropertyParameters[1]/properties[1]/Property[1]/propertyClass[1]"> View Element </span><span class="tooltiptext">/Diggs[1]/measurement[2]/Test[1]/procedure[1]/LugeonTest[1]/lugeonStep[2]/LugeonStep[1]/lugeonStepTimeSeries[1]/TemporalResult[1]/results[1]/ResultSet[1]/parameters[1]/PropertyParameters[1]/properties[1]/Property[1]/propertyClass[1]</span></div>
+                     </td>
+                     <td>Dictionary Validation</td>
+                     <td>
+                        <pre class="source-xml">Check 9:
+The data type for "Elapsed Time" should be "double", but instead is defined as "". The value of the sibling &lt;typeData&gt; element should match the data type defined in the dictionary.</pre>
+                     </td>
+                     <td>
+                        <pre class="source-xml">Elapsed Time</pre>
+                     </td>
+                  </tr>
+                  <tr class="error">
+                     <td><span class="severity-badge error">ERROR</span></td>
+                     <td>
+                        <div class="tooltip"><span class="xpath-link" data-xpath="/Diggs[1]/measurement[2]/Test[1]/procedure[1]/LugeonTest[1]/lugeonStep[2]/LugeonStep[1]/lugeonStepTimeSeries[1]/TemporalResult[1]/results[1]/ResultSet[1]/parameters[1]/PropertyParameters[1]/properties[1]/Property[2]/propertyClass[1]"> View Element </span><span class="tooltiptext">/Diggs[1]/measurement[2]/Test[1]/procedure[1]/LugeonTest[1]/lugeonStep[2]/LugeonStep[1]/lugeonStepTimeSeries[1]/TemporalResult[1]/results[1]/ResultSet[1]/parameters[1]/PropertyParameters[1]/properties[1]/Property[2]/propertyClass[1]</span></div>
+                     </td>
+                     <td>Dictionary Validation</td>
+                     <td>
+                        <pre class="source-xml">Check 12:
+The unit of measure "m3" is not valid for quantity class "volume per time". Valid units include: 1/30 cm3/min, 1000 bbl/d, 1000 ft3/d, 1000 m3/d, 1000 m3/h, 1E6 bbl/d, 1E6 ft3/d, 1E6 m3/d, L/h, L/min, ... and 22 more.</pre>
+                     </td>
+                     <td>
+                        <pre class="source-xml">Volume Flow Rate</pre>
+                     </td>
+                  </tr>
+                  <tr class="error">
+                     <td><span class="severity-badge error">ERROR</span></td>
+                     <td>
+                        <div class="tooltip"><span class="xpath-link" data-xpath="/Diggs[1]/measurement[2]/Test[1]/procedure[1]/LugeonTest[1]/lugeonStep[3]/LugeonStep[1]/lugeonStepTimeSeries[1]/TemporalResult[1]/results[1]/ResultSet[1]/parameters[1]/PropertyParameters[1]/properties[1]/Property[1]/propertyClass[1]"> View Element </span><span class="tooltiptext">/Diggs[1]/measurement[2]/Test[1]/procedure[1]/LugeonTest[1]/lugeonStep[3]/LugeonStep[1]/lugeonStepTimeSeries[1]/TemporalResult[1]/results[1]/ResultSet[1]/parameters[1]/PropertyParameters[1]/properties[1]/Property[1]/propertyClass[1]</span></div>
+                     </td>
+                     <td>Dictionary Validation</td>
+                     <td>
+                        <pre class="source-xml">Check 9:
+The data type for "Elapsed Time" should be "double", but instead is defined as "". The value of the sibling &lt;typeData&gt; element should match the data type defined in the dictionary.</pre>
+                     </td>
+                     <td>
+                        <pre class="source-xml">Elapsed Time</pre>
+                     </td>
+                  </tr>
+                  <tr class="error">
+                     <td><span class="severity-badge error">ERROR</span></td>
+                     <td>
+                        <div class="tooltip"><span class="xpath-link" data-xpath="/Diggs[1]/measurement[2]/Test[1]/procedure[1]/LugeonTest[1]/lugeonStep[4]/LugeonStep[1]/lugeonStepTimeSeries[1]/TemporalResult[1]/results[1]/ResultSet[1]/parameters[1]/PropertyParameters[1]/properties[1]/Property[1]/propertyClass[1]"> View Element </span><span class="tooltiptext">/Diggs[1]/measurement[2]/Test[1]/procedure[1]/LugeonTest[1]/lugeonStep[4]/LugeonStep[1]/lugeonStepTimeSeries[1]/TemporalResult[1]/results[1]/ResultSet[1]/parameters[1]/PropertyParameters[1]/properties[1]/Property[1]/propertyClass[1]</span></div>
+                     </td>
+                     <td>Dictionary Validation</td>
+                     <td>
+                        <pre class="source-xml">Check 9:
+The data type for "Elapsed Time" should be "double", but instead is defined as "". The value of the sibling &lt;typeData&gt; element should match the data type defined in the dictionary.</pre>
+                     </td>
+                     <td>
+                        <pre class="source-xml">Elapsed Time</pre>
+                     </td>
+                  </tr>
+                  <tr class="error">
+                     <td><span class="severity-badge error">ERROR</span></td>
+                     <td>
+                        <div class="tooltip"><span class="xpath-link" data-xpath="/Diggs[1]/measurement[2]/Test[1]/procedure[1]/LugeonTest[1]/lugeonStep[5]/LugeonStep[1]/lugeonStepTimeSeries[1]/TemporalResult[1]/results[1]/ResultSet[1]/parameters[1]/PropertyParameters[1]/properties[1]/Property[1]/propertyClass[1]"> View Element </span><span class="tooltiptext">/Diggs[1]/measurement[2]/Test[1]/procedure[1]/LugeonTest[1]/lugeonStep[5]/LugeonStep[1]/lugeonStepTimeSeries[1]/TemporalResult[1]/results[1]/ResultSet[1]/parameters[1]/PropertyParameters[1]/properties[1]/Property[1]/propertyClass[1]</span></div>
+                     </td>
+                     <td>Dictionary Validation</td>
+                     <td>
+                        <pre class="source-xml">Check 9:
+The data type for "Elapsed Time" should be "double", but instead is defined as "". The value of the sibling &lt;typeData&gt; element should match the data type defined in the dictionary.</pre>
+                     </td>
+                     <td>
+                        <pre class="source-xml">Elapsed Time</pre>
+                     </td>
+                  </tr>
+                  <tr class="error">
+                     <td><span class="severity-badge error">ERROR</span></td>
+                     <td>
+                        <div class="tooltip"><span class="xpath-link" data-xpath="/Diggs[1]/measurement[2]/Test[1]/procedure[1]/LugeonTest[1]/lugeonStep[5]/LugeonStep[1]/lugeonStepTimeSeries[1]/TemporalResult[1]/results[1]/ResultSet[1]/parameters[1]/PropertyParameters[1]/properties[1]/Property[2]/propertyClass[1]"> View Element </span><span class="tooltiptext">/Diggs[1]/measurement[2]/Test[1]/procedure[1]/LugeonTest[1]/lugeonStep[5]/LugeonStep[1]/lugeonStepTimeSeries[1]/TemporalResult[1]/results[1]/ResultSet[1]/parameters[1]/PropertyParameters[1]/properties[1]/Property[2]/propertyClass[1]</span></div>
+                     </td>
+                     <td>Dictionary Validation</td>
+                     <td>
+                        <pre class="source-xml">Check 12:
+The unit of measure "m3" is not valid for quantity class "volume per time". Valid units include: 1/30 cm3/min, 1000 bbl/d, 1000 ft3/d, 1000 m3/d, 1000 m3/h, 1E6 bbl/d, 1E6 ft3/d, 1E6 m3/d, L/h, L/min, ... and 22 more.</pre>
+                     </td>
+                     <td>
+                        <pre class="source-xml">Volume Flow Rate</pre>
+                     </td>
+                  </tr>
+                  <tr class="error">
+                     <td><span class="severity-badge error">ERROR</span></td>
+                     <td>
+                        <div class="tooltip"><span class="xpath-link" data-xpath="/Diggs[1]/constructionActivity[1]/LinearGroutingActivity[1]/groutStage[1]/GroutStage[1]/injectionTimeSeries[1]/InjectionTimeSeries[1]/results[1]/ResultSet[1]/parameters[1]/PropertyParameters[1]/properties[1]/Property[1]/propertyClass[1]"> View Element </span><span class="tooltiptext">/Diggs[1]/constructionActivity[1]/LinearGroutingActivity[1]/groutStage[1]/GroutStage[1]/injectionTimeSeries[1]/InjectionTimeSeries[1]/results[1]/ResultSet[1]/parameters[1]/PropertyParameters[1]/properties[1]/Property[1]/propertyClass[1]</span></div>
+                     </td>
+                     <td>Dictionary Validation</td>
+                     <td>
+                        <pre class="source-xml">Check 9:
+The data type for "grout flow" should be "double", but instead is defined as "string". The value of the sibling &lt;typeData&gt; element should match the data type defined in the dictionary.</pre>
+                     </td>
+                     <td>
+                        <pre class="source-xml">grout flow</pre>
+                     </td>
+                  </tr>
+                  <tr class="error">
+                     <td><span class="severity-badge error">ERROR</span></td>
+                     <td>
+                        <div class="tooltip"><span class="xpath-link" data-xpath="/Diggs[1]/constructionActivity[1]/LinearGroutingActivity[1]/groutStage[1]/GroutStage[1]/injectionTimeSeries[1]/InjectionTimeSeries[1]/results[1]/ResultSet[1]/parameters[1]/PropertyParameters[1]/properties[1]/Property[2]/propertyClass[1]"> View Element </span><span class="tooltiptext">/Diggs[1]/constructionActivity[1]/LinearGroutingActivity[1]/groutStage[1]/GroutStage[1]/injectionTimeSeries[1]/InjectionTimeSeries[1]/results[1]/ResultSet[1]/parameters[1]/PropertyParameters[1]/properties[1]/Property[2]/propertyClass[1]</span></div>
+                     </td>
+                     <td>Dictionary Validation</td>
+                     <td>
+                        <pre class="source-xml">Check 8:
+The property "gauge pressure" is invalid for this type of measurement. "gauge pressure" is only allowed in the following types of measurements: 
+     ContinuousGrouting.</pre>
+                     </td>
+                     <td>
+                        <pre class="source-xml">gauge pressure</pre>
+                     </td>
+                  </tr>
+                  <tr class="error">
+                     <td><span class="severity-badge error">ERROR</span></td>
+                     <td>
+                        <div class="tooltip"><span class="xpath-link" data-xpath="/Diggs[1]/constructionActivity[1]/LinearGroutingActivity[1]/groutStage[1]/GroutStage[1]/injectionTimeSeries[1]/InjectionTimeSeries[1]/results[1]/ResultSet[1]/parameters[1]/PropertyParameters[1]/properties[1]/Property[4]/propertyClass[1]"> View Element </span><span class="tooltiptext">/Diggs[1]/constructionActivity[1]/LinearGroutingActivity[1]/groutStage[1]/GroutStage[1]/injectionTimeSeries[1]/InjectionTimeSeries[1]/results[1]/ResultSet[1]/parameters[1]/PropertyParameters[1]/properties[1]/Property[4]/propertyClass[1]</span></div>
+                     </td>
+                     <td>Dictionary Validation</td>
+                     <td>
+                        <pre class="source-xml">Check 11:
+"apparent lugeon value" requires a unit of measure. Add a &lt;uom&gt; element following this &lt;propertyClass&gt;.</pre>
+                     </td>
+                     <td>
+                        <pre class="source-xml">apparent lugeon value</pre>
+                     </td>
+                  </tr>
+                  <tr class="error">
+                     <td><span class="severity-badge error">ERROR</span></td>
+                     <td>
+                        <div class="tooltip"><span class="xpath-link" data-xpath="/Diggs[1]/constructionActivity[1]/LinearGroutingActivity[1]/groutStage[1]/GroutStage[1]/injectionTimeSeries[1]/InjectionTimeSeries[1]/results[1]/ResultSet[1]/parameters[1]/PropertyParameters[1]/properties[1]/Property[5]/propertyClass[1]"> View Element </span><span class="tooltiptext">/Diggs[1]/constructionActivity[1]/LinearGroutingActivity[1]/groutStage[1]/GroutStage[1]/injectionTimeSeries[1]/InjectionTimeSeries[1]/results[1]/ResultSet[1]/parameters[1]/PropertyParameters[1]/properties[1]/Property[5]/propertyClass[1]</span></div>
+                     </td>
+                     <td>Dictionary Validation</td>
+                     <td>
+                        <pre class="source-xml">Check 9:
+The data type for "apparent lugeon value" should be "double", but instead is defined as "string". The value of the sibling &lt;typeData&gt; element should match the data type defined in the dictionary.</pre>
+                     </td>
+                     <td>
+                        <pre class="source-xml">apparent lugeon value</pre>
+                     </td>
+                  </tr>
+               </tbody>
+            </table>
+         </div>
+         <div class="editor-container">
+            <div class="editor-header">
+               <h3 class="editor-title">XML Editor</h3>
+               <div class="editor-actions"><button class="editor-button" id="toggle-editor">Show/Hide Editor</button><button class="editor-button" id="save-xml">Save XML</button><button class="editor-button" id="format-xml">Format XML</button><button class="editor-button" id="find-xml">Find</button></div>
+            </div>
+            <div class="editor-body" id="editor-body"><textarea id="xml-editor" style="display: none;">&lt;Diggs xmlns="http://diggsml.org/schema-dev" xmlns:diggs="http://diggsml.org/schema-dev" xmlns:diggs_geo="http://diggsml.org/schema-dev/geotechnical" xmlns:g3.3="http://www.opengis.net/gml/3.3/ce" xmlns:glr="http://www.opengis.net/gml/3.3/lr" xmlns:glrov="http://www.opengis.net/gml/3.3/lrov" xmlns:gml="http://www.opengis.net/gml/3.2" xmlns:witsml="http://www.witsml.org/schemas/131" xmlns:xlink="http://www.w3.org/1999/xlink" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://diggsml.org/schema-dev http://diggsml.org/schema-dev/Diggs.xsd" gml:id="bcd"&gt;
+
+    &lt;documentInformation&gt;
+        &lt;DocumentInformation gml:id="di"&gt;
+            &lt;creationDate&gt;2020-10-07&lt;/creationDate&gt;
+        &lt;/DocumentInformation&gt;
+    &lt;/documentInformation&gt;
+
+    &lt;project&gt;
+        &lt;Project gml:id="center_hill_dam"&gt;
+            &lt;gml:name&gt;Center Hill Dam Foundation Grouting&lt;/gml:name&gt;
+            &lt;role&gt;
+                &lt;Role&gt;
+                    &lt;rolePerformed&gt;General Contractor&lt;/rolePerformed&gt;
+                    &lt;businessAssociate&gt;
+                        &lt;BusinessAssociate gml:id="akins"&gt;
+                            &lt;gml:name&gt;Kiewit - A.C.T. a J.V.&lt;/gml:name&gt;
+                        &lt;/BusinessAssociate&gt;
+                    &lt;/businessAssociate&gt;
+                &lt;/Role&gt;
+            &lt;/role&gt;
+        &lt;/Project&gt;
+    &lt;/project&gt;
+
+    &lt;program&gt;
+        &lt;GroutingProgram gml:id="gp1"&gt;
+            &lt;gml:name&gt;Center Hill Dam Operations Facility&lt;/gml:name&gt;
+            &lt;projectRef xlink:href="#center_hill_dam"/&gt;
+            &lt;design&gt;
+                &lt;DesignGroutMix gml:id="g1d"&gt;
+                    &lt;gml:name&gt;A&lt;/gml:name&gt;
+                    &lt;trialGroutBatchRef xlink:href="#g1"/&gt;
+                    &lt;specificGravityMixDesign howDetermined="assigned"&gt;2.5&lt;/specificGravityMixDesign&gt;
+                    &lt;strengthDesign uom="psi"&gt;2000&lt;/strengthDesign&gt;
+                &lt;/DesignGroutMix&gt;
+            &lt;/design&gt;
+        &lt;/GroutingProgram&gt;
+    &lt;/program&gt;
+
+    &lt;samplingFeature&gt;
+        &lt;Borehole gml:id="UP1510"&gt;
+            &lt;gml:name&gt;UP1510&lt;/gml:name&gt;
+            &lt;investigationTarget&gt;Natural Ground&lt;/investigationTarget&gt;
+            &lt;projectRef xlink:href="#center_hill_dam"/&gt;
+            &lt;referencePoint&gt;
+                &lt;PointLocation gml:id="UP1510-rp" srsDimension="3" srsName="urn:diggs:def:crs:DIGGS:0.1:2274_8050"&gt;
+                    &lt;gml:pos&gt;2019320.10 641623.00 695.00&lt;/gml:pos&gt;
+                &lt;/PointLocation&gt;
+            &lt;/referencePoint&gt;
+            &lt;centerLine&gt;
+                &lt;LinearExtent gml:id="UP1510-cl" srsDimension="3" srsName="urn:diggs:def:crs:DIGGS:0.1:2274_8050"&gt;
+                    &lt;gml:posList&gt;2019320.10 641623.00 695.00 2019942.45 641739.67
+                        402.28&lt;/gml:posList&gt;
+                &lt;/LinearExtent&gt;
+            &lt;/centerLine&gt;
+            &lt;linearReferencing&gt;
+                &lt;LinearSpatialReferenceSystem gml:id="UP1510-lsr"&gt;
+                    &lt;gml:identifier codeSpace="urn:x-diggs:def:authority:DIGGS"&gt;DIGGS:UP1510-lsr&lt;/gml:identifier&gt;
+                    &lt;glr:linearElement xlink:href="#UP1510-cl"/&gt;
+                    &lt;glr:lrm&gt;
+                        &lt;glr:LinearReferencingMethod gml:id="UP1510-lrm"&gt;
+                            &lt;glr:name&gt;chainage&lt;/glr:name&gt;
+                            &lt;glr:type&gt;absolute&lt;/glr:type&gt;
+                            &lt;glr:units&gt;ft&lt;/glr:units&gt;
+                        &lt;/glr:LinearReferencingMethod&gt;
+                    &lt;/glr:lrm&gt;
+                &lt;/LinearSpatialReferenceSystem&gt;
+            &lt;/linearReferencing&gt;
+            &lt;plunge uom="dega"&gt;-60&lt;/plunge&gt;
+            &lt;bearing uom="dega"&gt;46.34&lt;/bearing&gt;
+            &lt;totalMeasuredDepth uom="ft"&gt;338&lt;/totalMeasuredDepth&gt;
+            &lt;backfill&gt;
+                &lt;Backfill gml:id="UP1510-bf"&gt;
+                    &lt;gml:description&gt;BF Count 1&lt;/gml:description&gt;
+                    &lt;backfillDateTime&gt;
+                        &lt;TimeInterval gml:id="bf-ti"&gt;
+                            &lt;start&gt;2009-10-20T22:15:00&lt;/start&gt;
+                            &lt;end&gt;2009-12-09T17:04:33&lt;/end&gt;
+                        &lt;/TimeInterval&gt;
+                    &lt;/backfillDateTime&gt;
+                    &lt;backfillLayer&gt;
+                        &lt;BackfillLayer gml:id="UP1510-bfl1"&gt;
+                            &lt;remark&gt;
+                                &lt;Remark&gt;
+                                    &lt;content&gt;Backfilled to surface but grout settled in hole to depth of 47 ft by December&lt;/content&gt;
+                                &lt;/Remark&gt;
+                            &lt;/remark&gt;
+                            &lt;backfillInterval&gt;
+                                &lt;LinearExtent srsDimension="1" srsName="#UP1510-lsr" gml:id="UP1510-bfl1-bfi"&gt;
+                                    &lt;gml:posList srsDimension="1" srsName="#UP1510-lsr"&gt;47
+                                        329.5&lt;/gml:posList&gt;
+                                &lt;/LinearExtent&gt;
+                            &lt;/backfillInterval&gt;
+                            &lt;whenEmplaced&gt;
+                                &lt;TimeInterval gml:id="UP1510-bfl1-ti"&gt;
+                                    &lt;start&gt;2009-10-20T22:15:00&lt;/start&gt;
+                                    &lt;end&gt;2009-10-20T23:19:41&lt;/end&gt;
+                                &lt;/TimeInterval&gt;
+                            &lt;/whenEmplaced&gt;
+                            &lt;backfillMaterial&gt;grout mix F-28&lt;/backfillMaterial&gt;
+                            &lt;backfillVolume uom="gal[US]"&gt;104.39&lt;/backfillVolume&gt;
+                            &lt;groutingActivityRef xlink:href="#UP1410-BF"/&gt;
+                            &lt;groutRef xlink:href="#F-28"/&gt;
+                        &lt;/BackfillLayer&gt;
+                    &lt;/backfillLayer&gt;
+                    &lt;backfillLayer&gt;
+                        &lt;BackfillLayer gml:id="UP1510-bfl2"&gt;
+                            &lt;backfillInterval&gt;
+                                &lt;LinearExtent srsDimension="1" srsName="#UP1510-lsr" gml:id="UP1510-bfl2-bfi"&gt;
+                                    &lt;gml:posList&gt;0 47&lt;/gml:posList&gt;
+                                &lt;/LinearExtent&gt;
+                            &lt;/backfillInterval&gt;
+                            &lt;whenEmplaced&gt;
+                                &lt;TimeInterval gml:id="UP1510-bfl2-ti"&gt;
+                                    &lt;start&gt;2009-10-20T22:15:00&lt;/start&gt;
+                                    &lt;end&gt;2009-10-20T23:19:41&lt;/end&gt;
+                                &lt;/TimeInterval&gt;
+                            &lt;/whenEmplaced&gt;
+                            &lt;backfillMaterial&gt;grout mix F-28&lt;/backfillMaterial&gt;
+                            &lt;backfillVolume uom="gal[US]"&gt;33.58&lt;/backfillVolume&gt;
+                            &lt;groutingActivityRef xlink:href="#UP1410-BF"/&gt;
+                            &lt;groutRef xlink:href="#F-28"/&gt;
+                        &lt;/BackfillLayer&gt;
+                    &lt;/backfillLayer&gt;
+                &lt;/Backfill&gt;
+            &lt;/backfill&gt;
+            &lt;casing&gt;
+                &lt;Casing gml:id="UP1410-cas1"&gt;
+                    &lt;casingLocation&gt;
+                        &lt;LinearExtent srsDimension="1" srsName="#UP1510-lsr" gml:id="cas1-le"&gt;
+                            &lt;gml:posList&gt;-5 55&lt;/gml:posList&gt;
+                        &lt;/LinearExtent&gt;
+                    &lt;/casingLocation&gt;
+                    &lt;casingInsideDiameter uom="in"&gt;9&lt;/casingInsideDiameter&gt;
+                    &lt;casingMaterial&gt;steel&lt;/casingMaterial&gt;
+                    &lt;timeCasingInstalled gml:id="cas1-ti"&gt;
+                        &lt;start&gt;2009-04-19T23:40:00&lt;/start&gt;
+                    &lt;/timeCasingInstalled&gt;
+                &lt;/Casing&gt;
+            &lt;/casing&gt;
+            &lt;constructionMethod&gt;
+                &lt;BoreholeConstructionMethod gml:id="UP1410-cm1"&gt;
+                    &lt;gml:name codeSpace="https://diggsml.org/def/codes/DIGGS/0.1/boreholeMethod.xml#SNC"&gt;Sonic Core Drilling&lt;/gml:name&gt;
+                    &lt;location&gt;
+                        &lt;LinearExtent srsDimension="1" srsName="#UP1510-lsr" gml:id="cm1-le"&gt;
+                            &lt;gml:posList&gt;0 55&lt;/gml:posList&gt;
+                        &lt;/LinearExtent&gt;
+                    &lt;/location&gt;
+                    &lt;methodTime&gt;
+                        &lt;TimeInterval gml:id="cm1-ti"&gt;
+                            &lt;start&gt;2009-04-10T19:05:00&lt;/start&gt;
+                            &lt;end&gt;2009-04-10T23:40:00&lt;/end&gt;
+                        &lt;/TimeInterval&gt;
+                    &lt;/methodTime&gt;
+                    &lt;constructionEquipment&gt;
+                        &lt;Equipment gml:id="cm-eq1"&gt;
+                            &lt;role&gt;
+                                &lt;Role&gt;
+                                    &lt;rolePerformed&gt;Drilling Agency&lt;/rolePerformed&gt;
+                                    &lt;businessAssociate&gt;
+                                        &lt;BusinessAssociate gml:id="boart-lonyear"&gt;
+                                            &lt;gml:name&gt;Baart-Longyear&lt;/gml:name&gt;
+                                        &lt;/BusinessAssociate&gt;
+                                    &lt;/businessAssociate&gt;
+                                &lt;/Role&gt;
+                            &lt;/role&gt;
+                            &lt;class&gt;Drill Rig&lt;/class&gt;
+                            &lt;modelNumber&gt;BL300 Sonic Drill&lt;/modelNumber&gt;
+                            &lt;otherEquipmentProperty&gt;
+                                &lt;Parameter gml:id="cm1-oep1"&gt;
+                                    &lt;parameterName&gt;Drill Tooling&lt;/parameterName&gt;
+                                    &lt;parameterValue&gt;
+                                        Inner Casing: 5 1/2" O.D. Carbide Shoe; OuterCasing 7 5/8" O.D. Carbide shoe
+                                    &lt;/parameterValue&gt;
+                                &lt;/Parameter&gt;
+                            &lt;/otherEquipmentProperty&gt;
+                        &lt;/Equipment&gt;
+                    &lt;/constructionEquipment&gt;
+                &lt;/BoreholeConstructionMethod&gt;
+            &lt;/constructionMethod&gt;
+        &lt;/Borehole&gt;
+    &lt;/samplingFeature&gt;
+
+    &lt;samplingActivity&gt;
+        &lt;SamplingActivity gml:id="gm1"&gt;
+            &lt;role&gt;
+                &lt;Role&gt;
+                    &lt;rolePerformed&gt;Supply Plant&lt;/rolePerformed&gt;
+                    &lt;businessAssociate&gt;
+                        &lt;BusinessAssociate gml:id="abc"&gt;
+                            &lt;gml:name&gt;ABC Cement&lt;/gml:name&gt;
+                        &lt;/BusinessAssociate&gt;
+                    &lt;/businessAssociate&gt;
+                &lt;/Role&gt;
+            &lt;/role&gt;
+            &lt;investigationTarget&gt;Ground Improvement&lt;/investigationTarget&gt;
+            &lt;projectRef xlink:href="#center_hill_dam"/&gt;
+            &lt;activityType&gt;test&lt;/activityType&gt;
+            &lt;purpose&gt;Produce reference grout batch for testing&lt;/purpose&gt;
+            &lt;sampleProduced&gt;
+                &lt;SampleProduced gml:id="gm1-1"&gt;
+                    &lt;remark&gt;
+                        &lt;Remark&gt;
+                            &lt;content&gt;Sample time duration includes transit time from plant to job site&lt;/content&gt;
+                        &lt;/Remark&gt;
+                    &lt;/remark&gt;
+                    &lt;sampleTime&gt;
+                        &lt;TimeInterval gml:id="ti2"&gt;
+                            &lt;start&gt;2021-06-11T09:00:00&lt;/start&gt;
+                            &lt;duration uom="min"&gt;45&lt;/duration&gt;
+                        &lt;/TimeInterval&gt;
+                    &lt;/sampleTime&gt;
+                &lt;/SampleProduced&gt;
+            &lt;/sampleProduced&gt;
+            &lt;samplingDate&gt;
+                &lt;TimeInterval gml:id="sd1"&gt;
+                    &lt;start&gt;2021-06-11T08:00:00&lt;/start&gt;
+                &lt;/TimeInterval&gt;
+            &lt;/samplingDate&gt;
+        &lt;/SamplingActivity&gt;
+    &lt;/samplingActivity&gt;
+
+    &lt;sample&gt;
+        &lt;TrialGroutBatch gml:id="g1"&gt;
+            &lt;gml:name&gt;A&lt;/gml:name&gt;
+            &lt;projectRef xlink:href="#center_hill_dam"/&gt;
+            &lt;samplingActivityRef xlink:href="#gm1"/&gt;
+            &lt;sampleProducedRef xlink:href="#gm1-1"/&gt;
+            &lt;admixture&gt;
+                &lt;Admixture gml:id="g1-a1"&gt;
+                    &lt;gml:name&gt;Sikament 686&lt;/gml:name&gt;
+                    &lt;role&gt;
+                        &lt;Role&gt;
+                            &lt;rolePerformed&gt;Supplier&lt;/rolePerformed&gt;
+                            &lt;businessAssociate&gt;
+                                &lt;BusinessAssociate gml:id="ba1"&gt;
+                                    &lt;gml:name&gt;Home Depot&lt;/gml:name&gt;
+                                &lt;/BusinessAssociate&gt;
+                            &lt;/businessAssociate&gt;
+                        &lt;/Role&gt;
+                    &lt;/role&gt;
+                    &lt;type&gt;Superplasticizer&lt;/type&gt;
+                    &lt;volume uom="gal[US]"&gt;5.4&lt;/volume&gt;
+                &lt;/Admixture&gt;
+            &lt;/admixture&gt;
+            &lt;binder&gt;
+                &lt;Binder gml:id="g1-b1"&gt;
+                    &lt;gml:name&gt;CCS Binder, Patch, Nosing, Slurry, Part A&lt;/gml:name&gt;
+                    &lt;type&gt;Epoxy resin&lt;/type&gt;
+                    &lt;volume uom="gal[US]"&gt;2&lt;/volume&gt;
+                &lt;/Binder&gt;
+            &lt;/binder&gt;
+            &lt;cement&gt;
+                &lt;Cement gml:id="g1-ce1"&gt;
+                    &lt;gml:name&gt;Portland cement&lt;/gml:name&gt;
+                    &lt;type&gt;sulfate resistant (Type V)&lt;/type&gt;
+                    &lt;weight uom="lbf"&gt;50&lt;/weight&gt;
+                &lt;/Cement&gt;
+            &lt;/cement&gt;
+            &lt;chemical&gt;
+                &lt;Chemical gml:id="g1-ch1"&gt;
+                    &lt;gml:name&gt;Poly&lt;/gml:name&gt;
+                    &lt;type&gt;Polyurethane&lt;/type&gt;
+                    &lt;volume uom="gal[US]"&gt;0.2&lt;/volume&gt;
+                &lt;/Chemical&gt;
+            &lt;/chemical&gt;
+            &lt;filler&gt;
+                &lt;Filler gml:id="g1-f1"&gt;
+                    &lt;gml:name&gt;Sand&lt;/gml:name&gt;
+                    &lt;type&gt;Masonry sand&lt;/type&gt;
+                    &lt;weight uom="lbf"&gt;10&lt;/weight&gt;
+                &lt;/Filler&gt;
+            &lt;/filler&gt;
+        &lt;/TrialGroutBatch&gt;
+    &lt;/sample&gt;
+
+    &lt;measurement&gt;
+        &lt;MaterialTest gml:id="mt1"&gt;
+            &lt;investigationTarget&gt;Ground Improvement&lt;/investigationTarget&gt;
+            &lt;projectRef xlink:href="#center_hill_dam:"/&gt;
+            &lt;sampleRef xlink:href="#g1"/&gt;
+            &lt;resultTime&gt;
+                &lt;gml:TimeInstant gml:id="mti2"&gt;
+                    &lt;gml:timePosition&gt;2021-09-01T12:49:00&lt;/gml:timePosition&gt;
+                &lt;/gml:TimeInstant&gt;
+            &lt;/resultTime&gt;
+            &lt;outcome&gt;
+                &lt;MaterialTestResult gml:id="mtr1"&gt;
+                    &lt;results&gt;
+                        &lt;ResultSet&gt;
+                            &lt;parameters&gt;
+                                &lt;PropertyParameters gml:id="pp1"&gt;
+                                    &lt;properties&gt;
+                                        &lt;Property index="1" gml:id="pp2"&gt;
+                                            &lt;typeData&gt;dateTime&lt;/typeData&gt;
+                                            &lt;propertyClass codeSpace="http://dictionary.xml"&gt;marsh_funnel_time&lt;/propertyClass&gt;
+                                            &lt;uom&gt;s&lt;/uom&gt;
+                                        &lt;/Property&gt;
+                                    &lt;/properties&gt;
+                                &lt;/PropertyParameters&gt;
+                            &lt;/parameters&gt;
+                            &lt;dataValues&gt;36&lt;/dataValues&gt;
+                        &lt;/ResultSet&gt;
+                    &lt;/results&gt;
+                &lt;/MaterialTestResult&gt;
+            &lt;/outcome&gt;
+            &lt;procedure&gt;
+                &lt;MarshFunnelTest gml:id="mft1"&gt;
+                    &lt;specimen&gt;
+                        &lt;GroutSpecimen gml:id="gs1"&gt;
+                            &lt;sampleRef xlink:href="#g1"/&gt;
+                        &lt;/GroutSpecimen&gt;
+                    &lt;/specimen&gt;
+                    &lt;marshFunnelVolume uom="L"&gt;1&lt;/marshFunnelVolume&gt;
+                &lt;/MarshFunnelTest&gt;
+            &lt;/procedure&gt;
+        &lt;/MaterialTest&gt;
+    &lt;/measurement&gt;
+
+    &lt;measurement&gt;
+        &lt;Test gml:id="lt2"&gt;
+            &lt;gml:name&gt;Lugeon Test&lt;/gml:name&gt;
+            &lt;investigationTarget&gt;Ground Improvement&lt;/investigationTarget&gt;
+            &lt;projectRef xlink:href="#p1"/&gt;
+            &lt;samplingFeatureRef xlink:href="#UP1510"/&gt;
+            &lt;outcome&gt;
+                &lt;TestResult gml:id="lttr1"&gt;
+                    &lt;location&gt;
+                        &lt;LinearExtent srsDimension="1" srsName="#UP1510-lsr" gml:id="lttrle-1"&gt;
+                            &lt;gml:posList&gt;8 12&lt;/gml:posList&gt;
+                        &lt;/LinearExtent&gt;
+                    &lt;/location&gt;
+                    &lt;results&gt;
+                        &lt;ResultSet&gt;
+                            &lt;parameters&gt;
+                                &lt;PropertyParameters gml:id="lggr"&gt;
+                                    &lt;properties&gt;
+                                        &lt;Property index="1" gml:id="cp"&gt;
+                                            &lt;typeData&gt;double&lt;/typeData&gt;
+                                            &lt;propertyClass codeSpace="coef_permeability"&gt;hydraulic conductivity&lt;/propertyClass&gt;
+                                            &lt;uom&gt;m/d&lt;/uom&gt;
+                                        &lt;/Property&gt;
+                                        &lt;Property index="2" gml:id="lv"&gt;
+                                            &lt;typeData&gt;double&lt;/typeData&gt;
+                                            &lt;propertyClass codeSpace="lugeon_value"&gt;Lugeon value&lt;/propertyClass&gt;
+                                        &lt;/Property&gt;
+                                    &lt;/properties&gt;
+                                &lt;/PropertyParameters&gt;
+                            &lt;/parameters&gt;
+                            &lt;dataValues&gt;
+                               0.049,4.7
+                            &lt;/dataValues&gt;
+                        &lt;/ResultSet&gt;
+                    &lt;/results&gt;
+                &lt;/TestResult&gt;
+            &lt;/outcome&gt;
+            &lt;procedure&gt;
+                &lt;LugeonTest gml:id="lt1"&gt;
+                    &lt;depthToGroundWater uom="m"&gt;4.5&lt;/depthToGroundWater&gt;
+                    &lt;pressureMeasurementConfiguration&gt;pressure gauge&lt;/pressureMeasurementConfiguration&gt;
+                    &lt;pressureGaugeHeight uom="m"&gt;1.2&lt;/pressureGaugeHeight&gt;
+                    &lt;pMax uom="psi"&gt;78&lt;/pMax&gt;
+                    &lt;lugeonStep&gt;
+                        &lt;LugeonStep gml:id="ls1"&gt;
+                            &lt;lugeonStepNumber&gt;1&lt;/lugeonStepNumber&gt;
+                            &lt;pressure uom="psi"&gt;41.5&lt;/pressure&gt;
+                            &lt;avgFlowRate uom="m3/min"&gt;0.016&lt;/avgFlowRate&gt;
+                            &lt;coeffPermeability uom="m/d"&gt;0.055&lt;/coeffPermeability&gt;
+                            &lt;lugeonValue uom="m3/(s.m)"&gt;5.2&lt;/lugeonValue&gt;
+                            &lt;lugeonStepTimeSeries&gt;
+                                &lt;TemporalResult gml:id="lsts1"&gt;
+                                    &lt;timeDomain&gt;
+                                        &lt;TimePositionList gml:id="lststpp1"&gt;
+                                            &lt;timePositionList&gt; 2020-09-30T13:21:00
+                                                2020-09-30T13:22:00 2020-09-30T13:23:00
+                                                2020-09-30T13:24:00 2020-09-30T13:25:00
+                                                2020-09-30T13:26:00 2020-09-30T13:27:00
+                                                2020-09-30T13:28:00 2020-09-30T13:29:00
+                                                2020-09-30T13:30:00 &lt;/timePositionList&gt;
+                                        &lt;/TimePositionList&gt;
+                                    &lt;/timeDomain&gt;
+                                    &lt;results&gt;
+                                        &lt;ResultSet&gt;
+                                            &lt;parameters&gt;
+                                                &lt;PropertyParameters gml:id="lstslsdr1"&gt;
+                                                  &lt;properties&gt;
+                                                  &lt;Property index="1" gml:id="lsp11"&gt;
+                                                  &lt;typeData&gt;double&lt;/typeData&gt;
+                                                  &lt;propertyClass codeSpace="https://diggsml.org/def/codes/DIGGS/0.1/properties.xml#elapsed_time"&gt;Elapsed Time&lt;/propertyClass&gt;
+                                                  &lt;uom&gt;min&lt;/uom&gt;
+                                                  &lt;/Property&gt;
+                                                  &lt;Property index="2" gml:id="lsp21"&gt;
+                                                  &lt;typeData&gt;double&lt;/typeData&gt;
+                                                  &lt;propertyClass codeSpace="https://diggsml.org/def/codes/DIGGS/0.1/properties.xml#elapsed_time"&gt;Elapsed Time&lt;/propertyClass&gt;
+                                                  &lt;uom&gt;L/min&lt;/uom&gt;
+                                                  &lt;/Property&gt;
+                                                  &lt;/properties&gt;
+                                                &lt;/PropertyParameters&gt;
+                                            &lt;/parameters&gt;
+                                            &lt;dataValues&gt;
+                                                1,8.836
+                                                2,8.852
+                                                3,8.867
+                                                4,8.883
+                                                5,8.899
+                                                6,8.915
+                                                7,8.931
+                                                8,8.947
+                                                9,8.962
+                                                10,8.979
+                                            &lt;/dataValues&gt;
+                                        &lt;/ResultSet&gt;
+                                    &lt;/results&gt;
+                                &lt;/TemporalResult&gt;
+                            &lt;/lugeonStepTimeSeries&gt;
+                        &lt;/LugeonStep&gt;
+                    &lt;/lugeonStep&gt;
+                    &lt;lugeonStep&gt;
+                        &lt;LugeonStep gml:id="ls2"&gt;
+                            &lt;lugeonStepNumber&gt;2&lt;/lugeonStepNumber&gt;
+                            &lt;pressure uom="psi"&gt;62.5&lt;/pressure&gt;
+                            &lt;avgFlowRate uom="m3/min"&gt;0.020&lt;/avgFlowRate&gt;
+                            &lt;coeffPermeability uom="m/d"&gt;0.047&lt;/coeffPermeability&gt;
+                            &lt;lugeonValue uom="m3/(s.m)"&gt;4.4&lt;/lugeonValue&gt;
+                            &lt;lugeonStepTimeSeries&gt;
+                                &lt;TemporalResult gml:id="lsts2"&gt;
+                                    &lt;timeDomain&gt;
+                                        &lt;TimePositionList gml:id="lststpp2"&gt;
+                                            &lt;timePositionList&gt; 2020-09-30T13:31:00
+                                                2020-09-30T13:32:00 2020-09-30T13:33:00
+                                                2020-09-30T13:34:00 2020-09-30T13:35:00
+                                                2020-09-30T13:36:00 2020-09-30T13:37:00
+                                                2020-09-30T13:38:00 2020-09-30T13:39:00
+                                                2020-09-30T13:40:00 &lt;/timePositionList&gt;
+                                        &lt;/TimePositionList&gt;
+                                    &lt;/timeDomain&gt;
+                                    &lt;results&gt;
+                                        &lt;ResultSet&gt;
+                                            &lt;parameters&gt;
+                                                &lt;PropertyParameters gml:id="lstslsdr2"&gt;
+                                                  &lt;properties&gt;
+                                                  &lt;Property index="1" gml:id="lsp12"&gt;
+                                                  &lt;typeData/&gt;
+                                                  &lt;propertyClass codeSpace="https://diggsml.org/def/codes/DIGGS/0.1/properties.xml#elapsed_time"&gt;Elapsed Time&lt;/propertyClass&gt;
+                                                  &lt;uom&gt;min&lt;/uom&gt;
+                                                  &lt;/Property&gt;
+                                                  &lt;Property index="2" gml:id="lsp22"&gt;
+                                                  &lt;typeData&gt;double&lt;/typeData&gt;
+                                                  &lt;propertyClass codeSpace="https://diggsml.org/def/codes/DIGGS/0.1/properties.xml#flow_volume_rate"&gt;Volume Flow Rate&lt;/propertyClass&gt;
+                                                  &lt;uom&gt;m3&lt;/uom&gt;
+                                                  &lt;/Property&gt;
+                                                  &lt;/properties&gt;
+                                                &lt;/PropertyParameters&gt;
+                                            &lt;/parameters&gt;
+                                            &lt;dataValues&gt;
+                                                1,9.023
+                                                2,9.043
+                                                3,9.062
+                                                4,9.083
+                                                5,9.103
+                                                6,9.123
+                                                7,9.144
+                                                8,9.164
+                                                9,9.184
+                                                10,9.204
+                                            &lt;/dataValues&gt;
+                                        &lt;/ResultSet&gt;
+                                    &lt;/results&gt;
+                                &lt;/TemporalResult&gt;
+                            &lt;/lugeonStepTimeSeries&gt;
+                        &lt;/LugeonStep&gt;
+                    &lt;/lugeonStep&gt;
+                    &lt;lugeonStep&gt;
+                        &lt;LugeonStep gml:id="ls3"&gt;
+                            &lt;lugeonStepNumber&gt;3&lt;/lugeonStepNumber&gt;
+                            &lt;pressure uom="psi"&gt;78&lt;/pressure&gt;
+                            &lt;avgFlowRate uom="m3/min"&gt;0.024&lt;/avgFlowRate&gt;
+                            &lt;coeffPermeability uom="m/d"&gt;0.045&lt;/coeffPermeability&gt;
+                            &lt;lugeonValue uom="m3/(s.m)"&gt;4.2&lt;/lugeonValue&gt;
+                            &lt;lugeonStepTimeSeries&gt;
+                                &lt;TemporalResult gml:id="lsts3"&gt;
+                                    &lt;timeDomain&gt;
+                                        &lt;TimePositionList gml:id="lststpp3"&gt;
+                                            &lt;timePositionList&gt; 2020-09-30T13:41:00
+                                                2020-09-30T13:42:00 2020-09-30T13:43:00
+                                                2020-09-30T13:44:00 2020-09-30T13:45:00
+                                                2020-09-30T13:46:00 2020-09-30T13:47:00
+                                                2020-09-30T13:48:00 2020-09-30T13:49:00
+                                                2020-09-30T13:50:00 &lt;/timePositionList&gt;
+                                        &lt;/TimePositionList&gt;
+                                    &lt;/timeDomain&gt;
+                                    &lt;results&gt;
+                                        &lt;ResultSet&gt;
+                                            &lt;parameters&gt;
+                                                &lt;PropertyParameters gml:id="lstslsdr3"&gt;
+                                                  &lt;properties&gt;
+                                                  &lt;Property index="1" gml:id="lsp13"&gt;
+                                                  &lt;typeData/&gt;
+                                                  &lt;propertyClass codeSpace="https://diggsml.org/def/codes/DIGGS/0.1/properties.xml#elapsed_time"&gt;Elapsed Time&lt;/propertyClass&gt;
+                                                  &lt;uom&gt;min&lt;/uom&gt;
+                                                  &lt;/Property&gt;
+                                                  &lt;Property index="2" gml:id="lsp23"&gt;
+                                                  &lt;typeData&gt;double&lt;/typeData&gt;
+                                                  &lt;propertyClass codeSpace="https://diggsml.org/def/codes/DIGGS/0.1/properties.xml#flow_volume_rate"&gt;Volume Flow Rate&lt;/propertyClass&gt;
+                                                  &lt;uom&gt;m3/min&lt;/uom&gt;
+                                                  &lt;/Property&gt;
+                                                  &lt;/properties&gt;
+                                                &lt;/PropertyParameters&gt;
+                                            &lt;/parameters&gt;
+                                            &lt;dataValues&gt;
+                                                1,9.252
+                                                2,9.276
+                                                3,9.300
+                                                4,9.325
+                                                5,9.348
+                                                6,9.372
+                                                7,9.396
+                                                8,9.421
+                                                9,9.445
+                                                10,9.469
+                                            &lt;/dataValues&gt;
+                                        &lt;/ResultSet&gt;
+                                    &lt;/results&gt;
+                                &lt;/TemporalResult&gt;
+                            &lt;/lugeonStepTimeSeries&gt;
+                        &lt;/LugeonStep&gt;
+                    &lt;/lugeonStep&gt;
+                    &lt;lugeonStep&gt;
+                        &lt;LugeonStep gml:id="ls4"&gt;
+                            &lt;lugeonStepNumber&gt;4&lt;/lugeonStepNumber&gt;
+                            &lt;pressure uom="psi"&gt;62&lt;/pressure&gt;
+                            &lt;avgFlowRate uom="m3/min"&gt;0.020&lt;/avgFlowRate&gt;
+                            &lt;coeffPermeability uom="m/d"&gt;0.046&lt;/coeffPermeability&gt;
+                            &lt;lugeonValue uom="m3/(s.m)"&gt;4.3&lt;/lugeonValue&gt;
+                            &lt;lugeonStepTimeSeries&gt;
+                                &lt;TemporalResult gml:id="lsts4"&gt;
+                                    &lt;timeDomain&gt;
+                                        &lt;TimePositionList gml:id="lststpp4"&gt;
+                                            &lt;timePositionList&gt; 2020-09-30T13:51:00
+                                                2020-09-30T13:52:00 2020-09-30T13:53:00
+                                                2020-09-30T13:54:00 2020-09-30T13:55:00
+                                                2020-09-30T13:56:00 2020-09-30T13:57:00
+                                                2020-09-30T13:58:00 2020-09-30T13:59:00
+                                                2020-09-30T14:00:00 &lt;/timePositionList&gt;
+                                        &lt;/TimePositionList&gt;
+                                    &lt;/timeDomain&gt;
+                                    &lt;results&gt;
+                                        &lt;ResultSet&gt;
+                                            &lt;parameters&gt;
+                                                &lt;PropertyParameters gml:id="lstslsdr4"&gt;
+                                                  &lt;properties&gt;
+                                                  &lt;Property index="1" gml:id="lsp14"&gt;
+                                                  &lt;typeData/&gt;
+                                                  &lt;propertyClass codeSpace="https://diggsml.org/def/codes/DIGGS/0.1/properties.xml#elapsed_time"&gt;Elapsed Time&lt;/propertyClass&gt;
+                                                  &lt;uom&gt;min&lt;/uom&gt;
+                                                  &lt;/Property&gt;
+                                                  &lt;Property index="2" gml:id="lsp24"&gt;
+                                                  &lt;typeData&gt;double&lt;/typeData&gt;
+                                                  &lt;propertyClass codeSpace="https://diggsml.org/def/codes/DIGGS/0.1/properties.xml#flow_volume_rate"&gt;Volume Flow Rate&lt;/propertyClass&gt;
+                                                  &lt;uom&gt;m3/min&lt;/uom&gt;
+                                                  &lt;/Property&gt;
+                                                  &lt;/properties&gt;
+                                                &lt;/PropertyParameters&gt;
+                                            &lt;/parameters&gt;
+                                            &lt;dataValues&gt;
+                                                1,9.5
+                                                2,9.52
+                                                3,9.539
+                                                4,9.559
+                                                5,9.579
+                                                6,9.599
+                                                7,9.618
+                                                8,9.638
+                                                9,9.658
+                                                10,9.678
+                                            &lt;/dataValues&gt;
+                                        &lt;/ResultSet&gt;
+                                    &lt;/results&gt;
+                                &lt;/TemporalResult&gt;
+                            &lt;/lugeonStepTimeSeries&gt;
+                        &lt;/LugeonStep&gt;
+                    &lt;/lugeonStep&gt;
+                    &lt;lugeonStep&gt;
+                        &lt;LugeonStep gml:id="ls5"&gt;
+                            &lt;lugeonStepNumber&gt;1&lt;/lugeonStepNumber&gt;
+                            &lt;pressure uom="psi"&gt;40&lt;/pressure&gt;
+                            &lt;avgFlowRate uom="m3/min"&gt;0.015&lt;/avgFlowRate&gt;
+                            &lt;coeffPermeability uom="m/d"&gt;0.054&lt;/coeffPermeability&gt;
+                            &lt;lugeonValue uom="m3/(s.m)"&gt;5.1&lt;/lugeonValue&gt;
+                            &lt;lugeonStepTimeSeries&gt;
+                                &lt;TemporalResult gml:id="lsts5"&gt;
+                                    &lt;timeDomain&gt;
+                                        &lt;TimePositionList gml:id="lststpp5"&gt;
+                                            &lt;timePositionList&gt; 2020-09-30T14:21:00
+                                                2020-09-30T14:22:00 2020-09-30T14:23:00
+                                                2020-09-30T14:24:00 2020-09-30T14:25:00
+                                                2020-09-30T14:26:00 2020-09-30T14:27:00
+                                                2020-09-30T14:28:00 2020-09-30T14:29:00
+                                                2020-09-30T14:30:00 &lt;/timePositionList&gt;
+                                        &lt;/TimePositionList&gt;
+                                    &lt;/timeDomain&gt;
+                                    &lt;results&gt;
+                                        &lt;ResultSet&gt;
+                                            &lt;parameters&gt;
+                                                &lt;PropertyParameters gml:id="lstslsdr5"&gt;
+                                                  &lt;properties&gt;
+                                                  &lt;Property index="1" gml:id="lsp15"&gt;
+                                                  &lt;typeData/&gt;
+                                                      &lt;propertyClass codeSpace="https://diggsml.org/def/codes/DIGGS/0.1/properties.xml#elapsed_time"&gt;Elapsed Time&lt;/propertyClass&gt;
+                                                  &lt;uom&gt;min&lt;/uom&gt;
+                                                  &lt;/Property&gt;
+                                                  &lt;Property index="2" gml:id="lsp25"&gt;
+                                                  &lt;typeData&gt;double&lt;/typeData&gt;
+                                                      &lt;propertyClass codeSpace="https://diggsml.org/def/codes/DIGGS/0.1/properties.xml#flow_volume_rate"&gt;Volume Flow Rate&lt;/propertyClass&gt;
+                                                  &lt;uom&gt;m3&lt;/uom&gt;
+                                                  &lt;/Property&gt;
+                                                  &lt;/properties&gt;
+                                                &lt;/PropertyParameters&gt;
+                                            &lt;/parameters&gt;
+                                            &lt;dataValues&gt;
+                                                1,9.715
+                                                2,9.730
+                                                3,9.745
+                                                4,9.760
+                                                5,9.775
+                                                6,9.790
+                                                7,9.805
+                                                8,9.820
+                                                9,9.835
+                                                10,9.849
+                                            &lt;/dataValues&gt;
+                                        &lt;/ResultSet&gt;
+                                    &lt;/results&gt;
+                                &lt;/TemporalResult&gt;
+                            &lt;/lugeonStepTimeSeries&gt;
+                        &lt;/LugeonStep&gt;
+                    &lt;/lugeonStep&gt;
+                &lt;/LugeonTest&gt;
+            &lt;/procedure&gt;
+        &lt;/Test&gt;
+    &lt;/measurement&gt;
+
+    &lt;constructionActivity&gt;
+        &lt;LinearGroutingActivity gml:id="UP1510-C1"&gt;
+            &lt;investigationTarget&gt;Deep Foundation&lt;/investigationTarget&gt;
+            &lt;projectRef xlink:href="#center_hill)_dam"/&gt;
+            &lt;samplingFeatureRef xlink:href="#UP1510"/&gt;
+            &lt;activityDateTime&gt;
+                &lt;TimeInterval gml:id="ggdt"&gt;
+                    &lt;start&gt;2009-04-21T19:36:46&lt;/start&gt;
+                    &lt;end&gt;2009-04-22T04:54:13&lt;/end&gt;
+                &lt;/TimeInterval&gt;
+            &lt;/activityDateTime&gt;
+            &lt;groutingType&gt;Rock&lt;/groutingType&gt;
+            &lt;groutingInterval&gt;
+                &lt;LinearExtent gml:id="ggi" srsName="#UP1510-lsr" srsDimension="1"&gt;
+                    &lt;gml:posList&gt;230 235&lt;/gml:posList&gt;
+                &lt;/LinearExtent&gt;
+            &lt;/groutingInterval&gt;
+            &lt;groutStage&gt;
+                &lt;GroutStage gml:id="C1"&gt;
+                    &lt;gml:name&gt;C1&lt;/gml:name&gt;
+                    &lt;remark&gt;
+                        &lt;Remark&gt;
+                            &lt;content&gt;Water to surface, 1.1 min 5.8 gal; Grout to surface, 14.2 min 97.6 gal&lt;/content&gt;
+                        &lt;/Remark&gt;
+                    &lt;/remark&gt;
+                    &lt;groutRef xlink:href="#g1"/&gt;
+                    &lt;stageType&gt;descending&lt;/stageType&gt;
+                    &lt;stageInterval&gt;
+                        &lt;LinearExtent gml:id="s1i" srsName="#UP1510-lsr" srsDimension="1"&gt;
+                            &lt;gml:posList&gt;230 235&lt;/gml:posList&gt;
+                        &lt;/LinearExtent&gt;
+                    &lt;/stageInterval&gt;
+                    &lt;startTimeFilling&gt;
+                        &lt;gml:TimeInstant gml:id="stfti"&gt;
+                            &lt;gml:timePosition&gt;2009-4-21T19225.47&lt;/gml:timePosition&gt;
+                        &lt;/gml:TimeInstant&gt;
+                    &lt;/startTimeFilling&gt;
+                    &lt;endTime&gt;
+                        &lt;gml:TimeInstant gml:id="endtp"&gt;
+                            &lt;gml:timePosition&gt;2009-04-22T04:54:13&lt;/gml:timePosition&gt;
+                        &lt;/gml:TimeInstant&gt;
+                    &lt;/endTime&gt;
+                    &lt;holeVolume uom="gal[US]"&gt;5.7&lt;/holeVolume&gt;
+                    &lt;injectionTimeSeries&gt;
+                        &lt;InjectionTimeSeries gml:id="s1td"&gt;
+                            &lt;timeDomain&gt;
+                                &lt;TimePositionList gml:id="tpl-c"&gt;
+                                    &lt;timePositionList&gt; 0.00 0.03 0.07 0.10 0.13 0.17 0.20 0.23 0.27
+                                        0.30 0.33 0.37 0.40 0.43 0.47 0.50 0.53 0.57 0.60 0.63 0.67
+                                        0.70 0.73 0.77 0.80 0.83 0.87 0.90 0.93 0.97 1.00 1.03 1.07
+                                        1.10 1.13 1.17 1.20 1.23 1.27 1.30 1.33 1.37 1.40 1.43 1.47
+                                        1.50 1.53 1.57 1.60 1.63 1.67 1.70 1.73 1.77 1.80 1.83 1.87
+                                        1.90 1.93 1.97 2.00 2.03 2.07 2.10 2.13 2.17 2.20 2.23 2.27
+                                        2.30 2.33 2.37 2.40 2.43 2.47 2.50 2.53 2.57 2.60 2.63 2.67
+                                        2.70 2.73 2.77 2.80 2.83 2.87 2.90 2.93 2.97 3.00 3.03 3.07
+                                        3.10 3.13 3.17 3.20 3.23 3.27 3.30 3.33 3.37 3.40 3.43 3.47
+                                        3.50 3.53 3.57 3.60 3.63 3.67 3.70 3.73 3.77 3.80 3.83 3.87
+                                        3.90 3.93 3.97 4.00 4.03 4.07 4.10 4.13 4.17 4.20 4.23 4.27
+                                        4.30 4.33 4.37 4.40 4.43 4.47 4.50 4.53 4.57 4.60 4.63 4.67
+                                        4.70 4.73 4.77 4.80 4.83 4.87 4.90 4.93 4.97 5.00 5.03 5.07
+                                        5.10 5.13 5.17 5.20 5.23 5.27 5.30 5.33 5.37 5.40 5.43 5.47
+                                        5.50 5.53 5.57 5.60 5.63 5.67 5.70 5.73 5.77 5.80 5.83 5.87
+                                        5.90 5.93 5.97 6.00 6.03 6.07 6.10 6.13 6.17 6.20 6.23 6.27
+                                        6.30 6.33 6.37 6.40 6.43 6.47 6.50 6.53 6.57 6.60 6.63 6.67
+                                        6.70 6.73 6.77 6.80 6.83 6.87 6.90 6.93 6.97 7.00 7.03 7.07
+                                        7.10 7.13 7.17 7.20 7.23 7.27 7.30 7.33 7.37 7.40 7.43 7.47
+                                        7.50 7.53 7.57 7.60 7.63 7.67 7.70 7.73 7.77 7.80 7.83 7.87
+                                        7.90 7.93 7.97 8.00 8.03 8.07 8.10 8.13 8.17 8.20 8.23 8.27
+                                        8.30 8.33 8.37 8.40 8.43 8.47 8.50 8.53 8.57 8.60 8.63 8.67
+                                        8.70 8.73 8.77 8.80 8.83 8.87 8.90 8.93 8.97 9.00 9.03 9.07
+                                        9.10 9.13 9.17 9.20 9.23 9.27 9.30 9.33 9.37 9.40 9.43 9.47
+                                        9.50 9.53 9.57 9.60 9.63 9.67 9.70 9.73 9.77 9.80 9.83 9.87
+                                        9.90 9.93 9.97 10.00 10.03 10.07 10.10 10.13 10.17 10.20
+                                        10.23 10.27 10.30 10.33 10.37 10.40 10.43 10.47 10.50 10.53
+                                        10.57 10.60 10.63 10.67 10.70 10.73 10.77 10.80 10.83 10.87
+                                        10.90 10.93 10.97 11.00 11.03 11.07 11.10 11.13 11.17 11.20
+                                        11.23 11.27 11.30 11.33 11.37 11.40 11.43 11.47 11.50 11.53
+                                        11.57 11.60 11.63 11.67 11.70 11.73 11.77 11.80 11.83 11.87
+                                        11.90 11.93 11.97 12.00 12.03 12.07 12.10 12.13 12.17 12.20
+                                        12.23 12.27 12.30 12.33 12.37 12.40 12.43 12.47 12.50 12.53
+                                        12.57 12.60 12.63 12.67 12.70 12.73 12.77 12.80 12.83 12.87
+                                        12.90 12.93 12.97 13.00 13.03 13.07 13.10 13.13 13.17 13.20
+                                        13.23 13.27 13.30 13.33 13.37 13.40 13.43 13.47 13.50 13.53
+                                        13.57 13.60 13.63 13.67 13.70 13.73 13.77 13.80 13.83 13.87
+                                        13.90 13.93 13.97 14.00 14.03 14.07 14.10 14.13 14.17 14.20
+                                    &lt;/timePositionList&gt;
+                                &lt;/TimePositionList&gt;
+                            &lt;/timeDomain&gt;
+                            &lt;results&gt;
+                                &lt;ResultSet&gt;
+                                    &lt;parameters&gt;
+                                        &lt;PropertyParameters gml:id="tdppms"&gt;
+                                            &lt;properties&gt;
+                                                &lt;Property index="1" gml:id="tdp1"&gt;
+                                                  &lt;typeData&gt;string&lt;/typeData&gt;
+                                                    &lt;propertyClass codeSpace="https://diggsml.org/def/codes/DIGGS/0.1/gr_inj_properties.xml#grout_flow"&gt;grout flow&lt;/propertyClass&gt;                                                  &lt;uom&gt;gal[US]/min&lt;/uom&gt;
+                                                  &lt;measurementTechnique&gt;measured&lt;/measurementTechnique&gt;
+                                                &lt;/Property&gt;
+                                                &lt;Property index="2" gml:id="tdp2"&gt;
+                                                  &lt;typeData&gt;double&lt;/typeData&gt;
+                                                    &lt;propertyClass codeSpace="https://diggsml.org/def/codes/DIGGS/0.1/gr_inj_properties.xml#gauge_pressure"&gt;gauge pressure&lt;/propertyClass&gt;
+                                                    &lt;uom&gt;psi&lt;/uom&gt;
+                                                &lt;/Property&gt;
+                                                &lt;Property index="3" gml:id="tdp3"&gt;
+                                                  &lt;typeData&gt;double&lt;/typeData&gt;
+                                                    &lt;propertyClass codeSpace="https://diggsml.org/def/codes/DIGGS/0.1/gr_inj_properties.xml#effective_pressure"&gt;effective pressure&lt;/propertyClass&gt;                                                  &lt;uom&gt;psi&lt;/uom&gt;
+                                                &lt;/Property&gt;
+                                                &lt;Property index="4" gml:id="tdp4"&gt;
+                                                  &lt;typeData&gt;double&lt;/typeData&gt;
+                                                    &lt;propertyClass codeSpace="https://diggsml.org/def/codes/DIGGS/0.1/gr_inj_properties.xml#apparent_lugeon_value"&gt;apparent lugeon value&lt;/propertyClass&gt;                                               &lt;/Property&gt;
+                                                &lt;Property index="5" gml:id="tdp5"&gt;
+                                                  &lt;typeData&gt;string&lt;/typeData&gt;
+                                                    &lt;propertyClass codeSpace="https://diggsml.org/def/codes/DIGGS/0.1/gr_inj_properties.xml#apparent_lugeon_value"&gt;apparent lugeon value&lt;/propertyClass&gt;                                               &lt;/Property&gt;
+                                            &lt;/properties&gt;
+                                        &lt;/PropertyParameters&gt;
+                                    &lt;/parameters&gt;
+                                    &lt;dataValues cs="," decimal="." ts=" "&gt;
+0.00,1.18,58.80,0.0,C-25
+0.08,1.05,58.51,0.5,C-25
+0.08,1.74,59.20,0.5,C-25
+0.01,1.76,59.37,0.0,C-25
+0.00,0.93,58.56,0.0,C-25
+0.00,0.91,58.53,0.0,C-25
+0.04,2.71,60.26,0.2,C-25
+0.00,2.71,60.33,0.0,C-25
+0.00,0.93,58.55,0.0,C-25
+0.36,1.21,58.05,2.2,C-25
+0.55,2.38,58.80,3.2,C-25
+0.55,4.95,61.37,3.1,C-25
+0.51,4.66,61.16,2.9,C-25
+0.83,5.81,61.55,4.7,C-25
+1.01,5.81,61.08,5.7,C-25
+1.51,10.40,64.28,8.1,C-25
+2.24,9.50,61.08,12.7,C-25
+3.17,11.63,59.81,18.4,C-25
+4.29,20.11,63.54,23.5,C-25
+5.19,19.58,58.66,30.7,C-25
+5.19,16.57,55.66,32.4,C-25
+5.92,14.30,49.49,41.5,C-25
+6.02,13.35,48.00,43.5,C-25
+6.03,11.70,46.28,45.2,C-25
+5.83,11.70,47.38,42.7,C-25
+5.76,12.13,48.19,41.5,C-25
+5.64,12.12,48.83,40.1,C-25
+6.08,22.55,56.82,37.2,C-25
+6.08,30.87,65.14,32.4,C-25
+6.73,30.23,60.72,38.5,C-25
+8.05,30.56,52.62,53.1,C-25
+8.47,32.19,51.35,57.2,C-25
+8.78,32.48,49.42,61.7,C-25
+9.01,32.48,47.71,65.6,C-25
+9.24,33.18,46.69,68.7,C-25
+9.29,30.79,43.92,73.5,C-25
+9.29,28.99,42.12,76.6,C-25
+9.22,29.23,42.87,74.7,C-25
+9.14,29.64,43.88,72.4,C-25
+9.10,30.67,45.26,69.8,C-25
+8.87,29.84,46.13,66.7,C-25
+8.80,29.84,46.61,65.5,C-25
+8.76,28.76,45.80,66.4,C-25
+8.74,27.50,44.74,67.8,C-25
+8.61,26.93,45.08,66.3,C-25
+8.61,26.03,44.18,67.6,C-25
+8.65,25.51,43.32,69.4,C-25
+8.73,24.77,42.06,72.1,C-25
+8.69,21.52,39.10,77.2,C-25
+8.70,21.52,39.03,77.4,C-25
+8.58,21.08,39.45,75.5,C-25
+8.53,19.74,38.42,77.1,C-25
+8.55,19.08,37.62,79.0,C-25
+8.57,17.67,36.11,82.4,C-25
+8.57,17.67,36.11,82.4,C-25
+8.38,17.67,37.41,77.8,C-25
+8.16,11.94,33.23,85.3,C-25
+8.38,21.26,40.99,71.0,C-25
+8.38,22.25,41.98,69.4,C-25
+8.79,18.82,35.67,85.6,C-25
+9.41,18.79,31.00,105.5,C-25
+9.56,16.38,27.48,120.8,C-25
+9.72,15.28,25.16,134.1,C-25
+9.77,15.28,24.75,137.0,C-25
+9.74,14.08,23.78,142.2,C-25
+9.76,13.94,23.50,144.2,C-25
+9.76,13.54,23.10,146.7,C-25
+9.75,13.91,23.56,143.6,C-25
+9.68,13.00,23.14,145.3,C-25
+9.58,10.76,21.70,153.3,C-25
+9.45,9.75,21.72,151.0,C-25
+9.35,9.75,22.44,144.7,C-25
+9.23,10.70,24.26,132.2,C-25
+9.16,14.58,28.72,110.7,C-25
+9.37,16.24,28.81,112.9,C-25
+9.60,15.11,25.91,128.6,C-25
+9.60,13.98,24.78,134.5,C-25
+9.82,14.10,23.13,147.5,C-25
+9.82,13.67,22.77,149.7,C-25
+9.75,13.67,23.29,145.3,C-25
+9.71,13.86,23.82,141.5,C-25
+9.77,17.78,27.20,124.8,C-25
+10.16,19.00,25.40,138.8,C-25
+10.01,9.84,17.41,199.7,C-25
+10.01,9.71,17.28,201.2,C-25
+9.71,7.42,17.32,194.8,C-25
+9.06,5.96,20.83,151.1,C-25
+8.70,5.96,23.48,128.6,C-25
+8.70,14.90,32.42,93.1,C-25
+8.70,12.45,29.97,100.8,C-25
+8.99,7.95,23.30,134.0,C-25
+9.09,7.83,22.45,140.7,C-25
+8.66,6.10,23.90,125.8,C-25
+8.47,6.10,25.26,116.4,C-25
+8.59,16.97,35.26,84.6,C-25
+8.96,15.54,31.18,99.7,C-25
+9.16,13.67,27.77,114.6,C-25
+9.16,13.94,28.04,113.5,C-25
+9.21,13.17,26.92,118.8,C-25
+9.43,12.11,24.18,135.5,C-25
+9.47,11.79,23.58,139.5,C-25
+9.37,12.42,24.96,130.4,C-25
+9.25,12.42,25.84,124.4,C-25
+9.23,11.43,25.06,127.8,C-25
+9.28,11.15,24.40,132.0,C-25
+9.21,11.01,24.74,129.3,C-25
+9.21,10.80,24.53,130.4,C-25
+9.02,9.19,24.33,128.8,C-25
+8.94,7.86,23.58,131.7,C-25
+8.78,7.12,24.04,126.8,C-25
+8.70,7.12,24.60,122.8,C-25
+8.57,8.53,26.95,110.4,C-25
+8.36,7.09,26.99,107.6,C-25
+8.46,9.92,29.11,100.9,C-25
+8.46,11.33,30.52,96.3,C-25
+8.49,9.94,28.92,101.9,C-25
+8.72,10.95,28.28,107.1,C-25
+8.66,10.31,28.12,106.9,C-25
+8.70,9.58,27.09,111.5,C-25
+8.66,9.58,27.34,110.0,C-25
+8.62,10.19,28.23,106.1,C-25
+8.59,9.21,27.50,108.5,C-25
+8.46,8.41,27.60,106.4,C-25
+8.46,8.88,28.07,104.6,C-25
+8.57,8.89,27.31,109.0,C-25
+8.43,8.09,27.50,106.4,C-25
+8.42,8.30,27.80,105.2,C-25
+8.36,8.30,28.17,103.1,C-25
+8.34,7.78,27.80,104.2,C-25
+8.35,8.24,28.17,103.0,C-25
+8.32,8.61,28.78,100.4,C-25
+8.32,8.61,28.79,100.4,C-25
+8.21,8.39,29.35,97.1,C-25
+8.27,7.11,27.63,104.0,C-25
+8.25,7.11,27.79,103.1,C-25
+8.16,7.11,28.37,99.9,C-25
+8.16,6.91,28.18,100.6,C-25
+8.12,7.51,29.07,97.0,C-25
+8.03,6.76,28.96,96.2,C-25
+8.06,7.73,29.73,94.1,C-25
+8.04,7.20,29.29,95.3,C-25
+8.01,7.20,29.50,94.3,C-25
+8.11,7.90,29.49,95.5,C-25
+8.21,9.15,30.07,94.9,C-25
+8.21,7.89,28.81,99.0,C-25
+8.18,8.75,29.93,94.9,C-25
+8.20,7.67,28.69,99.2,C-25
+8.26,7.75,28.36,101.1,C-25
+8.30,8.31,28.65,100.6,C-25
+8.17,8.31,29.55,95.9,C-25
+8.16,7.89,29.14,97.3,C-25
+8.16,7.99,29.25,96.9,C-25
+8.04,7.39,29.50,94.6,C-25
+8.08,7.34,29.19,96.1,C-25
+8.08,7.29,29.15,96.2,C-25
+8.01,6.45,28.74,96.8,C-25
+7.95,6.45,29.17,94.6,C-25
+8.07,8.08,30.01,93.3,C-25
+8.08,8.08,29.91,93.8,C-25
+8.03,5.78,27.93,99.9,C-25
+7.92,7.90,30.84,89.1,C-25
+8.01,7.31,29.62,93.9,C-25
+8.01,7.48,29.78,93.4,C-25
+7.97,6.42,28.98,95.5,C-25
+7.92,6.73,29.66,92.7,C-25
+7.89,6.23,29.35,93.3,C-25
+7.95,6.23,28.97,95.2,C-25
+7.89,6.23,29.35,93.4,C-25
+7.83,6.03,29.57,91.9,C-25
+7.89,7.02,30.17,90.8,C-25
+7.77,7.62,31.50,85.7,C-25
+7.76,7.62,31.62,85.2,C-25
+7.84,6.17,29.63,91.9,C-25
+7.88,7.33,30.53,89.6,C-25
+7.75,6.20,30.28,88.8,C-25
+7.75,6.64,30.72,87.6,C-25
+7.81,6.82,30.45,89.1,C-25
+7.69,4.85,29.32,91.0,C-25
+7.76,4.85,28.85,93.4,C-25
+7.76,4.09,28.09,95.9,C-25
+7.50,4.09,29.76,87.6,C-25
+7.55,8.05,33.40,78.5,C-25
+7.55,7.13,32.47,80.8,C-25
+7.55,8.97,34.31,76.4,C-25
+7.55,7.22,32.57,80.5,C-25
+7.66,6.49,31.15,85.4,C-25
+7.59,5.12,30.22,87.2,C-25
+7.58,4.59,29.76,88.4,C-25
+7.36,4.59,31.22,81.8,C-25
+7.25,4.04,31.34,80.3,C-25
+7.20,4.36,31.96,78.2,C-25
+7.13,3.79,31.81,77.9,C-25
+6.97,3.31,32.33,74.9,C-25
+6.97,2.60,31.63,76.6,C-25
+6.82,1.70,31.66,74.8,C-25
+6.71,1.94,32.57,71.5,C-25
+6.66,1.33,32.26,71.7,C-25
+6.55,1.33,32.90,69.2,C-25
+6.37,2.01,34.64,63.9,C-25
+6.33,1.34,34.19,64.3,C-25
+6.40,8.01,40.49,54.9,C-25
+6.40,10.19,42.67,52.1,C-25
+6.94,9.47,38.71,62.2,C-25
+7.07,11.59,39.98,61.4,C-25
+7.16,11.60,39.43,63.1,C-25
+7.31,11.21,38.13,66.6,C-25
+7.39,11.21,37.63,68.2,C-25
+7.53,10.76,36.28,72.0,C-25
+7.46,11.19,37.14,69.8,C-25
+7.46,11.89,37.83,68.5,C-25
+7.50,13.22,38.88,67.0,C-25
+7.71,13.48,37.80,70.8,C-25
+7.79,14.75,38.54,70.2,C-25
+7.83,14.75,38.27,71.1,C-25
+7.87,13.96,37.19,73.5,C-25
+7.91,12.90,35.85,76.7,C-25
+7.87,14.11,37.35,73.2,C-25
+7.90,13.58,36.62,74.9,C-25
+7.90,14.36,37.41,73.3,C-25
+7.96,14.32,36.97,74.7,C-25
+7.82,14.71,38.26,71.0,C-25
+7.73,13.35,37.50,71.6,C-25
+7.80,13.35,37.04,73.2,C-25
+7.79,14.23,38.03,71.1,C-25
+7.77,14.23,38.12,70.8,C-25
+7.77,15.11,38.99,69.2,C-25
+7.77,14.11,37.99,71.1,C-25
+7.77,13.19,37.08,72.8,C-25
+7.71,14.39,38.72,69.1,C-25
+7.70,14.75,39.15,68.3,C-25
+7.70,14.09,38.50,69.4,C-25
+7.70,14.33,38.75,69.0,C-25
+7.71,13.93,38.22,70.1,C-25
+7.63,15.64,40.50,65.4,C-25
+7.67,15.33,39.91,66.7,C-25
+7.68,14.77,39.30,67.9,C-25
+7.68,14.77,39.27,67.9,C-25
+7.63,14.74,39.60,66.9,C-25
+7.69,15.98,40.44,66.0,C-25
+7.57,15.53,40.77,64.5,C-25
+7.57,15.26,40.50,64.9,C-25
+7.57,15.48,40.68,64.7,C-25
+7.57,15.71,40.95,64.2,C-25
+7.55,16.28,41.63,63.0,C-25
+7.62,16.28,41.21,64.2,C-25
+7.55,15.52,40.90,64.1,C-25
+7.45,15.85,41.84,61.9,C-25
+7.53,16.78,42.29,61.8,C-25
+7.53,15.88,41.39,63.2,C-25
+7.42,16.28,42.46,60.7,C-25
+7.56,16.17,41.49,63.2,C-25
+7.46,16.59,42.51,61.0,C-25
+7.46,16.22,42.16,61.5,C-25
+7.41,16.22,42.48,60.6,C-25
+7.47,17.31,43.19,60.1,C-25
+7.38,16.73,43.22,59.3,C-25
+7.47,16.64,42.53,61.0,C-25
+7.45,17.09,43.10,60.0,C-25
+7.45,17.08,43.09,60.0,C-25
+7.39,17.07,43.44,59.1,C-25
+7.43,17.09,43.21,59.7,C-25
+7.38,17.09,43.54,58.9,C-25
+7.36,17.80,44.37,57.6,C-25
+7.31,17.92,44.81,56.7,C-25
+7.33,17.57,44.36,57.4,C-25
+7.40,17.49,43.86,58.6,C-25
+7.40,18.15,44.51,57.7,C-25
+7.31,17.89,44.82,56.6,C-25
+7.24,18.44,45.76,55.0,C-25
+7.20,18.44,46.02,54.4,C-25
+7.29,18.12,45.13,56.1,C-25
+7.32,19.10,45.96,55.3,C-25
+7.35,18.22,44.91,56.8,C-25
+7.35,19.12,45.81,55.7,C-25
+7.29,19.12,46.15,54.9,C-25
+7.29,19.12,46.15,54.9,C-25
+7.31,18.91,45.81,55.4,C-25
+7.27,19.95,47.15,53.5,C-25
+7.27,19.43,46.62,54.1,C-25
+7.26,19.43,46.65,54.0,C-25
+7.34,19.72,46.43,54.9,C-25
+7.29,20.30,47.34,53.5,C-25
+7.24,19.21,46.58,54.0,C-25
+7.20,19.43,47.06,53.1,C-25
+7.20,19.43,47.06,53.1,C-25
+7.19,20.18,47.87,52.1,C-25
+7.16,20.09,47.96,51.8,C-25
+7.13,19.97,48.04,51.5,C-25
+7.13,24.59,52.66,47.0,C-25
+7.20,24.59,52.17,48.0,C-25
+7.32,24.79,51.65,49.2,C-25
+7.46,27.04,52.98,48.9,C-25
+7.56,27.04,52.36,50.1,C-25
+7.58,27.20,52.39,50.2,C-25
+7.58,26.12,51.31,51.3,C-25
+7.83,27.64,51.18,53.1,C-25
+7.83,28.55,52.10,52.2,C-25
+7.92,28.55,51.50,53.4,C-25
+7.91,27.72,50.70,54.2,C-25
+7.91,27.72,50.70,54.2,C-25
+7.91,27.68,50.66,54.2,C-25
+7.89,27.67,50.80,53.9,C-25
+7.88,27.67,50.86,53.8,C-25
+7.88,28.42,51.61,53.0,C-25
+7.88,28.42,51.61,53.0,C-25
+7.86,28.42,51.76,52.7,C-25
+7.82,28.07,51.64,52.6,C-25
+7.79,28.07,51.87,52.1,C-25
+7.84,28.97,52.42,51.9,C-25
+7.76,28.97,52.92,51.0,C-25
+7.76,27.73,51.68,52.2,C-25
+7.79,28.82,52.59,51.5,C-25
+7.79,28.49,52.26,51.8,C-25
+7.78,28.67,52.55,51.4,C-25
+7.74,28.67,52.82,50.9,C-25
+7.76,28.88,52.90,50.9,C-25
+7.79,29.79,53.55,50.5,C-25
+7.70,29.79,54.17,49.4,C-25
+7.70,29.76,54.14,49.4,C-25
+7.76,29.20,53.19,50.7,C-25
+7.72,28.66,52.91,50.7,C-25
+7.68,28.57,53.06,50.3,C-25
+7.68,30.89,55.38,48.2,C-25
+7.68,30.89,55.39,48.2,C-25
+7.82,32.79,56.37,48.2,C-25
+7.85,32.93,56.31,48.4,C-25
+8.01,33.19,55.53,50.1,C-25
+8.01,32.19,54.52,51.0,C-25
+7.97,32.35,54.94,50.4,C-25
+8.01,32.21,54.50,51.1,C-25
+7.98,32.94,55.43,50.0,C-25
+7.98,33.13,55.63,49.8,C-25
+7.99,33.13,55.59,49.9,C-25
+7.91,32.61,55.58,49.4,C-25
+7.91,33.04,55.99,49.1,C-25
+7.91,32.90,55.85,49.2,C-25
+7.91,34.00,56.97,48.2,C-25
+7.88,33.35,56.56,48.4,C-25
+7.89,33.81,56.93,48.1,C-25
+7.92,33.81,56.71,48.5,C-25
+7.89,33.27,56.37,48.6,C-25
+7.88,32.92,56.08,48.8,C-25
+7.83,34.05,57.59,47.2,C-25
+7.86,33.65,56.99,47.9,C-25
+7.86,33.65,56.99,47.9,C-25
+7.83,33.65,57.19,47.5,C-25
+7.83,34.09,57.63,47.2,C-25
+7.83,32.92,56.47,48.1,C-25
+7.62,33.78,58.68,45.1,C-25
+7.73,33.78,57.96,46.3,C-25
+7.54,34.72,60.12,43.6,C-25
+7.54,32.85,58.25,45.0,C-25
+7.54,33.93,59.33,44.2,C-25
+7.60,33.93,58.97,44.8,C-25
+7.50,33.68,59.35,43.9,C-25
+7.45,32.80,58.84,43.9,C-25
+7.43,32.41,58.55,44.1,C-25
+7.43,32.59,58.74,43.9,C-25
+7.46,32.53,58.47,44.3,C-25
+7.37,32.53,59.04,43.4,C-25
+7.34,32.53,59.27,43.0,C-25
+7.27,30.84,57.99,43.6,C-25
+7.27,30.39,57.53,43.9,C-25
+7.02,30.62,59.37,41.0,C-25
+6.97,30.74,59.76,40.5,C-25
+6.89,30.58,60.08,39.9,C-25
+6.86,30.58,60.29,39.5,C-25
+6.85,30.32,60.10,39.6,C-25
+6.80,30.60,60.67,38.9,C-25
+6.81,30.91,60.96,38.8,C-25
+6.79,30.35,60.51,38.9,C-25
+6.79,27.94,58.10,40.6,C-25
+6.65,26.76,57.72,40.0,C-25
+6.50,26.76,58.65,38.5,C-25
+6.50,26.76,58.65,38.5,C-25
+6.22,26.76,60.26,35.8,C-25
+6.01,26.05,60.71,34.4,C-25
+6.02,26.05,60.70,34.4,C-25
+6.00,26.05,60.80,34.3,C-25
+5.96,25.71,60.65,34.1,C-25
+5.96,26.14,61.08,33.9,C-25
+5.87,26.14,61.58,33.1,C-25
+5.87,26.14,61.58,33.1,C-25
+5.64,24.64,61.37,31.9,C-25
+5.54,25.19,62.42,30.8,C-25
+5.47,24.12,61.76,30.7,C-25
+5.39,24.14,62.20,30.1,C-25
+5.39,23.53,61.59,30.4,C-25
+5.30,14.57,53.06,34.7,C-25
+5.18,0.00,39.13,46.0,C-25
+1.05,0.00,55.15,6.6,C-25
+0.00,0.00,57.62,0.0,C-25
+0.00,0.00,57.62,0.0,C-25
+0.00,0.00,57.62,0.0,C-25
+0.00,0.00,57.62,0.0,C-25
+0.01,0.00,57.60,0.1,C-25
+0.06,0.00,57.49,0.4,C-25
+0.00,0.00,57.62,0.0,C-25
+0.00,0.00,57.62,0.0,C-25
+0.04,0.00,57.54,0.2,C-25
+0.04,0.00,57.54,0.2,C-25
+0.04,0.00,57.54,0.2,C-25
+0.04,0.00,57.53,0.3,C-25
+0.09,0.00,57.44,0.5,C-25
+0.00,0.00,57.62,0.0,C-25
+0.04,0.00,57.55,0.2,C-25
+0.04,0.00,57.55,0.2,C-25
+0.04,0.00,57.55,0.2,C-25
+0.07,0.00,57.48,0.4,C-25
+0.00,0.00,57.62,0.0,C-25
+0.07,0.00,57.49,0.4,C-25
+0.09,0.00,57.44,0.5,C-25
+0.03,0.00,57.55,0.2,C-25
+0.07,0.00,57.49,0.4,C-25
+0.07,0.00,57.49,0.4,C-25
+0.00,0.00,57.62,0.0,C-25
+0.00,0.00,57.62,0.0,C-25
+0.02,0.00,57.59,0.1,C-25
+0.02,0.00,57.59,0.1,C-25
+0.05,0.00,57.53,0.3,C-25
+0.00,0.00,57.62,0.0,C-25
+0.01,0.00,57.60,0.1,C-25
+0.01,0.00,57.60,0.1,C-25
+0.00,0.00,57.62,0.0,C-25
+0.00,0.00,57.62,0.0,C-25
+0.05,0.00,57.52,0.3,C-25
+0.00,0.00,57.62,0.0
+                                    &lt;/dataValues&gt;
+                                &lt;/ResultSet&gt;
+                            &lt;/results&gt;
+                            &lt;totalElapsedTime uom="min"&gt;14.2&lt;/totalElapsedTime&gt;
+                            &lt;totalGroutTake uom="gal[US]"&gt;97.57&lt;/totalGroutTake&gt;
+                            &lt;waterLugeonValue uom="Lu"&gt;100.0 &lt;/waterLugeonValue&gt;
+                        &lt;/InjectionTimeSeries&gt;
+                    &lt;/injectionTimeSeries&gt;
+                    &lt;totalCement uom="lbf"&gt;116.6&lt;/totalCement&gt;
+                    &lt;totalGroutTake uom="gal[US]"&gt;25.9&lt;/totalGroutTake&gt;
+                    &lt;volumeInjectionPerLength uom="gal[US]/ft"&gt;1.3&lt;/volumeInjectionPerLength&gt;
+                    &lt;groutTemperature&gt;
+                        &lt;TemperatureMeasurement gml:id="tm1"&gt;
+                            &lt;temperature uom="degF"&gt;74&lt;/temperature&gt;
+                        &lt;/TemperatureMeasurement&gt;
+                    &lt;/groutTemperature&gt;
+                &lt;/GroutStage&gt;
+            &lt;/groutStage&gt;
+        &lt;/LinearGroutingActivity&gt;
+    &lt;/constructionActivity&gt;
+
+&lt;/Diggs&gt;</textarea></div>
+            <div class="editor-statusbar" id="editor-statusbar">
+               <div id="cursor-position">Line: 1, Column: 1</div>
+               <div id="xml-info">XML Mode</div>
+            </div>
+         </div>
+      </div><script src="https://cdnjs.cloudflare.com/ajax/libs/codemirror/5.65.5/codemirror.min.js"></script><script src="https://cdnjs.cloudflare.com/ajax/libs/codemirror/5.65.5/mode/xml/xml.min.js"></script><script src="https://cdnjs.cloudflare.com/ajax/libs/codemirror/5.65.5/addon/edit/matchbrackets.min.js"></script><script src="https://cdnjs.cloudflare.com/ajax/libs/codemirror/5.65.5/addon/fold/xml-fold.min.js"></script><script src="https://cdnjs.cloudflare.com/ajax/libs/codemirror/5.65.5/addon/edit/matchtags.min.js"></script><script src="https://cdnjs.cloudflare.com/ajax/libs/codemirror/5.65.5/addon/selection/active-line.min.js"></script><script src="https://cdnjs.cloudflare.com/ajax/libs/codemirror/5.65.5/addon/search/search.min.js"></script><script src="https://cdnjs.cloudflare.com/ajax/libs/codemirror/5.65.5/addon/search/searchcursor.min.js"></script><script src="https://cdnjs.cloudflare.com/ajax/libs/codemirror/5.65.5/addon/search/jump-to-line.min.js"></script><script src="https://cdnjs.cloudflare.com/ajax/libs/codemirror/5.65.5/addon/search/match-highlighter.min.js"></script><script src="https://cdnjs.cloudflare.com/ajax/libs/codemirror/5.65.5/addon/dialog/dialog.min.js"></script><script src="https://cdnjs.cloudflare.com/ajax/libs/codemirror/5.65.5/addon/fold/foldcode.min.js"></script><script src="https://cdnjs.cloudflare.com/ajax/libs/codemirror/5.65.5/addon/fold/foldgutter.min.js"></script><script src="https://cdnjs.cloudflare.com/ajax/libs/codemirror/5.65.5/addon/display/placeholder.min.js"></script><script>
+
+document.addEventListener('DOMContentLoaded', function() {
+  console.log('DOM content loaded - initializing application');
+  
+  // Editor management object to centralize initialization and state
+  const EditorManager = {
+    // State properties
+    instance: null,
+    initialized: false,
+    visible: false,
+    persistentMarker: null, // Store reference to persistent highlight marker
+    
+    /**
+     * Gets the CodeMirror instance, initializing it if needed
+     * @param {boolean} [showEditor=false] - Whether to show the editor if it's hidden
+     * @returns {CodeMirror|null} - The CodeMirror instance or null if initialization failed
+     */
+    getEditor: function(showEditor = false) {
+      // If we need to show the editor and it's not visible, show it
+      if (showEditor && !this.visible) {
+        this.toggleVisibility(true);
+      }
+      
+      // If not initialized, initialize
+      if (!this.initialized) {
+        this.initialize();
+      }
+      
+      return this.instance;
+    },
+    
+    /**
+     * Initialize the CodeMirror editor
+     * @returns {CodeMirror|null} - The CodeMirror instance or null if initialization failed
+     */
+    initialize: function() {
+      if (this.initialized && this.instance) {
+        this.refresh();
+        return this.instance;
+      }
+      
+      console.log('Initializing CodeMirror editor');
+      const editor = document.getElementById('xml-editor');
+      if (!editor) {
+        console.error('XML editor element not found');
+        return null;
+      }
+      
+      try {
+        // Create CodeMirror instance
+        this.instance = CodeMirror.fromTextArea(editor, {
+          mode: 'application/xml',
+          lineNumbers: true,
+          matchBrackets: true,
+          autoCloseTags: true,
+          matchTags: {bothTags: true},
+          indentUnit: 4,
+          tabSize: 4,
+          smartIndent: true,
+          lineWrapping: true,
+          theme: 'eclipse',
+          styleActiveLine: true,
+          foldGutter: true,
+          gutters: ["CodeMirror-linenumbers", "CodeMirror-foldgutter"],
+          extraKeys: {
+            "Ctrl-Space": "autocomplete",
+            "Ctrl-Q": function(cm) { cm.foldCode(cm.getCursor()); },
+            "Ctrl-F": "findPersistent",
+            "Tab": function(cm) {
+              // Insert spaces instead of tab character
+              const spaces = Array(cm.getOption("indentUnit") + 1).join(" ");
+              cm.replaceSelection(spaces);
+            }
+          }
+        });
+        
+        // Set up cursor position tracking
+        if (this.instance) {
+          this.instance.on('cursorActivity', this.updateCursorPosition);
+          this.initialized = true;
+          
+          // Ensure CodeMirror is refreshed when shown
+          setTimeout(() => this.refresh(), 50);
+          return this.instance;
+        }
+        
+        return null;
+      } catch (error) {
+        console.error('Error initializing CodeMirror:', error);
+        alert('Error initializing the XML editor. Some features may be limited.');
+        return null;
+      }
+    },
+    
+    /**
+     * Toggle editor visibility
+     * @param {boolean} [show] - Force show (true) or hide (false)
+     * @returns {boolean} - Whether the editor is now visible
+     */
+    toggleVisibility: function(show = null) {
+      const editorBody = document.getElementById('editor-body');
+      if (!editorBody) {
+        console.error('Editor body not found');
+        return false;
+      }
+      
+      // If show parameter is provided, set visibility accordingly
+      if (show !== null) {
+        if (show) {
+          editorBody.classList.add('open');
+        } else {
+          editorBody.classList.remove('open');
+        }
+      } else {
+        // Otherwise toggle visibility
+        editorBody.classList.toggle('open');
+      }
+      
+      // Update state
+      this.visible = editorBody.classList.contains('open');
+      
+      // If becoming visible, ensure initialization and refresh
+      if (this.visible) {
+        if (!this.initialized) {
+          this.initialize();
+        } else {
+          this.refresh();
+        }
+      } else {
+        // If hiding, clear any persistent highlights
+        if (this.persistentMarker) {
+          if (Array.isArray(this.persistentMarker)) {
+            this.persistentMarker.forEach(marker => {
+              if (marker) marker.clear();
+            });
+          } else if (this.persistentMarker.clear) {
+            this.persistentMarker.clear();
+          }
+          this.persistentMarker = null;
+        }
+      }
+      
+      console.log('Editor toggled, visible:', this.visible);
+      return this.visible;
+    },
+    
+    /**
+     * Refresh the CodeMirror instance to ensure proper rendering
+     */
+    refresh: function() {
+      if (this.instance) {
+        // Use timeout to ensure DOM updates first
+        setTimeout(() => {
+          this.instance.refresh();
+          console.log('CodeMirror refreshed');
+        }, 10);
+      }
+    },
+    
+    /**
+     * Update cursor position in status bar
+     */
+    updateCursorPosition: function() {
+      const cursorPosition = document.getElementById('cursor-position');
+      if (!cursorPosition) return;
+      
+      const cursor = EditorManager.instance.getCursor();
+      cursorPosition.textContent = `Line: ${cursor.line + 1}, Column: ${cursor.ch + 1}`;
+    },
+    
+    /**
+     * Format the XML content in the editor
+     * @returns {boolean} - Success status
+     */
+    formatXml: function() {
+      const editor = this.getEditor();
+      if (!editor) return false;
+      
+      try {
+        // Get the current XML content
+        let xmlContent = editor.getValue();
+        
+        // Basic XML formatting function
+        function prettyPrint(xml) {
+          let formatted = '';
+          let indent = '';
+          const tab = '  '; // 2 spaces for indentation
+          
+          xml = xml.replace(/(>)(<)(\/*)/g, '$1\n$2$3'); // Add line breaks
+          
+          const lines = xml.split('\n');
+          
+          lines.forEach(line => {
+            // Skip blank lines
+            if (line.trim() === '') return;
+            
+            const match = line.match(/^.*<(\/*)(.*?)(\s.*)?>/);
+            
+            if (match) {
+              const closing = match[1];
+              const opening = line.match(/<.*?>/g).length - (line.match(/<\/.*/g)?.length || 0);
+              
+              if (closing) {
+                // This is a closing tag, reduce indent
+                indent = indent.substring(tab.length);
+              }
+              
+              // Add the line with proper indentation
+              formatted += indent + line.trim() + '\n';
+              
+              if (!closing && opening === 1) {
+                // This is an opening tag, increase indent
+                indent += tab;
+              }
+            } else {
+              // This is content or a non-standard line, just add it with current indent
+              formatted += indent + line.trim() + '\n';
+            }
+          });
+          
+          return formatted.trim();
+        }
+        
+        // Format the XML
+        const formattedXml = prettyPrint(xmlContent);
+        
+        // Update CodeMirror with formatted XML
+        editor.setValue(formattedXml);
+        
+        // Put cursor at the beginning
+        editor.setCursor(0, 0);
+        
+        console.log('XML formatted successfully');
+        return true;
+      } catch (error) {
+        console.error('Error formatting XML:', error);
+        alert('There was an error formatting the XML. Please check if your XML is valid.');
+        return false;
+      }
+    },
+    
+    /**
+     * Find text in the editor
+     * @returns {boolean} - Success status
+     */
+    findInEditor: function() {
+      const editor = this.getEditor(true); // Show editor if needed
+      if (!editor) return false;
+      
+      // Use CodeMirror's built-in search functionality
+      editor.execCommand('findPersistent');
+      return true;
+    }
+  };
+  
+  //Function to find and select text based on View Element link in report record
+function findElementByXPath(xpath) {
+  console.log('Finding element with XPath:', xpath);
+  
+  // Get the editor, showing it if needed
+  const editor = EditorManager.getEditor(true);
+  if (!editor) {
+    console.error('Could not initialize editor for XPath navigation');
+    return false;
+  }
+  
+  // Clear any existing selection before starting a new search
+  editor.setCursor(editor.getCursor());
+  
+  // Parse the XPath to handle position indicators
+  const xmlContent = editor.getValue();
+  const xpathParts = xpath.split('/').filter(part => part.length > 0);
+  
+  let searchPos = 0;
+  let foundElement = false;
+  
+  for (let i = 0; i < xpathParts.length; i++) {
+    const part = xpathParts[i];
+    const tagName = part.replace(/\[\d+\]$/, '');
+    const positionMatch = part.match(/\[(\d+)\]$/);
+    const position = positionMatch ? parseInt(positionMatch[1]) : 1;
+    
+    // Find the nth occurrence of the tag
+    let count = 0;
+    let tagPos = -1;
+    let match;
+    const tagRegex = new RegExp('<' + tagName + '(?:\\s|/|>)', 'g');
+    
+    while ((match = tagRegex.exec(xmlContent.substring(searchPos))) !== null && count < position) {
+      count++;
+      tagPos = searchPos + match.index;
+      
+      if (count === position) {
+        searchPos = tagPos;
+        
+        // If this is the last part of the xpath, we've found our element
+        if (i === xpathParts.length - 1) {
+          foundElement = true;
+        }
+        break;
+      }
+    }
+    
+    // If we couldn't find the required occurrence, break
+    if (count < position) {
+      break;
+    }
+  }
+  
+  if (foundElement) {
+    console.log('Element found, determining boundaries');
+    // Find the closing tag to determine element boundaries
+    const lastPart = xpathParts[xpathParts.length - 1];
+    const elementName = lastPart.replace(/\[\d+\]$/, '');
+    
+    let depth = 1;
+    let endPos = searchPos;
+    
+    // Search for closing tag, considering nesting
+    for (let i = searchPos + 1; i < xmlContent.length && depth > 0; i++) {
+      // Check for opening tag
+      if (xmlContent.substring(i, i + elementName.length + 1).indexOf('<' + elementName) === 0) {
+        // Make sure it's a tag and not part of text
+        const nextChar = xmlContent.charAt(i + elementName.length + 1);
+        if (nextChar === ' ' || nextChar === '/' || nextChar === '>') {
+          depth++;
+        }
+      }
+      // Check for closing tag
+      else if (xmlContent.substring(i, i + elementName.length + 2).indexOf('</' + elementName) === 0) {
+        depth--;
+        if (depth === 0) {
+          // Find the end of the closing tag
+          const closeTagEnd = xmlContent.indexOf('>', i);
+          if (closeTagEnd !== -1) {
+            endPos = closeTagEnd + 1; // Length of '>'
+          }
+          break;
+        }
+      }
+    }
+    
+    console.log('Setting CodeMirror selection');
+    
+    // Convert positions to line and character positions for CodeMirror
+    const startPos = editor.posFromIndex(searchPos);
+    const endPosition = editor.posFromIndex(endPos);
+    
+    // Select the element in CodeMirror - this is all we need!
+    editor.setSelection(startPos, endPosition);
+    
+    // Calculate line positions for better centering
+    const selectionHeight = endPosition.line - startPos.line;
+    const visibleLines = Math.floor(350 / editor.defaultTextHeight()) - 4; // Estimate visible lines in 350px - buffer
+    
+    // Scroll to show the selection
+    if (selectionHeight > visibleLines) {
+      // For large selections, focus on the start of the selection with some padding above
+      const paddingLines = Math.min(Math.floor(visibleLines * 0.3), 5); // 30% of visible area or max 5 lines
+      const targetLine = Math.max(0, startPos.line - paddingLines);
+      
+      // Use scrollTo instead of scrollIntoView for more control
+      const targetPos = editor.heightAtLine(targetLine, "local");
+      editor.scrollTo(null, targetPos);
+    } else {
+      // For smaller selections that fit in the window, center it
+      const middleLine = Math.floor((startPos.line + endPosition.line) / 2);
+      
+      // Calculate the ideal position
+      const middleHeight = editor.heightAtLine(middleLine, "local");
+      const windowMiddle = editor.getScrollInfo().clientHeight / 2;
+      const targetPos = middleHeight - windowMiddle;
+      
+      // Ensure we don't scroll beyond document boundaries
+      const maxScroll = editor.getScrollInfo().height - editor.getScrollInfo().clientHeight;
+      const scrollPos = Math.max(0, Math.min(targetPos, maxScroll));
+      
+      // Apply the scroll
+      editor.scrollTo(null, scrollPos);
+    }
+    
+    // Set up a one-time listener to clear the selection when the user interacts
+    const clearSelectionOnInteraction = () => {
+      editor.setCursor(editor.getCursor()); // This clears the selection
+      editor.off('cursorActivity', clearSelectionOnInteraction);
+    };
+    
+    editor.on('cursorActivity', clearSelectionOnInteraction);
+    
+    console.log('Element found and selected in editor');
+    return true;
+  } else {
+    console.log('Element not found in XML content');
+    alert('Could not find the specified element. The XML structure may have changed.');
+    return false;
+  }
+}
+
+  /**
+   * Directly save XML file using File System Access API with fallback to direct download
+   * @returns {Promise<boolean>} True if save was successful
+   */
+  async function saveXmlDirectly() {
+    try {
+      // Get the editor from the manager
+      const editor = EditorManager.getEditor();
+      if (!editor) {
+        alert('Please open the editor first.');
+        return false;
+      }
+      
+      // Get original filename and prepare default save name
+      const fileInfoSpan = document.querySelector('.file-info span');
+      if (!fileInfoSpan) {
+        console.error('File info span not found');
+        alert('Error: Could not determine filename');
+        return false;
+      }
+      
+      // Prepare filename
+      const originalFileName = fileInfoSpan.textContent.trim();
+      let suggestedName = 'edited_' + originalFileName;
+      
+      // Ensure proper file extension
+      if (!suggestedName.endsWith('.xml') && !suggestedName.endsWith('.diggs')) {
+        suggestedName += '.xml';
+      }
+      
+      // Get XML content from CodeMirror
+      const xmlContent = editor.getValue();
+      
+      // Try to use File System Access API if available
+      if ('showSaveFilePicker' in window) {
+        try {
+          console.log('Using File System Access API');
+          
+          const opts = {
+            suggestedName: suggestedName,
+            types: [{
+              description: 'XML Files',
+              accept: {
+                'application/xml': ['.xml', '.diggs']
+              }
+            }]
+          };
+          
+          // Show native file picker dialog
+          const fileHandle = await window.showSaveFilePicker(opts);
+          
+          // Create a writable stream and write content
+          const writable = await fileHandle.createWritable();
+          await writable.write(xmlContent);
+          await writable.close();
+          
+          console.log('XML file saved successfully via File System Access API');
+          return true;
+        } catch (err) {
+          console.error('Error using File System Access API:', err);
+          
+          // If user cancelled, just return
+          if (err.name === 'AbortError') {
+            console.log('User cancelled the file save operation');
+            return false;
+          }
+          
+          // Fall back to direct download
+          console.log('Falling back to direct download');
+          return downloadFile(xmlContent, suggestedName, 'application/xml');
+        }
+      } else {
+        // Fall back to direct download
+        console.log('File System Access API not supported, using direct download');
+        return downloadFile(xmlContent, suggestedName, 'application/xml');
+      }
+    } catch (err) {
+      console.error('Error in save operation:', err);
+      alert('Error saving XML file: ' + err.message);
+      return false;
+    }
+  }
+  
+  /**
+   * Directly save CSV report using File System Access API with fallback to direct download
+   * @returns {Promise<boolean>} True if save was successful
+   */
+  async function saveCsvDirectly() {
+    try {
+      // Get original filename and prepare default save name
+      const fileInfoSpan = document.querySelector('.file-info span');
+      if (!fileInfoSpan) {
+        console.error('File info span not found');
+        alert('Error: Could not determine filename');
+        return false;
+      }
+      
+      // Prepare filename
+      const originalFileName = fileInfoSpan.textContent.trim();
+      let suggestedName = originalFileName.replace(/\.[^/.]+$/, '') + '_validation_report.csv';
+      
+      // Ensure proper file extension
+      if (!suggestedName.endsWith('.csv')) {
+        suggestedName += '.csv';
+      }
+      
+      // Generate CSV content
+      const csvData = generateCsvContent();
+      if (!csvData || csvData.length === 0) {
+        console.error('Failed to generate CSV content');
+        alert('Error: No validation data available to export');
+        return false;
+      }
+      
+      // Try to use File System Access API if available
+      if ('showSaveFilePicker' in window) {
+        try {
+          console.log('Using File System Access API for CSV');
+          
+          const opts = {
+            suggestedName: suggestedName,
+            types: [{
+              description: 'CSV Files',
+              accept: {
+                'text/csv': ['.csv']
+              }
+            }]
+          };
+          
+          // Show native file picker dialog
+          const fileHandle = await window.showSaveFilePicker(opts);
+          
+          // Create a writable stream and write content
+          const writable = await fileHandle.createWritable();
+          await writable.write(csvData);
+          await writable.close();
+          
+          console.log('CSV file saved successfully via File System Access API');
+          return true;
+        } catch (err) {
+          console.error('Error using File System Access API for CSV:', err);
+          
+          // If user cancelled, just return
+          if (err.name === 'AbortError') {
+            console.log('User cancelled the CSV file save operation');
+            return false;
+          }
+          
+          // Fall back to direct download
+          console.log('Falling back to direct download for CSV');
+          return downloadFile(csvData, suggestedName, 'text/csv;charset=utf-8;');
+        }
+      } else {
+        // Fall back to direct download
+        console.log('File System Access API not supported, using direct download for CSV');
+        return downloadFile(csvData, suggestedName, 'text/csv;charset=utf-8;');
+      }
+    } catch (err) {
+      console.error('Error in CSV save operation:', err);
+      alert('Error saving CSV file: ' + err.message);
+      return false;
+    }
+  }
+  
+  /**
+   * Helper function for direct file download when File System Access API is unavailable
+   * @param {string} content - File content to download
+   * @param {string} filename - Suggested filename
+   * @param {string} mimeType - MIME type of the file
+   * @returns {boolean} True if download was initiated successfully
+   */
+  function downloadFile(content, filename, mimeType) {
+    try {
+      // Create blob and download link
+      const blob = new Blob([content], { type: mimeType });
+      const url = URL.createObjectURL(blob);
+      
+      // Create and trigger download
+      const a = document.createElement('a');
+      a.href = url;
+      a.download = filename;
+      document.body.appendChild(a);
+      a.click();
+      document.body.removeChild(a);
+      
+      // Clean up
+      URL.revokeObjectURL(url);
+      console.log(`File "${filename}" downloaded via direct method`);
+      
+      return true;
+    } catch (err) {
+      console.error('Error in download:', err);
+      alert('Could not download the file: ' + err.message);
+      return false;
+    }
+  }
+  
+  /**
+   * Function to generate CSV content from the validation table
+   * @returns {string} CSV content
+   */
+  function generateCsvContent() {
+    const table = document.getElementById('validation-table');
+    if (!table) {
+      console.error('Validation table not found');
+      return '';
+    }
+    
+    const rows = table.querySelectorAll('tr');
+    if (rows.length === 0) {
+      console.error('No rows found in validation table');
+      return '';
+    }
+    
+    let csv = [];
+    
+    // Get headers
+    const headers = [];
+    const headerCells = rows[0].querySelectorAll('th');
+    headerCells.forEach(cell => {
+      headers.push('"' + cell.textContent.trim() + '"');
+    });
+    csv.push(headers.join(','));
+    
+    // Get table data
+    for (let i = 1; i < rows.length; i++) {
+      // Skip hidden rows (filtered out)
+      if (rows[i].style.display === 'none') continue;
+      
+      const row = rows[i];
+      const cells = row.querySelectorAll('td');
+      const rowData = [];
+      
+      cells.forEach((cell, index) => {
+        // Special case for severity column - extract text from badge
+        if (index === 0) {
+          const badge = cell.querySelector('.severity-badge');
+          if (badge) {
+            rowData.push('"' + badge.textContent.trim() + '"');
+          } else {
+            rowData.push('""');
+          }
+        } 
+        // Special case for location column - extract path from tooltip
+        else if (index === 1 && cell.querySelector('.tooltip')) {
+          const tooltip = cell.querySelector('.tooltiptext');
+          rowData.push('"' + (tooltip ? tooltip.textContent.trim() : '') + '"');
+        }
+        // Element value column - extract text without HTML
+        else if (index === 4) {
+          const preElement = cell.querySelector('pre');
+          rowData.push('"' + (preElement ? preElement.textContent.replace(/"/g, '""') : '') + '"');
+        }
+        // Regular columns
+        else {
+          rowData.push('"' + cell.textContent.trim().replace(/"/g, '""') + '"');
+        }
+      });
+      
+      csv.push(rowData.join(','));
+    }
+    
+    return csv.join('\n');
+  }
+  
+  /**
+   * Filter table rows by severity
+   * @param {string} severity - Severity to filter by ('all', 'error', 'warning', 'info')
+   */
+  function filterBySeverity(severity) {
+    const table = document.getElementById('validation-table');
+    if (!table) {
+      console.error('Validation table not found');
+      return;
+    }
+    
+    const tbody = table.getElementsByTagName('tbody')[0];
+    if (!tbody) {
+      console.error('Table body not found');
+      return;
+    }
+    
+    const rows = tbody.getElementsByTagName('tr');
+    
+    for (let i = 0; i < rows.length; i++) {
+      const row = rows[i];
+      if (severity === 'all') {
+        row.style.display = '';
+      } else {
+        const severityCell = row.getElementsByTagName('td')[0];
+        if (!severityCell) continue;
+        
+        const badge = severityCell.querySelector('.severity-badge');
+        if (!badge) continue;
+        
+        const severityText = badge.textContent.trim().toLowerCase();
+        
+        if (severityText === severity) {
+          row.style.display = '';
+        } else {
+          row.style.display = 'none';
+        }
+      }
+    }
+  }
+  
+  // Set up event listeners for all interactive elements
+  function setupEventListeners() {
+    console.log('Setting up event listeners');
+    
+    // Editor toggle button
+    const toggleEditorBtn = document.getElementById('toggle-editor');
+    if (toggleEditorBtn) {
+      toggleEditorBtn.addEventListener('click', () => EditorManager.toggleVisibility());
+    } else {
+      console.error('Toggle editor button not found');
+    }
+    
+    // Save XML button
+    const saveXmlBtn = document.getElementById('save-xml');
+    if (saveXmlBtn) {
+      saveXmlBtn.addEventListener('click', saveXmlDirectly);
+    } else {
+      console.error('Save XML button not found');
+    }
+    
+    // Format XML button
+    const formatXmlBtn = document.getElementById('format-xml');
+    if (formatXmlBtn) {
+      formatXmlBtn.addEventListener('click', () => EditorManager.formatXml());
+    } else {
+      console.error('Format XML button not found');
+    }
+    
+    // Find button
+    const findXmlBtn = document.getElementById('find-xml');
+    if (findXmlBtn) {
+      findXmlBtn.addEventListener('click', () => EditorManager.findInEditor());
+    } else {
+      console.error('Find XML button not found');
+    }
+    
+    // Export CSV button
+    const exportCsvBtn = document.getElementById('export-csv');
+    if (exportCsvBtn) {
+      exportCsvBtn.addEventListener('click', () => saveCsvDirectly());
+    } else {
+      console.error('Export CSV button not found');
+    }
+    
+    // Set up XPath links
+    const xpathLinks = document.querySelectorAll('.xpath-link');
+    console.log('Found XPath links:', xpathLinks.length);
+    
+    xpathLinks.forEach(link => {
+      link.addEventListener('click', e => {
+        e.preventDefault();
+        const xpath = link.getAttribute('data-xpath');
+        if (xpath) {
+          console.log('Navigating to XPath:', xpath);
+          findElementByXPath(xpath);
+        } else {
+          console.error('No XPath data attribute found');
+        }
+      });
+    });
+    
+    // Set up severity filter
+    const severityFilter = document.getElementById('severity-filter');
+    if (severityFilter) {
+      severityFilter.addEventListener('change', function() {
+        filterBySeverity(this.value);
+      });
+    } else {
+      console.error('Severity filter dropdown not found');
+    }
+    
+    console.log('Event listeners set up successfully');
+  }
+  
+  // Initialize everything
+  setupEventListeners();
+  
+  // Initial filter
+  const severityFilter = document.getElementById('severity-filter');
+  if (severityFilter) {
+    filterBySeverity(severityFilter.value);
+  } else {
+    console.error('Severity filter dropdown not found');
+  }
+  
+  console.log('Initialization complete');
+});
+
+        </script></body>
+</html>
