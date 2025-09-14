@@ -1220,4 +1220,84 @@
             <documentation>A property that holds a PpdResultSet object</documentation>
         </annotation>
     </element>
+    <element name="Measurement" substitutionGroup="diggs:AbstractMeasurement"
+        type="diggs:MeasurementType"/>
+    <complexType name="MeasurementType">
+        <complexContent>
+            <extension base="diggs:AbstractMeasurementType">
+                <sequence>
+                    <sequence>
+                        <element minOccurs="0" name="samplingTime"
+                            type="diggs:TimeIntervalOrInstantPropertyType">
+                            <annotation>
+                                <documentation>For spatial results, this describes the time that the result applies to the roperty being measured. This is often the time of
+interaction by a sampling activity or measurement procedure with a real-world feature.</documentation>
+                            </annotation>
+                        </element>
+                        <element minOccurs="0" name="resultTime"
+                            type="diggs:TimeIntervalOrInstantPropertyType">
+                            <annotation>
+                                <documentation>For spatial results, Describes the time when the result became available, typically when the procedure associated with the measurement was completed. For some measurements this is identical to the samplingTime. However, there are important cases where they differ. Example: Where a measurement is made on a specimen in a laboratory, the samplingTime should record the time the specimen was retrieved
+ from its host, while the FresultTime should record the time the laboratory procedure was applied. Example: Where monitoring
+measurement results are post-processed, the resultTime is the
+post-processing time, while the samplingTime preserves the time of initial interaction with the world. </documentation>
+                            </annotation>
+                        </element>
+                        <element minOccurs="0" name="validTime"
+                            type="diggs:TimeIntervalOrInstantPropertyType">
+                            <annotation>
+                                <documentation>For spatial result, describes the time period during which the result is intended to be used.</documentation>
+                            </annotation>
+                        </element>
+                        <element minOccurs="0" name="resultLocation"
+                            type="diggs:LocationPropertyType">
+                            <annotation>
+                                <documentation>For measurements with temporal results, the location within a sampling feature that is being monitored. For example, for awater level measurement, the location would be the depth,interval in the well where perforations are located (or where,water enters the well)</documentation>
+                            </annotation>
+                        </element>
+                    </sequence>
+                    <element name="outcome" type="diggs:MeasurementResultPropertyType">
+                        <annotation>
+                            <documentation>A property that contains the information about what
+                                properties are being measured, the results of the measurement, and
+                                the associated locations that the measurement results relate
+                                to.</documentation>
+                        </annotation>
+                    </element>
+                    <element maxOccurs="unbounded" minOccurs="0" name="procedure"
+                        type="diggs:TestProcedurePropertyType"/>
+                </sequence>
+            </extension>
+        </complexContent>
+    </complexType>
+    <element name="SpatialResult" substitutionGroup="gml:AbstractCoverage"
+        type="diggs:TestResultType">
+        <annotation>
+            <documentation>An object that contains properties that report the results of a
+                test.</documentation>
+        </annotation>
+    </element>
+    <element name="TemporalResult" substitutionGroup="gml:AbstractCoverage"
+        type="diggs:TemporalResultType">
+        <annotation>
+            <documentation>An object that contains properties of a monitoring activity
+                result.</documentation>
+        </annotation>
+    </element>
+    <complexType name="TemporalResultType">
+        <complexContent>
+            <restriction base="gml:AbstractCoverageType">
+                <sequence>
+                    <element ref="diggs:timeDomain"/>
+                    <element ref="diggs:results"/>
+                </sequence>
+            </restriction>
+        </complexContent>
+    </complexType>
+    <complexType name="MeasurementResultPropertyType">
+        <choice>
+            <element ref="diggs:SpatialResult"/>
+            <element ref="diggs:TemporalResult"/>
+        </choice>
+    </complexType>
 </schema>

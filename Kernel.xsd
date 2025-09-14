@@ -6015,7 +6015,28 @@ DSB: REMOVED FROM PROFILE
         <complexContent>
             <extension base="diggs:AbstractMeasurementType">
                 <sequence>
+                    <element minOccurs="0" name="samplingTime"
+                        type="diggs:TimeIntervalOrInstantPropertyType">
+                        <annotation>
+                            <documentation>Describes the time interval that the monitor result applies to. This is an optional property but should be used where the timeIntervalList is used in the timeDomain property of the Monitor outcome</documentation>
+                        </annotation>
+                    </element>
+                    <element name="monitorLocation" type="diggs:LocationPropertyType">
+                        <annotation>
+                            <documentation>Identifies the asociated with the monitoring measurement.This may be the detector or sensor location, or the response zone (such as a well screen interval) over which the measurement applies. In the case where the location is a gemetry aggregate, the monitor results will refer to all locations as a whole. In cases where a sensor has detectors in multiple locations, eqch of which is monitoring properties at the detector location, the monitor results for each detector should be contained within a single, separate Monitor object.</documentation>
+                        </annotation>
+                    </element>
+                    <element name="outcome" type="diggs:MonitorResultPropertyType">
+                        <annotation>
+                            <documentation>A property that contains the information about what
+                                properties are being measured, the results of the measurement, and
+                                the associated locations that the measurement results relate
+                                to.</documentation>
+                        </annotation>
+                    </element>
                     <element name="reading" type="diggs:ReadingGroupPropertyType"
+                        maxOccurs="unbounded"/>
+                    <element minOccurs="0" name="procedure" type="diggs:TestProcedurePropertyType"
                         maxOccurs="unbounded"/>
                 </sequence>
             </extension>
@@ -7232,15 +7253,6 @@ DSB: REMOVED FROM PROFILE
             <extension base="diggs:AbstractObjectType">
                 <sequence>
                     <choice>
-                        <element name="responseZoneLocation" type="diggs:LocationPropertyType">
-                            <annotation>
-                                <documentation>Identifies the location of the response zone within
-                                    the sampling feature that is being monitored. For example, for a
-                                    water level measurement, the location would be the depth
-                                    interval in the well where perforations are located (or where
-                                    water enters the well)</documentation>
-                            </annotation>
-                        </element>
                         <element minOccurs="1" ref="diggs:responseZoneLocationRef">
                             <annotation>
                                 <documentation>The location of the description referenced to the
@@ -7250,14 +7262,6 @@ DSB: REMOVED FROM PROFILE
                             </annotation>
                         </element>
                     </choice>
-                    <element name="outcome" type="diggs:MonitorResultPropertyType">
-                        <annotation>
-                            <documentation>A property that contains the information about what
-                                properties are being measured, the results of the measurement, and
-                                the associated locations that the measurement results relate
-                                to.</documentation>
-                        </annotation>
-                    </element>
                     <element name="sensor" type="diggs:SensorPropertyType" maxOccurs="unbounded"
                         minOccurs="0"/>
                 </sequence>
@@ -11178,56 +11182,6 @@ Includes:</documentation>
     <simpleType name="offsetDirectionEnumExtType">
         <union memberTypes="diggs:offsetDirectionEnumType diggs:OtherNameType"/>
     </simpleType>
-    <element name="Measurement" type="diggs:MeasurementType"
-        substitutionGroup="diggs:AbstractMeasurement"/>
-    <complexType name="MeasurementType">
-        <complexContent>
-            <extension base="diggs:AbstractMeasurementType">
-                <sequence>
-                    <sequence>
-                        <element minOccurs="0" name="samplingTime"
-                            type="diggs:TimeIntervalOrInstantPropertyType">
-                            <annotation>
-                                <documentation>For spatial results, this describes the time that the result applies to the roperty being measured. This is often the time of
-interaction by a sampling activity or measurement procedure with a real-world feature.</documentation>
-                            </annotation>
-                        </element>
-                        <element minOccurs="0" name="resultTime"
-                            type="diggs:TimeIntervalOrInstantPropertyType">
-                            <annotation>
-                                <documentation>For spatial results, Describes the time when the result became available, typically when the procedure associated with the measurement was completed. For some measurements this is identical to the samplingTime. However, there are important cases where they differ. Example: Where a measurement is made on a specimen in a laboratory, the samplingTime should record the time the specimen was retrieved
- from its host, while the FresultTime should record the time the laboratory procedure was applied. Example: Where monitoring
-measurement results are post-processed, the resultTime is the
-post-processing time, while the samplingTime preserves the time of initial interaction with the world. </documentation>
-                            </annotation>
-                        </element>
-                        <element minOccurs="0" name="validTime"
-                            type="diggs:TimeIntervalOrInstantPropertyType">
-                            <annotation>
-                                <documentation>For spatial result, describes the time period during which the result is intended to be used.</documentation>
-                            </annotation>
-                        </element>
-                        <element name="resultLocation" type="diggs:LocationPropertyType"
-                            minOccurs="0">
-                            <annotation>
-                                <documentation>For measurements with temporal results, the location within a sampling feature that is being monitored. For example, for awater level measurement, the location would be the depth,interval in the well where perforations are located (or where,water enters the well)</documentation>
-                            </annotation>
-                        </element>
-                    </sequence>
-                    <element name="outcome" type="diggs:MeasurementResultPropertyType">
-                        <annotation>
-                            <documentation>A property that contains the information about what
-                                properties are being measured, the results of the measurement, and
-                                the associated locations that the measurement results relate
-                                to.</documentation>
-                        </annotation>
-                    </element>
-                    <element minOccurs="0" name="procedure" type="diggs:TestProcedurePropertyType"
-                        maxOccurs="unbounded"/>
-                </sequence>
-            </extension>
-        </complexContent>
-    </complexType>
     <complexType name="DipMeasureType">
         <simpleContent>
             <extension base="eml:PlaneAngleMeasure">
@@ -11238,35 +11192,5 @@ post-processing time, while the samplingTime preserves the time of initial inter
                 </attribute>
             </extension>
         </simpleContent>
-    </complexType>
-    <element name="SpatialResult" substitutionGroup="gml:AbstractCoverage"
-        type="diggs:TestResultType">
-        <annotation>
-            <documentation>An object that contains properties that report the results of a
-                test.</documentation>
-        </annotation>
-    </element>
-    <element name="TemporalResult" type="diggs:TemporalResultType"
-        substitutionGroup="gml:AbstractCoverage">
-        <annotation>
-            <documentation>An object that contains properties of a monitoring activity
-                result.</documentation>
-        </annotation>
-    </element>
-    <complexType name="TemporalResultType">
-        <complexContent>
-            <restriction base="gml:AbstractCoverageType">
-                <sequence>
-                    <element ref="diggs:timeDomain"/>
-                    <element ref="diggs:results"/>
-                </sequence>
-            </restriction>
-        </complexContent>
-    </complexType>
-    <complexType name="MeasurementResultPropertyType">
-        <choice>
-            <element ref="diggs:SpatialResult"/>
-            <element ref="diggs:TemporalResult"/>
-        </choice>
     </complexType>
 </schema>
