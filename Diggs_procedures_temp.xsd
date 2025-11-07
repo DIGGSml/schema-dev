@@ -858,7 +858,166 @@
             <element ref="diggs:CTConsolidationIncrement"/>
         </sequence>
     </complexType>
-    <element name="MWDProcedure" substitutionGroup="diggs:AbstractProcedure"
+    <element name="SwellOrCollapseTest" type="diggs:SwellOrCollapseTestType"/>
+    <complexType name="SwellOrCollapseTestType">
+        <annotation>
+            <documentation>Base type for ConsolidationTest</documentation>
+        </annotation>
+        <complexContent>
+            <extension base="diggs:AbstractLaboratoryTestProcedureType">
+                <sequence>
+                    <element default="false" minOccurs="0" name="swellTestProcedure"
+                        type="gml:CodeType">
+                        <annotation>
+                            <documentation>The swell test procedure type. For ASTM D 4546, values would be "A", "B", or "C". Intended to come from a constrolled list of terms</documentation>
+                        </annotation>
+                    </element>
+                    <element minOccurs="0" name="moldHeight" type="eml:LengthMeasureExt">
+                        <annotation>
+                            <documentation>Height of the mold used for the test.
+</documentation>
+                        </annotation>
+                    </element>
+                    <element minOccurs="0" name="testWaterType" type="diggs:DiggsStringType">
+                        <annotation>
+                            <documentation>Description of the source and type of test water</documentation>
+                        </annotation>
+                    </element>
+                    <element maxOccurs="unbounded" minOccurs="0" name="swellTestIncrement"
+                        type="diggs:SwellTestIncrementPropertyType">
+                        <annotation>
+                            <documentation>A property containing a SwellTestIncrement object that contains intermediate swell test data for a particular specimen and vertical stress.</documentation>
+                        </annotation>
+                    </element>
+                </sequence>
+            </extension>
+        </complexContent>
+    </complexType>
+    <complexType name="SwellTestIncrementPropertyType">
+        <sequence>
+            <element ref="diggs:SwellTestIncrement"/>
+        </sequence>
+    </complexType>
+    <element name="SwellTestIncrement" type="diggs:SwellTestIncrementType"/>
+    <complexType name="SwellTestIncrementType">
+        <complexContent>
+            <extension base="diggs:AbstractProcedureTrialType">
+                <sequence>
+                    <element minOccurs="0" ref="diggs:specimenRef"/>
+                    <element minOccurs="0" name="seatingPressure" type="eml:PressureMeasureExt">
+                        <annotation>
+                            <documentation>The pressure applied to the specimen prior to initiating the consolidation stage.</documentation>
+                        </annotation>
+                    </element>
+                    <element maxOccurs="2" minOccurs="0" name="preInundationConsolidation"
+                        type="diggs:PreInundationConsolidationPropertyType">
+                        <annotation>
+                            <documentation>A property containing a SwellTestIncrement object containing properties of a consolidation event. ASTM D4546 Methods A and C use one consolidation event, whereas Method B comprises 2 consolidation events with an intervening period of specimen unloading. </documentation>
+                        </annotation>
+                    </element>
+                    <element minOccurs="0" name="postInundatiomSwellOrCollapse"
+                        type="diggs:PostInundationSwellOrCollapsePropertyType">
+                        <annotation>
+                            <documentation>A property that contains a SwellOrCollapseStage object detailing the measureed swell or collapse of the specimen following inundation by water.</documentation>
+                        </annotation>
+                    </element>
+                    <element maxOccurs="1" minOccurs="0" name="postInundationConsolidation"
+                        type="diggs:PreInundationConsolidationPropertyType">
+                        <annotation>
+                            <documentation>A property containing a SwellTestIncrement object containing properties of a consolidation stage that occurs after the post-inundation deformation stage (ASTM D4546 Method C).</documentation>
+                        </annotation>
+                    </element>
+                </sequence>
+            </extension>
+        </complexContent>
+    </complexType>
+    <complexType name="PreInundationConsolidationPropertyType">
+        <sequence>
+            <element ref="diggs:SwellTestConsolidationStage"/>
+        </sequence>
+    </complexType>
+    <element name="SwellTestConsolidationStage" type="diggs:SwellTestConsolidationStageType"/>
+    <complexType name="SwellTestConsolidationStageType">
+        <complexContent>
+            <extension base="diggs:AbstractProcedureTrialType">
+                <sequence>
+                    <element minOccurs="0" ref="diggs:timeInterval"/>
+                    <element minOccurs="1" name="appliedLoad" type="eml:ForceMeasure">
+                        <annotation>
+                            <documentation>Load applied for this consolidation loading
+                                increment</documentation>
+                        </annotation>
+                    </element>
+                    <element minOccurs="1" name="loadingStress" type="eml:PressureMeasure">
+                        <annotation>
+                            <documentation>Load applied for this consolidation loading
+                                increment</documentation>
+                        </annotation>
+                    </element>
+                    <element maxOccurs="unbounded" minOccurs="0" name="consolidationIncrement"
+                        type="diggs:CTConsolidationIncrementPropertyType">
+                        <annotation>
+                            <documentation>Elapsed time and deformation recorded during this loading
+                                increment</documentation>
+                        </annotation>
+                    </element>
+                    <element minOccurs="1" name="finalaxialDeformation" type="eml:LengthMeasure">
+                        <annotation>
+                            <documentation>Normal deformation of the sample at the end of the
+                                loading increment</documentation>
+                        </annotation>
+                    </element>
+                    <element minOccurs="0" name="finalStress" type="eml:PressureMeasure">
+                        <annotation>
+                            <documentation>Loading stress measured at end of loading
+                                increment</documentation>
+                        </annotation>
+                    </element>
+                </sequence>
+            </extension>
+        </complexContent>
+    </complexType>
+    <complexType name="PostInundationSwellOrCollapsePropertyType">
+        <sequence>
+            <element ref="diggs:SwellOrCollapseStage"/>
+        </sequence>
+    </complexType>
+    <element name="SwellOrCollapseStage" type="diggs:SwellOrCollapseStageType"/>
+    <complexType name="SwellOrCollapseStageType">
+        <complexContent>
+            <extension base="diggs:AbstractProcedureTrialType">
+                <sequence>
+                    <element name="swellOrCollapseMeasurements"
+                        type="diggs:DeformationMeasurementsArrayPropertyType"/>
+                </sequence>
+            </extension>
+        </complexContent>
+    </complexType>
+    <complexType name="DeformationMeasurementsArrayPropertyType">
+        <sequence maxOccurs="unbounded">
+            <element ref="diggs:SwellOrCollapseMeasurement"/>
+        </sequence>
+    </complexType>
+    <element name="SwellOrCollapseMeasurement" type="diggs:SwellOrCollapseMeasurementType"/>
+    <complexType name="SwellOrCollapseMeasurementType">
+        <complexContent>
+            <extension base="diggs:AbstractProcedureTrialType">
+                <sequence>
+                    <element minOccurs="1" name="elapsedTime" type="eml:TimeMeasure">
+                        <annotation>
+                            <documentation>Elapsed time since the beginning of the lmeasurements.</documentation>
+                        </annotation>
+                    </element>
+                    <element minOccurs="1" name="swellOrCollapse" type="eml:LengthMeasure">
+                        <annotation>
+                            <documentation>Axial defornation of the specimen at the associated time interval. This value is equal to the specimen height at the associated time minus the initial specimen height at time zero. Positive values represent swell, whereas negative values represent collapse or hydrocompression deformation.</documentation>
+                        </annotation>
+                    </element>
+                </sequence>
+            </extension>
+        </complexContent>
+    </complexType>
+    <element name="MWDProcedure" substitutionGroup="diggs:AbstractInsituTestProcedure"
         type="diggs:MWDProcedureType">
         <annotation>
             <documentation>The procedure object associated with a MeasurementWhileDrilling
@@ -867,7 +1026,7 @@
     </element>
     <complexType name="MWDProcedureType">
         <complexContent>
-            <extension base="diggs:AbstractTestProcedureType">
+            <extension base="diggs:AbstractInsituTestProcedureType">
                 <sequence>
                     <element minOccurs="0" name="dataCaptureSoftware"
                         type="diggs:SoftwareApplicationPropertyType"/>
