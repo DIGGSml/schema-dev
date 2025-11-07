@@ -4987,6 +4987,11 @@ Includes:</documentation>
                     <documentation>An array of doubles.</documentation>
                 </annotation>
             </enumeration>
+            <enumeration value="doubleOrLimitValue">
+                <annotation>
+                    <documentation>Union of double and string value preceded by comparison operators.</documentation>
+                </annotation>
+            </enumeration>
         </restriction>
     </simpleType>
     <element name="investigationTarget" type="diggs:investigationTargetEnumExtType">
@@ -5057,14 +5062,14 @@ Includes:</documentation>
                 measurement.</documentation>
         </annotation>
     </element>
+    <complexType name="LimitArrayPropertyType">
+        <sequence maxOccurs="unbounded">
+            <element ref="diggs:Limit"/>
+        </sequence>
+    </complexType>
     <simpleType name="LimitEnumType">
         <union memberTypes="diggs:OtherNameType diggs:QualifierEnumType"/>
     </simpleType>
-    <complexType name="LimitPropertyType">
-        <sequence>
-            <element maxOccurs="1" minOccurs="1" ref="diggs:Limit"/>
-        </sequence>
-    </complexType>
     <complexType name="LimitType">
         <complexContent>
             <extension base="diggs:AbstractObjectType">
@@ -5075,7 +5080,7 @@ Includes:</documentation>
                                 applies</documentation>
                         </annotation>
                     </element>
-                    <element maxOccurs="1" minOccurs="0" name="limitType" type="diggs:LimitEnumType">
+                    <element maxOccurs="1" minOccurs="1" name="limitType" type="diggs:LimitEnumType">
                         <annotation>
                             <documentation>A controlled list of terms that decribe the type of limit
                                 reported. Allowable values are: upper lower method quantification
@@ -5083,11 +5088,12 @@ Includes:</documentation>
                                 value</documentation>
                         </annotation>
                     </element>
-                    <element maxOccurs="1" minOccurs="0" name="value" type="diggs:DiggsStringType">
+                    <element maxOccurs="1" minOccurs="1" name="value" type="diggs:DiggsStringType">
                         <annotation>
                             <documentation>The value of the limit. </documentation>
                         </annotation>
                     </element>
+                    <element name="outOfLimitValue" type="diggs:DiggsStringType"/>
                 </sequence>
             </extension>
         </complexContent>
@@ -5998,7 +6004,7 @@ DSB: REMOVED FROM PROFILE
     </element>
     <complexType name="MonitorResultPropertyType">
         <sequence>
-            <element ref="diggs:MonitorResult"/>
+            <element ref="diggs:TemporalResult"/>
         </sequence>
     </complexType>
     <complexType name="MonitorResultType">
@@ -6023,7 +6029,7 @@ DSB: REMOVED FROM PROFILE
                     </element>
                     <element name="monitorLocation" type="diggs:LocationPropertyType">
                         <annotation>
-                            <documentation>Identifies the asociated with the monitoring measurement.This may be the detector or sensor location, or the response zone (such as a well screen interval) over which the measurement applies. In the case where the location is a gemetry aggregate, the monitor results will refer to all locations as a whole. In cases where a sensor has detectors in multiple locations, eqch of which is monitoring properties at the detector location, the monitor results for each detector should be contained within a single, separate Monitor object.</documentation>
+                            <documentation>Identifies the location associated with the monitoring measurement.This may be the detector or sensor location, or the response zone (such as a well screen interval) over which the measurement applies. In the case where the location is a gemetry aggregate, the monitor results will refer to all locations as a whole. In cases where a sensor has detectors in multiple locations, eqch of which is monitoring properties at the detector location, the monitor results for each detector should be contained within a unique, separate Monitor object.</documentation>
                         </annotation>
                     </element>
                     <element name="outcome" type="diggs:MonitorResultPropertyType">
@@ -6034,8 +6040,6 @@ DSB: REMOVED FROM PROFILE
                                 to.</documentation>
                         </annotation>
                     </element>
-                    <element name="reading" type="diggs:ReadingGroupPropertyType"
-                        maxOccurs="unbounded"/>
                     <element minOccurs="0" name="procedure" type="diggs:TestProcedurePropertyType"
                         maxOccurs="unbounded"/>
                 </sequence>
@@ -7157,10 +7161,10 @@ DSB: REMOVED FROM PROFILE
                                 readings.</documentation>
                         </annotation>
                     </element>
-                    <element maxOccurs="unbounded" minOccurs="0" name="detectionLimits"
-                        type="diggs:LimitPropertyType">
+                    <element maxOccurs="1" minOccurs="0" name="detectionLimits"
+                        type="diggs:LimitArrayPropertyType">
                         <annotation>
-                            <documentation>Identifies the detection limits for this property in the
+                            <documentation>Identifies the range of allowable values for this property in the
                                 UOM for this property</documentation>
                         </annotation>
                     </element>
@@ -8473,6 +8477,11 @@ DSB: REMOVED FROM PROFILE
                                 string after colon)</documentation>
                         </annotation>
                     </element>
+                    <element minOccurs="0" name="ringDiameter" type="eml:LengthMeasureExt">
+                        <annotation>
+                            <documentation>If a cylindrical specimen is contained within a ring, the inside diameter of the ring prior to specimen emplacement.</documentation>
+                        </annotation>
+                    </element>
                     <element minOccurs="0" name="dryUnitWeight"
                         type="diggs:DensityOrUnitWeightMeasureType">
                         <annotation>
@@ -8489,8 +8498,8 @@ DSB: REMOVED FROM PROFILE
                     <choice minOccurs="0">
                         <element minOccurs="0" name="diameter" type="eml:LengthMeasure">
                             <annotation>
-                                <documentation>For cylindrical specimens, a measure of the
-                                    cylinder's diameter</documentation>
+                                <documentation>For cylindrical or speherical specimens, a measure of the
+                                    specimen's diameter</documentation>
                             </annotation>
                         </element>
                         <sequence minOccurs="0">
@@ -8513,6 +8522,11 @@ DSB: REMOVED FROM PROFILE
                     <element minOccurs="0" name="height" type="eml:LengthMeasure">
                         <annotation>
                             <documentation>The vertical dimension of the specimen</documentation>
+                        </annotation>
+                    </element>
+                    <element minOccurs="0" name="diameterHeightRatio" type="double">
+                        <annotation>
+                            <documentation>For cylindrical samples, the ratio of the ratio of specimen diameter to specimen height. To facilitate processing, where relevant, this value should be provided even if the specimen diameter and height are also provided.</documentation>
                         </annotation>
                     </element>
                     <element minOccurs="0" name="percentSaturation"
@@ -11192,5 +11206,34 @@ Includes:</documentation>
                 </attribute>
             </extension>
         </simpleContent>
+    </complexType>
+    <simpleType name="doubleOrLimitValue">
+        <union>
+            <simpleType>
+                <restriction base="double"/>
+            </simpleType>
+            <simpleType>
+                <restriction base="string">
+                    <pattern value="[&lt;>≤≥][0-9]+(\.[0-9]+)?"/>
+                </restriction>
+            </simpleType>
+        </union>
+    </simpleType>
+    <element name="TemporalResult" substitutionGroup="gml:AbstractCoverage"
+        type="diggs:TemporalResultType">
+        <annotation>
+            <documentation>An object that contains properties and results of a monitoring activity
+                result.</documentation>
+        </annotation>
+    </element>
+    <complexType name="TemporalResultType">
+        <complexContent>
+            <restriction base="gml:AbstractCoverageType">
+                <sequence>
+                    <element ref="diggs:timeDomain"/>
+                    <element ref="diggs:results"/>
+                </sequence>
+            </restriction>
+        </complexContent>
     </complexType>
 </schema>
