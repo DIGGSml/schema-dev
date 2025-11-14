@@ -1,0 +1,625 @@
+<schema targetNamespace="http://diggsml.org/schemas/3.0" xmlns="http://www.w3.org/2001/XMLSchema"
+    xmlns:diggs="http://diggsml.org/schemas/3.0" xmlns:g3.3="http://www.opengis.net/gml/3.3/ce"
+    xmlns:gmllr="http://www.opengis.net/gml/3.3/lr"
+    xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:xlink="http://www.w3.org/1999/xlink"
+    xmlns:gml="http://www.opengis.net/gml/3.2"
+    xmlns:vc="http://www.w3.org/2007/XMLSchema-versioning" vc:maxVersion="1.1" vc:minVersion="1.0"
+    elementFormDefault="qualified" version="3.0b">
+
+    <import namespace="http://www.opengis.net/gml/3.3/lr"
+        schemaLocation="http://schemas.opengis.net/gml/3.3/linearRef.xsd"/>
+    <import namespace="http://www.opengis.net/gml/3.2"
+        schemaLocation="http://schemas.opengis.net/gml/3.2.1/gml.xsd"/>
+
+    <!-- ================================================================== -->
+    <!-- ISO 19148:2021 Extensions -->
+    <!-- ================================================================== -->
+
+    <!-- ================================================================== -->
+    <!-- Distance Along Direction Enumeration (New in 2021) -->
+    <!-- ================================================================== -->
+
+    <simpleType name="DistanceAlongDirectionType">
+        <annotation>
+            <documentation>
+        Enumeration for the directionality of distance measurements along
+        a linear element. Based on ISO 19148:2021 Section 6.2.9.
+      </documentation>
+        </annotation>
+        <restriction base="string">
+            <enumeration value="increasing">
+                <annotation>
+                    <documentation>
+            Measurements increase in the direction of the linear element's orientation.
+          </documentation>
+                </annotation>
+            </enumeration>
+            <enumeration value="decreasing">
+                <annotation>
+                    <documentation>
+            Measurements decrease in the direction of the linear element's orientation.
+          </documentation>
+                </annotation>
+            </enumeration>
+            <enumeration value="absolute">
+                <annotation>
+                    <documentation>
+            Measurements are absolute distances without regard to direction.
+          </documentation>
+                </annotation>
+            </enumeration>
+        </restriction>
+    </simpleType>
+
+    <!-- ================================================================== -->
+    <!-- Enhanced Referent Type (ISO 19148:2021 formal definition) -->
+    <!-- ================================================================== -->
+
+    <complexType name="ReferentType">
+        <annotation>
+            <documentation>
+                A known location along a linear element from which relative measurements
+                are made. ISO 19148:2021 introduces formal referent definition (3.22).
+                Examples: mile markers, kilometer posts, reference posts.
+            </documentation>
+        </annotation>
+        <complexContent>
+            <extension base="gml:AbstractGMLType">
+                <sequence>
+
+                    <element name="referentName" type="string" minOccurs="0">
+                        <annotation>
+                            <documentation>
+                                Human-readable name or identifier for the referent
+                                (e.g., "MP 125", "KM 50", "Station 10+00")
+                            </documentation>
+                        </annotation>
+                    </element>
+
+                    <element name="position" type="gmllr:DistanceExpressionPropertyType">
+                        <annotation>
+                            <documentation>
+                                The position of this referent expressed as a distance along
+                                the linear element in the base LRM.
+                            </documentation>
+                        </annotation>
+                    </element>
+
+                    <element name="spatialLocation" type="gml:PointPropertyType" minOccurs="0">
+                        <annotation>
+                            <documentation>
+                                Optional geographic position of the referent in a spatial CRS.
+                            </documentation>
+                        </annotation>
+                    </element>
+
+                    <element name="referentType" type="diggs:ReferentTypeCodeType" minOccurs="0">
+                        <annotation>
+                            <documentation>
+                                Classification of referent (e.g., milepost, kilometer post, 
+                                reference post, station marker).
+                            </documentation>
+                        </annotation>
+                    </element>
+
+                </sequence>
+            </extension>
+        </complexContent>
+    </complexType>
+
+    <element name="Referent" type="diggs:ReferentType"/>
+
+    <complexType name="ReferentPropertyType">
+        <sequence minOccurs="0">
+            <element ref="diggs:Referent"/>
+        </sequence>
+        <attributeGroup ref="gml:AssociationAttributeGroup"/>
+    </complexType>
+
+    <!-- ================================================================== -->
+    <!-- Interrupted Chaining Support (New in 2021) -->
+    <!-- ================================================================== -->
+
+    <complexType name="InterruptedChainLRMType">
+        <annotation>
+            <documentation>
+        Linear referencing method that supports interrupted chaining where
+        measurements restart at specific locations (e.g., at county boundaries,
+        jurisdiction changes, or station equations).
+        Based on ISO 19148:2021 interrupted chaining approach.
+      </documentation>
+        </annotation>
+        <complexContent>
+            <extension base="gmllr:LinearReferencingMethodType">
+                <sequence>
+
+                    <element name="restartReferent" type="diggs:RestartReferentPropertyType"
+                        minOccurs="1" maxOccurs="unbounded">
+                        <annotation>
+                            <documentation>
+                Referents where measurement values restart. Each defines a segment
+                of continuous measurement.
+              </documentation>
+                        </annotation>
+                    </element>
+
+                </sequence>
+            </extension>
+        </complexContent>
+    </complexType>
+
+    <element name="InterruptedChainLRM" type="diggs:InterruptedChainLRMType"
+        substitutionGroup="gmllr:LinearReferencingMethod"/>
+
+    <!-- ================================================================== -->
+    <!-- Restart Referent Type -->
+    <!-- ================================================================== -->
+
+    <complexType name="RestartReferentType">
+        <annotation>
+            <documentation>
+        A referent where distance measurements restart (e.g., station equation,
+        county boundary where mileage restarts). Extends basic Referent with
+        restart value.
+      </documentation>
+        </annotation>
+        <complexContent>
+            <extension base="diggs:ReferentType">
+                <sequence>
+
+                    <element name="restartValue" type="double">
+                        <annotation>
+                            <documentation>
+                The measurement value that begins at this referent location.
+                Similar to LinearElement.startValue but applies at interior points.
+              </documentation>
+                        </annotation>
+                    </element>
+
+                    <element name="priorValue" type="double" minOccurs="0">
+                        <annotation>
+                            <documentation>
+                The measurement value immediately before this restart point,
+                documenting the discontinuity.
+              </documentation>
+                        </annotation>
+                    </element>
+
+                </sequence>
+            </extension>
+        </complexContent>
+    </complexType>
+
+    <element name="RestartReferent" type="diggs:RestartReferentType"
+        substitutionGroup="diggs:Referent"/>
+
+    <complexType name="RestartReferentPropertyType">
+        <sequence minOccurs="0">
+            <element ref="diggs:RestartReferent"/>
+        </sequence>
+        <attributeGroup ref="gml:AssociationAttributeGroup"/>
+    </complexType>
+
+    <!-- ================================================================== -->
+    <!-- Cross-Sectional Positioning Convention (New in 2021) -->
+    <!-- ================================================================== -->
+
+    <complexType name="CrossSectionalConventionType">
+        <annotation>
+            <documentation>
+        Defines conventions for positioning within a cross-section perpendicular
+        to a linear element. Based on ISO 19148:2021 ICrossSectionalConvention.
+        Used for lateral and vertical offset measurements.
+      </documentation>
+        </annotation>
+        <complexContent>
+            <extension base="gml:AbstractGMLType">
+                <sequence>
+
+                    <element name="lateralConvention" type="diggs:LateralConventionCodeType">
+                        <annotation>
+                            <documentation>
+                Convention for lateral (left/right) positioning relative to
+                the linear element's direction.
+              </documentation>
+                        </annotation>
+                    </element>
+
+                    <element name="verticalConvention" type="diggs:VerticalConventionCodeType">
+                        <annotation>
+                            <documentation>
+                Convention for vertical (up/down) positioning relative to
+                the linear element.
+              </documentation>
+                        </annotation>
+                    </element>
+
+                    <element name="originPosition" type="string" minOccurs="0">
+                        <annotation>
+                            <documentation>
+                Description of where the (0,0) origin is located in the
+                cross-section (e.g., "centerline", "edge of pavement",
+                "ground surface").
+              </documentation>
+                        </annotation>
+                    </element>
+
+                </sequence>
+            </extension>
+        </complexContent>
+    </complexType>
+
+    <element name="CrossSectionalConvention" type="diggs:CrossSectionalConventionType"/>
+
+    <!-- ================================================================== -->
+    <!-- Lateral Convention Code Type -->
+    <!-- ================================================================== -->
+
+    <simpleType name="LateralConventionCodeType">
+        <annotation>
+            <documentation>
+        Conventions for lateral offset direction.
+      </documentation>
+        </annotation>
+        <restriction base="string">
+            <enumeration value="leftRight">
+                <annotation>
+                    <documentation>
+            Positive values to the right when facing the direction of
+            the linear element, negative to the left.
+          </documentation>
+                </annotation>
+            </enumeration>
+            <enumeration value="rightLeft">
+                <annotation>
+                    <documentation>
+            Positive values to the left when facing the direction of
+            the linear element, negative to the right.
+          </documentation>
+                </annotation>
+            </enumeration>
+            <enumeration value="absolute">
+                <annotation>
+                    <documentation>
+            Absolute distance without regard to left/right designation.
+          </documentation>
+                </annotation>
+            </enumeration>
+        </restriction>
+    </simpleType>
+
+    <!-- ================================================================== -->
+    <!-- Vertical Convention Code Type -->
+    <!-- ================================================================== -->
+
+    <simpleType name="VerticalConventionCodeType">
+        <annotation>
+            <documentation>
+        Conventions for vertical offset direction.
+      </documentation>
+        </annotation>
+        <restriction base="string">
+            <enumeration value="upDown">
+                <annotation>
+                    <documentation>
+            Positive values upward from reference, negative downward.
+          </documentation>
+                </annotation>
+            </enumeration>
+            <enumeration value="downUp">
+                <annotation>
+                    <documentation>
+            Positive values downward from reference, negative upward.
+          </documentation>
+                </annotation>
+            </enumeration>
+            <enumeration value="depthBelowSurface">
+                <annotation>
+                    <documentation>
+            Positive values indicate depth below a reference surface.
+          </documentation>
+                </annotation>
+            </enumeration>
+            <enumeration value="heightAboveSurface">
+                <annotation>
+                    <documentation>
+            Positive values indicate height above a reference surface.
+          </documentation>
+                </annotation>
+            </enumeration>
+        </restriction>
+    </simpleType>
+
+    <!-- ================================================================== -->
+    <!-- Enhanced Distance Expression with Direction -->
+    <!-- ================================================================== -->
+
+    <complexType name="DirectedDistanceExpressionType">
+        <annotation>
+            <documentation>
+        Distance expression that explicitly includes measurement direction.
+        Extends the GML 3.3 DistanceExpression with ISO 19148:2021 directionality.
+      </documentation>
+        </annotation>
+        <complexContent>
+            <extension base="gmllr:DistanceExpressionType">
+                <sequence>
+
+                    <element name="direction" type="diggs:DistanceAlongDirectionType" minOccurs="0">
+                        <annotation>
+                            <documentation>
+                Direction of measurement (increasing, decreasing, or absolute).
+                If omitted, assumes increasing.
+              </documentation>
+                        </annotation>
+                    </element>
+
+                </sequence>
+            </extension>
+        </complexContent>
+    </complexType>
+
+    <element name="DirectedDistanceExpression" type="diggs:DirectedDistanceExpressionType"
+        substitutionGroup="gmllr:DistanceExpression"/>
+
+    <!-- ================================================================== -->
+    <!-- Enhanced Linear Element with Cross-Sectional Convention -->
+    <!-- ================================================================== -->
+
+    <complexType name="EnhancedLinearElementType" abstract="true">
+        <annotation>
+            <documentation>
+        Linear element type that includes cross-sectional positioning conventions.
+        This allows proper interpretation of lateral and vertical offsets.
+      </documentation>
+        </annotation>
+        <complexContent>
+            <extension base="gml:AbstractFeatureType">
+                <sequence>
+
+                    <!-- Standard linear element properties would go here -->
+
+                    <element name="crossSectionalConvention" minOccurs="0">
+                        <annotation>
+                            <documentation>
+                Conventions for interpreting lateral and vertical offsets
+                from this linear element.
+              </documentation>
+                        </annotation>
+                        <complexType>
+                            <sequence>
+                                <element ref="diggs:CrossSectionalConvention"/>
+                            </sequence>
+                        </complexType>
+                    </element>
+
+                </sequence>
+            </extension>
+        </complexContent>
+    </complexType>
+
+    <!-- ================================================================== -->
+    <!-- Irregularly Spaced Measurement Support -->
+    <!-- ================================================================== -->
+
+    <complexType name="IrregularMeasurementSequenceType">
+        <annotation>
+            <documentation>
+        Sequence of irregularly spaced measurement values along a linear element.
+        Supports scenarios where referents or measurements are not uniformly distributed.
+        Based on ISO 19148:2021 irregular spacing support.
+      </documentation>
+        </annotation>
+        <sequence>
+
+            <element name="measurement" type="diggs:MeasurementPointType" minOccurs="2"
+                maxOccurs="unbounded">
+                <annotation>
+                    <documentation>
+            Individual measurement points. Must be ordered sequentially along
+            the linear element.
+          </documentation>
+                </annotation>
+            </element>
+
+            <element name="interpolationMethod" type="diggs:InterpolationMethodCodeType"
+                minOccurs="0">
+                <annotation>
+                    <documentation>
+            Method for interpolating positions between defined measurement points.
+            Default is linear interpolation.
+          </documentation>
+                </annotation>
+            </element>
+
+        </sequence>
+    </complexType>
+
+    <complexType name="MeasurementPointType">
+        <annotation>
+            <documentation>
+        A single measurement point along an irregularly spaced sequence.
+      </documentation>
+        </annotation>
+        <sequence>
+            <element name="distanceAlong" type="double">
+                <annotation>
+                    <documentation>Actual distance along the linear element</documentation>
+                </annotation>
+            </element>
+            <element name="measureValue" type="double">
+                <annotation>
+                    <documentation>
+            Measurement value at this location (may differ from distanceAlong
+            in irregular spacing scenarios)
+          </documentation>
+                </annotation>
+            </element>
+        </sequence>
+        <attribute name="uom" type="gml:UomIdentifier" use="required"/>
+    </complexType>
+
+    <simpleType name="InterpolationMethodCodeType">
+        <restriction base="string">
+            <enumeration value="linear"/>
+            <enumeration value="none"/>
+            <enumeration value="step"/>
+        </restriction>
+    </simpleType>
+
+    <!-- ================================================================== -->
+    <!-- Referent Type Code List -->
+    <!-- ================================================================== -->
+
+    <simpleType name="ReferentTypeCodeType">
+        <annotation>
+            <documentation>
+                Classification of referent types used in linear referencing.
+                Based on common practice and ISO 19148 examples.
+            </documentation>
+        </annotation>
+        <restriction base="string">
+            <enumeration value="milepost">
+                <annotation>
+                    <documentation>
+                        Mile marker or milepost (e.g., "MP 125")
+                    </documentation>
+                </annotation>
+            </enumeration>
+            <enumeration value="kilometerPost">
+                <annotation>
+                    <documentation>
+                        Kilometer post marker (e.g., "KM 50")
+                    </documentation>
+                </annotation>
+            </enumeration>
+            <enumeration value="referencePost">
+                <annotation>
+                    <documentation>
+                        Reference post with fractional distance from major marker
+                    </documentation>
+                </annotation>
+            </enumeration>
+            <enumeration value="stationMarker">
+                <annotation>
+                    <documentation>
+                        Station marker in engineering station format (e.g., "10+00")
+                    </documentation>
+                </annotation>
+            </enumeration>
+            <enumeration value="countyBoundary">
+                <annotation>
+                    <documentation>
+                        County or jurisdiction boundary marker where measurements may restart
+                    </documentation>
+                </annotation>
+            </enumeration>
+            <enumeration value="intersectionPoint">
+                <annotation>
+                    <documentation>
+                        Intersection with another route or feature
+                    </documentation>
+                </annotation>
+            </enumeration>
+            <enumeration value="anchorSection">
+                <annotation>
+                    <documentation>
+                        Anchor section boundary point
+                    </documentation>
+                </annotation>
+            </enumeration>
+            <enumeration value="other">
+                <annotation>
+                    <documentation>
+                        Other referent type not listed
+                    </documentation>
+                </annotation>
+            </enumeration>
+            <enumeration value="groundLevel">
+                <annotation>
+                    <documentation>
+                        The natural ground surface elevation at the drilling location. 
+                        Commonly used as a datum for measuring depths in geotechnical 
+                        drilling and may differ from the kelly bushing or derrick floor 
+                        elevation by the height of the drilling rig.
+                    </documentation>
+                </annotation>
+            </enumeration>
+            
+            <enumeration value="kellyBushing">
+                <annotation>
+                    <documentation>
+                        The kelly bushing (KB) is a device that fits into the rotary table 
+                        and drives the kelly. The top of the KB is a standard reference point 
+                        for measuring depths in rotary drilling operations. Depths measured 
+                        from KB must be corrected to ground level or other datum by 
+                        subtracting the KB elevation above ground.
+                    </documentation>
+                </annotation>
+            </enumeration>
+            
+            <enumeration value="derrickFloor">
+                <annotation>
+                    <documentation>
+                        The working platform at the base of the derrick or drilling rig 
+                        where drilling operations are conducted. Used as a reference 
+                        elevation for depth measurements, particularly in offshore or 
+                        elevated drilling operations where it may differ significantly 
+                        from ground level.
+                    </documentation>
+                </annotation>
+            </enumeration>
+            
+            <enumeration value="casingFlange">
+                <annotation>
+                    <documentation>
+                        A flange affixed to the top of the casing string used to attach 
+                        production equipment.
+                    </documentation>
+                </annotation>
+            </enumeration>
+            
+            <enumeration value="crownValve">
+                <annotation>
+                    <documentation>
+                        The crown valve or flow-line wing valve at the top of the wellhead 
+                        assembly, used as a reference point for measuring depths in completed 
+                        wells. Typically part of the Christmas tree assembly in production wells.
+                    </documentation>
+                </annotation>
+            </enumeration>
+            
+            <enumeration value="rotaryBushing">
+                <annotation>
+                    <documentation>
+                        A bushing that fits into the rotary table to accommodate various 
+                        sizes of kelly bushings or top drive systems. Sometimes used as an 
+                        alternative reference point to the kelly bushing for depth measurements.
+                    </documentation>
+                </annotation>
+            </enumeration>
+            
+            <enumeration value="rotaryTable">
+                <annotation>
+                    <documentation>
+                        The top surface of the rotary table may be used as a reference 
+                        elevation for depth measurements in drilling operations.
+                    </documentation>
+                </annotation>
+            </enumeration>
+            
+            <enumeration value="kickoffPoint">
+                <annotation>
+                    <documentation>
+                        The point where a sidetrack or branch borehole diverges from the 
+                        main (parent) borehole. Used as a reference point for measuring 
+                        depths along the sidetrack trajectory. In multilateral wells, 
+                        multiple wellbore intersections may exist where each lateral 
+                        branch splits from the main wellbore or from another lateral.
+                    </documentation>
+                </annotation>
+            </enumeration>
+        </restriction>
+    </simpleType>
+
+</schema>

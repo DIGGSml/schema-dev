@@ -1,0 +1,83 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<schema xmlns:diggs="http://diggsml.org/schema-dev"
+    xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns="http://www.w3.org/2001/XMLSchema"
+    xmlns:gml="http://www.opengis.net/gml/3.2" targetNamespace="http://diggsml.org/schema-dev"
+    version="dev" elementFormDefault="qualified">
+    <!-- import the gml namespaces (local profiles)  -->
+
+    <import namespace="http://www.opengis.net/gml/3.2" schemaLocation="gml3.2Profile_diggs.xsd"/>
+    <element name="Definition" substitutionGroup="gml:Definition" abstract="false"
+        type="diggs:DefinitionType"> </element>
+    <complexType name="DefinitionBaseType">
+        <complexContent>
+            <restriction base="gml:DefinitionType">
+                <sequence>
+                    <element minOccurs="1" ref="gml:description"/>
+                    <element ref="gml:identifier"/>
+                    <element maxOccurs="unbounded" minOccurs="1" ref="gml:name"/>
+                    <element minOccurs="0" ref="gml:remarks"/>
+                </sequence>
+                <attribute ref="gml:id" use="required"/>
+            </restriction>
+        </complexContent>
+    </complexType>
+    <complexType name="DefinitionType">
+        <complexContent>
+            <extension base="diggs:DefinitionBaseType">
+                <sequence>
+                    <element minOccurs="0" name="dataType" type="diggs:PropertyDataTypeEnumType">
+                        <annotation>
+                            <documentation>The data type of the property, eg. integer, string, etc.
+                                From an enumerated list</documentation>
+                        </annotation>
+                    </element>
+                    <element minOccurs="0" name="quantityClass" type="diggs:PropertyUomTypeEnumType">
+                        <annotation>
+                            <documentation>The type or classification of the unit of measure for
+                                properties that have numeric values. From an enumerated
+                                list.</documentation>
+                        </annotation>
+                    </element>
+                    <element minOccurs="0" name="authority" type="string">
+                        <annotation>
+                            <documentation>Name of the organization or authority that controls the
+                                term</documentation>
+                        </annotation>
+                    </element>
+                    <element minOccurs="0" name="reference" type="anyURI">
+                        <annotation>
+                            <documentation>A reference for the code definition. as in an online registry</documentation>
+                        </annotation>
+                    </element>
+                    <element maxOccurs="1" minOccurs="0" name="occurrences"
+                        type="diggs:OccurrenceArrayPropertyType">
+                        <annotation>
+                            <documentation>A property containing one or more Occurrence objects, which hold XPATH locations for the element that may contain the identifier value and any element (and optionally an element value) that must be present for the identifier value to be valid.</documentation>
+                        </annotation>
+                    </element>
+                </sequence>
+            </extension>
+        </complexContent>
+    </complexType>
+    <element name="Occurrence" type="diggs:OccurrenceType"/>
+    <complexType name="OccurrenceArrayPropertyType">
+        <sequence maxOccurs="unbounded" minOccurs="1">
+            <element ref="diggs:Occurrence"/>
+        </sequence>
+    </complexType>
+    <complexType name="OccurrenceType">
+        <sequence>
+            <element name="sourceElementXpath" type="string">
+                <annotation>
+                    <documentation>An XPATH string identifying the element within an instance where the identifier is an allowable value.</documentation>
+                </annotation>
+            </element>
+            <element minOccurs="0" name="conditionalElementXpath" type="string">
+                <annotation>
+                    <documentation>An XPATH identifying an element(and potential element value) that must be present for the identifier to be validly used.
+</documentation>
+                </annotation>
+            </element>
+        </sequence>
+    </complexType>
+</schema>
