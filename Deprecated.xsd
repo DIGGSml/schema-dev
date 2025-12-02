@@ -13,10 +13,14 @@
  import the gml and xlinks namespaces (original local profiles)  
 -->
     <import namespace="http://www.opengis.net/gml/3.2" schemaLocation="gml3.2Profile_diggs.xsd"/>
+
     <import namespace="http://www.energistics.org/energyml/data/commonv2"
         schemaLocation="energistics/2.0/data/common/v2.1/xsd_schemas/EmlAllObjects.xsd"/>
+
     <import namespace="http://www.energistics.org/energyml/data/witsmlv2"
         schemaLocation="witsmlv2Profile_diggs.xsd"/>
+
+    <import namespace="http://www.opengis.net/gml/3.3/lr" schemaLocation="glrProfile_diggs.xsd"/>
 
 
     <!-- This schema file containss elements deprecated from earlier DIGGS versions. They still exist within the DIGGS schema but should not be used -->
@@ -1284,4 +1288,51 @@ post-processing time, while the samplingTime preserves the time of initial inter
         </annotation>
     </element>
     <element name="reading" type="diggs:ReadingGroupPropertyType"/>
+
+    <element name="LinearSpatialReferenceSystem" substitutionGroup="glr:LinearSRS"
+        type="glr:LinearSRSType">
+        <annotation>
+            <documentation>An object describing the linear spatial reference system for a sampling feature. Deprecated - use LinearSRS instead.</documentation>
+        </annotation>
+    </element>
+    <complexType name="LinearSpatialReferenceSystemType">
+        <complexContent>
+            <extension base="diggs:AbstractRelativeReferenceSystemType">
+                <sequence>
+                    <element minOccurs="0" name="linearReferencingMethodUncertainty"
+                        type="diggs:UncertaintyPropertyType">
+                        <annotation>
+                            <documentation>Provides accuracy value (usually a length measure) for
+                                the location (geometry) elements that use this linear reference
+                                system for their SRS. For example, for depths in a hole, this
+                                property could provide information as to the source and accuracy of
+                                depth values that relate to this reference system. If individual
+                                elements that refer to this reference system have different
+                                uncertainties, those uncertainties are reported within those
+                                elements themselves.</documentation>
+                        </annotation>
+                    </element>
+                </sequence>
+            </extension>
+        </complexContent>
+    </complexType>
+    <element abstract="true" name="AbstractRelativeReferenceSystem"
+        type="diggs:AbstractRelativeReferenceSystemType">
+        <annotation>
+            <documentation>BAse type for linear or vector linear relative spatial reference
+                systems. DEPRECATED. Use diggs:LinearSRS for linear referencing, EngineeringCRS for 2D relative referencing.</documentation>
+        </annotation>
+    </element>
+    <complexType name="AbstractRelativeReferenceSystemPropertyType">
+        <sequence>
+            <element maxOccurs="1" minOccurs="1" ref="diggs:AbstractRelativeReferenceSystem"/>
+        </sequence>
+    </complexType>
+    <complexType name="AbstractRelativeReferenceSystemType">
+        <complexContent>
+            <extension base="glr:LinearSRSType"/>
+        </complexContent>
+    </complexType>
+
+
 </schema>

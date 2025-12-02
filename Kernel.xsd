@@ -1242,23 +1242,6 @@
             </extension>
         </complexContent>
     </complexType>
-    <element abstract="true" name="AbstractRelativeReferenceSystem"
-        type="diggs:AbstractRelativeReferenceSystemType">
-        <annotation>
-            <documentation>BAse type for linear or vector linear relative spatial reference
-                systems.</documentation>
-        </annotation>
-    </element>
-    <complexType name="AbstractRelativeReferenceSystemPropertyType">
-        <sequence>
-            <element maxOccurs="1" minOccurs="1" ref="diggs:AbstractRelativeReferenceSystem"/>
-        </sequence>
-    </complexType>
-    <complexType name="AbstractRelativeReferenceSystemType">
-        <complexContent>
-            <extension base="glr:LinearSRSType"/>
-        </complexContent>
-    </complexType>
     <element abstract="true" name="AbstractSamplingFeature"
         substitutionGroup="diggs:AbstractNamedFeature" type="diggs:AbstractSamplingFeatureType">
         <annotation>
@@ -5087,7 +5070,7 @@ Includes:</documentation>
         </complexContent>
     </complexType>
     <element name="LinearExtent" substitutionGroup="diggs:AbstractGeometricPrimitive"
-        type="diggs:LineStringType">
+        type="diggs:LinearExtentType">
         <annotation>
             <documentation>An object that defines a location as a linear extent or interval, with
                 the first vertex representing the starting location and the last vertex the end
@@ -5130,40 +5113,7 @@ DSB: REMOVED FROM PROFILE
             </restriction>
         </complexContent>
     </complexType>
-    <element name="LinearSpatialReferenceSystem" type="diggs:LinearSpatialReferenceSystemType"
-        substitutionGroup="diggs:AbstractRelativeReferenceSystem">
-        <annotation>
-            <documentation>An object describing the linear spatial reference system for a sampling
-                feature.</documentation>
-        </annotation>
-    </element>
-    <complexType name="LinearSpatialReferenceSystemPropertyType">
-        <sequence>
-            <element ref="diggs:LinearSpatialReferenceSystem"/>
-        </sequence>
-    </complexType>
-    <complexType name="LinearSpatialReferenceSystemType">
-        <complexContent>
-            <extension base="diggs:AbstractRelativeReferenceSystemType">
-                <sequence>
-                    <element minOccurs="0" name="linearReferencingMethodUncertainty"
-                        type="diggs:UncertaintyPropertyType">
-                        <annotation>
-                            <documentation>Provides accuracy value (usually a length measure) for
-                                the location (geometry) elements that use this linear reference
-                                system for their SRS. For example, for depths in a hole, this
-                                property could provide information as to the source and accuracy of
-                                depth values that relate to this reference system. If individual
-                                elements that refer to this reference system have different
-                                uncertainties, those uncertainties are reported within those
-                                elements themselves.</documentation>
-                        </annotation>
-                    </element>
-                </sequence>
-            </extension>
-        </complexContent>
-    </complexType>
-    <complexType name="LineStringType">
+    <complexType name="LinearExtentType">
         <complexContent>
             <extension base="diggs:AbstractCurveType">
                 <sequence>
@@ -5173,14 +5123,37 @@ DSB: REMOVED FROM PROFILE
             <element ref="gml:coordinates"/>
             -->
                     </choice>
-                    <element minOccurs="0" name="datumReference" type="eml:WellboreDatumReference">
+                    <element name="datumReference" type="diggs:ReferentTypeEnumType" minOccurs="0">
                         <annotation>
                             <documentation>The type of local or permanent reference datum for
                                 vertical gravity based (i.e., elevation and vertical depth) and
                                 measured depth coordinates within the context of a borehole or well.
-                                Adopts terminology from eml:WellBoreDatumReference.The datum is
+                                Includes terminology from eml:WellBoreDatumReference.The datum is
                                 aassociated with the origin (first point) of the linear
-                                extent.</documentation>
+                                extent</documentation>
+                        </annotation>
+                    </element>
+                    <element maxOccurs="unbounded" minOccurs="0" name="anchorPoint"
+                        type="diggs:LRSAnchorPointPropertyType">
+                        <annotation>
+                            <documentation>
+                                Calibration points that relate measure values to geometric 
+                                positions for this specific LinearElement. Used only when:
+                                
+                                1. Core stretch/compression - Physical core length differs 
+                                   from measured depth (anchor at top and bottom enables scaling)
+                                
+                                2. Survey corrections - Downhole surveys or GPS waypoints 
+                                   provide control points for geometry adjustment
+                                
+                                3. Interpolative positioning - When measures cannot be 
+                                   directly computed from centerline geometry
+                                
+                                For standard DIGGS usage where measures are computed by 
+                                interpolating along the LinearExtent geometry, anchor points 
+                                are NOT needed - the geometry itself provides the spatial 
+                                framework. However, if for linear element definitions where the length of the linear element does not correspond to that determined from the coordinates (such as with expanded or compressed core samples), then these calibration points provide a means for calculating true positions from those referenced by the LRS.
+                            </documentation>
                         </annotation>
                     </element>
                     <element minOccurs="0" name="uncertainty"
@@ -7522,7 +7495,7 @@ DSB: REMOVED FROM PROFILE
             <extension base="diggs:AbstractSampleType">
                 <sequence>
                     <element name="relativeReferencingSystem"
-                        type="diggs:AbstractRelativeReferenceSystemPropertyType" minOccurs="0"
+                        type="diggs:LinearSpatialReferenceSystemPropertyType" minOccurs="0"
                         maxOccurs="1">
                         <annotation>
                             <documentation>For a core or block sample, this property can be used to
