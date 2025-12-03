@@ -10,9 +10,8 @@
             DIGGS Linear Referencing Schema - Version 3.0b
             
             This schema provides comprehensive linear referencing capabilities for 
-            geotechnical and geoenvironmental features including boreholes, wells, 
-            soundings, cone penetration tests (CPT), dilatometer tests (DMT), 
-            geophysical tracklines, and other linear sampling features.
+            any DIGGS linear sampling features, including boreholes, wells, 
+            soundings, and geophysical tracklines.
             
             Based on ISO 19148:2021 (Linear referencing) adapted for geotechnical 
             and geoenvironmental contexts. This schema removes transportation-specific 
@@ -20,19 +19,27 @@
             referents and methods.
             
             Linear referencing in DIGGS is based on distance measurements along 
-            LinearExtent features, which are DIGGS extensions of gml:LineString 
-            with 3D coordinates. All measurements proceed from the first coordinate 
-            to the last coordinate in the gml:posList, regardless of spatial 
-            orientation (vertical, horizontal, or deviated).
+            LinearExtent features, which are DIGGS extensions of gml:LineString, typically
+            with 3D coordinates. All measurements proceed in coordinate order from the first 
+            coordinate (or referent coordinate) to the last coordinate in the gml:posList, 
+            regardless of spatial orientation (vertical, horizontal, or deviated). Spatial 
+            direction can be optionally provided by the positiveDirection property of the 
+            LRMethod.
             
-            Key Concepts:
-            - LinearElement: The geometric feature being referenced
-            - LRMethod: The procedure/algorithm for linear referencing
-            - LinearSRS: Complete spatial reference system (LinearElement + LRMethod)
+            Key ISO 19148:2021 Concepts Implemented:
+            - §6.2: Linear Referencing Method (LRMethod)
+            - §6.3: Linear Element (LinearExtent)
+            - §6.4: Linear Spatial Reference System (LinearSRS)
+            - §7.2: Linear Position (via gml:Point with srsName)
+            - §7.3: Linear Location (intervals via gml:LineString with srsName)
             
             Copyright (c) DIGGS 2025. All rights reserved.
         </documentation>
     </annotation>
+
+    <!-- ============================================================ -->
+    <!-- IMPORTS                                                      -->
+    <!-- ============================================================ -->
 
     <import namespace="http://www.opengis.net/gml/3.2"
         schemaLocation="http://schemas.opengis.net/gml/3.2.1/gml.xsd"/>
@@ -40,67 +47,74 @@
     <import namespace="http://www.energistics.org/energyml/data/commonv2"
         schemaLocation="energistics/2.0/data/common/v2.1/xsd_schemas/EmlAllObjects.xsd"/>
 
-    <import namespace="http://www.opengis.net/gml/3.3/lr" schemaLocation="glrProfile_diggs.xsd"/>
-
-
-    <!--
-    DIGGS Linear Referencing Method - With Offset Parameters
-    
-    Simplified approach for handling lateral offsets by adding offset parameters
-    to the LRMethod definition rather than creating a full coordinate system.
-    
-    This approach is ISO 19148:2021 compliant and treats offset as an attribute
-    of the linear referencing method rather than a separate coordinate dimension.
--->
 
     <!-- ============================================================ -->
-    <!-- LINEAR REFERENCING METHOD (WITH OFFSET SUPPORT)              -->
+    <!-- CORE ISO 19148 COMPONENTS                                    -->
+    <!-- ============================================================ -->
+
+    <!-- Per ISO 19148 §6.3: Linear Element is the spatial object     -->
+    <!-- along which linear referencing is performed.                 -->
     <!-- ============================================================ -->
 
     <element name="LinearExtent" substitutionGroup="diggs:AbstractGeometricPrimitive"
         type="diggs:LinearExtentType">
         <annotation>
-            <documentation>An object that defines a location as a linear extent or interval, with
-                the first vertex representing the starting location and the last vertex the end
-                location.</documentation>
+            <documentation>
+                Implementation of ISO 19148:2021 §6.3 Linear Element concept for DIGGS.
+                
+                A LinearExtent defines a location as a linear extent or interval, with
+                the first vertex representing the starting location and the last vertex 
+                representing the end location. This is the fundamental spatial object 
+                along which linear referencing measurements are made.
+                
+                For DIGGS applications, LinearExtent typically represents:
+                - Borehole centerline (3D path from collar to bottom)
+                - Well trajectory (including deviated wells)
+                - CPT sounding path
+                - Geophysical trackline
+                - Survey transect or traverse
+                
+                The geometry is stored in gml:posList with coordinates in the order 
+                they are traversed during measurement. Measurements proceed from first 
+                to last coordinate.
+            </documentation>
         </annotation>
     </element>
-    <complexType name="LinearExtentPropertyType">
-        <complexContent>
-            <restriction base="gml:DomainSetType">
-                <sequence minOccurs="0">
-                    <choice>
-                        <element ref="diggs:LinearExtent"/>
-                        <!--
-DSB: REMOVED FROM PROFILE
-        <element ref="gml:AbstractTimeObject"/>
-        
--->
-                    </choice>
-                </sequence>
-                <attributeGroup ref="gml:OwnershipAttributeGroup"/>
-                <attributeGroup ref="gml:AssociationAttributeGroup"/>
-            </restriction>
-        </complexContent>
-    </complexType>
+
     <complexType name="LinearExtentType">
+        <annotation>
+            <documentation>
+                Type definition for LinearExtent, implementing ISO 19148:2021 §6.3 
+                Linear Element concept.
+                
+                Extends AbstractCurveType to provide a linear geometric primitive with:
+                - Ordered coordinate list (gml:posList)
+                - Optional datum reference for vertical/depth coordinates
+                - Optional anchor points for geometric calibration
+                - Optional uncertainty information
+            </documentation>
+        </annotation>
         <complexContent>
             <extension base="diggs:AbstractCurveType">
                 <sequence>
                     <choice>
                         <element ref="gml:posList"/>
                         <!--DSB restricted from profile
-            <element ref="gml:coordinates"/>
-            -->
+                        <element ref="gml:coordinates"/>
+                        -->
                     </choice>
                     <element minOccurs="0" name="datumReference" type="diggs:ReferentTypeEnumType">
                         <annotation>
-                            <documentation>The type of local or permanent reference datum for
-                                vertical gravity based (i.e., elevation and vertical depth) and
+                            <documentation>
+                                The type of local or permanent reference datum for
+                                vertical gravity-based (i.e., elevation and vertical depth) and
                                 measured depth coordinates within the context of a borehole or well.
-                                Includes terminology from eml:WellBoreDatumReference.The datum is
-                                aassociated with the origin (first point) of the linear
-                                extent</documentation>
+                                Includes terminology from eml:WellboreDatumReference. The datum is
+                                associated with the origin (first point) of the linear extent.
+                                
+                                Common values: groundSurface, kellyBushing, rotaryBushing, 
+                                meanSeaLevel, seafloor, etc.
+                            </documentation>
                         </annotation>
                     </element>
                     <element maxOccurs="unbounded" minOccurs="0" name="anchorPoint"
@@ -122,19 +136,64 @@ DSB: REMOVED FROM PROFILE
                                 For standard DIGGS usage where measures are computed by 
                                 interpolating along the LinearExtent geometry, anchor points 
                                 are NOT needed - the geometry itself provides the spatial 
-                                framework. However, if for linear element definitions where the length of the linear element does not correspond to that determined from the coordinates (such as with expanded or compressed core samples), then these calibration points provide a means for calculating true positions from those referenced by the LRS.
+                                framework. However, for linear element definitions where the 
+                                length of the linear element does not correspond to that 
+                                determined from the coordinates (such as with expanded or 
+                                compressed core samples), these calibration points provide a 
+                                means for calculating true positions from those referenced by 
+                                the LRS.
                             </documentation>
                         </annotation>
                     </element>
                     <element minOccurs="0" name="uncertainty"
-                        type="diggs:LocationUncertaintyPropertyType"/>
+                        type="diggs:LocationUncertaintyPropertyType">
+                        <annotation>
+                            <documentation>
+                                Uncertainty information for the geometric positions along this 
+                                LinearExtent. Applicable when the spatial coordinates have known 
+                                measurement uncertainty.
+                            </documentation>
+                        </annotation>
+                    </element>
                 </sequence>
             </extension>
         </complexContent>
     </complexType>
-    <element name="LRMethod" type="diggs:LRMethodType" substitutionGroup="gml:AbstractObject">
+
+    <complexType name="LinearExtentPropertyType">
         <annotation>
             <documentation>
+                Property type for referencing LinearExtent elements, following GML 
+                property type pattern.
+            </documentation>
+        </annotation>
+        <complexContent>
+            <restriction base="gml:DomainSetType">
+                <sequence minOccurs="0">
+                    <choice>
+                        <element ref="diggs:LinearExtent"/>
+                    </choice>
+                </sequence>
+                <attributeGroup ref="gml:OwnershipAttributeGroup"/>
+                <attributeGroup ref="gml:AssociationAttributeGroup"/>
+            </restriction>
+        </complexContent>
+    </complexType>
+
+
+    <!-- ============================================================ -->
+    <!-- LINEAR REFERENCING METHOD (ISO 19148 §6.2)                   -->
+    <!-- ============================================================ -->
+    <!-- Per ISO 19148 §6.2: A linear referencing method is a method  -->
+    <!-- for specifying a position along a linear element using a     -->
+    <!-- distance measure from a specified origin.                    -->
+    <!-- ============================================================ -->
+
+    <element name="LRMethod" type="diggs:LRMethodType" substitutionGroup="diggs:Definition">
+        <annotation>
+            <documentation>
+                Implementation of ISO 19148:2021 §6.2 Linear Referencing Method.
+                
                 Defines a linear referencing method - the specific procedure or 
                 algorithm for determining positions along linear features.
                 
@@ -144,6 +203,13 @@ DSB: REMOVED FROM PROFILE
                 
                 Methods may optionally support lateral offset, making them suitable 
                 for 2D positioning (distance along + perpendicular offset).
+                
+                DIGGS LR methods establish:
+                - How measurements are computed (absolute, relative, interpolative)
+                - Units of measure for distances
+                - Direction conventions (positive direction)
+                - Whether lateral offsets are supported
+                - Whether geometric calibration is required
             </documentation>
         </annotation>
     </element>
@@ -151,9 +217,9 @@ DSB: REMOVED FROM PROFILE
     <complexType name="LRMethodType">
         <annotation>
             <documentation>
-                Specifies how positions are determined along a linear feature per 
-                ISO 19148 §6.2.
+                Type definition for Linear Referencing Method per ISO 19148 §6.2.
                 
+                Specifies how positions are determined along a linear feature. 
                 DIGGS LR methods rely on the LinearExtent geometry to establish the 
                 spatial framework. The method defines how measures are computed from 
                 or applied to that geometry.
@@ -163,11 +229,12 @@ DSB: REMOVED FROM PROFILE
                 determines the dimensionality:
                 
                 - offsetParameters absent: 1D method, srsDimension=1, gml:pos="distance"
-                - offsetParameters present: 2D method, srsDimension=2, gml:pos="distance offset"
+                - offsetParameters present: 2D method, srsDimension=2, 
+                  gml:pos="distance offset"
                 
                 DIGGS examples:
                 - 1D: Borehole depth from ground surface
-                - 1D: Well measured depth from kelly bushing
+                - 1D: Well measured depth from casing top
                 - 2D: Transect with offset sampling
                 - 2D: Geophysical trackline with swath data
             </documentation>
@@ -180,6 +247,11 @@ DSB: REMOVED FROM PROFILE
                             <documentation>
                                 The type/category of linear referencing method per 
                                 ISO 19148 §6.2.3 (absolute, relative, interpolative, measured).
+                                
+                                - absolute: Distance from fixed origin (typically first coordinate)
+                                - relative: Distance from a specified referent point
+                                - interpolative: Position determined by interpolation between 
+                                  known control points
                             </documentation>
                         </annotation>
                     </element>
@@ -189,6 +261,8 @@ DSB: REMOVED FROM PROFILE
                                 Default units of measure for distance measurements along 
                                 the linear element using this method. This is the unit for 
                                 the first coordinate value (distance along).
+                                
+                                Common values: ft, m, km, mi
                             </documentation>
                         </annotation>
                     </element>
@@ -201,6 +275,12 @@ DSB: REMOVED FROM PROFILE
                                 coordinate order). Semantic labels (downward, upward, forward) 
                                 provide clarity but don't change the fundamental 
                                 coordinate-order-based direction.
+                                
+                                Values:
+                                - increasing: Default, follows coordinate order
+                                - downward: Semantic label for boreholes (positive is deeper)
+                                - upward: Semantic label (positive is shallower)
+                                - forward: Semantic label for horizontal features
                             </documentation>
                         </annotation>
                     </element>
@@ -212,6 +292,8 @@ DSB: REMOVED FROM PROFILE
                                 - "Measured from first coordinate (measure=0) along 3D curve"
                                 - "Relative to ground surface referent with positive downward"
                                 - "Interpolated between surveyed control points"
+                                
+                                Provides human-readable explanation of the measurement approach.
                             </documentation>
                         </annotation>
                     </element>
@@ -219,19 +301,22 @@ DSB: REMOVED FROM PROFILE
                         <annotation>
                             <documentation>
                                 Indicates whether this method requires geometric calibration 
-                                points (LRSAnchorPoints) on LinearElements. True for 
-                                interpolative methods or when measurement system differs 
-                                from geometry. False for direct geometric methods where 
-                                measures are computed directly from LinearExtent coordinates.
+                                points (LRSAnchorPoints) on LinearElements. 
+                                
+                                True for interpolative methods or when measurement system differs 
+                                from geometry (e.g., core stretch/compression). 
+                                
+                                False for direct geometric methods where measures are computed 
+                                directly from LinearExtent coordinates.
                             </documentation>
                         </annotation>
                     </element>
-
                     <element name="offsetParameters" type="diggs:OffsetParametersType" minOccurs="0">
                         <annotation>
                             <documentation>
                                 Optional parameters for methods that support lateral offset 
-                                from the linear element centerline, such as for Transect or TrialPit sampling features.
+                                from the linear element centerline, such as for Transect or 
+                                TrialPit sampling features.
                                 
                                 When PRESENT: This method supports 2D positioning
                                 - LinearSRS using this method has srsDimension = 2
@@ -249,7 +334,7 @@ DSB: REMOVED FROM PROFILE
                                 - Geophysical tracklines with side-scan sonar swaths
                                 - Pipelines with offset monitoring points
                                 - Survey lines with offset test pits
-                                - trial or test pits with offset sampling locations
+                                - Trial or test pits with offset sampling locations
                             </documentation>
                         </annotation>
                     </element>
@@ -259,14 +344,290 @@ DSB: REMOVED FROM PROFILE
     </complexType>
 
     <complexType name="LRMethodPropertyType">
+        <annotation>
+            <documentation>
+                Property type for referencing LRMethod elements, following GML 
+                property type pattern.
+            </documentation>
+        </annotation>
         <sequence minOccurs="0">
             <element ref="diggs:LRMethod"/>
         </sequence>
         <attributeGroup ref="gml:AssociationAttributeGroup"/>
     </complexType>
 
+
     <!-- ============================================================ -->
-    <!-- OFFSET PARAMETERS                                            -->
+    <!-- LINEAR SPATIAL REFERENCE SYSTEM (ISO 19148 §6.4)            -->
+    <!-- ============================================================ -->
+    <!-- Per ISO 19148 §6.4: A linear referencing system is a        -->
+    <!-- spatial reference system in which linear referencing is     -->
+    <!-- used to describe location.                                  -->
+    <!-- ============================================================ -->
+
+    <element name="LinearSRS" type="diggs:LinearSRSType" substitutionGroup="gml:Definition">
+        <annotation>
+            <documentation>
+                Implementation of ISO 19148:2021 §6.4 Linear Spatial Reference System.
+                
+                A complete spatial reference system for positioning along linear features 
+                per ISO 19148 §6.4.
+                
+                Combines a Linear Referencing Method with a specific Linear Element to 
+                create a coordinate reference system that can be referenced via srsName 
+                attributes.
+                
+                Per ISO 19148 §6.4.1: A linear referencing system is a spatial reference 
+                system in which linear referencing is used to describe location. It 
+                combines a linear referencing method with one or more linear elements.
+                
+                Example:
+                usage:
+                A borehole LinearSRS (id="BH-001-LRS") combines:
+                - The borehole's LinearElement with its 3D centerline geometry
+                - A measured depth LRM 
+                
+                Result: positions can reference srsName="#BH-001-LRS" to indicate they 
+                are expressed as distance along borehole BH-001.
+            </documentation>
+        </annotation>
+    </element>
+
+    <complexType name="LinearSRSType">
+        <annotation>
+            <documentation>
+                Type definition for Linear Spatial Reference System per ISO 19148 §6.4.
+                
+                The LinearSRS is the instantiation of a Linear Referencing Method 
+                applied to a specific Linear Element. It provides a complete coordinate 
+                reference system that can be used in srsName attributes to specify that 
+                positions are expressed using linear referencing along that element.
+                
+                For DIGGS: Each borehole, trackline, or other linear sampling feature 
+                that will be linearly referenced should have an associated LinearSRS 
+                that can be referenced by measurements, samples, and observations along 
+                that feature.
+                
+                The LinearSRS inherits from gml:IdentifiedObjectType, providing:
+                - gml:identifier: Unique identifier for this SRS
+                - gml:name: Human-readable name
+                - gml:description: Optional description
+            </documentation>
+        </annotation>
+        <complexContent>
+            <extension base="gml:IdentifiedObjectType">
+                <sequence>
+                    <element name="linearElement" type="diggs:LinearExtentPropertyType">
+                        <annotation>
+                            <documentation>
+                                The specific linear feature to which this SRS applies. 
+                                This provides the geometric framework (LinearExtent 
+                                coordinates) for the coordinate system.
+                                
+                                For a borehole, this would be the borehole's centerline 
+                                geometry. For a geophysical trackline, this would be the 
+                                vessel track.
+                            </documentation>
+                        </annotation>
+                    </element>
+                    <element name="lrm" type="diggs:LRMethodPropertyType">
+                        <annotation>
+                            <documentation>
+                                The method used to determine positions along the linear 
+                                element. Defines the procedure, units, and conventions 
+                                for this coordinate system.
+                                
+                                Specifies whether measurements are absolute, relative, or 
+                                interpolative, and provides the measurement units and 
+                                direction conventions.
+                            </documentation>
+                        </annotation>
+                    </element>
+                    <element name="referent" type="diggs:ReferentPropertyType" minOccurs="0">
+                        <annotation>
+                            <documentation>
+                                The referent used as the origin when linearReferencingMethod 
+                                is of type "relative".
+                                
+                                Required when the LRMethod type is "relative", optional otherwise.
+                                
+                                Example: For a "Depth Below Ground Surface" system, this would 
+                                reference the ground surface referent on the LinearElement.
+                            </documentation>
+                        </annotation>
+                    </element>
+                </sequence>
+            </extension>
+        </complexContent>
+    </complexType>
+
+    <complexType name="LinearSpatialReferenceSystemPropertyType">
+        <annotation>
+            <documentation>
+                Property type for referencing LinearSRS elements. Supports both 
+                LinearSpatialReferenceSystem (legacy name) and LinearSRS (current name).
+            </documentation>
+        </annotation>
+        <choice>
+            <element ref="diggs:LinearSpatialReferenceSystem"/>
+            <element ref="diggs:LinearSRS"/>
+        </choice>
+    </complexType>
+
+
+    <!-- ============================================================ -->
+    <!-- REFERENTS - REFERENCE POINTS ON LINEAR FEATURES              -->
+    <!-- ============================================================ -->
+    <!-- Referents are physical or logical reference points along     -->
+    <!-- linear features, used as origins for relative LR methods.    -->
+    <!-- Common in drilling (ground surface, kelly bushing) and       -->
+    <!-- geophysical surveys (trackline start/end, intersections). -->
+    <!-- Referents may also be used as anchor points in the LinearExtent definition -->
+    <!-- Anchor points are used to calibrate or adjust the linear     -->
+    <!-- referencing system, particularly when physical measurements  -->
+    <!-- differ from geometric computations (e.g., core stretch or compression).     -->
+
+    <!-- ============================================================ -->
+
+    <element name="Referent" type="diggs:ReferentType" substitutionGroup="gml:AbstractObject">
+        <annotation>
+            <documentation>
+                A reference point on or associated with a linear feature, used as 
+                the origin for relative linear referencing measurements.
+                
+                Referents represent physical or logical datum points along LinearExtent 
+                features. Common examples include:
+                - Drilling: ground surface, kelly bushing, rotary table, casing top
+                - Marine: seafloor, mean sea level, mudline
+                - Geophysical: trackline start, trackline end, line intersections
+                - Wells: kickoff point, top of hole, bottom of hole
+                
+                When a LinearSRS uses a relative LRMethod, the referent defines the 
+                zero point (origin) for measurements.
+            </documentation>
+        </annotation>
+    </element>
+
+    <complexType name="ReferentBaseType">
+        <annotation>
+            <documentation>
+                Base type for referent definitions, providing common GML properties 
+                (description, name) inherited from gml:AbstractGMLType.
+                
+                Extended by ReferentType to add specific referent properties like 
+                referent type, position, and distance along the linear element.
+            </documentation>
+        </annotation>
+        <complexContent>
+            <restriction base="gml:AbstractGMLType">
+                <sequence>
+                    <element minOccurs="0" ref="gml:description">
+                        <annotation>
+                            <documentation>
+                                Free-text description of the referent, including any additional 
+                                context or clarification not captured by the referentType code.
+                            </documentation>
+                        </annotation>
+                    </element>
+                    <element maxOccurs="1" minOccurs="0" ref="gml:name">
+                        <annotation>
+                            <documentation>
+                                The identifier or name used for this referent. Examples:
+                                - "GS" (ground surface)
+                                - "KB" (kelly bushing)
+                                - "RT" (rotary table)
+                                - "SF" (seafloor)
+                            </documentation>
+                        </annotation>
+                    </element>
+                </sequence>
+            </restriction>
+        </complexContent>
+    </complexType>
+
+    <complexType name="ReferentType">
+        <annotation>
+            <documentation>
+                Complete referent definition including type, position, and measurement 
+                location along the LinearExtent.
+                
+                Extends ReferentBaseType to add:
+                - referentType: Classification of the referent (groundSurface, 
+                  kellyBushing, etc.)
+                - position: Optional 3D spatial coordinates of the referent
+                - distanceAlong: Position along the LinearExtent where this referent 
+                  is located
+            </documentation>
+        </annotation>
+        <complexContent>
+            <extension base="diggs:ReferentBaseType">
+                <sequence>
+                    <element name="referentType" type="diggs:ReferentTypeEnumType">
+                        <annotation>
+                            <documentation>
+                                Type of referent point (e.g., groundSurface, kellyBushing, 
+                                kickoffPoint). Defines the physical or logical meaning of 
+                                the reference point.
+                                
+                                See ReferentTypeEnum for complete list of standard geotechnical 
+                                and geophysical referent types.
+                            </documentation>
+                        </annotation>
+                    </element>
+                    <element minOccurs="0" name="position" type="diggs:PointLocationPropertyType">
+                        <annotation>
+                            <documentation>
+                                The spatial position of this referent, given in some coordinate 
+                                system (typically a geographic or projected CRS).
+                                
+                                Provides the absolute 3D coordinates of the referent point, 
+                                enabling transformation between linear reference coordinates 
+                                and geographic coordinates.
+                            </documentation>
+                        </annotation>
+                    </element>
+                    <element name="distanceAlong" type="eml:LengthMeasureExt" minOccurs="0">
+                        <annotation>
+                            <documentation>
+                                Position of this referent along the LinearExtent, measured as 
+                                absolute distance from the first coordinate in gml:posList. 
+                                
+                                Examples:
+                                - Kelly bushing at 0.0 ft (at rig floor, first point)
+                                - Ground surface at 5.0 ft (below kelly bushing)
+                                - Kickoff point at 150.0 ft (where well deviates from vertical)
+                                - Trackline start at 0.0 m (beginning of survey line)
+                            </documentation>
+                        </annotation>
+                    </element>
+                </sequence>
+            </extension>
+        </complexContent>
+    </complexType>
+
+    <complexType name="ReferentPropertyType">
+        <annotation>
+            <documentation>
+                Property type for referencing Referent elements, following GML 
+                property type pattern. Used in LinearSRS when referencing the origin 
+                for relative measurements, and in LinearExtent for anchor points.
+            </documentation>
+        </annotation>
+        <sequence minOccurs="0">
+            <element ref="diggs:Referent"/>
+        </sequence>
+        <attributeGroup ref="gml:AssociationAttributeGroup"/>
+    </complexType>
+
+
+
+
+    <!-- ============================================================ -->
+    <!-- LATERAL OFFSET SUPPORT - 2D LINEAR REFERENCING               -->
+    <!-- ============================================================ -->
+    <!-- Support for lateral offsets from linear centerlines enables  -->
+    <!-- 2D positioning (distance along + perpendicular offset).      -->
+    <!-- Used for geophysical swaths, transect sampling, etc.         -->
     <!-- ============================================================ -->
 
     <element name="OffsetParameters" type="diggs:OffsetParametersType"
@@ -274,6 +635,15 @@ DSB: REMOVED FROM PROFILE
         <annotation>
             <documentation>
                 Defines parameters for lateral offset from a linear element centerline.
+                
+                When included in an LRMethod, this indicates the method supports 2D 
+                positioning with both distance along and perpendicular offset coordinates.
+                
+                Common applications:
+                - Side-scan sonar swaths from geophysical tracklines
+                - Offset soil sampling from survey transects
+                - Parallel monitoring points along pipelines
+                - Trial pit offset sampling
             </documentation>
         </annotation>
     </element>
@@ -282,30 +652,54 @@ DSB: REMOVED FROM PROFILE
         <annotation>
             <documentation>
                 Defines the parameters for computing and interpreting lateral offsets 
-                from a linear element centerline.
+                from a linear element centerline (eg. LinearExtent).
                 
                 Lateral offset is the perpendicular distance from the centerline of 
                 the linear element. This is commonly used for:
                 
                 - Geophysical surveys: Side-scan sonar, sub-bottom profilers collect 
-                data on swaths perpendicular to the vessel trackline
+                  data on swaths perpendicular to the vessel trackline
                 
                 - Transect sampling: Soil or environmental samples collected at regular 
-                intervals along a survey line, with additional samples offset to 
-                the sides to characterize spatial variability
+                  intervals along a survey line, with additional samples offset to 
+                  the sides to characterize spatial variability
                 
                 - Pipeline monitoring: Sensors or test points located parallel to but 
-                offset from the pipeline centerline
+                  offset from the pipeline centerline
                 
                 The offset direction (right/left or starboard/port) defines which 
                 side of the centerline is considered positive. Negative values 
                 represent the opposite side.
             </documentation>
         </annotation>
-        <sequence>
-            <element name="offsetDirection" type="diggs:OffsetDirectionEnumType">
-                <annotation>
-                    <documentation>
+        <complexContent>
+            <extension base="diggs:AbstractComponentObjectBaseType">
+                <sequence>
+                    <element minOccurs="0" ref="gml:description">
+                        <annotation>
+                            <documentation>
+                        Detailed description of how offsets are computed for this method.
+                        
+                        Provides additional clarification beyond the offsetType enumeration, 
+                        such as specific algorithms, corrections applied, or instrument 
+                        configurations.</documentation>
+                        </annotation>
+                    </element>
+                    <element name="offsetType" type="diggs:OffsetTypeEnumType">
+                        <annotation>
+                            <documentation>
+                        Type of offset calculation method.
+                        
+                        Values:
+                        - perpendicular: Standard geometric offset perpendicular to centerline
+                        - constantBearing: Offset at fixed compass bearing
+                        - radial: Radial offset from center point
+                    </documentation>
+                        </annotation>
+                    </element>
+                    <element name="offsetDirection" type="diggs:OffsetDirectionEnumType">
+                        <annotation>
+                            <documentation>
                         Direction convention for positive offset values.
                         
                         The offset direction is determined relative to the direction 
@@ -319,22 +713,22 @@ DSB: REMOVED FROM PROFILE
                         Negative offset values represent the opposite direction.
                         Zero offset represents position on the centerline.
                     </documentation>
-                </annotation>
-            </element>
-            <element name="offsetUnits" type="eml:LengthUomExt">
-                <annotation>
-                    <documentation>
+                        </annotation>
+                    </element>
+                    <element name="offsetUnits" type="eml:LengthUomExt">
+                        <annotation>
+                            <documentation>
                         Unit of measure for lateral offset values (second coordinate 
                         in gml:pos). May differ from the distance-along units if needed, 
                         though typically they are the same.
                         
                         Examples: ft, m, km
                     </documentation>
-                </annotation>
-            </element>
-            <element name="maxOffset" type="double" minOccurs="0">
-                <annotation>
-                    <documentation>
+                        </annotation>
+                    </element>
+                    <element name="maxOffset" type="double" minOccurs="0">
+                        <annotation>
+                            <documentation>
                         Optional maximum allowable lateral offset distance (absolute value).
                         
                         This defines the valid range for offset values as:
@@ -348,21 +742,153 @@ DSB: REMOVED FROM PROFILE
                         Example: maxOffset=200 means valid offsets are -200 to +200 
                         in the specified offsetUnits.
                     </documentation>
-                </annotation>
-            </element>
-        </sequence>
+                        </annotation>
+                    </element>
+                    <element minOccurs="0" name="bearing" type="eml:PlaneAngleMeasure">
+                        <annotation>
+                            <documentation>
+                        For a constant bearing offset type, the value of the bearing used 
+                        for measuring offsets from centerline.
+                        
+                        Bearing is typically measured as azimuth from north (0-360 degrees) 
+                        or as a compass bearing. Required when offsetType is "constantBearing".
+                    </documentation>
+                        </annotation>
+                    </element>
+                </sequence>
+            </extension>
+        </complexContent>
     </complexType>
 
     <complexType name="OffsetParametersPropertyType">
+        <annotation>
+            <documentation>
+                Property type for referencing OffsetParameters elements, following GML 
+                property type pattern. Used in LRMethod when lateral offset support 
+                is provided.
+            </documentation>
+        </annotation>
         <sequence minOccurs="0">
             <element ref="diggs:OffsetParameters"/>
         </sequence>
         <attributeGroup ref="gml:AssociationAttributeGroup"/>
     </complexType>
 
+
     <!-- ============================================================ -->
-    <!-- OFFSET DIRECTION TYPE                                        -->
+    <!-- ENUMERATIONS - CONTROLLED VOCABULARIES                       -->
     <!-- ============================================================ -->
+
+    <simpleType name="LRMethodTypeEnumType">
+        <annotation>
+            <documentation>
+                Categories of linear referencing methods per ISO 19148:2021 §6.2.3.
+                
+                These categories define the fundamental approach to determining 
+                positions along a linear feature:
+                
+                - absolute: Fixed origin, typically the first coordinate
+                - relative: Origin at a specified referent point
+                - interpolative: Position determined by interpolation between control points
+            </documentation>
+        </annotation>
+        <restriction base="string">
+            <enumeration value="absolute">
+                <annotation>
+                    <documentation>
+                        Position specified as absolute distance from a defined origin, 
+                        typically the first coordinate of the LinearExtent. Per ISO 19148, 
+                        absolute methods use distance from a fixed origin point.
+                        
+                        DIGGS examples:
+                        - Measured depth from kelly bushing (origin at KB)
+                        - Distance along geophysical trackline from start
+                        - Chainage along pipeline from reference monument
+                    </documentation>
+                </annotation>
+            </enumeration>
+            <enumeration value="relative">
+                <annotation>
+                    <documentation>
+                        Position specified relative to a referent point along the linear 
+                        feature. Per ISO 19148, relative methods express position as offset 
+                        from a reference point that may not be at the origin.
+                        
+                        DIGGS examples:
+                        - Depth below ground surface (referent at ground level)
+                        - Distance from line intersection point
+                        - Offset from kickoff point in directional drilling
+                    </documentation>
+                </annotation>
+            </enumeration>
+            <enumeration value="interpolative">
+                <annotation>
+                    <documentation>
+                        Position determined by interpolation between known control points 
+                        (anchor points). Per ISO 19148, interpolative methods calculate 
+                        position based on known reference points distributed along the 
+                        linear element.
+                        
+                        DIGGS examples:
+                        - Core positions adjusted for stretch/compression between top and bottom
+                        - Trackline positions interpolated between GPS waypoints
+                        - Borehole positions adjusted using downhole survey stations
+                    </documentation>
+                </annotation>
+            </enumeration>
+        </restriction>
+    </simpleType>
+
+    <simpleType name="PositiveDirectionType">
+        <annotation>
+            <documentation>
+                Convention for the positive direction of measurement along a 
+                linear feature. In DIGGS, measurement always proceeds from 
+                first to last coordinate, but this allows semantic labeling.
+                
+                These are primarily semantic labels that clarify the meaning of 
+                "increasing" measurements without changing the fundamental coordinate 
+                order basis.
+            </documentation>
+        </annotation>
+        <restriction base="string">
+            <enumeration value="increasing">
+                <annotation>
+                    <documentation>
+                        Positive direction follows coordinate order from first to last.
+                        This is the DIGGS standard and default convention.
+                    </documentation>
+                </annotation>
+            </enumeration>
+            <enumeration value="downward">
+                <annotation>
+                    <documentation>
+                        Semantic label indicating positive is downward (deeper). 
+                        Common for boreholes where first coordinate is collar and 
+                        last is bottom of hole. Measurements increase with depth.
+                    </documentation>
+                </annotation>
+            </enumeration>
+            <enumeration value="upward">
+                <annotation>
+                    <documentation>
+                        Semantic label indicating positive is upward (shallower). 
+                        May be used for core logging from bottom to top, or for 
+                        elevation-based referencing systems.
+                    </documentation>
+                </annotation>
+            </enumeration>
+            <enumeration value="forward">
+                <annotation>
+                    <documentation>
+                        Semantic label for horizontal features indicating positive 
+                        is in the forward direction of survey or alignment.
+                        Common for transects, pipelines, and tracklines.
+                    </documentation>
+                </annotation>
+            </enumeration>
+        </restriction>
+    </simpleType>
 
     <simpleType name="OffsetDirectionEnumType">
         <annotation>
@@ -419,340 +945,54 @@ DSB: REMOVED FROM PROFILE
         </restriction>
     </simpleType>
 
-
-    <!-- ============================================================ -->
-    <!-- POSITIONEXPRESION (ISO 19148 §6.2.2)                                                   -->
-    <!-- ============================================================ -->
-
-    <!-- ============================================================ -->
-    <!-- LINEAR ELEMENT (ISO 19148 §6.3)                              -->
-    <!-- ============================================================ -->
-
-    <!-- ============================================================ -->
-    <!-- LINEAR REFERENCING METHOD (ISO 19148 §6.2)                   -->
-    <!-- ============================================================ -->
-
-    <!-- ============================================================ -->
-    <!-- LINEAR SPATIAL REFERENCE SYSTEM (ISO 19148 §6.4)            -->
-    <!-- ============================================================ -->
-
-    <element name="LinearSRS" type="diggs:LinearSRSType" substitutionGroup="gml:Definition">
+    <simpleType name="OffsetTypeEnumType">
         <annotation>
             <documentation>
-                A complete spatial reference system for positioning along linear features 
-                per ISO 19148 §6.4.
+                Methods for computing lateral offsets from linear centerlines.
                 
-                Combines a Linear Referencing Method with a specific Linear Element to 
-                create a coordinate reference system that can be referenced via srsName 
-                attributes.
-                
-                Example usage:
-                A borehole LinearSRS (id="BH-001-LRS") combines:
-                - The borehole's LinearElement with its 3D centerline geometry
-                - A measured depth LRM 
-                Result: positions can reference srsName="#BH-001-LRS"
-            </documentation>
-        </annotation>
-    </element>
-
-    <complexType name="LinearSRSType">
-        <annotation>
-            <documentation>
-                Defines a Linear Spatial Reference System per ISO 19148 §6.4.
-                
-                Per ISO 19148 §6.4.1: A linear referencing system is a spatial reference 
-                system in which linear referencing is used to describe location. It 
-                combines a linear referencing method with one or more linear elements.
-                
-                The LinearSRS is the instantiation of a Linear Referencing Method 
-                applied to a specific Linear Element. It provides a complete coordinate 
-                reference system that can be used in srsName attributes to specify that 
-                positions are expressed using linear referencing along that element.
-                
-                For DIGGS: Each borehole, trackline, or other linear sampling feature 
-                that will be linearly referenced should have an associated LinearSRS 
-                that can be referenced by measurements, samples, and observations along 
-                that feature.
-            </documentation>
-        </annotation>
-        <complexContent>
-            <extension base="gml:IdentifiedObjectType">
-                <sequence>
-                    <element name="linearElement" type="diggs:LinearExtentPropertyType">
-                        <annotation>
-                            <documentation>
-                                The specific linear feature to which this SRS applies. 
-                                This provides the geometric framework (LinearExtent 
-                                coordinates) for the coordinate system.
-                            </documentation>
-                        </annotation>
-                    </element>
-                    <element name="lrm" type="diggs:LRMethodPropertyType">
-                        <annotation>
-                            <documentation>
-                                The method used to determine positions along the linear 
-                                element. Defines the procedure, units, and conventions 
-                                for this coordinate system.
-                            </documentation>
-                        </annotation>
-                    </element>
-                    <element name="referent" type="diggs:ReferentPropertyType" minOccurs="0">
-                        <annotation>
-                            <documentation>
-                                The referent used as the origin when linearReferencingMethod 
-                                is of type "relative".
-                                
-                                Required when the LRMethod type is "relative", optional otherwise.
-                                
-                                Example: For a "Depth Below Ground Surface" system, this would 
-                                reference the ground surface referent on the LinearElement.
-                            </documentation>
-                        </annotation>
-                    </element>
-
-                </sequence>
-            </extension>
-        </complexContent>
-    </complexType>
-
-    <!-- ============================================================ -->
-    <!-- LINEAR POSITION (ISO 19148 §7.2)                             -->
-    <!-- ============================================================ -->
-
-    <!-- ============================================================ -->
-    <!-- LINEAR LOCATION (ISO 19148 §7.3)                             -->
-    <!-- ============================================================ -->
-
-    <!-- ============================================================ -->
-    <!-- LINEAR REFERENCING METHOD TYPE                               -->
-    <!-- ============================================================ -->
-
-    <simpleType name="LinearReferencingMethodType">
-        <annotation>
-            <documentation>
-                Method for measuring position along a LinearExtent feature.
-                
-                distanceAlong: Absolute cumulative 3D distance along the curve from 
-                    the first coordinate in gml:posList. This is the standard method 
-                    for measured depth in boreholes and distance along geophysical 
-                    tracklines.
-                
-                relativeToReferent: Distance measured relative to a specified referent 
-                    point along the LinearExtent. The referent element must be populated 
-                    when using this method. Commonly used when logging core samples or 
-                    referencing positions relative to ground surface, kelly bushing, etc.
+                Defines the geometric algorithm used to calculate the perpendicular 
+                or lateral offset from the linear element centerline.
             </documentation>
         </annotation>
         <restriction base="string">
-            <enumeration value="distanceAlong">
+            <enumeration value="perpendicular">
                 <annotation>
                     <documentation>
-                        Cumulative 3D distance along LinearExtent from first coordinate. 
-                        Standard method for measured depth and trackline distance.
-                    </documentation>
-                </annotation>
-            </enumeration>
-            <enumeration value="relativeToReferent">
-                <annotation>
-                    <documentation>
-                        Distance measured from a specified referent point. Requires 
-                        referent element to be populated with referent location and type.
-                    </documentation>
-                </annotation>
-            </enumeration>
-        </restriction>
-    </simpleType>
-
-    <!-- ============================================================ -->
-    <!-- LR METHOD TYPE CODE (ISO 19148 §6.2.3)                       -->
-    <!-- ============================================================ -->
-
-    <simpleType name="LRMethodTypeEnumType">
-        <annotation>
-            <documentation>
-                Categories of linear referencing methods per ISO 19148:2021 §6.2.3.
-            </documentation>
-        </annotation>
-        <restriction base="string">
-            <enumeration value="absolute">
-                <annotation>
-                    <documentation>
-                        Position specified as absolute distance from a defined origin, 
-                        typically the first coordinate of the LinearExtent. Per ISO 19148, 
-                        absolute methods use distance from a fixed origin point.
+                        Offset perpendicular to the tangent of the centerline at 
+                        each point. Standard geometric offset method.
                         
-                        DIGGS examples:
-                        - Measured depth from kelly bushing (origin at KB)
-                        - Distance along geophysical trackline from start
-                        - Chainage along pipeline from reference monument
+                        At each position along the centerline, the offset is measured 
+                        perpendicular to the local tangent direction. This is the most 
+                        common method for straight or gently curved features.
                     </documentation>
                 </annotation>
             </enumeration>
-            <enumeration value="relative">
+            <enumeration value="constantBearing">
                 <annotation>
                     <documentation>
-                        Position specified relative to a referent point along the linear 
-                        feature. Per ISO 19148, relative methods express position as offset 
-                        from a reference point that may not be at the origin.
+                        Offset at a constant compass bearing from centerline points. 
+                        Used in marine surveys with fixed sensor arrays.
                         
-                        DIGGS examples:
-                        - Depth below ground surface (referent at ground level)
-                        - Distance from line intersection point
-                        - Offset from kickoff point in directional drilling
+                        Rather than perpendicular to the local tangent, offset is measured 
+                        at a fixed azimuth. Useful when instruments maintain constant 
+                        orientation relative to north rather than relative to vessel heading.
                     </documentation>
                 </annotation>
             </enumeration>
-            <enumeration value="interpolative"/>
-        </restriction>
-    </simpleType>
-    <!-- ============================================================ -->
-    <!-- POSITIVE DIRECTION                                           -->
-    <!-- ============================================================ -->
-
-    <simpleType name="PositiveDirectionType">
-        <annotation>
-            <documentation>
-                Convention for the positive direction of measurement along a 
-                linear feature. In DIGGS, measurement always proceeds from 
-                first to last coordinate, but this allows semantic labeling.
-            </documentation>
-        </annotation>
-        <restriction base="string">
-            <enumeration value="increasing">
+            <enumeration value="radial">
                 <annotation>
                     <documentation>
-                        Positive direction follows coordinate order from first to last.
-                        This is the DIGGS standard.
-                    </documentation>
-                </annotation>
-            </enumeration>
-            <enumeration value="downward">
-                <annotation>
-                    <documentation>
-                        Semantic label indicating positive is downward (deeper). 
-                        Common for boreholes where first coordinate is collar and 
-                        last is bottom of hole.
-                    </documentation>
-                </annotation>
-            </enumeration>
-            <enumeration value="upward">
-                <annotation>
-                    <documentation>
-                        Semantic label indicating positive is upward (shallower). 
-                        May be used for core logging from bottom to top.
-                    </documentation>
-                </annotation>
-            </enumeration>
-            <enumeration value="forward">
-                <annotation>
-                    <documentation>
-                        Semantic label for horizontal features indicating positive 
-                        is in the forward direction of survey or alignment.
+                        Offset radially from a center point. May be used for 
+                        circular or spiral survey patterns.
+                        
+                        Offset is measured radially outward from a defined center point, 
+                        rather than perpendicular to the centerline. Applicable for 
+                        circular grid patterns or radial sampling designs.
                     </documentation>
                 </annotation>
             </enumeration>
         </restriction>
     </simpleType>
-
-    <!-- ============================================================ -->
-    <!-- REFERENT                                                     -->
-    <!-- ============================================================ -->
-
-    <element name="Referent" type="diggs:ReferentType" substitutionGroup="gml:AbstractObject">
-        <annotation>
-            <documentation>
-                A reference point on or associated with a linear feature, used as 
-                the origin for relative linear referencing measurements.
-            </documentation>
-        </annotation>
-    </element>
-
-    <complexType name="ReferentBaseType">
-        <annotation>
-            <documentation>
-                Defines a reference point along or associated with a LinearExtent 
-                feature. Referents are commonly used in drilling operations (ground 
-                surface, kelly bushing, kickoff points) and geophysical surveys 
-                (trackline start/end, line intersections).
-                
-                When used with relativeToReferent referencing method, measurements 
-                are made relative to this referent's position along the LinearExtent.
-            </documentation>
-        </annotation>
-        <complexContent>
-            <restriction base="gml:AbstractGMLType">
-                <sequence>
-                    <element minOccurs="0" ref="gml:description">
-                        <annotation>
-                            <documentation>
-                                Free-text description of the referent, including any additional 
-                                context or clarification not captured by the referentType code.
-                            </documentation>
-                        </annotation>
-                    </element>
-                    <element maxOccurs="1" minOccurs="0" ref="gml:name">
-                        <annotation>
-                            <documentation>The identifier used for this referent.</documentation>
-                        </annotation>
-                    </element>
-                </sequence>
-            </restriction>
-        </complexContent>
-    </complexType>
-    <complexType name="ReferentType">
-        <annotation>
-            <documentation>
-                Defines a reference point along or associated with a LinearExtent 
-                feature. Referents are commonly used in drilling operations (ground 
-                surface, kelly bushing, kickoff points) and geophysical surveys 
-                (trackline start/end, line intersections).
-                
-                When used with relativeToReferent referencing method, measurements 
-                are made relative to this referent's position along the LinearExtent.
-            </documentation>
-        </annotation>
-        <complexContent>
-            <extension base="diggs:ReferentBaseType">
-                <sequence>
-                    <element name="referentType" type="diggs:ReferentTypeEnumType">
-                        <annotation>
-                            <documentation>
-                        Type of referent point (e.g., groundSurface, kellyBushing, 
-                        kickoffPoint). Defines the physical or logical meaning of 
-                        the reference point.
-                    </documentation>
-                        </annotation>
-                    </element>
-                    <element minOccurs="0" name="position" type="diggs:PointLocationPropertyType">
-                        <annotation>
-                            <documentation>The spatial position of this referent, given in some coordinate system</documentation>
-                        </annotation>
-                    </element>
-                    <element name="distanceAlong" type="eml:LengthMeasureExt" minOccurs="0">
-                        <annotation>
-                            <documentation>
-                        Position of this referent along the LinearExtent, measured as 
-                        absolute distance from the first coordinate in gml:posList. 
-                        For example, kelly bushing might be at 0.0, ground surface at 
-                        5.0 ft, or kickoff point at 150.0 ft.
-                    </documentation>
-                        </annotation>
-                    </element>
-                </sequence>
-            </extension>
-        </complexContent>
-    </complexType>
-
-    <complexType name="ReferentPropertyType">
-        <sequence minOccurs="0">
-            <element ref="diggs:Referent"/>
-        </sequence>
-        <attributeGroup ref="gml:AssociationAttributeGroup"/>
-    </complexType>
-
-    <!-- ============================================================ -->
-    <!-- REFERENT CODE                                                -->
-    <!-- ============================================================ -->
 
     <simpleType name="ReferentTypeEnum">
         <annotation>
@@ -760,6 +1000,15 @@ DSB: REMOVED FROM PROFILE
                 Standard referent types for geotechnical and geoenvironmental 
                 linear features. These codes represent common reference points 
                 used in drilling, sampling, and geophysical operations.
+                
+                Organized by application area:
+                - Drilling: groundSurface, kellyBushing, rotaryTable, rotaryBushing, 
+                  crownValve, derrickFloor, kickoffPoint
+                - Marine: seafloor, mudline, meanSeaLevel, tidal datums
+                - Borehole/Well: topOfCasing, bottomOfCasing, topOfHole, bottomOfHole, 
+                  casingFlange
+                - Core: topOfCore, bottomOfCore
+                - Survey: start, end, intersection, benchMark
             </documentation>
         </annotation>
         <restriction base="string">
@@ -767,7 +1016,8 @@ DSB: REMOVED FROM PROFILE
                 <annotation>
                     <documentation>
                         Natural or existing ground surface at the location of the 
-                        feature. Common reference for boreholes, CPT soundings, etc.
+                        feature. Common reference for boreholes, CPT soundings, test pits, 
+                        and other subsurface investigations.
                     </documentation>
                 </annotation>
             </enumeration>
@@ -775,7 +1025,23 @@ DSB: REMOVED FROM PROFILE
                 <annotation>
                     <documentation>
                         Kelly bushing on a drilling rig, typically the reference 
-                        point for measured depth in rotary drilling operations.
+                        point for measured depth in rotary drilling operations. 
+                        Located at the top of the kelly drive system.
+                        
+                        Note: See also 'rotaryBushing' which is the preferred term.
+                    </documentation>
+                </annotation>
+            </enumeration>
+            <enumeration value="rotaryBushing">
+                <annotation>
+                    <documentation>
+                        The bushing seated in the rotary table through which the kelly 
+                        or drill string passes during drilling operations. The elevation 
+                        of the rotary bushing (often referred to as RKB - Rotary Kelly 
+                        Bushing) is a common datum reference for measuring drilled depths 
+                        and is typically a few feet above the drill floor elevation.
+                        
+                        This is the preferred term over 'kellyBushing'.
                     </documentation>
                 </annotation>
             </enumeration>
@@ -783,7 +1049,18 @@ DSB: REMOVED FROM PROFILE
                 <annotation>
                     <documentation>
                         Rotary table on a drilling rig, alternative reference point 
-                        for measured depth measurements.
+                        for measured depth measurements. The rotating platform through 
+                        which the drill string passes.
+                    </documentation>
+                </annotation>
+            </enumeration>
+            <enumeration value="crownValve">
+                <annotation>
+                    <documentation>
+                        The valve assembly located at the crown of the derrick or mast, 
+                        typically at or near the crown block. Used as a reference datum 
+                        for depth measurements in drilling operations, representing one 
+                        of the highest fixed points on the rig structure.
                     </documentation>
                 </annotation>
             </enumeration>
@@ -791,22 +1068,25 @@ DSB: REMOVED FROM PROFILE
                 <annotation>
                     <documentation>
                         Derrick floor or rig floor elevation, sometimes used as 
-                        alternative to kelly bushing or rotary table.
+                        alternative to kelly bushing or rotary table. The main working 
+                        platform of the drilling rig.
                     </documentation>
                 </annotation>
             </enumeration>
             <enumeration value="mudline">
                 <annotation>
                     <documentation>
-                        River or lakebed surface in over water drilling operations. 
+                        River or lakebed surface in over-water drilling operations. 
+                        The sediment-water interface in non-marine aquatic environments.
                     </documentation>
                 </annotation>
             </enumeration>
             <enumeration value="seafloor">
                 <annotation>
                     <documentation>
-                        Seafloor surface, used in marine 
-                        geophysical and geotechnical surveys. Typically the reference for measured depth in subsea wells.
+                        Seafloor surface, used in marine geophysical and geotechnical 
+                        surveys. Typically the reference for measured depth in subsea 
+                        wells and offshore boreholes.
                     </documentation>
                 </annotation>
             </enumeration>
@@ -814,7 +1094,60 @@ DSB: REMOVED FROM PROFILE
                 <annotation>
                     <documentation>
                         Mean sea level, used as vertical datum reference in marine 
-                        and coastal environments.
+                        and coastal environments. The arithmetic mean of hourly water 
+                        elevations observed over a specific 19-year cycle (National 
+                        Tidal Datum Epoch).
+                    </documentation>
+                </annotation>
+            </enumeration>
+            <enumeration value="lowestAstronomicalTide">
+                <annotation>
+                    <documentation>
+                        The lowest tide level over the duration of the National Tidal 
+                        Datum Epoch (19 years). Used as a low-water datum in some 
+                        coastal applications.
+                    </documentation>
+                </annotation>
+            </enumeration>
+            <enumeration value="meanHigherHighWater">
+                <annotation>
+                    <documentation>
+                        A tidal datum. The average of the higher high water height of 
+                        each tidal day observed over the National Tidal Datum Epoch 
+                        (19 years). Applicable in areas with mixed tidal regimes.
+                    </documentation>
+                </annotation>
+            </enumeration>
+            <enumeration value="meanHighWater">
+                <annotation>
+                    <documentation>
+                        A tidal datum. The average of all the high water heights observed 
+                        over the National Tidal Datum Epoch (19 years).
+                    </documentation>
+                </annotation>
+            </enumeration>
+            <enumeration value="meanLowerLowWater">
+                <annotation>
+                    <documentation>
+                        A tidal datum. The average of the lower low water height of each 
+                        tidal day observed over the National Tidal Datum Epoch (19 years). 
+                        Common datum for nautical charts in the United States.
+                    </documentation>
+                </annotation>
+            </enumeration>
+            <enumeration value="meanLowWater">
+                <annotation>
+                    <documentation>
+                        A tidal datum. The average of all the low water heights observed 
+                        over the National Tidal Datum Epoch (19 years).
+                    </documentation>
+                </annotation>
+            </enumeration>
+            <enumeration value="meanTideLevel">
+                <annotation>
+                    <documentation>
+                        A tidal datum. The arithmetic mean of mean high water and mean 
+                        low water. Same as half-tide level.
                     </documentation>
                 </annotation>
             </enumeration>
@@ -822,14 +1155,24 @@ DSB: REMOVED FROM PROFILE
                 <annotation>
                     <documentation>
                         Top of protective casing in a borehole or well. May be used 
-                        as reference for depth measurements in monitoring wells.
+                        as reference for depth measurements in monitoring wells and 
+                        environmental boreholes.
                     </documentation>
                 </annotation>
             </enumeration>
             <enumeration value="bottomOfCasing">
                 <annotation>
                     <documentation>
-                        Base of protective casing in a borehole or well.
+                        Base of protective casing in a borehole or well. Marks the 
+                        transition from cased to open hole.
+                    </documentation>
+                </annotation>
+            </enumeration>
+            <enumeration value="casingFlange">
+                <annotation>
+                    <documentation>
+                        A flange affixed to the top of the casing string used to attach 
+                        production equipment. Common reference in oil/gas wells.
                     </documentation>
                 </annotation>
             </enumeration>
@@ -837,21 +1180,41 @@ DSB: REMOVED FROM PROFILE
                 <annotation>
                     <documentation>
                         Point at which a borehole deviates from vertical in directional 
-                        drilling operations. Important reference for deviated well paths.
+                        drilling operations. Important reference for deviated well paths 
+                        and horizontal drilling.
                     </documentation>
                 </annotation>
             </enumeration>
             <enumeration value="topOfHole">
                 <annotation>
                     <documentation>
-                        The top of a drilled hole - generally synonymous with ground surface unless drilled within an excavation.
+                        The top of a drilled hole - generally synonymous with ground 
+                        surface unless drilled within an excavation or from a platform.
                     </documentation>
                 </annotation>
             </enumeration>
             <enumeration value="bottomOfHole">
                 <annotation>
                     <documentation>
-                        Terminal end of a borehole or well at maximum penetration depth.
+                        Terminal end of a borehole or well at maximum penetration depth. 
+                        Total depth (TD) of the hole.
+                    </documentation>
+                </annotation>
+            </enumeration>
+            <enumeration value="topOfCore">
+                <annotation>
+                    <documentation>
+                        The defined top of a core sample. Used when referencing positions 
+                        within core samples that may be handled separately from the parent 
+                        borehole.
+                    </documentation>
+                </annotation>
+            </enumeration>
+            <enumeration value="bottomOfCore">
+                <annotation>
+                    <documentation>
+                        The defined base of a core sample. Used for core recovery 
+                        calculations and sample referencing.
                     </documentation>
                 </annotation>
             </enumeration>
@@ -859,7 +1222,8 @@ DSB: REMOVED FROM PROFILE
                 <annotation>
                     <documentation>
                         Starting point of a geophysical trackline or survey transect. 
-                        Corresponds to first coordinate in LinearExtent.
+                        Corresponds to first coordinate in LinearExtent. Common reference 
+                        for distance along survey lines.
                     </documentation>
                 </annotation>
             </enumeration>
@@ -875,267 +1239,34 @@ DSB: REMOVED FROM PROFILE
                 <annotation>
                     <documentation>
                         Intersection point where this linear feature crosses another 
-                        linear feature. Common in grid-based geophysical surveys.
+                        linear feature. Common in grid-based geophysical surveys where 
+                        perpendicular survey lines create a network of tie points.
                     </documentation>
                 </annotation>
             </enumeration>
             <enumeration value="benchMark">
                 <annotation>
                     <documentation>
-                        Surveyed benchmark used as elevation reference for the feature.
+                        Surveyed benchmark used as elevation reference for the feature. 
+                        A monumented point with known coordinates in a geodetic reference 
+                        system.
                     </documentation>
-                </annotation>
-            </enumeration>
-            <enumeration value="topOfCore">
-                <annotation>
-                    <documentation>
-                        The defined top of a core sample.
-                    </documentation>
-                </annotation>
-            </enumeration>
-            <enumeration value="bottomOfCore">
-                <annotation>
-                    <documentation>
-                        The defined base of a core sample.
-                    </documentation>
-                </annotation>
-            </enumeration>
-            <enumeration value="casingFlange">
-                <annotation>
-                    <documentation>A flange affixed to the top of the casing string used to attach production equipment.</documentation>
-                </annotation>
-            </enumeration>
-            <enumeration value="crownValve">
-                <annotation>
-                    <documentation>The valve assembly located at the crown of the derrick or mast, typically at or near the crown block. Used as a reference datum for depth measurements in drilling operations, representing one of the highest fixed points on the rig structure.</documentation>
-                </annotation>
-            </enumeration>
-            <enumeration value="rotaryBushing">
-                <annotation>
-                    <documentation>The bushing seated in the rotary table through which the kelly or drill string passes during drilling operations. The elevation of the rotary bushing (often referred to as RKB - Rotary Kelly Bushing) is a common datum reference for measuring drilled depths and is typically a few feet above the drill floor elevation.</documentation>
-                </annotation>
-            </enumeration>
-            <enumeration value="lowestAstronomicalTide">
-                <annotation>
-                    <documentation>The lowest tide level over the duration of the National Tidal Datum Epoch (19 years).</documentation>
-                </annotation>
-            </enumeration>
-            <enumeration value="meanHigherHighWater">
-                <annotation>
-                    <documentation>A tidal datum. The average of the higher high water height of each tidal day observed over the National Tidal Datum Epoch (19 years).</documentation>
-                </annotation>
-            </enumeration>
-            <enumeration value="meanHighWater">
-                <annotation>
-                    <documentation>A tidal datum. The average of all the high water heights observed over the National Tidal Datum Epoch (19 years).</documentation>
-                </annotation>
-            </enumeration>
-            <enumeration value="meanLowerLowWater">
-                <annotation>
-                    <documentation>A tidal datum. The average of the lower low water height of each tidal day observed over the National Tidal Datum Epoch (19 years).</documentation>
-                </annotation>
-            </enumeration>
-            <enumeration value="meanLowWater">
-                <annotation>
-                    <documentation>A tidal datum. The average of all the low water heights observed over the National Tidal Datum Epoch (19 years).</documentation>
-                </annotation>
-            </enumeration>
-            <enumeration value="meanTideLevel">
-                <annotation>
-                    <documentation>A tidal datum. The arithmetic mean of mean high water and mean low water. Same as half-tide level.</documentation>
                 </annotation>
             </enumeration>
         </restriction>
     </simpleType>
-
-
-    <!-- ============================================================ -->
-    <!-- LRS ANCHOR POINT                                             -->
-    <!-- ============================================================ -->
 
     <simpleType name="ReferentTypeEnumType">
+        <annotation>
+            <documentation>
+                Union type allowing either standard ReferentTypeEnum values or 
+                user-defined values via OtherNameType pattern.
+                
+                This provides extensibility while maintaining a core controlled 
+                vocabulary of standard referent types.
+            </documentation>
+        </annotation>
         <union memberTypes="diggs:OtherNameType diggs:ReferentTypeEnum"/>
     </simpleType>
-    <element name="LRSAnchorPoint" type="diggs:LRSAnchorPointType"
-        substitutionGroup="gml:AbstractObject">
-        <annotation>
-            <documentation>
-                A calibration or anchor point used to establish or maintain the 
-                linear referencing system. Anchor points relate the linear reference 
-                values to actual geometry or physical features.
-            </documentation>
-        </annotation>
-    </element>
 
-    <complexType name="LRSAnchorPointType">
-        <annotation>
-            <documentation>
-                Defines a point where the linear reference system is anchored or 
-                calibrated to known positions. Used for:
-                - Establishing the origin of measurement (0.0 point)
-                - Calibrating total length at bottom of hole
-                - Tying geophysical tracklines to survey monuments
-                - Adjusting for stretch/compression in core recovery
-            </documentation>
-        </annotation>
-        <complexContent>
-            <extension base="diggs:ReferentBaseType">
-                <sequence>
-                    <element name="anchorType" type="diggs:ReferentTypeEnumType" minOccurs="0">
-                        <annotation>
-                            <documentation>
-                        Type of anchor (uses same codes as referent types for consistency).
-                    </documentation>
-                        </annotation>
-                    </element>
-                    <element name="distanceAlong" type="eml:LengthMeasure">
-                        <annotation>
-                            <documentation>
-                        The position along the linear feature where this anchor is located.
-                    </documentation>
-                        </annotation>
-                    </element>
-                    <element name="position" type="diggs:PointLocationPropertyType" minOccurs="0">
-                        <annotation>
-                            <documentation>
-                        3D coordinates of the anchor point in a spatial reference system. 
-                        Enables transformation between LRS and geographic coordinates.
-                    </documentation>
-                        </annotation>
-                    </element>
-                </sequence>
-            </extension>
-        </complexContent>
-    </complexType>
-
-    <complexType name="LRSAnchorPointPropertyType">
-        <sequence minOccurs="0">
-            <element ref="diggs:LRSAnchorPoint"/>
-        </sequence>
-        <attributeGroup ref="gml:AssociationAttributeGroup"/>
-    </complexType>
-
-    <!-- ============================================================ -->
-    <!-- DISTANCE EXPRESSION                                          -->
-    <!-- ============================================================ -->
-
-    <!-- ============================================================ -->
-    <!-- OFFSET METHOD                                                -->
-    <!-- ============================================================ -->
-
-    <element name="OffsetMethod" type="diggs:OffsetMethodType"
-        substitutionGroup="gml:AbstractObject">
-        <annotation>
-            <documentation>
-                Defines how lateral offsets from the linear feature centerline 
-                are calculated and applied. Particularly important for geophysical 
-                data collection.
-            </documentation>
-        </annotation>
-    </element>
-
-    <complexType name="OffsetMethodType">
-        <annotation>
-            <documentation>
-                Specifies the method for computing lateral offsets from a linear 
-                feature. Important for geophysical surveys where data is collected 
-                on swaths perpendicular to tracklines.
-                
-                Examples:
-                - Perpendicular offset at each point along centerline
-                - Offset along survey azimuth
-                - Offset corrected for vessel motion/drift
-            </documentation>
-        </annotation>
-        <sequence>
-            <element name="offsetType" type="diggs:OffsetTypeEnumType">
-                <annotation>
-                    <documentation>
-                        Type of offset calculation method.
-                    </documentation>
-                </annotation>
-            </element>
-            <element name="description" type="string" minOccurs="0">
-                <annotation>
-                    <documentation>
-                        Detailed description of how offsets are computed.
-                    </documentation>
-                </annotation>
-            </element>
-            <element name="maxOffset" type="eml:LengthMeasureExt" minOccurs="0">
-                <annotation>
-                    <documentation>
-                        Maximum allowable lateral offset distance for this method.
-                    </documentation>
-                </annotation>
-            </element>
-            <element minOccurs="0" name="bearing" type="eml:PlaneAngleMeasure">
-                <annotation>
-                    <documentation>For a constant bearing offset type, the value of the bearing used for measuring offsets from centerline.
-</documentation>
-                </annotation>
-            </element>
-        </sequence>
-    </complexType>
-
-    <complexType name="OffsetMethodPropertyType">
-        <sequence minOccurs="0">
-            <element ref="diggs:OffsetMethod"/>
-        </sequence>
-        <attributeGroup ref="gml:AssociationAttributeGroup"/>
-    </complexType>
-
-    <simpleType name="OffsetTypeEnumType">
-        <annotation>
-            <documentation>
-                Methods for computing lateral offsets from linear centerlines.
-            </documentation>
-        </annotation>
-        <restriction base="string">
-            <enumeration value="perpendicular">
-                <annotation>
-                    <documentation>
-                        Offset perpendicular to the tangent of the centerline at 
-                        each point. Standard geometric offset.
-                    </documentation>
-                </annotation>
-            </enumeration>
-            <enumeration value="constantBearing">
-                <annotation>
-                    <documentation>
-                        Offset at a constant compass bearing from centerline points. 
-                        Used in marine surveys with fixed sensor arrays.
-                    </documentation>
-                </annotation>
-            </enumeration>
-            <enumeration value="radial">
-                <annotation>
-                    <documentation>
-                        Offset radially from a center point. May be used for 
-                        circular or spiral survey patterns.
-                    </documentation>
-                </annotation>
-            </enumeration>
-        </restriction>
-    </simpleType>
-
-    <complexType name="LinearSpatialReferenceSystemPropertyType">
-        <choice>
-            <element ref="diggs:LinearSpatialReferenceSystem"/>
-            <element ref="diggs:LinearSRS"/>
-        </choice>
-    </complexType>
-
-    <element name="linearReferencingMethodUncertainty" type="diggs:UncertaintyPropertyType">
-        <annotation>
-            <documentation>Provides accuracy value (usually a length measure) for
-                                the location (geometry) elements that use this linear reference
-                                system for their SRS. For example, for depths in a hole, this
-                                property could provide information as to the source and accuracy of
-                                depth values that relate to this reference system. If individual
-                                elements that refer to this reference system have different
-                                uncertainties, those uncertainties are reported within those
-                                elements themselves.</documentation>
-        </annotation>
-    </element>
 </schema>
