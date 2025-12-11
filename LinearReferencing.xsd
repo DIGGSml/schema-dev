@@ -270,7 +270,7 @@
                             </documentation>
                         </annotation>
                     </element>
-                    <element name="positiveDirection" type="diggs:PositiveDirectionType"
+                    <element name="positiveDirection" type="diggs:PositiveDirectionEnumType"
                         minOccurs="0">
                         <annotation>
                             <documentation>
@@ -288,34 +288,14 @@
                             </documentation>
                         </annotation>
                     </element>
-                    <element name="anchorDefinition" type="string" minOccurs="0">
+                    <element maxOccurs="unbounded" minOccurs="0" name="constraint"
+                        type="diggs:DiggsStringType">
                         <annotation>
-                            <documentation>
-                                Textual definition of how this method establishes its 
-                                measurement framework. For example: 
-                                - "Measured from first coordinate (measure=0) along 3D curve"
-                                - "Relative to ground surface referent with positive downward"
-                                - "Interpolated between surveyed control points"
-                                
-                                Provides human-readable explanation of the measurement approach.
-                            </documentation>
+                            <documentation>A string value that allows for the specification of constraints imposed by this LRM. For
+example, a Reference Post Linear Referencing Method can specify that referents be of type "reference
+marker".</documentation>
                         </annotation>
                     </element>
-                    <element name="requiresCalibration" type="boolean" minOccurs="0" default="false">
-                        <annotation>
-                            <documentation>
-                                Indicates whether this method requires geometric calibration 
-                                points (anchor points) on LinearElements. 
-                                
-                                True for interpolative methods or when measurement system differs 
-                                from geometry (e.g., core stretch/compression). 
-                                
-                                False for direct geometric methods where measures are computed 
-                                directly from LinearExtent coordinates.
-                            </documentation>
-                        </annotation>
-                    </element>
-
                     <element name="offsetParameters" type="diggs:OffsetParametersPropertyType"
                         minOccurs="0">
                         <annotation>
@@ -851,7 +831,120 @@
         </restriction>
     </simpleType>
 
-    <simpleType name="PositiveDirectionType">
+    <simpleType name="LinearReferencingMethodName">
+        <restriction base="string">
+            <enumeration value="trueFootage">
+                <annotation>
+                    <documentation>
+                        Measurements are made in decimal feet along the linear element from its start, in the direction of the linear element 
+                    </documentation>
+                </annotation>
+            </enumeration>
+            <enumeration value="trueMeters">
+                <annotation>
+                    <documentation>
+                        Measurements are made in decimal meters along the linear element from its start, in the direction of the linear element 
+                    </documentation>
+                </annotation>
+            </enumeration>
+            <enumeration value="chainage">
+                <annotation>
+                    <documentation>
+                        Measurements are made in decimal meters along the linear element
+                        from its start, in the direction of the linear element. Legacy term used in 2.6
+                        incorrectly as an absolute measurement, as it could be used with units of "ft". Deprecated from Version 3.0. Use "trueMeters" instead
+                    </documentation>
+                </annotation>
+            </enumeration>
+            <enumeration value="trueFootageWithOffset">
+                <annotation>
+                    <documentation>
+                        Measurements are made in decimal feet along the linear element from its start, in the direction of the linear element. Then, if a 
+                        diggs:offsetParameters is specified, this location is adjusted in accordance with the properties of the diggs:OffsetParameters object.
+                        Linearly referenced coordinates using this method are 2D coordinates representing the values of distance and offset in that order.
+                    </documentation>
+                </annotation>
+            </enumeration>
+            <enumeration value="trueMetersWithOffset">
+                <annotation>
+                    <documentation>
+                        Measurements are made in decimal meters along the linear element from its start, in the direction of the linear element. Then, if a 
+                        diggs:offsetParameters is specified, this location is adjusted in accordance with the properties of the diggs:OffsetParameters object.
+                        Linearly referenced coordinates using this method are 2D coordinates representing the values of distance and offset in that order.
+                    </documentation>
+                </annotation>
+            </enumeration>
+            <enumeration value="referenceFootage">
+                <annotation>
+                    <documentation>
+                        Measurements are made in decimal feet along the linear element from a specified referent location, in the direction of the linear element.
+                    </documentation>
+                </annotation>
+            </enumeration>
+            <enumeration value="referenceMeter">
+                <annotation>
+                    <documentation>
+                        Measurements are made in decimal meters along the linear element from a specified referent location, in the direction of the linear element.
+                    </documentation>
+                </annotation>
+            </enumeration>
+            <enumeration value="referenceFootageWithOffset">
+                <annotation>
+                    <documentation>
+                        Measurements are made in decimal feet along the linear element from a specified referent location, in the direction of the linear element.
+                        Then, if a diggs:offsetParameters is specified, this location is adjusted in accordance with the properties of the diggs:OffsetParameters object.
+                        Linearly referenced coordinates using this method are 2D coordinates representing the values of distance and offset in that order.
+                    </documentation>
+                </annotation>
+            </enumeration>
+            <enumeration value="referenceMetersWithOffset">
+                <annotation>
+                    <documentation>
+                        Measurements are made in decimal meters along the linear element from a specified referent location, in the direction of the linear element.
+                        Then, if diggs:offsetParameters is specified, this location is adjusted in accordance with the properties of the diggs:OffsetParameters object.
+                        Linearly referenced coordinates using this method are 2D coordinates representing the values of distance and offset in that order.
+                    </documentation>
+                </annotation>   
+            </enumeration>
+            <enumeration value="inchMeasure">
+                <annotation>
+                    <documentation>
+                        Measurement is expressed as decimal inches along the linear element, in the direction of the linear element.
+                        The exact location is determined from the two anchor points assigned along the linear element that bracket the neasurement location and then 
+                        interpolating between these two points based on the length of the line segment between them. In DIGGS, used primarily for logging locations on a core sample.
+                    </documentation>
+                </annotation>
+            </enumeration>
+            <enumeration value="cmMeasure">
+                <annotation>
+                    <documentation>
+                        Measurement is expressed as decimal centimeters along the linear element, in the direction of the linear element.
+                        The exact location is determined from the two anchor points assigned along the linear element that bracket the neasurement location and then 
+                        interpolating between these two points based on the length of the line segment between them. In DIGGS, used primarily for logging locations on a core sample.
+                    </documentation>
+                </annotation>
+            </enumeration>
+            <enumeration value="footMeasure">
+                <annotation>
+                    <documentation>
+                        Measurement is expressed as decimal feet along the linear element, in the direction of the linear element.
+                        The exact location is determined from the two anchor points assigned along the linear element that bracket the neasurement location and then 
+                        interpolating between these two points based on the length of the line segment between them.
+                    </documentation>
+                </annotation>
+            </enumeration>
+            <enumeration value="meterMeasure">
+                <annotation>
+                    <documentation>
+                        Measurement is expressed as decimal meters along the linear element, in the direction of the linear element.
+                        The exact location is determined from the two anchor points assigned along the linear element that bracket the neasurement location and then 
+                        interpolating between these two points based on the length of the line segment between them.
+                    </documentation>
+                </annotation>
+            </enumeration>
+        </restriction>
+    </simpleType>
+    <simpleType name="PositiveDirectionEnumType">
         <annotation>
             <documentation>
                 Convention for the positive direction of measurement along a 
@@ -1024,7 +1117,7 @@
             </documentation>
         </annotation>
         <restriction base="string">
-            <enumeration value="groundSurface">
+            <enumeration value="ground surface">
                 <annotation>
                     <documentation>
                         Natural or existing ground surface at the location of the 
@@ -1033,7 +1126,7 @@
                     </documentation>
                 </annotation>
             </enumeration>
-            <enumeration value="kellyBushing">
+            <enumeration value="kelly bushing">
                 <annotation>
                     <documentation>
                         Kelly bushing on a drilling rig, typically the reference 
@@ -1044,7 +1137,7 @@
                     </documentation>
                 </annotation>
             </enumeration>
-            <enumeration value="rotaryBushing">
+            <enumeration value="rotary bushing">
                 <annotation>
                     <documentation>
                         The bushing seated in the rotary table through which the kelly 
@@ -1053,11 +1146,11 @@
                         Bushing) is a common datum reference for measuring drilled depths 
                         and is typically a few feet above the drill floor elevation.
                         
-                        This is the preferred term over 'kellyBushing'.
+                        This is the preferred term over 'kelly bushing'.
                     </documentation>
                 </annotation>
             </enumeration>
-            <enumeration value="rotaryTable">
+            <enumeration value="rotary table">
                 <annotation>
                     <documentation>
                         Rotary table on a drilling rig, alternative reference point 
@@ -1066,7 +1159,7 @@
                     </documentation>
                 </annotation>
             </enumeration>
-            <enumeration value="crownValve">
+            <enumeration value="crown valve">
                 <annotation>
                     <documentation>
                         The valve assembly located at the crown of the derrick or mast, 
@@ -1076,7 +1169,7 @@
                     </documentation>
                 </annotation>
             </enumeration>
-            <enumeration value="derrickFloor">
+            <enumeration value="derrick floor">
                 <annotation>
                     <documentation>
                         Derrick floor or rig floor elevation, sometimes used as 
@@ -1093,7 +1186,7 @@
                     </documentation>
                 </annotation>
             </enumeration>
-            <enumeration value="seafloor">
+            <enumeration value="sea floor">
                 <annotation>
                     <documentation>
                         Seafloor surface, used in marine geophysical and geotechnical 
@@ -1102,7 +1195,7 @@
                     </documentation>
                 </annotation>
             </enumeration>
-            <enumeration value="meanSeaLevel">
+            <enumeration value="mean sea level">
                 <annotation>
                     <documentation>
                         Mean sea level, used as vertical datum reference in marine 
@@ -1112,7 +1205,7 @@
                     </documentation>
                 </annotation>
             </enumeration>
-            <enumeration value="lowestAstronomicalTide">
+            <enumeration value="lowest astronomical tide">
                 <annotation>
                     <documentation>
                         The lowest tide level over the duration of the National Tidal 
@@ -1121,7 +1214,7 @@
                     </documentation>
                 </annotation>
             </enumeration>
-            <enumeration value="meanHigherHighWater">
+            <enumeration value="mean higher high water">
                 <annotation>
                     <documentation>
                         A tidal datum. The average of the higher high water height of 
@@ -1130,7 +1223,7 @@
                     </documentation>
                 </annotation>
             </enumeration>
-            <enumeration value="meanHighWater">
+            <enumeration value="mean high water">
                 <annotation>
                     <documentation>
                         A tidal datum. The average of all the high water heights observed 
@@ -1138,7 +1231,7 @@
                     </documentation>
                 </annotation>
             </enumeration>
-            <enumeration value="meanLowerLowWater">
+            <enumeration value="mean lower low water">
                 <annotation>
                     <documentation>
                         A tidal datum. The average of the lower low water height of each 
@@ -1147,7 +1240,7 @@
                     </documentation>
                 </annotation>
             </enumeration>
-            <enumeration value="meanLowWater">
+            <enumeration value="mean low water">
                 <annotation>
                     <documentation>
                         A tidal datum. The average of all the low water heights observed 
@@ -1155,7 +1248,7 @@
                     </documentation>
                 </annotation>
             </enumeration>
-            <enumeration value="meanTideLevel">
+            <enumeration value="mean tide level">
                 <annotation>
                     <documentation>
                         A tidal datum. The arithmetic mean of mean high water and mean 
@@ -1163,7 +1256,7 @@
                     </documentation>
                 </annotation>
             </enumeration>
-            <enumeration value="topOfCasing">
+            <enumeration value="top of casing">
                 <annotation>
                     <documentation>
                         Top of protective casing in a borehole or well. May be used 
@@ -1172,7 +1265,7 @@
                     </documentation>
                 </annotation>
             </enumeration>
-            <enumeration value="bottomOfCasing">
+            <enumeration value="bottom of casing">
                 <annotation>
                     <documentation>
                         Base of protective casing in a borehole or well. Marks the 
@@ -1180,7 +1273,7 @@
                     </documentation>
                 </annotation>
             </enumeration>
-            <enumeration value="casingFlange">
+            <enumeration value="casing flange">
                 <annotation>
                     <documentation>
                         A flange affixed to the top of the casing string used to attach 
@@ -1188,7 +1281,7 @@
                     </documentation>
                 </annotation>
             </enumeration>
-            <enumeration value="kickoffPoint">
+            <enumeration value="kickoff point">
                 <annotation>
                     <documentation>
                         Point at which a borehole deviates from vertical in directional 
@@ -1197,7 +1290,7 @@
                     </documentation>
                 </annotation>
             </enumeration>
-            <enumeration value="topOfHole">
+            <enumeration value="top of hole">
                 <annotation>
                     <documentation>
                         The top of a drilled hole - generally synonymous with ground 
@@ -1205,7 +1298,7 @@
                     </documentation>
                 </annotation>
             </enumeration>
-            <enumeration value="bottomOfHole">
+            <enumeration value="bottom of hole">
                 <annotation>
                     <documentation>
                         Terminal end of a borehole or well at maximum penetration depth. 
@@ -1213,7 +1306,7 @@
                     </documentation>
                 </annotation>
             </enumeration>
-            <enumeration value="topOfCore">
+            <enumeration value="top of core">
                 <annotation>
                     <documentation>
                         The defined top of a core sample. Used when referencing positions 
@@ -1222,7 +1315,7 @@
                     </documentation>
                 </annotation>
             </enumeration>
-            <enumeration value="bottomOfCore">
+            <enumeration value="bottom of core">
                 <annotation>
                     <documentation>
                         The defined base of a core sample. Used for core recovery 
@@ -1232,7 +1325,7 @@
                     </documentation>
                 </annotation>
             </enumeration>
-            <enumeration value="start">
+            <enumeration value="line start">
                 <annotation>
                     <documentation>
                         Starting point of a geophysical trackline or survey transect. 
@@ -1241,7 +1334,7 @@
                     </documentation>
                 </annotation>
             </enumeration>
-            <enumeration value="end">
+            <enumeration value="line end">
                 <annotation>
                     <documentation>
                         Ending point of a geophysical trackline or survey transect. 
@@ -1258,7 +1351,7 @@
                     </documentation>
                 </annotation>
             </enumeration>
-            <enumeration value="benchMark">
+            <enumeration value="benchmark">
                 <annotation>
                     <documentation>
                         Surveyed benchmark used as elevation reference for the feature. 
