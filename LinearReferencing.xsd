@@ -208,11 +208,11 @@
                 for 2D positioning (distance along + perpendicular offset).
                 
                 DIGGS LR methods establish:
+                = Method name
                 - How measurements are computed (absolute, relative, interpolative)
                 - Units of measure for distances
                 - Direction conventions (positive direction)
                 - Whether lateral offsets are supported
-                - Whether geometric calibration is required
             </documentation>
         </annotation>
     </element>
@@ -245,7 +245,7 @@
         <complexContent>
             <extension base="gml:IdentifiedObjectType">
                 <sequence>
-                    <element name="name"/>
+                    <element name="name" type="diggs:LinearReferencingNameTypeEnumType"/>
                     <element name="type" type="diggs:LinearReferencingMethodTypeEnumType">
                         <annotation>
                             <documentation>
@@ -271,7 +271,7 @@
                         </annotation>
                     </element>
                     <element name="positiveDirection" type="diggs:PositiveDirectionEnumType"
-                        minOccurs="0">
+                        minOccurs="0" default="increasing">
                         <annotation>
                             <documentation>
                                 Convention for positive measurement direction along the 
@@ -291,9 +291,9 @@
                     <element maxOccurs="unbounded" minOccurs="0" name="constraint"
                         type="diggs:DiggsStringType">
                         <annotation>
-                            <documentation>A string value that allows for the specification of constraints imposed by this LRM. For
-example, a Reference Post Linear Referencing Method can specify that referents be of type "reference
-marker".</documentation>
+                            <documentation>
+                                A string value that allows for the specification of constraints imposed by this LRM. For
+                                example, a referenceFoot Linear Referencing Method can specify that referents cannot be of type "line start" or "Line end".</documentation>
                         </annotation>
                     </element>
                     <element name="offsetParameters" type="diggs:OffsetParametersPropertyType"
@@ -351,83 +351,21 @@ marker".</documentation>
     <!-- used to describe location.                                  -->
     <!-- ============================================================ -->
 
-    <element name="LinearSRS" type="diggs:LinearSRSType" substitutionGroup="gml:Definition">
+    <element name="LinearSpatialReferenceSystem" substitutionGroup="gml:Definition"
+        type="diggs:LinearSpatialReferenceSystemType">
         <annotation>
-            <documentation>
-                Implementation of ISO 19148:2021 §6.4 Linear Spatial Reference System.
-                
-                A complete spatial reference system for positioning along linear features 
-                per ISO 19148 §6.4.
-                
-                Combines a Linear Referencing Method with a specific Linear Element to 
-                create a coordinate reference system that can be referenced via srsName 
-                attributes.
-                
-                Per ISO 19148 §6.4.1: A linear referencing system is a spatial reference 
-                system in which linear referencing is used to describe location. It 
-                combines a linear referencing method with one or more linear elements.
-                
-                Example usage:
-                A borehole LinearSRS (id="BH-001-LRS") combines:
-                - The borehole's LinearElement with its 3D centerline geometry
-                - A measured depth LRM 
-                
-                Result: positions can reference srsName="#BH-001-LRS" to indicate they 
-                are expressed as distance along borehole BH-001.
-            </documentation>
+            <documentation>An object describing the linear spatial reference system for a sampling feature. Deprecated - use LinearSRS instead.</documentation>
         </annotation>
     </element>
-
-    <complexType name="LinearSRSType">
-        <annotation>
-            <documentation>
-                Type definition for Linear Spatial Reference System per ISO 19148 §6.4.
-                
-                The LinearSRS is the instantiation of a Linear Referencing Method 
-                applied to a specific Linear Element. It provides a complete coordinate 
-                reference system that can be used in srsName attributes to specify that 
-                positions are expressed using linear referencing along that element.
-                
-                For DIGGS: Each borehole, trackline, or other linear sampling feature 
-                that will be linearly referenced should have an associated LinearSRS 
-                that can be referenced by measurements, samples, and observations along 
-                that feature.
-                
-                The LinearSRS inherits from gml:IdentifiedObjectType, providing:
-                - gml:identifier: Unique identifier for this SRS
-                - gml:name: Human-readable name
-                - gml:description: Optional description
-            </documentation>
-        </annotation>
+    <complexType name="LinearSpatialReferenceSystemType">
         <complexContent>
             <extension base="gml:IdentifiedObjectType">
                 <sequence>
-                    <element name="linearElement" type="diggs:LinearExtentPropertyType">
-                        <annotation>
-                            <documentation>
-                                The specific linear feature to which this SRS applies. 
-                                This provides the geometric framework (LinearExtent 
-                                coordinates) for the coordinate system.
-                                
-                                For a borehole, this would be the borehole's centerline 
-                                geometry. For a geophysical trackline, this would be the 
-                                vessel track.
-                            </documentation>
-                        </annotation>
-                    </element>
-                    <element name="lrm" type="diggs:LinearReferencingMethodPropertyType">
-                        <annotation>
-                            <documentation>
-                                The method used to determine positions along the linear 
-                                element. Defines the procedure, units, and conventions 
-                                for this coordinate system.
-                                
-                                Specifies whether measurements are absolute, relative, or 
-                                interpolative, and provides the measurement units and 
-                                direction conventions.
-                            </documentation>
-                        </annotation>
-                    </element>
+                    <element ref="glr:linearElement"/>
+                    <choice>
+                        <element name="lrm" type="diggs:LinearReferencingMethodPropertyType"/>
+                        <element ref="glr:lrm"/>
+                    </choice>
                     <element name="referent" type="diggs:ReferentPropertyType" minOccurs="0">
                         <annotation>
                             <documentation>
@@ -441,11 +379,18 @@ marker".</documentation>
                             </documentation>
                         </annotation>
                     </element>
+                    <element minOccurs="0" ref="diggs:linearReferencingMethodUncertainty">
+                        <annotation>
+                            <documentation>Provides accuracy value (usually a length measure) for
+                                the location (geometry) elements that use this linear reference
+                                system for their SRS. DEPRECATED Uncertainties should be reported within the LinearExtent
+                                element used by this LRS.</documentation>
+                        </annotation>
+                    </element>
                 </sequence>
             </extension>
         </complexContent>
     </complexType>
-
     <complexType name="LinearSpatialReferenceSystemPropertyType">
         <annotation>
             <documentation>
@@ -515,19 +460,6 @@ marker".</documentation>
                             </documentation>
                         </annotation>
                     </element>
-                    <element maxOccurs="1" minOccurs="0" ref="gml:name">
-                        <annotation>
-                            <documentation>
-                                The identifier or name used for this referent. Examples:
-                                - "GS" (ground surface)
-                                - "KB" (kelly bushing)
-                                - "RT" (rotary table)
-                                - "SF" (seafloor)
-                                - "TOC" (top of core)
-                                - "BOC" (bottom of core)
-                            </documentation>
-                        </annotation>
-                    </element>
                 </sequence>
             </restriction>
         </complexContent>
@@ -550,6 +482,19 @@ marker".</documentation>
         <complexContent>
             <extension base="diggs:ReferentBaseType">
                 <sequence>
+                    <element maxOccurs="1" minOccurs="0" name="name">
+                        <annotation>
+                            <documentation>
+                                The identifier or name used for this referent. Examples:
+                                - "GS" (ground surface)
+                                - "KB" (kelly bushing)
+                                - "RT" (rotary table)
+                                - "SF" (seafloor)
+                                - "TOC" (top of core)
+                                - "BOC" (bottom of core)
+                            </documentation>
+                        </annotation>
+                    </element>
                     <element name="referentType" type="diggs:ReferentTypeEnumType">
                         <annotation>
                             <documentation>
@@ -666,7 +611,7 @@ marker".</documentation>
                     <element minOccurs="0" ref="gml:description">
                         <annotation>
                             <documentation>
-                                Detailed description of how offsets are computed for this method.
+                                Detailed description of the methods use cases and how offsets are computed for this method.
                                 
                                 Provides additional clarification beyond the offsetType enumeration, 
                                 such as specific algorithms, corrections applied, or instrument 
@@ -770,7 +715,7 @@ marker".</documentation>
     <!-- ENUMERATIONS - CONTROLLED VOCABULARIES                       -->
     <!-- ============================================================ -->
 
-    <simpleType name="LinearReferencingMethodTypeEnumType">
+    <simpleType name="LinearReferencingMethodTypeEnum">
         <annotation>
             <documentation>
                 Categories of linear referencing methods per ISO 19148:2021 §6.2.3.
@@ -831,7 +776,17 @@ marker".</documentation>
         </restriction>
     </simpleType>
 
-    <simpleType name="LinearReferencingMethodName">
+    <simpleType name="LinearReferencingMethodTypeEnumType">
+        <annotation>
+            <documentation>
+                Categories of linear referencing methods per ISO 19148:2021 §6.2.3, extended to include Other: (,2) to allow for non-standard LRM types</documentation>
+        </annotation>
+        <union memberTypes="diggs:OtherNameType diggs:LinearReferencingMethodTypeEnum"/>
+    </simpleType>
+    <simpleType name="LinearReferencingMethodNameEnum">
+        <annotation>
+            <documentation>An enumerated list of informative values of Linear Referencing Method names relevent to geotechnical and geoenvironmental engineering purposes. The terms are DIGGS-specific names, as extensions of the transportation-related names specified in ISO 19148:2021.</documentation>
+        </annotation>
         <restriction base="string">
             <enumeration value="trueFootage">
                 <annotation>
@@ -904,7 +859,7 @@ marker".</documentation>
                         Then, if diggs:offsetParameters is specified, this location is adjusted in accordance with the properties of the diggs:OffsetParameters object.
                         Linearly referenced coordinates using this method are 2D coordinates representing the values of distance and offset in that order.
                     </documentation>
-                </annotation>   
+                </annotation>
             </enumeration>
             <enumeration value="inchMeasure">
                 <annotation>
@@ -943,6 +898,12 @@ marker".</documentation>
                 </annotation>
             </enumeration>
         </restriction>
+    </simpleType>
+    <simpleType name="LinearReferencingNameTypeEnumType">
+        <annotation>
+            <documentation>Nmaes of geotechnical-specific linear referencing methods, extended to include Other: (,2) to allow for non-standard LRM types</documentation>
+        </annotation>
+        <union memberTypes="diggs:OtherNameType diggs:LinearReferencingMethodNameEnum"/>
     </simpleType>
     <simpleType name="PositiveDirectionEnumType">
         <annotation>
@@ -1375,46 +1336,5 @@ marker".</documentation>
         </annotation>
         <union memberTypes="diggs:OtherNameType diggs:ReferentTypeEnum"/>
     </simpleType>
-
-    <element name="LinearSpatialReferenceSystem" substitutionGroup="gml:Definition"
-        type="diggs:LinearSpatialReferenceSystemType">
-        <annotation>
-            <documentation>An object describing the linear spatial reference system for a sampling feature. Deprecated - use LinearSRS instead.</documentation>
-        </annotation>
-    </element>
-    <complexType name="LinearSpatialReferenceSystemType">
-        <complexContent>
-            <extension base="gml:IdentifiedObjectType">
-                <sequence>
-                    <element ref="glr:linearElement"/>
-                    <choice>
-                        <element name="lrm" type="diggs:LinearReferencingMethodPropertyType"/>
-                        <element ref="glr:lrm"/>
-                    </choice>
-                    <element name="referent" type="diggs:ReferentPropertyType" minOccurs="0">
-                        <annotation>
-                            <documentation>
-                                The referent used as the origin when the LRMethod 
-                                is of type "relative".
-                                
-                                Required when the LRMethod type is "relative", optional otherwise.
-                                
-                                Example: For a "Depth Below Ground Surface" system, this would 
-                                reference the ground surface referent on the LinearElement.
-                            </documentation>
-                        </annotation>
-                    </element>
-                    <element minOccurs="0" ref="diggs:linearReferencingMethodUncertainty">
-                        <annotation>
-                            <documentation>Provides accuracy value (usually a length measure) for
-                                the location (geometry) elements that use this linear reference
-                                system for their SRS. DEPRECATED Uncertainties should be reported within the LinearExtent
-                                element used by this LRS.</documentation>
-                        </annotation>
-                    </element>
-                </sequence>
-            </extension>
-        </complexContent>
-    </complexType>
 
 </schema>
