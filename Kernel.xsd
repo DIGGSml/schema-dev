@@ -940,21 +940,24 @@
         </annotation>
     </element>
     <element abstract="true" name="AbstractComponentObjectBase"
-        type="diggs:AbstractComponentObjectBaseType">
+        type="diggs:AbstractComponentObjectBaseType" substitutionGroup="gml:AbstractGML">
         <annotation>
             <documentation>Base type for DIGGS componentobjects - those objects that are components
                 of other objects and do not require gml:ID for referencing.</documentation>
         </annotation>
     </element>
     <complexType name="AbstractComponentObjectBaseType" abstract="true">
-        <sequence/>
-        <attribute ref="gml:id" use="optional"/>
+        <complexContent>
+            <restriction base="gml:AbstractGMLType">
+                <sequence> </sequence>
+            </restriction>
+        </complexContent>
     </complexType>
     <complexType name="AbstractComponentObjectType" abstract="true">
         <complexContent>
             <extension base="diggs:AbstractComponentObjectBaseType">
                 <sequence>
-                    <element ref="gml:description" minOccurs="0"/>
+                    <element minOccurs="0" ref="gml:description"/>
                     <element minOccurs="0" ref="gml:identifier"/>
                     <element maxOccurs="unbounded" minOccurs="0" ref="gml:name"/>
                     <element minOccurs="0" ref="diggs:status">
@@ -1089,7 +1092,7 @@
                             <element name="referenceEdge" type="diggs:LinearExtentPropertyType"
                                 minOccurs="1" maxOccurs="1">
                                 <annotation>
-                                    <documentation>A horizontalline, whose vertices are described in the same
+                                    <documentation>A horizontal line, whose vertices are described in the same
                                         absolute CRS as the referencePoint, that runs through the
                                         referencePoint along one edge of the sampling feature’s
                                         surface. This element is used and required where
@@ -1293,11 +1296,7 @@
                     <element name="referencePoint" type="diggs:PointLocationPropertyType"
                         minOccurs="1">
                         <annotation>
-                            <documentation>Reference to a PointLocation object that defines the
-                                location of the samplingFeature (usually a location at the ground
-                                surface) within a well-known 3D CRS or combined CRS (geographic or
-                                projected, and elevation), as an extension of gml:Point object with
-                                an additional uncertainty property.</documentation>
+                            <documentation>Reference to a PointLocation object on the feature that defines the location of the samplingFeature within a known spatial 3D CRS or compound CRS (geographic or projected 2D CRS, plus a vertical CRS).</documentation>
                         </annotation>
                     </element>
                     <element minOccurs="0" name="localCoordinates"
@@ -2062,10 +2061,11 @@
                                 used.</documentation>
                         </annotation>
                     </element>
-                    <element minOccurs="0" name="cuttingToolInfo"
+                    <!--                    <element minOccurs="0" name="cuttingToolInfo"
                         type="diggs:CuttingToolArrayPropertyType"/>
                     <element minOccurs="0" name="drillPipeInfo"
                         type="diggs:DrillPipeArrayPropertyType"/>
+-->
                     <element minOccurs="0" name="hydraulicFluidFlowRate"
                         type="eml:VolumePerTimeMeasureExt">
                         <annotation>
@@ -2236,8 +2236,7 @@
                     <element minOccurs="0" name="constructionMethod"
                         type="diggs:BoreholeConstructionMethodPropertyType" maxOccurs="unbounded">
                         <annotation>
-                            <documentation>Information regarding construction of the hole over
-                                different depth intervals</documentation>
+                            <documentation>Information regarding construction of the hole over different depth intervals, including methods used (eg. rotary drilling, auger), equipment used and equipment changes.</documentation>
                         </annotation>
                     </element>
                     <element minOccurs="0" name="constructionEvent"
@@ -7342,6 +7341,7 @@ DSB: REMOVED FROM PROFILE
         <restriction base="string">
             <enumeration value="Cement"/>
             <enumeration value="Chemical"/>
+            <enumeration value="Concrete"/>
             <enumeration value="Fluid"/>
             <enumeration value="Gas"/>
             <enumeration value="Grout"/>
@@ -7406,19 +7406,6 @@ DSB: REMOVED FROM PROFILE
                                 sample.</documentation>
                         </annotation>
                     </element>
-                </sequence>
-            </extension>
-        </complexContent>
-    </complexType>
-    <complexType name="AbstractSamplePropertyType">
-        <sequence>
-            <element maxOccurs="1" minOccurs="1" ref="diggs:AbstractSample"/>
-        </sequence>
-    </complexType>
-    <complexType name="SampleType">
-        <complexContent>
-            <extension base="diggs:AbstractSampleType">
-                <sequence>
                     <element name="relativeReferencingSystem"
                         type="diggs:LinearSpatialReferenceSystemPropertyType" minOccurs="0"
                         maxOccurs="1">
@@ -7442,11 +7429,29 @@ DSB: REMOVED FROM PROFILE
                                 top or the bottom of the sample</documentation>
                         </annotation>
                     </element>
+                </sequence>
+            </extension>
+        </complexContent>
+    </complexType>
+    <complexType name="AbstractSamplePropertyType">
+        <sequence>
+            <element maxOccurs="1" minOccurs="1" ref="diggs:AbstractSample"/>
+        </sequence>
+    </complexType>
+    <complexType name="SampleType">
+        <complexContent>
+            <extension base="diggs:AbstractSampleType">
+                <sequence>
                     <element minOccurs="0" name="classification" type="diggs:SampClassEnumType">
                         <annotation>
                             <documentation>A definition of the class of sample collected, such as
                                 soil, rock, fluid, etc.). Intended to come from a controlled
                                 list.</documentation>
+                        </annotation>
+                    </element>
+                    <element minOccurs="0" name="type" type="gml:CodeType">
+                        <annotation>
+                            <documentation>Type of sample, informational and intended to come from a controlled list of terms. These can include general terms such as like "bulk" and "core", but often sample type is organization specific and may incorporate information that identifies the sample class (eg. "water"), sampler used (eg. "piston sample"), method (eg. "push sample"), condition (eg. "undisturbed thin wall tube sample"),  purpose (eg. "soil sample for environmental testing"), or associated with a specific test or activity ("SPT sample"). All are appropriate terms to serve as a shorthand for inforation provided by other sample or associated sampling activity properties. </documentation>
                         </annotation>
                     </element>
                     <element minOccurs="0" name="condition" type="gml:CodeType">
@@ -7689,7 +7694,7 @@ DSB: REMOVED FROM PROFILE
                     </element>
                     <element minOccurs="0" name="solidCoreRecoveryLength" type="eml:LengthMeasure">
                         <annotation>
-                            <documentation><![CDATA[For rock cores, the sum of then lengths of solid, cylindrical, core pieces]]></documentation>
+                            <documentation><![CDATA[For rock cores, the sum of the lengths of solid, cylindrical, core pieces]]></documentation>
                         </annotation>
                     </element>
                     <element minOccurs="0" name="totalSampleRecoveryLength" type="eml:LengthMeasure">
@@ -9493,9 +9498,10 @@ DSB: REMOVED FROM PROFILE
         </annotation>
     </element>
     <complexType name="VectorLinearSpatialReferenceSystemPropertyType">
-        <sequence>
+        <choice>
             <element ref="diggs:VectorLinearSpatialReferenceSystem"/>
-        </sequence>
+            <element ref="gml:EngineeringCRS"/>
+        </choice>
     </complexType>
     <complexType name="VectorLinearSpatialReferenceSystemType">
         <complexContent>
@@ -10352,7 +10358,7 @@ DSB: REMOVED FROM PROFILE
 
     <complexType name="DrillPipeType">
         <complexContent>
-            <extension base="diggs:AbstractComponentObjectType">
+            <extension base="diggs:AbstractEquipmentType">
                 <sequence>
                     <element minOccurs="0" name="pipeInnerDiameter" type="eml:LengthMeasureExt">
                         <annotation>
@@ -10389,16 +10395,18 @@ DSB: REMOVED FROM PROFILE
             </extension>
         </complexContent>
     </complexType>
+
+    <!-- Remove from BoreholeConstructionMethod
     <complexType name="DrillPipeArrayPropertyType">
         <sequence maxOccurs="1">
             <element ref="diggs:DrillPipe"/>
         </sequence>
     </complexType>
-    <element name="DrillPipe" substitutionGroup="diggs:AbstractComponentObject"
-        type="diggs:DrillPipeType"/>
+    -->
+    <element name="DrillPipe" substitutionGroup="diggs:AbstractEquipment" type="diggs:DrillPipeType"/>
     <complexType name="CuttingToolType">
         <complexContent>
-            <extension base="diggs:AbstractComponentObjectType">
+            <extension base="diggs:AbstractEquipmentType">
                 <sequence>
                     <element minOccurs="0" name="toolType" type="gml:CodeType">
                         <annotation>
@@ -10426,16 +10434,21 @@ DSB: REMOVED FROM PROFILE
                                 terms.</documentation>
                         </annotation>
                     </element>
+                    <element minOccurs="0" name="toolQuality" type="gml:CodeType"/>
+                    <element minOccurs="0" name="classCodeIADC" type="gml:CodeType"/>
                 </sequence>
             </extension>
         </complexContent>
     </complexType>
+
+    <!-- Remove from BoreholeConstructionMethod
     <complexType name="CuttingToolArrayPropertyType">
         <sequence maxOccurs="1">
             <element ref="diggs:CuttingTool"/>
         </sequence>
     </complexType>
-    <element name="CuttingTool" substitutionGroup="diggs:AbstractComponentObject"
+    -->
+    <element name="CuttingTool" substitutionGroup="diggs:AbstractEquipment"
         type="diggs:CuttingToolType"/>
     <simpleType name="mimeTypeEnumType">
         <annotation>

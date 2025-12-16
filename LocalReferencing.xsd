@@ -1,0 +1,218 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<schema xmlns="http://www.w3.org/2001/XMLSchema" xmlns:diggs="http://diggsml.org/schemas/3.0"
+    xmlns:gml="http://www.opengis.net/gml/3.2"
+    xmlns:eml="http://www.energistics.org/energyml/data/commonv2" elementFormDefault="qualified"
+    targetNamespace="http://diggsml.org/schemas/3.0" attributeFormDefault="unqualified"
+    version="3.0b">
+    <import namespace="http://www.opengis.net/gml/3.2"
+        schemaLocation="http://schemas.opengis.net/gml/3.2.1/gml.xsd"/>
+    <import namespace="http://www.energistics.org/energyml/data/commonv2"
+        schemaLocation="energistics/2.0/data/common/v2.1/xsd_schemas/EmlAllObjects.xsd"/>
+
+
+    <!-- ================================================================== -->
+    <!-- TrenchWall Type Definition -->
+    <!-- ================================================================== -->
+
+    <!-- ================================================================== -->
+    <!-- Planar Referencing Property Type -->
+    <!-- ================================================================== -->
+
+    <complexType name="PlanarReferencingPropertyType">
+        <annotation>
+            <documentation>
+        Property type for associating a planar (2D) engineering coordinate reference
+        system with a feature. This allows the feature to use local 2D coordinates.
+      </documentation>
+        </annotation>
+        <sequence minOccurs="0">
+            <choice>
+                <!-- Inline definition of EngineeringCRS -->
+
+                <!-- Or extended DIGGS type with additional metadata -->
+                <element ref="diggs:VectorLinearSpatialReferenceSystem"/>
+                <element ref="diggs:LocalCartesianCRS"/>
+            </choice>
+        </sequence>
+        <!-- Allow reference by xlink:href -->
+        <attributeGroup ref="gml:AssociationAttributeGroup"/>
+    </complexType>
+
+    <!-- ================================================================== -->
+    <!-- Extended Planar Engineering CRS Type (Optional DIGGS Extension) -->
+    <!-- ================================================================== -->
+
+    <element name="LocalCartesianCRS" substitutionGroup="gml:AbstractSingleCRS"
+        type="diggs:LocalCartesianCRSType">
+        <annotation>
+            <documentation>
+        DIGGS-specific planar engineering coordinate reference system.
+      </documentation>
+        </annotation>
+    </element>
+
+    <!-- ================================================================== -->
+    <!-- Coordinate Transformation Property Type -->
+    <!-- ================================================================== -->
+
+    <!-- ================================================================== -->
+    <!-- Affine Transformation 2D to 3D Type -->
+    <!-- ================================================================== -->
+
+    <!-- ================================================================== -->
+    <!-- Supporting Types -->
+    <!-- ================================================================== -->
+    <complexType name="LocalCartesianCRSType">
+        <complexContent>
+            <extension base="gml:AbstractCRSType">
+                <sequence>
+                    <choice>
+                        <element ref="gml:cartesianCS"/>
+                    </choice>
+                    <element ref="gml:engineeringDatum"/>
+                    <!-- Link to reference point -->
+
+                    <!-- Link to reference edge -->
+
+                    <sequence>
+                        <!-- Spatial location of the CRS origin (0,0,0) point -->
+                        <element name="originLocation" type="diggs:PointLocationPropertyType">
+                            <annotation>
+                                <documentation>
+                                The spatial location of the origin (0,0,0) of this engineering CRS, 
+                                expressed in a recognized spatial coordinate reference system. This 
+                                point serves as the anchor for transforming engineering coordinates 
+                                to spatial coordinates.
+                            </documentation>
+                            </annotation>
+                        </element>
+
+                        <!-- Spatial extent definitions for each axis -->
+                        <element name="axisLocation" type="diggs:AxisLocationType" minOccurs="1"
+                            maxOccurs="unbounded">
+                            <annotation>
+                                <documentation>
+                                Spatial extent and direction for each axis defined in the Cartesian 
+                                coordinate system. There should be one axisExtent element for each 
+                                axis in the coordinateSystem. The order should match the axis order 
+                                in the Cartesian CS definition.
+                            </documentation>
+                            </annotation>
+                        </element>
+
+                        <!-- Optional transformation parameters -->
+                        <element name="transformationMethod" type="gml:CodeType" minOccurs="0">
+                            <annotation>
+                                <documentation>
+                                Identifier for the mathematical method to be used for coordinate 
+                                transformation between this engineering CRS and spatial coordinates.
+                                Examples: "affine", "helmert", "direct-linear-referencing"
+                            </documentation>
+                            </annotation>
+                        </element>
+
+                        <element name="rotationAngle" type="eml:PlaneAngleMeasure" minOccurs="0"
+                            maxOccurs="3">
+                            <annotation>
+                                <documentation>
+                                Rotation angle(s) for orienting the engineering coordinate system 
+                                axes relative to the spatial coordinate system. For 2D systems, 
+                                one rotation angle (about Z). For 3D systems, up to three rotation 
+                                angles (e.g., Euler angles or rotation about X, Y, Z axes).</documentation>
+                            </annotation>
+                        </element>
+
+                        <element name="scaleFactor" type="double" minOccurs="0" default="0">
+                            <annotation>
+                                <documentation>
+                                Uniform scale factor applied to the local coordinate system 
+                                relative to the spatial coordinate system. Default is 1.0 (no scaling).
+                                Values > 1.0 indicate engineering coordinates are larger than spatial 
+                                coordinates; values &lt; 1.0 indicate engineering coordinates are smaller.
+                            </documentation>
+                            </annotation>
+                        </element>
+
+                        <element name="transformationAccuracy" type="eml:LengthMeasureExt"
+                            minOccurs="0">
+                            <annotation>
+                                <documentation>
+                                Estimated accuracy of coordinate transformation between this 
+                                local CRS and spatial coordinates. Expressed as a linear 
+                                distance uncertainty (e.g., meters, feet).
+                            </documentation>
+                            </annotation>
+                        </element>
+                    </sequence>
+                </sequence>
+            </extension>
+        </complexContent>
+    </complexType>
+
+    <!-- ================================================================== -->
+    <!-- Property Types for existing DIGGS elements -->
+    <!-- ================================================================== -->
+
+    <!-- ================================================================== -->
+    <!-- Base types (simplified - would reference actual DIGGS definitions) -->
+    <!-- ================================================================== -->
+
+    <!-- LinearExtent extends gml:LineString -->
+
+    <!-- PlanarSurface extends gml:Polygon -->
+
+    <!-- PointLocation wraps gml:Point -->
+
+    <element name="AxisLocation" type="diggs:AxisLocationType"/>
+    <complexType name="AxisLocationType">
+        <complexContent>
+            <extension base="diggs:AbstractComponentObjectBaseType">
+                <sequence>
+                    <element name="axisRef" type="gml:ReferenceType">
+                        <annotation>
+                            <documentation>
+                        Name or identifier of the axis being defined. Should match an axis 
+                        name from the CartesianCS definition (e.g., "X", "Y", "Z", "easting", 
+                        "northing", "elevation", "station", "offset").
+                    </documentation>
+                        </annotation>
+                    </element>
+                    <element name="location" type="diggs:LinearExtentPropertyType">
+                        <annotation>
+                            <documentation>
+                        The spatial direction and extent of this axis, expressed as a linear 
+                        extent in a spatial coordinate reference system. The start point of 
+                        the LinearExtent should typically correspond to the origin location, 
+                        and the end point indicates the direction and unit length of the axis 
+                        in spatial coordinates.
+                    </documentation>
+                        </annotation>
+                    </element>
+                    <element name="axisOrder" type="positiveInteger">
+                        <annotation>
+                            <documentation>
+                        The order of this axis in the Cartesian coordinate system definition 
+                        (1 for first axis, 2 for second, etc.). This ensures correct matching 
+                        between axes in the CS definition and their spatial extents.
+                    </documentation>
+                        </annotation>
+                    </element>
+                    <element name="directionVector" type="gml:VectorType" minOccurs="0">
+                        <annotation>
+                            <documentation>
+                        Optional normalized direction vector (unit vector) for this axis in 
+                        spatial coordinates. This provides an alternative or supplementary 
+                        way to specify axis direction beyond the LinearExtent.
+                    </documentation>
+                        </annotation>
+                    </element>
+                </sequence>
+            </extension>
+        </complexContent>
+    </complexType>
+    <complexType name="AxisLocationPropertyType">
+        <sequence>
+            <element ref="diggs:AxisLocation"/>
+        </sequence>
+    </complexType>
+</schema>
