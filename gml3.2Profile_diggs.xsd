@@ -2962,4 +2962,148 @@ The use of the properties “coordinates” and “pos” has been deprecated. T
     <attributeGroup ref="gml:AssociationAttributeGroup"/>
   </complexType>
   
+  <element name="TemporalCRS" type="gml:TemporalCRSType" substitutionGroup="gml:AbstractSingleCRS">
+    <annotation>
+      <documentation>gml:TemporalCRS is a 1D coordinate reference system used for the recording of time.</documentation>
+    </annotation>
+  </element>
+  <complexType name="TemporalCRSType">
+    <complexContent>
+      <extension base="gml:AbstractCRSType">
+        <sequence>
+          <choice>
+            <element ref="gml:timeCS"/>
+            <!-- Deprecated, so removed from this profile
+            <element ref="gml:usesTemporalCS"/>
+            -->
+          </choice>
+          <element ref="gml:temporalDatum"/>
+        </sequence>
+      </extension>
+    </complexContent>
+  </complexType>
+  <element name="timeCS" type="gml:TimeCSPropertyType">
+    <annotation>
+      <documentation>gml:timeCS is an association role to the time coordinate system used by this CRS.</documentation>
+    </annotation>
+  </element>
+  <element name="temporalDatum" type="gml:TemporalDatumPropertyType">
+    <annotation>
+      <documentation>gml:temporalDatum is an association role to the temporal datum used by this CRS.</documentation>
+    </annotation>
+  </element>
+  <complexType name="TemporalCRSPropertyType">
+    <annotation>
+      <documentation>gml:TemporalCRSPropertyType is a property type for association roles to a temporal coordinate reference system, either referencing or containing the definition of that reference system.</documentation>
+    </annotation>
+    <sequence minOccurs="0">
+      <element ref="gml:TemporalCRS"/>
+    </sequence>
+    <attributeGroup ref="gml:AssociationAttributeGroup"/>
+  </complexType>
+  
+  <complexType name="TimeCSPropertyType">
+    <annotation>
+      <documentation>gml:TimeCSPropertyType is a property type for association roles to a time coordinate system, either referencing or containing the definition of that coordinate system.</documentation>
+    </annotation>
+    <sequence minOccurs="0">
+      <element ref="gml:TimeCS"/>
+    </sequence>
+    <attributeGroup ref="gml:AssociationAttributeGroup"/>
+  </complexType>
+  
+  <complexType name="TemporalDatumPropertyType">
+    <annotation>
+      <documentation>gml:TemporalDatumPropertyType is a property type for association roles to a temporal datum, either referencing or containing the definition of that datum.</documentation>
+    </annotation>
+    <sequence minOccurs="0">
+      <element ref="gml:TemporalDatum"/>
+    </sequence>
+    <attributeGroup ref="gml:AssociationAttributeGroup"/>
+  </complexType>
+  
+  <element name="TimeCS" type="gml:TimeCSType" substitutionGroup="gml:AbstractCoordinateSystem">
+    <annotation>
+      <documentation>gml:TimeCS is a one-dimensional coordinate system containing a time axis, used to describe the temporal position of a point in the specified time units from a specified time origin. A TimeCS shall have one gml:axis property element.</documentation>
+    </annotation>
+  </element>
+  
+  <element name="TemporalDatum" type="gml:TemporalDatumType" substitutionGroup="gml:AbstractDatum">
+    <annotation>
+      <documentation>A gml:TemporalDatum defines the origin of a Temporal Reference System. This type omits the "anchorDefinition" and "realizationEpoch" elements and adds the "origin" element with the dateTime type.</documentation>
+    </annotation>
+  </element>
+  <complexType name="TemporalDatumType">
+    <complexContent>
+      <extension base="gml:TemporalDatumBaseType">
+        <sequence>
+          <element ref="gml:origin"/>
+        </sequence>
+      </extension>
+    </complexContent>
+  </complexType>
+  <complexType name="TemporalDatumBaseType" abstract="true">
+    <annotation>
+      <documentation>The TemporalDatumBaseType partially defines the origin of a temporal coordinate reference system. This type restricts the AbstractDatumType to remove the "anchorDefinition" and "realizationEpoch" elements.</documentation>
+    </annotation>
+    <complexContent>
+      <restriction base="gml:AbstractDatumType">
+        <sequence>
+         <!-- <element ref="gml:metaDataProperty" minOccurs="0" maxOccurs="unbounded"/> -->
+          <element ref="gml:description" minOccurs="0"/>
+          <!-- <element ref="gml:descriptionReference" minOccurs="0"/> -->
+          <element ref="gml:identifier"/>
+          <element ref="gml:name" minOccurs="0" maxOccurs="unbounded"/>
+          <element ref="gml:remarks" minOccurs="0"/>
+          <element ref="gml:domainOfValidity" minOccurs="0"/>
+          <element ref="gml:scope" maxOccurs="unbounded"/>
+        </sequence>
+        <attribute ref="gml:id" use="required"/>
+      </restriction>
+    </complexContent>
+  </complexType>
+  <element name="origin" type="dateTime">
+    <annotation>
+      <documentation>gml:origin is the date and time origin of this temporal datum.</documentation>
+    </annotation>
+  </element>
+  
+  <complexType name="TimeCSType">
+    <complexContent>
+      <extension base="gml:AbstractCoordinateSystemType"/>
+    </complexContent>
+  </complexType>
+  
+  <element name="CompoundCRS" type="gml:CompoundCRSType" substitutionGroup="gml:AbstractCRS">
+    <annotation>
+      <documentation>gml:CompundCRS is a coordinate reference system describing the position of points through two or more independent coordinate reference systems. It is associated with a non-repeating sequence of two or more instances of SingleCRS.</documentation>
+    </annotation>
+  </element>
+  <complexType name="CompoundCRSType">
+    <complexContent>
+      <extension base="gml:AbstractCRSType">
+        <sequence>
+          <element ref="gml:componentReferenceSystem" minOccurs="2" maxOccurs="unbounded"/>
+        </sequence>
+        <attributeGroup ref="gml:AggregationAttributeGroup"/>
+      </extension>
+    </complexContent>
+  </complexType>
+  <element name="componentReferenceSystem" type="gml:SingleCRSPropertyType">
+    <annotation>
+      <documentation>The gml:componentReferenceSystem elements are an ordered sequence of associations to all the component coordinate reference systems included in this compound coordinate reference system. The gml:AggregationAttributeGroup should be used to specify that the gml:componentReferenceSystem properties are ordered.</documentation>
+    </annotation>
+  </element>
+  <complexType name="CompoundCRSPropertyType">
+    <annotation>
+      <documentation>gml:CompoundCRSPropertyType is a property type for association roles to a compound coordinate reference system, either referencing or containing the definition of that reference system.</documentation>
+    </annotation>
+    <sequence minOccurs="0">
+      <element ref="gml:CompoundCRS"/>
+    </sequence>
+    <attributeGroup ref="gml:AssociationAttributeGroup"/>
+  </complexType>
+  
+  
+  
 </schema>
