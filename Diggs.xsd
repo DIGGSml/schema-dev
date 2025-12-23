@@ -1,14 +1,19 @@
 <?xml version="1.0" encoding="utf-8"?>
-<schema xmlns:xlink="http://www.w3.org/1999/xlink" xmlns:diggs="http://diggsml.org/schemas/3.0"
+<schema 
+  xmlns="http://www.w3.org/2001/XMLSchema"
+  xmlns:xml="http://www.w3.org/XML/1998/namespace"
+  xmlns:xlink="http://www.w3.org/1999/xlink" 
+  xmlns:diggs="http://diggsml.org/schemas/3.0"
   xmlns:diggs_geo="http://diggsml.org/schemas/3.0/geotechnical"
   xmlns:g3.3="http://www.opengis.net/gml/3.3/ce" xmlns:glr="http://www.opengis.net/gml/3.3/lr"
   xmlns:glrov="http://www.opengis.net/gml/3.3/lrov"
-  xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns="http://www.w3.org/2001/XMLSchema"
+  xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" 
   xmlns:eml="http://www.energistics.org/energyml/data/commonv2"
   xmlns:witsml="http://www.energistics.org/energyml/data/witsmlv2"
   xmlns:gml="http://www.opengis.net/gml/3.2" targetNamespace="http://diggsml.org/schemas/3.0"
   elementFormDefault="qualified" version="3.0b" vc:maxVersion="1.1" vc:minVersion="1.0"
   xmlns:vc="http://www.w3.org/2007/XMLSchema-versioning">
+
   <!-- import the witsml schemas -->
   <!-- 2015-04-23  added glr, glrov, xsi ns from Kernel.xsd to support flatten.xslt
   import the gml and xlinks namespaces (original local profiles) -->
@@ -19,20 +24,86 @@
   <import namespace="http://www.opengis.net/gml/3.3/lrov" schemaLocation="http://schemas.opengis.net/gml/3.3/linearRefOffsetVector.xsd"/>
   <import namespace="http://www.w3.org/1999/xlink" schemaLocation="http://www.w3.org/XML/2008/06/xlink.xsd"/>
     -->
-  
+  <import namespace="http://www.w3.org/XML/1998/namespace" schemaLocation="xml.xsd"/>
+  <import namespace="http://www.opengis.net/gml/3.2" schemaLocation="gml3.2Profile_diggs.xsd"/>
+
+
+
   <!-- Include DIGGS Base Schemas -->
-  <include schemaLocation="MeasureTypes.xsd"/>
+
   <!-- include and import other DIGGS schemas -->
-  <include schemaLocation="Kernel.xsd"/>
+
+  <include schemaLocation="BaseTypes.xsd"/>
+  <include schemaLocation="Common.xsd"/>
+  <include schemaLocation="CommonEnumerations.xsd"/>
+  <include schemaLocation="MeasureTypes.xsd"/>
+  <include schemaLocation="LinearReferencing.xsd"/>
+  <include schemaLocation="LocalReferencing.xsd"/>
+  <include schemaLocation="Deprecated.xsd"/>
   <include schemaLocation="Dictionary_diggs.xsd"/>
+  <include schemaLocation="Core.xsd"/>
+  <!--
+
+  <include schemaLocation="Kernel.xsd"/>
+
+
+
+  <include schemaLocation="Program.xsd"/>
+  <include schemaLocation="ConstructionActivity.xsd"/>
+  <include schemaLocation="SamplingFeature.xsd"/>
+
+  <include schemaLocation="Measurement.xsd"/>
+  <include schemaLocation="Observation.xsd"/>
+  
   <include schemaLocation="Construction.xsd"/>
   <include schemaLocation="Geophysics.xsd"/>
   <include schemaLocation="Diggs_procedures_temp.xsd"/>
-  <include schemaLocation="LinearReferencing.xsd"/>
-  <include schemaLocation="LocalReferencing.xsd"/>
   <include schemaLocation="BetaProcedures.xsd"/>
-  <include schemaLocation="Deprecated.xsd"/>
   <include schemaLocation="TestProcedures.xsd"/>
   <include schemaLocation="Piling.xsd"/>
+  -->
+  
   <import namespace="http://diggsml.org/schemas/3.0/geotechnical" schemaLocation="Diggs_geo.xsd"/>
+  
+  
+  <!--
+  
+  -->
+
+  <element name="Diggs" type="diggs:DiggsType" substitutionGroup="gml:AbstractFeature"
+    abstract="false">
+    <annotation>
+      <documentation>Top level object of a DIGGS xml instance.</documentation>
+    </annotation>
+  </element>
+
+  <complexType name="DiggsType">
+    <complexContent>
+      <extension base="gml:AbstractFeatureType">
+        <sequence>
+          <element name="documentInformation" type="diggs:DocumentInformationPropertyType"
+            minOccurs="1" maxOccurs="1"/>
+          <element name="project" type="diggs:ProjectPropertyType" minOccurs="0"
+            maxOccurs="unbounded"/>
+          <element minOccurs="0" name="program" type="diggs:ProgramPropertyType"
+            maxOccurs="unbounded"/>
+          <element minOccurs="0" name="samplingFeature"
+            type="diggs:SamplingFeaturePropertyType" maxOccurs="unbounded"/>
+          <element minOccurs="0" name="samplingActivity" type="diggs:SamplingActivityPropertyType"
+            maxOccurs="unbounded"/>
+          <element name="sample" type="diggs:SamplePropertyType" minOccurs="0"
+            maxOccurs="unbounded"/>
+          <element minOccurs="0" name="observation" type="diggs:ObservationSystemPropertyType"
+            maxOccurs="unbounded"/>
+          <element minOccurs="0" name="measurement" type="diggs:MeasurementPropertyType"
+            maxOccurs="unbounded"/>
+          <element minOccurs="0" name="constructionActivity"
+            type="diggs:ConstructionActivityPropertyType" maxOccurs="unbounded"/>
+          <element name="group" type="diggs:GroupPropertyType" minOccurs="0" maxOccurs="unbounded"/>
+        </sequence>
+        <attribute ref="xml:lang"/>
+      </extension>
+    </complexContent>
+  </complexType>
+  
 </schema>

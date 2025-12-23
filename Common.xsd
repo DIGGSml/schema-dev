@@ -1,0 +1,1574 @@
+<?xml version="1.0" encoding="utf-8"?>
+<schema targetNamespace="http://diggsml.org/schemas/3.0" xmlns="http://www.w3.org/2001/XMLSchema"
+    xmlns:diggs="http://diggsml.org/schemas/3.0" xmlns:g3.3="http://www.opengis.net/gml/3.3/ce"
+    xmlns:glr="http://www.opengis.net/gml/3.3/lr"
+    xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:xlink="http://www.w3.org/1999/xlink"
+    xmlns:gml="http://www.opengis.net/gml/3.2"
+    xmlns:witsml="http://www.energistics.org/energyml/data/witsmlv2"
+    xmlns:vc="http://www.w3.org/2007/XMLSchema-versioning" vc:maxVersion="1.1" vc:minVersion="1.0">
+
+    <!-- Imports -->
+
+    <import namespace="http://www.opengis.net/gml/3.2" schemaLocation="gml3.2Profile_diggs.xsd"/>
+    <import namespace="http://www.w3.org/XML/1998/namespace" schemaLocation="xml.xsd"/>
+    <import namespace="http://www.energistics.org/energyml/data/witsmlv2"
+        schemaLocation="witsmlv2Profile_diggs.xsd"/>
+
+    <!-- ================================================================ -->
+    <!-- UTILITY TYPES -->
+    <!-- ================================================================ -->
+
+    <complexType name="DescriptorValueType" abstract="false">
+        <simpleContent>
+            <extension base="double">
+                <attribute name="howDetermined" type="diggs:DescriptorMethodEnumType"/>
+                <attribute name="qualifier" type="diggs:QualifierEnumType"/>
+            </extension>
+        </simpleContent>
+    </complexType>
+    
+    <complexType name="DiggsStringType" mixed="true">
+        <simpleContent>
+            <extension base="string">
+                <attribute ref="xml:lang"/>
+            </extension>
+        </simpleContent>
+    </complexType>
+
+    <simpleType name="OtherNameType">
+        <annotation>
+            <documentation>A type used to extend a controlled list, used where none of the
+                enumerations are suitable for transfer. An enumeration of the form Other:xx (where
+                xx are two or more characters) will be schmema valid but use of the Other" prefix
+                can result in interoperability issues. </documentation>
+        </annotation>
+        <restriction base="string">
+            <pattern value="Other: .{2,}"/>
+        </restriction>
+    </simpleType>
+    
+    <simpleType name="Val0-100Type">
+        <restriction base="double">
+            <minInclusive value="0"/>
+            <maxInclusive value="100"/>
+        </restriction>
+    </simpleType>
+
+    <!-- ================================================================ -->
+    <!-- COMMON PROPERTIES                                 -->
+    <!-- ================================================================ -->
+
+    <element name="implementationStatus" type="gml:CodeType">
+        <annotation>
+            <documentation>A text string describing the implementation or completion status of an
+                object or activity. Terms used (such as" in progress", "completed" etc.) are
+                intended to come from a controlled list of terms from a dictionary, or from an
+                authority identified in the codeSpace attribute.</documentation>
+        </annotation>
+    </element>
+
+    <element name="internalIdentifier" type="gml:CodeWithAuthorityType">
+        <annotation>
+            <documentation>The value of this property is the identifier originally created by the
+                authority for this feature, or that is used as the identifier in the authority's
+                internal data management system - commonly this might be a borehole number or id,
+                job number, or contract number. There is no assumption as to the unique scope or
+                persistence of this identifier. In cases where the original or internal identifier
+                does not meet the semantic requirements for gml:id, the internal identifier may be
+                used in order for the originating authority to "map back" the identifier to an
+                internal data management system. The codeSpace attribute must be populated to
+                identify the authority that uses the internalIdentifier value.</documentation>
+            <documentation>The internal identifier for this feature.</documentation>
+        </annotation>
+    </element>
+
+    <element name="investigationTarget" type="diggs:investigationTargetEnumExtType">
+        <annotation>
+            <documentation>A description of the target of the investigation for this feature. It can
+                include a feature of interest for an exploratory investigation, or the type of
+                feature that an activity is performed on. The values derive from a controlled list
+                of terms that can be modified by prefacing the term with "Other:".</documentation>
+        </annotation>
+    </element>
+
+    <element name="location" substitutionGroup="gml:domainSet" type="diggs:LocationPropertyType">
+        <annotation>
+            <documentation>A property that contains a geometry object defining a location for a
+                feature or object.</documentation>
+        </annotation>
+    </element>
+    
+    <element name="remark" type="diggs:RemarkPropertyType"/>
+    
+    <element name="status" type="gml:CodeType">
+        <annotation>
+            <documentation>A text string to provide information about the status of the data
+                associated with this object, for example to be used to track QA/QC controls, review
+                or release status, etc. The values used are intended to come from a controlled list
+                of terms maintained by an authority desingated by this element's codeSpace
+                attribute.</documentation>
+        </annotation>
+    </element>
+    
+    <element name="fileStructure" substitutionGroup="gml:fileStructure" type="gml:CodeType">
+        <annotation>
+            <documentation>A controlled term describing how the file is structured (eg. Record Interleaved)</documentation>
+        </annotation>
+    </element>
+    
+    <!-- ================================================================ -->
+    <!-- PROPERTY TYPES                                                   -->
+    <!-- ================================================================ -->
+
+    <complexType name="AssociatedFilePropertyType">
+        <sequence minOccurs="1">
+            <element ref="diggs:AssociatedFile" maxOccurs="1" minOccurs="1"> </element>
+        </sequence>
+        <attributeGroup ref="gml:AssociationAttributeGroup"/>
+        <attributeGroup ref="gml:OwnershipAttributeGroup"/>
+    </complexType>
+    
+    <complexType name="AddressPropertyType">
+        <sequence>
+            <element ref="diggs:Address" minOccurs="1" maxOccurs="1">
+                <annotation>
+                    <documentation>The address object contains properties of a physical
+                        address.</documentation>
+                </annotation>
+            </element>
+        </sequence>
+    </complexType>
+ 
+    <complexType name="BusinessAssociatePropertyType">
+        <sequence>
+            <element ref="diggs:BusinessAssociate" minOccurs="0" maxOccurs="1"/>
+        </sequence>
+        <attributeGroup ref="gml:AssociationAttributeGroup"/>
+        <attributeGroup ref="gml:OwnershipAttributeGroup"/>
+    </complexType>
+
+    <complexType name="ConstructionActivityPropertyType">
+        <sequence>
+            <element maxOccurs="1" minOccurs="1" ref="diggs:AbstractConstructionActivity"/>
+        </sequence>
+    </complexType>
+    
+    <complexType name="ContractPropertyType">
+        <sequence>
+            <element ref="diggs:Contract" minOccurs="1" maxOccurs="1"/>
+        </sequence>
+    </complexType>
+   
+    <complexType name="DetectorPropertyType">
+        <sequence>
+            <element maxOccurs="1" minOccurs="1" ref="diggs:Detector"/>
+        </sequence>
+    </complexType>
+    
+    <complexType name="EnvironmentPropertyType">
+        <sequence>
+            <element ref="diggs:Environment" minOccurs="1" maxOccurs="1">
+                <annotation>
+                    <documentation>A collection of environmental parameters recorded at a specific
+                        time instant.</documentation>
+                </annotation>
+            </element>
+        </sequence>
+    </complexType>
+    
+    <complexType name="EquipmentPropertyType">
+        <sequence>
+            <element ref="diggs:AbstractEquipment" maxOccurs="1" minOccurs="0"/>
+        </sequence>
+        <attributeGroup ref="gml:AssociationAttributeGroup"/>
+        <attributeGroup ref="gml:OwnershipAttributeGroup"/>
+    </complexType>
+    
+    <complexType name="InSituTestEventPropertyType">
+        <sequence>
+            <element ref="diggs:AbstractEvent"/>
+        </sequence>
+        <attributeGroup ref="gml:OwnershipAttributeGroup"/>
+        <attributeGroup ref="gml:AssociationAttributeGroup"/>
+    </complexType>
+    
+    <complexType name="InstallationEventPropertyType">
+        <sequence>
+            <element maxOccurs="1" minOccurs="1" ref="diggs:InstallationEvent"/>
+        </sequence>
+    </complexType>
+     
+    <complexType name="LaboratoryTestEventPropertyType">
+        <sequence>
+            <element ref="diggs:LaboratoryTestEvent"/>
+        </sequence>
+    </complexType>
+    
+    <complexType name="LinearExtentPropertyType">
+        <annotation>
+            <documentation>
+                Property type for referencing LinearExtent elements, following GML 
+                property type pattern.
+            </documentation>
+        </annotation>
+        <complexContent>
+            <restriction base="gml:DomainSetType">
+                <sequence minOccurs="0">
+                    <choice>
+                        <element ref="diggs:LinearExtent"/>
+                    </choice>
+                </sequence>
+                <attributeGroup ref="gml:OwnershipAttributeGroup"/>
+                <attributeGroup ref="gml:AssociationAttributeGroup"/>
+            </restriction>
+        </complexContent>
+    </complexType>
+    
+    <complexType name="LinearSpatialReferenceSystemPropertyType">
+        <annotation>
+            <documentation>
+                Property type for referencing the LinearSpatialReferenceSystem object.
+            </documentation>
+        </annotation>
+        <sequence>
+            <element ref="diggs:LinearSpatialReferenceSystem"/>
+        </sequence>
+    </complexType>
+    
+    <complexType name="LocalCoordinatePropertyType">
+        <sequence>
+            <element ref="diggs:LocalCoordinate"/>
+        </sequence>
+    </complexType>
+    
+    <complexType name="LocalityPropertyType">
+        <annotation>
+            <documentation>PointLocation property choice is deprecated; use LocalCoordinate
+                instead</documentation>
+        </annotation>
+        <choice>
+            <element ref="diggs:Locality" minOccurs="1" maxOccurs="1"/> 
+            <element ref="diggs:PointLocation"/> <!-- Deprecated -->
+        </choice>
+    </complexType>
+    
+    <complexType name="LocalReferencingPropertyType">
+        <annotation>
+            <documentation>
+                Property type for associating a planar (2D) or volume (3D) engineering coordinate reference
+                system with a feature. This allows the feature to use local 2D or 3D coordinates. Supports both
+                vector-based linear reference systems and local Cartesian coordinate systems. As of version 3.0, the vector-based system is deprecated.
+            </documentation>
+        </annotation>
+        <sequence minOccurs="0">
+            <choice>
+                <element ref="diggs:VectorLinearSpatialReferenceSystem">
+                    <annotation>
+                        <documentation>
+                            A vector-based linear spatial reference system for planar referencing.
+                        </documentation>
+                    </annotation>
+                </element>
+                <element ref="diggs:LocalCartesianCRS">
+                    <annotation>
+                        <documentation>
+                            A local Cartesian coordinate reference system for planar referencing.
+                        </documentation>
+                    </annotation>
+                </element>
+            </choice>
+        </sequence>
+        <attributeGroup ref="gml:AssociationAttributeGroup"/>
+    </complexType>
+    
+    <complexType name="LocationPropertyType">
+        <complexContent>
+            <restriction base="gml:DomainSetType">
+                <sequence minOccurs="0">
+                    <choice>
+                        <element ref="diggs:AbstractGeometry"/>
+                    </choice>
+                </sequence>
+                <attributeGroup ref="gml:OwnershipAttributeGroup"/>
+                <attributeGroup ref="gml:AssociationAttributeGroup"/>
+            </restriction>
+        </complexContent>
+    </complexType>
+ 
+    <complexType name="LocationUncertaintyPropertyType">
+        <sequence>
+            <element ref="diggs:LocationUncertainty" minOccurs="1" maxOccurs="1">
+                <annotation>
+                    <documentation>Contains properties to define the uncertainty of a location
+                        value.</documentation>
+                </annotation>
+            </element>
+        </sequence>
+    </complexType> 
+    
+    <complexType name="ParameterPropertyType">
+        <sequence maxOccurs="1">
+            <element ref="diggs:Parameter" maxOccurs="1" minOccurs="1"/>
+        </sequence>
+    </complexType>
+    
+    <complexType name="PointLocationPropertyType">
+        <complexContent>
+            <restriction base="gml:DomainSetType">
+                <sequence minOccurs="0">
+                    <choice>
+                        <element ref="diggs:PointLocation"/>
+                    </choice>
+                </sequence>
+                <attributeGroup ref="gml:OwnershipAttributeGroup"/>
+                <attributeGroup ref="gml:AssociationAttributeGroup"/>
+            </restriction>
+        </complexContent>
+    </complexType>
+
+    <complexType name="ProcedurePropertyType">
+        <sequence>
+            <element minOccurs="0" ref="diggs:AbstractProcedure" maxOccurs="1"/>
+        </sequence>
+        <attributeGroup ref="gml:AssociationAttributeGroup"/>
+        <attributeGroup ref="gml:OwnershipAttributeGroup"/>
+    </complexType>
+ 
+    <complexType name="ProgramPropertyType" abstract="false">
+        <sequence>
+            <element maxOccurs="1" minOccurs="1" ref="diggs:AbstractProgram"/>
+        </sequence>
+    </complexType>
+    
+    <complexType name="ProjectEventPropertyType">
+        <sequence>
+            <element ref="diggs:ProjectEvent"/>
+        </sequence>
+    </complexType>
+ 
+    <complexType abstract="false" name="ProgramDesignPropertyType">
+        <sequence>
+            <element ref="diggs:AbstractProgramDesign"/>
+        </sequence>
+    </complexType>
+    
+    <complexType abstract="false" name="ProgramSpecificationPropertyType">
+        <sequence>
+            <element ref="diggs:AbstractProgramSpecificaton"/>
+        </sequence>
+    </complexType>
+    
+    <complexType name="RemarkPropertyType">
+        <sequence>
+            <element ref="diggs:Remark"/>
+        </sequence>
+    </complexType>
+    
+    <complexType name="RolePropertyType">
+        <sequence>
+            <element ref="diggs:Role" minOccurs="1" maxOccurs="1"/>
+        </sequence>
+    </complexType>
+    
+    <complexType name="SampleProducedPropertyType">
+        <sequence>
+            <element maxOccurs="1" ref="diggs:SampleProduced" minOccurs="1">
+                <annotation>
+                    <documentation>An object that contains the time and location of each physical
+                        sample produced by this activity</documentation>
+                </annotation>
+            </element>
+        </sequence>
+    </complexType>
+ 
+    <complexType name="SamplingActivityPropertyType">
+        <sequence>
+            <element ref="diggs:AbstractSamplingActivity" maxOccurs="1" minOccurs="1"/>
+        </sequence>
+    </complexType>
+    
+    <complexType name="SoftwareApplicationPropertyType">
+        <sequence>
+            <element ref="diggs:SoftwareApplication" minOccurs="1" maxOccurs="1"/>
+        </sequence>
+    </complexType>
+    
+    <complexType name="SpecificationPropertyType">
+        <sequence>
+            <element ref="diggs:Specification" maxOccurs="1" minOccurs="0"> </element>
+        </sequence>
+        <attributeGroup ref="gml:AssociationAttributeGroup"/>
+        <attributeGroup ref="gml:OwnershipAttributeGroup"/>
+    </complexType>
+    
+    <complexType name="SpecimenPropertyType">
+        <sequence minOccurs="0">
+            <element maxOccurs="1" minOccurs="1" ref="diggs:AbstractSpecimen"/>
+        </sequence>
+        <attributeGroup ref="gml:AssociationAttributeGroup"/>
+        <attributeGroup ref="gml:OwnershipAttributeGroup"/>
+    </complexType>
+    
+    <complexType name="SurfacePropertyType">
+        <complexContent>
+            <restriction base="gml:DomainSetType">
+                <sequence minOccurs="0">
+                    <choice>
+                        <element ref="diggs:AbstractSurface"/>
+                    </choice>
+                </sequence>
+                <attributeGroup ref="gml:OwnershipAttributeGroup"/>
+                <attributeGroup ref="gml:AssociationAttributeGroup"/>
+            </restriction>
+        </complexContent>
+    </complexType>
+      
+    <complexType name="TimeIntervalPropertyType">
+        <sequence>
+            <element ref="diggs:TimeInterval"/>
+        </sequence>
+    </complexType>
+
+    <complexType name="UncertaintyPropertyType">
+        <sequence>
+            <element ref="diggs:Uncertainty" minOccurs="1" maxOccurs="1">
+                <annotation>
+                    <documentation>The Uncertainty object contains properties to define the
+                        uncertainty of a location value or measurement</documentation>
+                </annotation>
+            </element>
+        </sequence>
+    </complexType>
+ 
+    <complexType name="VolumePropertyType">
+        <complexContent>
+            <restriction base="gml:DomainSetType">
+                <sequence minOccurs="0">
+                    <choice>
+                        <element ref="diggs:AbstractVolume"/>
+                        
+                    </choice>
+                </sequence>
+                <attributeGroup ref="gml:OwnershipAttributeGroup"/>
+                <attributeGroup ref="gml:AssociationAttributeGroup"/>
+            </restriction>
+        </complexContent>
+    </complexType>
+    
+    <!-- ================================================================ -->
+    <!-- REFERENCE PROPERTIES AND TYPES .                                 -->
+    <!-- ================================================================ -->
+
+    <element name="projectRef" type="diggs:FeatureReferenceType">
+        <annotation>
+            <appinfo source="urn:x-gml:targetElement">Diggs:Project</appinfo>
+            <documentation>A reference to a project that uses the feature within its business
+                activity. The project referenced here is the associated project for this
+                instance.</documentation>
+            <documentation>A property element that supports a value by reference only. The target
+                value is indicated in the appinfo element.</documentation>
+        </annotation>
+    </element>
+
+    <element name="originalProjectRef" type="diggs:FeatureReferenceType">
+        <annotation>
+            <appinfo source="urn:x-gml:targetElement">Diggs:Project</appinfo>
+            <documentation>A property element that supports a value by reference only. The target
+                value is indicated in the appinfo element.</documentation>
+            <documentation>A reference to the project that first established this
+                feature</documentation>
+        </annotation>
+    </element>
+
+    <element name="associatedProjectRef" type="diggs:FeatureReferenceType">
+        <annotation>
+            <appinfo source="urn:x-gml:targetElement">Diggs:Project</appinfo>
+            <documentation>A reference to a project that uses the feature within its business
+                activity. The associated project is not intended to be the one that established the
+                feature in the first place. The property originalProjectRef should be used for that
+                purpose. </documentation>
+            <documentation>A property element that supports a value by reference only. The target
+                value is indicated in the appinfo element.</documentation>
+        </annotation>
+    </element>
+
+    <element name="programRef" type="diggs:FeatureReferenceType">
+        <annotation>
+            <documentation>A reference to a program that is associated with this feature.
+            </documentation>
+        </annotation>
+    </element>
+
+    <element name="programSpecificationRef" type="diggs:FeatureReferenceType">
+        <annotation>
+            <documentation>A reference to a specification or design object within the associated
+                program feature that is relevant for this activity</documentation>
+        </annotation>
+    </element>
+
+    <element name="samplingFeatureRef" type="diggs:FeatureReferenceType">
+        <annotation>
+            <appinfo source="urn:x-gml:targetElement">Diggs:AbstractConstructionActivity</appinfo>
+            <documentation>A reference to a sampling feature from which data are obtained or in
+                which an activity occurs.</documentation>
+            <documentation>A property element that supports a value by reference only. The target
+                value is indicated in the appinfo element.</documentation>
+        </annotation>
+    </element>
+
+    <element name="samplingActivityRef" type="diggs:FeatureReferenceType">
+        <annotation>
+            <appinfo source="urn:x-gml:targetElement">Diggs:SamplingActivity</appinfo>
+            <documentation>A reference to a sampling activity that is associated with this feature. </documentation>
+            <documentation>A property element that supports a value by reference only. The target
+                value is indicated in the appinfo element.</documentation>
+        </annotation>
+    </element>
+
+    <element name="sampleRef" type="diggs:FractionalReferenceType">
+        <annotation>
+            <appinfo source="urn:x-gml:targetElement">Diggs:Sample</appinfo>
+            <documentation>A reference to a sample that is associated with this feature. </documentation>
+            <documentation>A property element that supports a value by reference only. The target
+                value is indicated in the appinfo element.</documentation>
+        </annotation>
+    </element>
+
+    <element name="sampleProducedRef" type="gml:ReferenceType">
+        <annotation>
+            <documentation>A link to the gml:id of the SampleProduced object contained within the
+                associated SamplingActivity feature that is associated with this feature. The
+                associated SampleProduced object has as its properties the location and specific
+                sampling time for the associated sample.</documentation>
+        </annotation>
+    </element>
+
+    <element name="constructionActivityRef" type="diggs:FeatureReferenceType">
+        <annotation>
+            <appinfo source="urn:x-gml:targetElement">Diggs:AbstractConstructionActivity</appinfo>
+            <documentation>A reference to a construction activity</documentation>
+        </annotation>
+    </element>
+
+    <element name="measurementRef" type="diggs:FeatureReferenceType">
+        <annotation>
+            <appinfo source="urn:x-gml:targetElement">Diggs:Measurement</appinfo>
+            <documentation>A reference to a Measurement feature that is associated with this
+                feature. </documentation>
+            <documentation>A property element that supports a value by reference only. The target
+                value is indicated in the appinfo element.</documentation>
+        </annotation>
+    </element>
+
+    <complexType name="FeatureReferenceType">
+        <annotation>
+            <documentation>This type is used to point to a DIGGS feature (by its gml:id in the
+                xlink:href attribute) or by its gml:identifier (using indentifierRef
+                attribute)</documentation>
+        </annotation>
+        <complexContent>
+            <extension base="gml:ReferenceType">
+                <attribute name="identifierRef" type="diggs:IdentifierReferenceType" use="optional">
+                    <annotation>
+                        <documentation>Provides a fully qualified gml:identifier value of the target
+                            feature. Used primarily to reference a feature by a globally unique
+                            identifier as opposed to the gml:id</documentation>
+                    </annotation>
+                </attribute>
+            </extension>
+        </complexContent>
+    </complexType>
+
+    <simpleType name="IdentifierReferenceType">
+        <annotation>
+            <documentation>Provides a reference to the gml:identifier value, which follows a pattern
+                restriction conforming to the urn structure of identifiers</documentation>
+        </annotation>
+        <restriction base="anyURI"> </restriction>
+    </simpleType>
+
+    <complexType name="FractionalReferenceType">
+        <complexContent>
+            <extension base="diggs:FeatureReferenceType">
+                <attribute name="percentage" type="diggs:Val0-100Type" use="optional"/>
+            </extension>
+        </complexContent>
+    </complexType>
+
+    <!-- ================================================================ -->
+    <!-- ADDRESS                                                          -->
+    <!-- ================================================================ -->
+    
+    <element name="Address" type="diggs:AddressType" substitutionGroup="gml:AbstractGML"
+        abstract="false">
+        <annotation>
+            <documentation>A collection of information used to give the location of a building,
+                apartment, or other structure.</documentation>
+        </annotation>
+    </element>
+    
+    <complexType name="AddressType">
+        <complexContent>
+            <extension base="diggs:AbstractObjectBaseType">
+                <sequence>
+                    <element name="number" type="diggs:DiggsStringType" minOccurs="0" maxOccurs="1"/>
+                    <element name="streetAddress" type="diggs:DiggsStringType" minOccurs="0"
+                        maxOccurs="unbounded"/>
+                    <element name="city" type="diggs:DiggsStringType" minOccurs="0" maxOccurs="1"/>
+                    <element name="state" type="diggs:DiggsStringType" minOccurs="0" maxOccurs="1"/>
+                    <element name="province" type="diggs:DiggsStringType" minOccurs="0"
+                        maxOccurs="1"/>
+                    <element name="county" type="diggs:DiggsStringType" minOccurs="0" maxOccurs="1"/>
+                    <element name="country" type="diggs:DiggsStringType" minOccurs="0" maxOccurs="1"/>
+                    <element name="postalCode" type="diggs:DiggsStringType" minOccurs="0"
+                        maxOccurs="1"/>
+                </sequence>
+            </extension>
+        </complexContent>
+    </complexType>
+    
+    <!-- ================================================================ -->
+    <!-- ASSOCIATEDFILE                                          -->
+    <!-- ================================================================ -->
+    
+    <element name="AssociatedFile" type="diggs:AssociatedFileType"
+        substitutionGroup="diggs:AbstractNamedObject" abstract="false">
+        <annotation>
+            <documentation>An object that provides information about external files or documents
+                associated with the containing features.</documentation>
+        </annotation>
+    </element>
+    
+    <complexType name="AssociatedFileType">
+        <complexContent>
+            <extension base="diggs:AbstractNamedObjectType">
+                <sequence>
+                    <sequence>
+                        <element minOccurs="0" name="contact"
+                            type="diggs:BusinessAssociatePropertyType" maxOccurs="unbounded">
+                            <annotation>
+                                <documentation>The person or business to contact about this file.
+                                    This property should be populated where a fileURL is not
+                                    provided.</documentation>
+                            </annotation>
+                        </element>
+                        <element minOccurs="1" name="fileURL" type="anyURI">
+                            <annotation>
+                                <documentation>Path to the digital file</documentation>
+                            </annotation>
+                        </element>
+                        <element maxOccurs="1" minOccurs="0" name="fileType" type="gml:CodeType">
+                            <annotation>
+                                <documentation>Digital file type, typically denoted by the file
+                                    extension (eg. .jpg, .pdf)</documentation>
+                            </annotation>
+                        </element>
+                        <element maxOccurs="1" minOccurs="0" name="creatingApplication"
+                            type="diggs:SoftwareApplicationPropertyType">
+                            <annotation>
+                                <documentation>Name of the application that created the file, where
+                                    applicable.</documentation>
+                            </annotation>
+                        </element>
+                        <element maxOccurs="1" minOccurs="0" name="documentType" type="gml:CodeType">
+                            <annotation>
+                                <documentation>For documents, the type of document that the file
+                                    represents, such as photo, report, log, etc.). </documentation>
+                            </annotation>
+                        </element>
+                        <element maxOccurs="1" minOccurs="0" name="fileDate"
+                            type="gml:TimePositionType">
+                            <annotation>
+                                <documentation>Date file created or last modified.</documentation>
+                            </annotation>
+                        </element>
+                        <element minOccurs="0" ref="diggs:fileStructure"/>
+                        <element minOccurs="0" name="mimeType" type="diggs:mimeTypeEnumExtType">
+                            <annotation>
+                                <documentation>The mime type of the file, from an enumerated list.
+                                    Non-registered mime types should be entered as Other:
+                                    type/subtype where the subtype should begin with "x-", eg.
+                                    application/x-segy.</documentation>
+                            </annotation>
+                        </element>
+                        <element minOccurs="0" name="compression" type="anyURI">
+                            <annotation>
+                                <documentation>A value that identifies the compression algorithm
+                                    used, if applicable (eg LZW).</documentation>
+                            </annotation>
+                        </element>
+                        <element minOccurs="0" name="encryption" type="anyURI">
+                            <annotation>
+                                <documentation>A value that identifies the file encryption algorithm
+                                    used, if applicable (eg. AES).</documentation>
+                            </annotation>
+                        </element>
+                    </sequence>
+                </sequence>
+            </extension>
+        </complexContent>
+    </complexType>
+
+    <element name="SoftwareApplication" type="diggs:SoftwareApplicationType"
+        substitutionGroup="diggs:AbstractNamedObject" abstract="false">
+        <annotation>
+            <documentation>A computer program designed to carry out a specific task.</documentation>
+        </annotation>
+    </element>
+    
+    <complexType name="SoftwareApplicationType">
+        <complexContent>
+            <extension base="diggs:AbstractNamedObjectType">
+                <sequence>
+                    <element name="version" type="diggs:DiggsStringType" minOccurs="0" maxOccurs="1"/>
+                </sequence>
+            </extension>
+        </complexContent>
+    </complexType>
+    
+    
+    <!-- ================================================================ -->
+    <!-- BUSINESSASSOCIATE                                                -->
+    <!-- ================================================================ -->
+
+    <element name="BusinessAssociate" type="diggs:BusinessAssociateType"
+        substitutionGroup="diggs:AbstractNamedFeature" abstract="false">
+        <annotation>
+            <documentation>A person or entity who performs functions, activities, or
+                services.</documentation>
+        </annotation>
+    </element>
+
+    <complexType name="BusinessAssociateBaseType">
+        <complexContent>
+            <restriction base="diggs:AbstractNamedFeatureType">
+                <sequence>
+                    <sequence>
+                        <element minOccurs="0" ref="gml:description"/>
+                        <element minOccurs="0" ref="gml:identifier"/>
+                    </sequence>
+                    <sequence>
+                        <element maxOccurs="unbounded" minOccurs="1" ref="gml:name"/>
+                        <element ref="diggs:internalIdentifier" minOccurs="0"/>
+                        <element minOccurs="0" ref="diggs:status"/>
+                        <element maxOccurs="unbounded" minOccurs="0" name="associatedFile"
+                            type="diggs:AssociatedFilePropertyType">
+                            <annotation>
+                                <documentation>Identifies external files associated with this
+                                    feature.</documentation>
+                            </annotation>
+                        </element>
+                        <element maxOccurs="unbounded" minOccurs="0" name="remark"
+                            type="diggs:RemarkPropertyType"/>
+                    </sequence>
+                </sequence>
+            </restriction>
+        </complexContent>
+    </complexType>
+
+    <complexType name="BusinessAssociateType">
+        <complexContent>
+            <extension base="diggs:BusinessAssociateBaseType">
+                <sequence>
+                    <element name="title" type="gml:CodeType" minOccurs="0" maxOccurs="1">
+                        <annotation>
+                            <documentation>A title for a person (eg. Mr., Ms., Sra., Dr. etc) that
+                                precedes the name. Corporate titles (eg. Inc., Ltd., etc) or
+                                suffixes (eg. PhD) would not be entered here, but included in the
+                                BusinessAssociate's name.</documentation>
+                        </annotation>
+                    </element>
+                    <element name="address" type="diggs:AddressPropertyType" minOccurs="0"
+                        maxOccurs="unbounded">
+                        <annotation>
+                            <documentation>Mailing address for the BusinessAssociate</documentation>
+                        </annotation>
+                    </element>
+                    <element name="emailAddress" type="diggs:EmailType" minOccurs="0"
+                        maxOccurs="unbounded">
+                        <annotation>
+                            <documentation>An email address for the BusinessAssociate. The type of
+                                email (eg. business or personal) is defined in the type
+                                attribute.</documentation>
+                        </annotation>
+                    </element>
+                    <element name="phoneNumber" type="diggs:PhoneType" minOccurs="0"
+                        maxOccurs="unbounded">
+                        <annotation>
+                            <documentation>A telephone number for the BusinessAssociate. The type of
+                                number (eg. mobile, fax, etc.) is described in the type
+                                attribute.</documentation>
+                        </annotation>
+                    </element>
+                    <element name="associatedWith" type="diggs:BusinessAssociatePropertyType"
+                        minOccurs="0" maxOccurs="unbounded">
+                        <annotation>
+                            <appinfo source="urn:x-gml:targetElement">diggs:BusinessAssociate</appinfo>
+                            <documentation>A BusinessAssociate that is associated with this one.
+                                This can be an xlink:href pointer to the gml:id of another
+                                BusinessAssociate object or an embedded BusinessAssociate
+                                object</documentation>
+                        </annotation>
+                    </element>
+                </sequence>
+            </extension>
+        </complexContent>
+    </complexType>
+
+    <complexType name="EmailType">
+        <simpleContent>
+            <extension base="diggs:EmailStringType">
+                <attribute name="type" type="diggs:ExtEmailEnumType"/>
+            </extension>
+        </simpleContent>
+    </complexType>
+
+    <simpleType name="EmailStringType">
+        <restriction base="string">
+            <pattern value="([A-z0-9_\.\-\+])+@(([A-z0-9_\-]{2,})\.)+[A-z0-9_\-]{2,}"/>
+        </restriction>
+    </simpleType>
+
+    <simpleType name="ExtEmailEnumType">
+        <union memberTypes="diggs:OtherNameType diggs:EmailEnumType"/>
+    </simpleType>
+
+    <simpleType name="EmailEnumType">
+        <restriction base="string">
+            <enumeration value="personal"/>
+            <enumeration value="business"/>
+        </restriction>
+    </simpleType>
+
+    <complexType name="PhoneType">
+        <simpleContent>
+            <extension base="diggs:PhoneNumberStringType">
+                <attribute name="type" type="diggs:ExtPhoneEnumType"/>
+            </extension>
+        </simpleContent>
+    </complexType>
+
+    <simpleType name="PhoneNumberStringType">
+        <restriction base="string">
+            <pattern
+                value="(\+[0-9]( )?)?([0-9]( |-|\.|)){6,14}[0-9]|(\([0-9]{3}\)[-. ]?|[0-9]{3}[-. ])[0-9]{3}[-. ]?[0-9]{4} "
+            />
+        </restriction>
+    </simpleType>
+
+    <simpleType name="ExtPhoneEnumType">
+        <union memberTypes="diggs:OtherNameType diggs:PhoneEnumType"/>
+    </simpleType>
+
+    <simpleType name="PhoneEnumType">
+        <restriction base="string">
+            <enumeration value="voice"/>
+            <enumeration value="fax"/>
+            <enumeration value="mobile"/>
+            <enumeration value="voice/fax"/>
+            <enumeration value="voicemail"/>
+        </restriction>
+    </simpleType>
+
+    <!-- ================================================================ -->
+    <!--CONTRACT                                                          -->
+    <!-- ================================================================ -->
+    
+    <element name="Contract" type="diggs:ContractType" substitutionGroup="diggs:AbstractFeature"
+        abstract="false">
+        <annotation>
+            <documentation>An object that contains properties of a business
+                contract.</documentation>
+        </annotation>
+    </element>
+ 
+    <complexType name="ContractType">
+        <complexContent>
+            <extension base="diggs:AbstractFeatureType">
+                <sequence>
+                    <element name="version" type="diggs:DiggsStringType" minOccurs="0" maxOccurs="1">
+                        <annotation>
+                            <documentation>The version number or name of this contract</documentation>
+                        </annotation>
+                    </element>
+                    <element minOccurs="0" name="contractDate" type="gml:TimePositionType">
+                        <annotation>
+                            <documentation>The date the contract went into effect.</documentation>
+                        </annotation>
+                    </element>
+                    <element minOccurs="0" name="revisionDate" type="gml:TimePositionType"
+                        maxOccurs="unbounded">
+                        <annotation>
+                            <documentation>The date when the contract was revised.</documentation>
+                        </annotation>
+                    </element>
+                    <element name="type" type="gml:CodeType" minOccurs="0" maxOccurs="1">
+                        <annotation>
+                            <documentation>The type of contract.</documentation>
+                        </annotation>
+                    </element>
+                    <element name="value" type="witsml:Cost" minOccurs="0" maxOccurs="1">
+                        <annotation>
+                            <documentation>The total value of the contract.</documentation>
+                        </annotation>
+                    </element>
+                </sequence>
+            </extension>
+        </complexContent>
+    </complexType>    
+    
+    <!-- ================================================================ -->
+    <!--ENVIRONMENT                                                       -->
+    <!-- ================================================================ -->
+    
+    <element name="Environment" type="diggs:EnvironmentType"
+        substitutionGroup="diggs:AbstractObject" abstract="false">
+        <annotation>
+            <documentation>A collection of environmental parameters recorded at a specific time
+                instant.</documentation>
+        </annotation>
+    </element>
+    
+    <complexType name="EnvironmentType">
+        <complexContent>
+            <extension base="diggs:AbstractObjectType">
+                <sequence>
+                    <element minOccurs="0" name="dateTime" type="gml:TimePositionType"/>
+                    <element name="ambientTemperature"
+                        type="diggs:ThermodynamicTemperatureMeasureType" minOccurs="0" maxOccurs="1">
+                        <annotation>
+                            <documentation>Ambient air temperature reported as a single value at the
+                                time of measurement</documentation>
+                        </annotation>
+                    </element>
+                    <element name="barometricPressure" type="diggs:PressureMeasureType"
+                        minOccurs="0" maxOccurs="1">
+                        <annotation>
+                            <documentation>Barometric pressure reported as a single value at the
+                                time of measurement</documentation>
+                        </annotation>
+                    </element>
+                    <element name="humidity" type="diggs:VolumePerVolumeMeasureType" minOccurs="0"
+                        maxOccurs="1">
+                        <annotation>
+                            <documentation>Atmospheric humidity reported as a single value at the
+                                time of measurement</documentation>
+                        </annotation>
+                    </element>
+                    <element name="weather" type="diggs:DiggsStringType" minOccurs="0" maxOccurs="1">
+                        <annotation>
+                            <documentation>General description of the weather (eg. sunny, partly
+                                cloudy, etc.)</documentation>
+                        </annotation>
+                    </element>
+                    <element name="windSpeed" type="diggs:LengthPerTimeMeasureType" minOccurs="0"
+                        maxOccurs="1">
+                        <annotation>
+                            <documentation>Wind speed reported as a single value at the time
+                                measurement was taken</documentation>
+                        </annotation>
+                    </element>
+                    <element minOccurs="0" name="otherEnvironmentalProperty"
+                        type="diggs:ParameterPropertyType" maxOccurs="unbounded"/>
+                </sequence>
+            </extension>
+        </complexContent>
+    </complexType>    
+
+    <!-- ================================================================ -->
+    <!--INSTALLATION EVENT                                                -->
+    <!-- ================================================================ -->
+    
+    <element name="InstallationEvent" type="diggs:InstallationEventType">
+        <annotation>
+            <documentation>An object that contains properties about a time or depth related event
+                occurring in association with creation of an installation feature.</documentation>
+        </annotation>
+    </element>
+ 
+    <complexType name="InstallationEventType">
+        <complexContent>
+            <extension base="diggs:AbstractEventType">
+                <sequence/>
+            </extension>
+        </complexContent>
+    </complexType>
+   
+    <!-- ================================================================ -->
+    <!--LABORATORYTESTEVENT                                               -->
+    <!-- ================================================================ -->
+    
+    <element abstract="false" name="LaboratoryTestEvent"
+        substitutionGroup="diggs:AbstractObjectBase" type="diggs:LaboratoryTestEventType">
+        <annotation>
+            <documentation>An object that records events observed during a laboratory test. This
+                object is a concrete representation of AbstractEvent with no additional
+                properties.</documentation>
+        </annotation>
+    </element>
+    
+    <complexType mixed="false" name="LaboratoryTestEventType">
+        <complexContent>
+            <extension base="diggs:AbstractObjectBaseType">
+                <sequence>
+                    <element maxOccurs="unbounded" minOccurs="0" ref="gml:name"/>
+                    <element minOccurs="0" ref="diggs:status">
+                        <annotation>
+                            <documentation>A text string to provide information about the status of
+                                the object to be used to track QA/QC controls, review or release
+                                status, etc. The values used are intended to come from a controlled
+                                list of terms maintained by an organization.</documentation>
+                        </annotation>
+                    </element>
+                    <element maxOccurs="unbounded" minOccurs="0" ref="diggs:remark"/>
+                    
+                    <element minOccurs="0" name="time" type="diggs:TimeIntervalPropertyType">
+                        <annotation>
+                            <documentation>Date/time when this event information was
+                                recorded</documentation>
+                        </annotation>
+                    </element>
+                    <element maxOccurs="unbounded" minOccurs="0" name="infoRecorded"
+                        type="diggs:ParameterPropertyType">
+                        <annotation>
+                            <documentation><![CDATA[Other associated data measured or observed at this time]]></documentation>
+                        </annotation>
+                    </element>
+                </sequence>
+            </extension>
+        </complexContent>
+    </complexType>
+    
+    <!-- ================================================================ -->
+    <!-- LINEAREXTENT                                                  -->
+    <!-- ================================================================ -->
+    
+    <element name="LinearExtent" substitutionGroup="diggs:AbstractCurve" type="diggs:LinearExtentType">
+        <annotation>
+            <documentation>
+                Implementation of ISO 19148:2021 §6.3 Linear Element concept for DIGGS.
+                
+                A LinearExtent defines a location as a linear extent or interval, with
+                the first vertex representing the starting location and the last vertex 
+                representing the end location. This is the fundamental spatial object 
+                along which linear referencing measurements are made.
+                
+                For DIGGS applications, LinearExtent typically represents:
+                - Borehole centerline (3D path from collar to bottom)
+                - Well trajectory (including deviated wells)
+                - CPT sounding path
+                - Geophysical trackline
+                - Survey transect or traverse
+                
+                The geometry is stored in gml:posList with coordinates in the order 
+                they are traversed during measurement. Measurements proceed from first 
+                to last coordinate.
+            </documentation>
+        </annotation>
+    </element>
+    
+    <complexType name="LinearExtentType">
+        <annotation>
+            <documentation>
+                Type definition for LinearExtent, implementing ISO 19148:2021 §6.3 
+                Linear Element concept.
+                
+                Extends AbstractCurveType to provide a linear geometric primitive with:
+                - Ordered coordinate list (gml:posList)
+                - Optional datum reference for vertical/depth coordinates
+                - Optional anchor points for geometric calibration
+                - Optional uncertainty information
+            </documentation>
+        </annotation>
+        <complexContent>
+            <extension base="diggs:AbstractCurveType">
+                <sequence>
+                    <choice>
+                        <element ref="gml:posList"/>
+                        <!--DSB restricted from profile
+                        <element ref="gml:coordinates"/>
+                        -->
+                    </choice>
+                    <element minOccurs="0" name="datumReference" type="diggs:ReferentTypeEnumType">
+                        <annotation>
+                            <documentation>
+                                The type of local or permanent reference datum for
+                                vertical gravity-based (i.e., elevation and vertical depth) and
+                                measured depth coordinates within the context of a borehole or well.
+                                Includes terminology from eml:WellboreDatumReference. The datum is
+                                associated with the origin (first point) of the linear extent.
+                                
+                                Common values: groundSurface, kellyBushing, rotaryBushing, 
+                                meanSeaLevel, seafloor, etc.
+                            </documentation>
+                        </annotation>
+                    </element>
+                    <element maxOccurs="unbounded" minOccurs="0" name="anchorPoint"
+                        type="diggs:ReferentPropertyType">
+                        <annotation>
+                            <documentation>
+                                Calibration points that relate measure values to geometric 
+                                positions for this specific LinearElement. Used only when:
+                                
+                                1. Core stretch/compression - Physical core length differs 
+                                from measured depth (anchor at top and bottom enables scaling)
+                                
+                                2. Survey corrections - Downhole surveys or GPS waypoints 
+                                provide control points for geometry adjustment
+                                
+                                3. Interpolative positioning - When measures cannot be 
+                                directly computed from centerline geometry
+                                
+                                For standard DIGGS usage where measures are computed by 
+                                interpolating along the LinearExtent geometry, anchor points 
+                                are NOT needed - the geometry itself provides the spatial 
+                                framework. However, for linear element definitions where the 
+                                length of the linear element does not correspond to that 
+                                determined from the coordinates (such as with expanded or 
+                                compressed core samples), these calibration points provide a 
+                                means for calculating true positions from those referenced by 
+                                the LRS.
+                            </documentation>
+                        </annotation>
+                    </element>
+                    <element minOccurs="0" name="startValue" type="diggs:LengthMeasureType">
+                        <annotation>
+                            <documentation>Where the linear element represented by this object is linearly referenced, startValue represents the measure value at the start of the linear element. Defaults to 0 in the uom of the linear referencing method if omitted.</documentation>
+                        </annotation>
+                    </element>
+                    <element minOccurs="0" name="uncertainty"
+                        type="diggs:LocationUncertaintyPropertyType">
+                        <annotation>
+                            <documentation>
+                                Uncertainty information for the geometric positions along this 
+                                LinearExtent. Applicable when the spatial coordinates have known 
+                                measurement uncertainty.
+                            </documentation>
+                        </annotation>
+                    </element>
+                </sequence>
+            </extension>
+        </complexContent>
+    </complexType>
+    
+    <!-- ================================================================ -->
+    <!-- LOCALCOORDINATE                                                  -->
+    <!-- ================================================================ -->
+    
+    <element abstract="false" name="LocalCoordinate" type="diggs:LocalCoordinateType">
+        <annotation>
+            <documentation>A metadata object that holds the values of local coordinates for the
+                reference point of the associated feature.</documentation>
+        </annotation>
+    </element>
+ 
+    <complexType name="LocalCoordinateType">
+        <complexContent>
+            <extension base="gml:AbstractMetadataPropertyType">
+                <sequence>
+                    <element minOccurs="0" name="easting" type="diggs:LengthMeasureType">
+                        <annotation>
+                            <documentation>The easting or x-coordinate value</documentation>
+                        </annotation>
+                    </element>
+                    <element minOccurs="0" name="northing" type="diggs:LengthMeasureType">
+                        <annotation>
+                            <documentation>The northing or y-coordinate value</documentation>
+                        </annotation>
+                    </element>
+                    <element minOccurs="0" name="elevation" type="diggs:LengthMeasureType">
+                        <annotation>
+                            <documentation>Elevation value, positive up</documentation>
+                        </annotation>
+                    </element>
+                    <element minOccurs="0" name="localCoodinateUncertainty"
+                        type="diggs:LocationUncertaintyPropertyType">
+                        <annotation>
+                            <documentation>Uncertainty for local coordinates</documentation>
+                        </annotation>
+                    </element>
+                </sequence>
+            </extension>
+        </complexContent>
+    </complexType>
+ 
+    <!-- ================================================================ -->
+    <!-- LOCALITY                                                         -->
+    <!-- ================================================================ -->
+    
+    <element name="Locality" type="diggs:LocalityType" substitutionGroup="gml:AbstractGML"
+        abstract="false">
+        <annotation>
+            <documentation>An object that describes non-coordinate location information for a
+                feature.</documentation>
+        </annotation>
+    </element>
+    
+    <complexType name="LocalityType">
+        <complexContent>
+            <extension base="diggs:AbstractObjectBaseType">
+                <sequence>
+                    <element name="address" type="diggs:AddressPropertyType" minOccurs="0"
+                        maxOccurs="1"/>
+                    <element name="district" type="diggs:DiggsStringType" minOccurs="0"
+                        maxOccurs="1">
+                        <annotation>
+                            <documentation>Name or ID of a territory of land classified as a
+                                District</documentation>
+                        </annotation>
+                    </element>
+                    <element name="station" type="diggs:LengthMeasureType" minOccurs="0"
+                        maxOccurs="1">
+                        <annotation>
+                            <documentation>Name of the station along a centerline survey.</documentation>
+                        </annotation>
+                    </element>
+                    <element name="offset" type="diggs:LengthMeasureType" minOccurs="0"
+                        maxOccurs="1" form="qualified">
+                        <annotation>
+                            <documentation>Distance measured perpendicular from the station.</documentation>
+                        </annotation>
+                    </element>
+                    <element name="otherLocalityProperty" type="diggs:ParameterPropertyType"
+                        minOccurs="0" maxOccurs="unbounded">
+                        <annotation>
+                            <documentation>Other type of locality designation.</documentation>
+                        </annotation>
+                    </element>
+                </sequence>
+            </extension>
+        </complexContent>
+    </complexType>
+ 
+    <!-- ================================================================ -->
+    <!-- LOCATIONUNCERTAINTY                                                         -->
+    <!-- ================================================================ -->
+    
+    <element name="LocationUncertainty" type="diggs:LocationUncertaintyType"
+        substitutionGroup="diggs:AbstractObject" abstract="false">
+        <annotation>
+            <documentation>An object that contains properties defining the uncertainty of a
+                location.</documentation>
+        </annotation>
+    </element>
+    
+    <complexType name="LocationUncertaintyType">
+        <complexContent>
+            <extension base="diggs:AbstractObjectType">
+                <sequence>
+                    <element minOccurs="0" name="locationMethod" type="gml:CodeType">
+                        <annotation>
+                            <documentation>The method used to determine the coordinate information.</documentation>
+                        </annotation>
+                    </element>
+                    <element minOccurs="0" name="xValueUncertainty"
+                        type="diggs:UncertaintyPropertyType">
+                        <annotation>
+                            <documentation>Uncertainty for the x value of a location coordinate.</documentation>
+                        </annotation>
+                    </element>
+                    <element minOccurs="0" name="yValueUncertainty"
+                        type="diggs:UncertaintyPropertyType">
+                        <annotation>
+                            <documentation>Uncertainty for the y value of a location coordinate.</documentation>
+                        </annotation>
+                    </element>
+                    <element minOccurs="0" name="zValueUncertainty"
+                        type="diggs:UncertaintyPropertyType">
+                        <annotation>
+                            <documentation>Uncertainty for the z value of a location coordinate.</documentation>
+                        </annotation>
+                    </element>
+                </sequence>
+            </extension>
+        </complexContent>
+    </complexType>
+
+    <!-- ================================================================ -->
+    <!-- PARAMETER                                                        -->
+    <!-- ================================================================ -->
+    
+    <element name="Parameter" substitutionGroup="diggs:AbstractComponentObjectBase"
+        type="diggs:ParameterType">
+        <annotation>
+            <documentation>An object containing the name, value or range of values and unit of
+                measure of a property or a measurement parameter (result).</documentation>
+        </annotation>
+    </element>
+    
+    <complexType name="ParameterType">
+        <complexContent>
+            <extension base="diggs:AbstractComponentObjectBaseType">
+                <sequence>
+                    <element minOccurs="1" name="parameterName" type="gml:CodeType">
+                        <annotation>
+                            <documentation>A description or code to what the value property
+                                represents.</documentation>
+                        </annotation>
+                    </element>
+                    <choice>
+                        <element minOccurs="1" name="parameterValue" type="diggs:DiggsStringType">
+                            <annotation>
+                                <documentation>A value associated with the name.</documentation>
+                            </annotation>
+                        </element>
+                        <sequence>
+                            <element name="parameterMinValue" type="double">
+                                <annotation>
+                                    <documentation>For numeric parameter values where a value range
+                                        is expressed instead of a fixed value, this property
+                                        contains the minimum value of the range.</documentation>
+                                </annotation>
+                            </element>
+                            <element minOccurs="0" name="parameterValue"
+                                type="diggs:DiggsStringType">
+                                <annotation>
+                                    <documentation>A value associated with the name.</documentation>
+                                </annotation>
+                            </element>
+                            <element name="parameterMaxValue" type="double">
+                                <annotation>
+                                    <documentation>For numeric parameter values where a value range
+                                        is expressed instead of a fixed value, this property
+                                        contains the maximum value of the range.</documentation>
+                                </annotation>
+                            </element>
+                        </sequence>
+                    </choice>
+                    <element name="parameterUnits" type="diggs:AllUnits" minOccurs="0">
+                        <annotation>
+                            <documentation>Unit of measure of the parameter.</documentation>
+                        </annotation>
+                    </element>
+                </sequence>
+                <attribute name="index" type="positiveInteger" use="optional">
+                    <annotation>
+                        <documentation>An integer that indicates the order of the parameter
+                            results.</documentation>
+                    </annotation>
+                </attribute>
+            </extension>
+        </complexContent>
+    </complexType>
+    
+    <!-- ================================================================ -->
+    <!-- POINTLOCATION                                                    -->
+    <!-- ================================================================ -->
+    
+    <element name="PointLocation" substitutionGroup="diggs:AbstractGeometry" type="diggs:PointType">
+        <annotation>
+            <documentation>A Diggs geometry object defining a point location.</documentation>
+        </annotation>
+    </element>
+    
+    <complexType name="PointType">
+        <complexContent>
+            <extension base="diggs:AbstractGeometricPrimitiveType">
+                <sequence>
+                    <choice>
+                        <element ref="gml:pos"/>
+                    </choice>
+                    <element minOccurs="0" name="uncertainty"
+                        type="diggs:LocationUncertaintyPropertyType">
+                        <annotation>
+                            <documentation>Provides accuracy information for the
+                                referencePoint.</documentation>
+                        </annotation>
+                    </element>
+                </sequence>
+            </extension>
+        </complexContent>
+    </complexType>
+ 
+    <!-- ================================================================ -->
+    <!-- PROJECTEVENT                                                     -->
+    <!-- ================================================================ -->
+    
+    <element name="ProjectEvent" type="diggs:ProjectEventType">
+        <annotation>
+            <documentation>An object that contains properties of time or location related events
+                associated with a project.</documentation>
+        </annotation>
+    </element>
+    
+    <complexType name="ProjectEventType">
+        <complexContent>
+            <extension base="diggs:AbstractEventType">
+                <sequence/>
+            </extension>
+        </complexContent>
+    </complexType>
+
+    <!-- ================================================================ -->
+    <!-- REMARK                                                           -->
+    <!-- ================================================================ -->
+    
+    <element name="Remark" type="diggs:RemarkType" abstract="false">
+        <annotation>
+            <documentation>A remark or comment relevant to the containing object or feature,
+                optionally including the remark's author and date.</documentation>
+        </annotation>
+    </element>
+
+    <complexType name="RemarkType">
+        <complexContent>
+            <extension base="gml:AbstractMetadataPropertyType">
+                <sequence>
+                    <element name="content" type="diggs:DiggsStringType" minOccurs="1" maxOccurs="1"/>
+                    <element name="author" type="diggs:BusinessAssociatePropertyType"
+                        maxOccurs="unbounded" minOccurs="0">
+                        <annotation>
+                            <documentation>The author of the remark.</documentation>
+                        </annotation>
+                    </element>
+                    <element name="remarkDateTime" type="gml:TimePositionType" minOccurs="0"
+                        maxOccurs="1"/>
+                </sequence>
+            </extension>
+        </complexContent>
+    </complexType>
+    
+    <!-- ================================================================ -->
+    <!-- ROLE         .                                                   -->
+    <!-- ================================================================ -->
+    
+    <element abstract="false" name="Role" type="diggs:RoleType">
+        <annotation>
+            <documentation>A role is the function assumed or part played by a business associate in
+                relation to the containing DIGGS feature.</documentation>
+        </annotation>
+    </element>
+    
+    <complexType name="RoleType">
+        <complexContent>
+            <extension base="gml:AbstractMetadataPropertyType">
+                <sequence>
+                    <element name="rolePerformed" type="gml:CodeType" minOccurs="1" maxOccurs="1">
+                        <annotation>
+                            <documentation>A term describing the role that was
+                                performed.</documentation>
+                        </annotation>
+                    </element>
+                    <element name="timePerformed" type="diggs:TimeIntervalPropertyType" minOccurs="0"
+                        maxOccurs="1"/>
+                    <element name="remark" type="diggs:RemarkPropertyType" minOccurs="0"
+                        maxOccurs="unbounded"/>
+                    <element name="businessAssociate" type="diggs:BusinessAssociatePropertyType"
+                        maxOccurs="unbounded" minOccurs="1">
+                        <annotation>
+                            <documentation>The business associate performing the
+                                role.</documentation>
+                        </annotation>
+                    </element>
+                </sequence>
+            </extension>
+        </complexContent>
+    </complexType>
+    
+    <!-- ================================================================ -->
+    <!-- SAMPLEPRODUCED         .                                                   -->
+    <!-- ================================================================ -->
+  
+    <element name="SampleProduced" type="diggs:SampleProducedType"
+        substitutionGroup="diggs:AbstractObject">
+        <annotation>
+            <documentation>An object that defines the location of a sample produced by a sampling
+                activity.</documentation>
+        </annotation>
+    </element>
+    
+    <complexType name="SampleProducedType">
+        <complexContent>
+            <extension base="diggs:AbstractObjectType">
+                <sequence>
+                    <element minOccurs="0" ref="diggs:location"/>
+                    <element minOccurs="0" name="sampleTime" type="diggs:TimeIntervalPropertyType">
+                        <annotation>
+                            <documentation>The start and end time of sample collection.</documentation>
+                        </annotation>
+                    </element>
+                </sequence>
+            </extension>
+        </complexContent>
+    </complexType>
+  
+    <!-- ================================================================ -->
+    <!-- TIMEINTERVAL .                                                   -->
+    <!-- ================================================================ -->
+    
+    <element name="TimeInterval" type="diggs:TimeIntervalType">
+        <annotation>
+            <documentation>An interval of time, expressed by a start and end time, or optionally as
+                a start time, end time and/or duration.</documentation>
+        </annotation>
+    </element>
+    
+    <complexType name="TimeIntervalType">
+        <annotation>
+            <documentation/>
+        </annotation>
+        <complexContent>
+            <extension base="diggs:AbstractObjectType">
+                <sequence>
+                    <element name="start" type="gml:TimePositionType" maxOccurs="1" minOccurs="1">
+                        <annotation>
+                            <documentation>The date/time that begins the interval</documentation>
+                        </annotation>
+                    </element>
+                    <element name="end" type="gml:TimePositionType" maxOccurs="1" minOccurs="0">
+                        <annotation>
+                            <documentation>The date/time that ends the interval.</documentation>
+                        </annotation>
+                    </element>
+                    <element name="duration" type="diggs:TimeMeasureType" maxOccurs="1"
+                        minOccurs="0">
+                        <annotation>
+                            <documentation>The duration of time since start.</documentation>
+                        </annotation>
+                    </element>
+                </sequence>
+            </extension>
+        </complexContent>
+    </complexType>
+    
+    <!-- ================================================================ -->
+    <!-- UNCERTAINTY         .                                                   -->
+    <!-- ================================================================ -->
+    
+    <element name="Uncertainty" type="diggs:UncertaintyType"
+        substitutionGroup="diggs:AbstractObject" abstract="false">
+        <annotation>
+            <documentation>An object containing properties describing location
+                uncertainties.</documentation>
+        </annotation>
+    </element>
+    
+    <complexType name="UncertaintyType">
+        <complexContent>
+            <extension base="diggs:AbstractObjectType">
+                <sequence>
+                    <element minOccurs="0" name="plusUncertaintyValue"
+                        type="diggs:DescriptorValueType">
+                        <annotation>
+                            <documentation>Uncertainty is reported as +/- from the reported value.</documentation>
+                        </annotation>
+                    </element>
+                    <element minOccurs="0" name="minusUncertaintyValue"
+                        type="diggs:DescriptorValueType">
+                        <annotation>
+                            <documentation>Uncertainty is reported as +/- from the reported value.</documentation>
+                        </annotation>
+                    </element>
+                    <element minOccurs="0" name="confidenceLevel"
+                        type="diggs:DimensionlessMeasureType">
+                        <annotation>
+                            <documentation>Reported as a percentage (eg. 95%)</documentation>
+                        </annotation>
+                    </element>
+                </sequence>
+            </extension>
+        </complexContent>
+    </complexType>
+
+
+</schema>
