@@ -1,0 +1,257 @@
+<?xml version="1.0" encoding="utf-8"?>
+<schema xmlns="http://www.w3.org/2001/XMLSchema" xmlns:diggs="http://diggsml.org/schemas/3.0"
+    xmlns:gml="http://www.opengis.net/gml/3.2"
+    xmlns:vc="http://www.w3.org/2007/XMLSchema-versioning" vc:maxVersion="1.1" vc:minVersion="1.0"
+    elementFormDefault="qualified" targetNamespace="http://diggsml.org/schemas/3.0" version="3.0b">
+
+    <import namespace="http://www.opengis.net/gml/3.2" schemaLocation="gml3.2Profile_diggs.xsd"/>
+
+    <complexType name="SolidType">
+        <complexContent>
+            <extension base="diggs:AbstractVolumeType"> </extension>
+        </complexContent>
+    </complexType>
+    <element name="Solid" substitutionGroup="diggs:AbstractVolume" type="diggs:SolidType">
+        <annotation>
+            <documentation>A Diggs geometry object that forms the basis for 3-dimensional geometry.
+                The extent of a solid is defined by the boundary surfaces. exterior specifies the
+                outer boundary, interior the inner boundary of the solid.</documentation>
+        </annotation>
+    </element>
+    <complexType name="ShellType">
+        <complexContent>
+            <extension base="diggs:AbstractSurfaceType">
+                <sequence>
+                    <element maxOccurs="unbounded" ref="gml:surfaceMember"/>
+                    <element minOccurs="0" name="uncertainty" type="diggs:UncertaintyPropertyType"/>
+                </sequence>
+                <attributeGroup ref="gml:AggregationAttributeGroup"/>
+            </extension>
+        </complexContent>
+    </complexType>
+    <element name="Shell" substitutionGroup="diggs:AbstractSurface" type="diggs:ShellType">
+        <annotation>
+            <documentation>A shell is used to represent a single connected component of the boundary
+                of a 3D solid. Every diggs:surfaceMember references or contains one surface, i.e.
+                any element which is substitutable for diggs:AbstractSurface. In the context of a
+                shell, the surfaces describe the boundary of the solid. If provided, the
+                aggregationType attribute shall have the value "set". </documentation>
+        </annotation>
+    </element>
+    <complexType name="ShellPropertyType">
+        <annotation>
+            <documentation>A property with the content model of gml:ShellPropertyType encapsulates a
+                shell to represent a component of a solid boundary.</documentation>
+        </annotation>
+        <sequence>
+            <element ref="diggs:Shell"/>
+        </sequence>
+    </complexType>
+    <complexType name="RectifiedGridType">
+        <complexContent>
+            <extension base="diggs:GridType">
+                <sequence>
+                    <element name="origin" type="diggs:PointLocationPropertyType"/>
+                    <element maxOccurs="unbounded" name="offsetVector" type="gml:VectorType"/>
+                    <element minOccurs="0" name="uncertainty"
+                        type="diggs:LocationUncertaintyPropertyType"/>
+                </sequence>
+            </extension>
+        </complexContent>
+    </complexType>
+    <element name="RectifiedGrid" substitutionGroup="diggs:AbstractGeometry"
+        type="diggs:RectifiedGridType"/>
+    <element name="Grid" type="diggs:GridType"/>
+    <complexType name="GridType">
+        <complexContent>
+            <extension base="diggs:AbstractGeometryType">
+                <sequence>
+                    <element name="limits" type="gml:GridLimitsType"/>
+                    <choice>
+                        <element name="axisLabels" type="gml:NCNameList"/>
+                        <element maxOccurs="unbounded" name="axisName" type="string"/>
+                    </choice>
+                </sequence>
+                <attribute name="dimension" type="positiveInteger" use="required"/>
+            </extension>
+        </complexContent>
+    </complexType>
+    <complexType name="PolygonPatchType">
+        <complexContent>
+            <extension base="gml:AbstractSurfacePatchType">
+                <sequence>
+                    <element minOccurs="0" ref="gml:exterior"/>
+                    <element maxOccurs="unbounded" minOccurs="0" ref="gml:interior"/>
+                    <element minOccurs="0" name="uncertainty" type="diggs:UncertaintyPropertyType"/>
+                </sequence>
+                <attribute fixed="planar" name="interpolation" type="gml:SurfaceInterpolationType"/>
+            </extension>
+        </complexContent>
+    </complexType>
+    <element name="PolygonPatch" substitutionGroup="gml:AbstractSurfacePatch"
+        type="diggs:PolygonPatchType">
+        <annotation>
+            <documentation>A Diggs geometry object defining a polygon that serves as the definition
+                of a patch comprising a MultiPlanarSurface</documentation>
+        </annotation>
+    </element>
+    <complexType name="PolygonType">
+        <complexContent>
+            <extension base="diggs:AbstractSurfaceType">
+                <sequence>
+                    <element minOccurs="0" ref="gml:exterior"/>
+                    <element maxOccurs="unbounded" minOccurs="0" ref="gml:interior"/>
+                    <element minOccurs="0" name="uncertainty"
+                        type="diggs:LocationUncertaintyPropertyType"/>
+                </sequence>
+            </extension>
+        </complexContent>
+    </complexType>
+    <element name="PlanarSurface" substitutionGroup="diggs:AbstractSurface" type="diggs:PolygonType">
+        <annotation>
+            <documentation>A Diggs geometry object that represents a surface that lies within a
+                single plain. It's properties are of a polygon with an outer ring and optionally
+                multiple inner rings The coordinate points that define all of the rings must be
+                coplanar</documentation>
+        </annotation>
+    </element>
+    <complexType name="MultiPlanarSurfaceType">
+        <complexContent>
+            <extension base="diggs:AbstractSurfaceType">
+                <sequence>
+                    <element ref="gml:patches"/>
+                </sequence>
+            </extension>
+        </complexContent>
+    </complexType>
+    <element name="MultiPlanarSurface" substitutionGroup="diggs:AbstractSurface"
+        type="diggs:MultiPlanarSurfaceType">
+        <annotation>
+            <documentation>A Diggs geometry object that represents a surface that does not lie
+                within a single plane. It contains an array of polygon patches, each of which
+                contain and inner and optionally outer ring that define the extent of the patch. All
+                of the coordinate points within a patch must be coplanar, and each patch must share
+                an edge with an adjacent patch to form a continuous surface. </documentation>
+        </annotation>
+    </element>
+    <element name="MultiCurve" substitutionGroup="diggs:AbstractGeometry"
+        type="diggs:MultiCurveType">
+        <annotation>
+            <documentation>A Diggs geometry object that holds a collection of curve
+                geometries.</documentation>
+        </annotation>
+    </element>
+    <complexType name="MultiCurvePropertyType">
+        <sequence>
+            <element ref="diggs:MultiCurve"/>
+        </sequence>
+    </complexType>
+    <complexType name="MultiCurveType">
+        <complexContent>
+            <extension base="diggs:AbstractGeometricAggregateType">
+                <sequence>
+                    <element maxOccurs="1" minOccurs="0" ref="diggs:curveMembers"/>
+                </sequence>
+            </extension>
+        </complexContent>
+    </complexType>
+    <element name="curveMembers" type="diggs:curveMembersArrayPropertyType"/>
+    <complexType name="curveMembersArrayPropertyType">
+        <sequence maxOccurs="unbounded">
+            <element ref="diggs:LinearExtent"/>
+        </sequence>
+    </complexType>
+    <element name="PlanarObservationRepresentation" substitutionGroup="diggs:AbstractGeometry"
+        type="diggs:PlanarObservationRepresentationType">
+        <annotation>
+            <documentation>An object that defines the planar extent, top and bottom locations of a planar surface observation.In practical usage, the PlanarSurfaceRepresentation incorporates the geometries of the top and bottom surfaces of a volume of earth material where they contact a planar surface, such as a geologic contact or stratigraphic boundary and the area (as a surface) between the two contacts.</documentation>
+        </annotation>
+    </element>
+    <complexType name="PlanarObservationRepresentationType">
+        <complexContent>
+            <extension base="diggs:AbstractGeometryType">
+                <sequence>
+                    <element name="layerTopIntersection" type="diggs:LinearExtentPropertyType">
+                        <annotation>
+                            <documentation>The line that represents the intersection of the top surface of a volume of earth material or othrewise) with a planar sampling feature.</documentation>
+                        </annotation>
+                    </element>
+                    <element name="layerBaseIntersection" type="diggs:LinearExtentPropertyType">
+                        <annotation>
+                            <documentation>The location of the basal surface of a layer (a volume of
+                                earth material) that intersects a planar sampling feature. Depending
+                                on how a planar sampling feature is encoded, there could be multiple
+                                line strings that define this basal surface.</documentation>
+                        </annotation>
+                    </element>
+                    <element maxOccurs="unbounded" name="representativeSurface"
+                        type="diggs:SurfacePropertyType">
+                        <annotation>
+                            <documentation>One or more polygons that represent the layer volume in
+                                the plane of the planar sampling feature. This would typically be a
+                                ring polygon with curve members that consist of the layer top
+                                intersection, layer bottom intersection, and two edges that would
+                                normally be at the lateral extent of the planar
+                                feature.</documentation>
+                        </annotation>
+                    </element>
+                </sequence>
+            </extension>
+        </complexContent>
+    </complexType>
+    <complexType name="TimeArrayPropertyType">
+        <sequence maxOccurs="1" minOccurs="1">
+            <element ref="gml:TimeInstant"/>
+        </sequence>
+    </complexType>
+    <complexType name="TimePositionListType">
+        <complexContent>
+            <extension base="diggs:AbstractTimeObjectType">
+                <sequence>
+                    <element name="timePositionList" type="diggs:TimeListSimpleType"/>
+                </sequence>
+            </extension>
+        </complexContent>
+    </complexType>
+    <element name="TimePositionList" substitutionGroup="diggs:AbstractTimeObject"
+        type="diggs:TimePositionListType">
+        <annotation>
+            <documentation>A DIGGS time object with a property containing a list of time instances
+                expressed as xsd:DateTime values.</documentation>
+        </annotation>
+    </element>
+    <element name="TimeIntervalList" substitutionGroup="diggs:AbstractTimeObject"
+        type="diggs:TimeIntervalListType">
+        <annotation>
+            <documentation>A DIGGS time object with a property that contains a list of time
+                intervals (duration or elapsed time) expressed as xsd:Decimal values. unit attribute
+                provides the time unit for the list</documentation>
+        </annotation>
+    </element>
+    <complexType name="TimeIntervalListType">
+        <complexContent>
+            <extension base="diggs:AbstractTimeObjectType">
+                <sequence>
+                    <element ref="diggs:timeIntervalList"/>
+                </sequence>
+                <attribute name="unit" type="gml:TimeUnitType" use="required"/>
+                <attribute name="radix" type="positiveInteger"/>
+                <attribute name="factor" type="integer"/>
+            </extension>
+        </complexContent>
+    </complexType>
+    <simpleType name="TimeListSimpleType">
+        <annotation>
+            <documentation>A list of dateTime instances</documentation>
+        </annotation>
+        <list itemType="gml:TimePositionUnion"/>
+    </simpleType>
+    <element name="timeIntervalList" type="diggs:TimeIntervalListSimpleType"/>
+    <simpleType name="TimeIntervalListSimpleType">
+        <annotation>
+            <documentation>A list of decimal values representing time intervals (duration or elapsed
+                time) instances.</documentation>
+        </annotation>
+        <list itemType="decimal"/>
+    </simpleType>
+</schema>

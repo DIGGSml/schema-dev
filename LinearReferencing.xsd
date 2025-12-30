@@ -1,9 +1,9 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <schema xmlns="http://www.w3.org/2001/XMLSchema" xmlns:diggs="http://diggsml.org/schemas/3.0"
-    xmlns:gml="http://www.opengis.net/gml/3.2" xmlns:glr="http://www.opengis.net/gml/3.3/lr"
-    xmlns:eml="http://www.energistics.org/energyml/data/commonv2"
-    targetNamespace="http://diggsml.org/schemas/3.0" elementFormDefault="qualified"
-    attributeFormDefault="unqualified" version="3.0b">
+    xmlns:glr="http://www.opengis.net/gml/3.3/lr" xmlns:glrov="http://www.opengis.net/gml/3.3/lrov"
+    xmlns:gml="http://www.opengis.net/gml/3.2"
+    xmlns:vc="http://www.w3.org/2007/XMLSchema-versioning" vc:maxVersion="1.1" vc:minVersion="1.0"
+    elementFormDefault="qualified" targetNamespace="http://diggsml.org/schemas/3.0" version="3.0b">
 
     <annotation>
         <documentation>
@@ -44,10 +44,9 @@
     <import namespace="http://www.opengis.net/gml/3.2"
         schemaLocation="http://schemas.opengis.net/gml/3.2.1/gml.xsd"/>
 
-    <import namespace="http://www.energistics.org/energyml/data/commonv2"
-        schemaLocation="energistics/2.0/data/common/v2.1/xsd_schemas/EmlAllObjects.xsd"/>
-
     <import namespace="http://www.opengis.net/gml/3.3/lr" schemaLocation="glrProfile_diggs.xsd"/>
+
+    <import namespace="http://www.opengis.net/gml/3.3/lrov" schemaLocation="glrovProfile_diggs.xsd"/>
 
 
     <!-- ============================================================ -->
@@ -654,6 +653,7 @@
         </annotation>
         <union memberTypes="diggs:OtherNameType diggs:LinearReferencingMethodTypeEnum"/>
     </simpleType>
+
     <simpleType name="LinearReferencingMethodNameEnum">
         <annotation>
             <documentation>An enumerated list of informative values of Linear Referencing Method names relevent to geotechnical and geoenvironmental engineering purposes. The terms are DIGGS-specific names, as extensions of the transportation-related names specified in ISO 19148:2021.</documentation>
@@ -784,12 +784,14 @@
             </enumeration>
         </restriction>
     </simpleType>
+
     <simpleType name="LinearReferencingNameTypeEnumType">
         <annotation>
             <documentation>Nmaes of geotechnical-specific linear referencing methods, extended to include Other: (,2) to allow for non-standard LRM types</documentation>
         </annotation>
         <union memberTypes="diggs:OtherNameType diggs:LinearReferencingMethodNameEnum"/>
     </simpleType>
+
     <simpleType name="PositiveDirectionEnumType">
         <annotation>
             <documentation>
@@ -1221,5 +1223,89 @@
         </annotation>
         <union memberTypes="diggs:OtherNameType diggs:ReferentTypeEnum"/>
     </simpleType>
+
+    <!-- ============================================================ -->
+    <!-- DEPRECATED ELEMENTS                                          -->
+    <!-- ============================================================ -->
+
+    <element name="linearReferencingMethodUncertainty" type="diggs:UncertaintyPropertyType">
+        <annotation>
+            <documentation>Provides accuracy value (usually a length measure) for
+                the location (geometry) elements that use this linear reference
+                system for their SRS. DEPRECATED Uncertainties should be reported within the LinearExtent
+                element used by this LRS.</documentation>
+        </annotation>
+    </element>
+
+    <element abstract="true" name="AbstractRelativeReferenceSystem"
+        type="diggs:AbstractRelativeReferenceSystemType">
+        <annotation>
+            <documentation>BAse type for linear or vector linear relative spatial reference
+                systems. DEPRECATED. Use diggs:LinearSRS for linear referencing, EngineeringCRS for 2D relative referencing.</documentation>
+        </annotation>
+    </element>
+
+    <complexType name="AbstractRelativeReferenceSystemPropertyType">
+        <sequence>
+            <element maxOccurs="1" minOccurs="1" ref="diggs:AbstractRelativeReferenceSystem"/>
+        </sequence>
+    </complexType>
+
+    <complexType name="AbstractRelativeReferenceSystemType">
+        <complexContent>
+            <extension base="glr:LinearSRSType"/>
+        </complexContent>
+    </complexType>
+
+    <element name="VectorLinearSpatialReferenceSystem"
+        type="diggs:VectorLinearSpatialReferenceSystemType"
+        substitutionGroup="diggs:AbstractRelativeReferenceSystem">
+        <annotation>
+            <documentation>An object extending glr:LinearSRS to add an offset vector to fix a planar
+                orientation, this fixing a planar relative spatial reference system </documentation>
+        </annotation>
+    </element>
+
+    <complexType name="VectorLinearSpatialReferenceSystemPropertyType">
+        <choice>
+            <element ref="diggs:VectorLinearSpatialReferenceSystem"/>
+        </choice>
+    </complexType>
+
+    <complexType name="VectorLinearSpatialReferenceSystemType">
+        <complexContent>
+            <extension base="diggs:AbstractRelativeReferenceSystemType">
+                <sequence>
+                    <element name="offsetVector" type="glrov:VectorType" maxOccurs="3" minOccurs="1">
+                        <annotation>
+                            <documentation>A unit vector that defines the orientation of the planar
+                                surface extending from the planar surface's reference edge</documentation>
+                        </annotation>
+                    </element>
+                    <!-- glrov:VectorType add uom attribute to gml:VectorType -->
+                    <element minOccurs="0" name="linearReferencingMethodUncertainty"
+                        type="diggs:LocationUncertaintyPropertyType">
+                        <annotation>
+                            <documentation>Provides accuracy value (usually a length measure) for
+                                the location (geometry) elements that use this linear reference
+                                system for their SRS. For example, for depths in a hole, this
+                                property could provide information as to the source and accuracy of
+                                depth values that relate to this reference system. If individual
+                                elements that refer to this reference system have different
+                                uncertainties, those uncertainties are reported within those
+                                elements themselves.</documentation>
+                        </annotation>
+                    </element>
+                    <element minOccurs="0" name="vectorOffsetUncertainty"
+                        type="diggs:LocationUncertaintyPropertyType">
+                        <annotation>
+                            <documentation>Provides accuracy value for the offset
+                                vector</documentation>
+                        </annotation>
+                    </element>
+                </sequence>
+            </extension>
+        </complexContent>
+    </complexType>
 
 </schema>
