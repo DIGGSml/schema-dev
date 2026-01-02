@@ -5,8 +5,59 @@
     elementFormDefault="qualified" targetNamespace="http://diggsml.org/schemas/3.0" version="3.0b">
 
     <import namespace="http://www.opengis.net/gml/3.2" schemaLocation="gml3.2Profile_diggs.xsd"/>
+    <import namespace="http://www.opengis.net/gml/3.2" schemaLocation="gml3.2Profile_diggs.xsd"/>
+    <element abstract="true" name="AbstractVolume" type="diggs:AbstractVolumeType"
+        substitutionGroup="diggs:AbstractGeometricPrimitive">
+        <annotation>
+            <documentation>The head of a substitution group for 3D geometries</documentation>
+        </annotation>
+    </element>
+    <complexType abstract="true" name="AbstractVolumeType">
+        <annotation>
+            <documentation>diggs:AbstractSolidType is an abstraction of a solid to support the
+                different levels of complexity. The solid may always be viewed as a geometric
+                primitive, i.e. is continuous.</documentation>
+        </annotation>
+        <complexContent>
+            <extension base="diggs:AbstractGeometricPrimitiveType">
+                <sequence>
+                    <element minOccurs="0" name="exterior" type="gml:ShellPropertyType">
+                        <annotation>
+                            <documentation>The exterior boundary surface of the volume. Defines the outer shell that encloses the three-dimensional feature. For solid volumes, this is the only boundary surface needed.</documentation>
+                        </annotation>
+                    </element>
+                    <element maxOccurs="unbounded" minOccurs="0" name="interior"
+                        type="gml:ShellPropertyType">
+                        <annotation>
+                            <documentation>Interior boundary surfaces (voids or holes) within the volume. Defines hollow spaces or cavities inside the three-dimensional feature. Multiple interior boundaries can be specified for complex geometries with multiple voids. Optional - not needed for solid volumes without internal voids.</documentation>
+                        </annotation>
+                    </element>
+                    <element minOccurs="0" name="uncertainty" type="diggs:UncertaintyPropertyType"/>
+                </sequence>
+            </extension>
+        </complexContent>
+    </complexType>
 
+    <complexType name="VolumePropertyType">
+        <annotation>
+            <documentation>Complex type: VolumePropertyType</documentation>
+        </annotation>
+        <complexContent>
+            <restriction base="gml:DomainSetType">
+                <sequence minOccurs="0">
+                    <choice>
+                        <element ref="diggs:AbstractVolume"/>
+                    </choice>
+                </sequence>
+                <attributeGroup ref="gml:OwnershipAttributeGroup"/>
+                <attributeGroup ref="gml:AssociationAttributeGroup"/>
+            </restriction>
+        </complexContent>
+    </complexType>
     <complexType name="SolidType">
+        <annotation>
+            <documentation>Concrete type extending AbstractVolumeType. Provides implementation for solid type.</documentation>
+        </annotation>
         <complexContent>
             <extension base="diggs:AbstractVolumeType"> </extension>
         </complexContent>
@@ -18,18 +69,7 @@
                 outer boundary, interior the inner boundary of the solid.</documentation>
         </annotation>
     </element>
-    <complexType name="ShellType">
-        <complexContent>
-            <extension base="diggs:AbstractSurfaceType">
-                <sequence>
-                    <element maxOccurs="unbounded" ref="gml:surfaceMember"/>
-                    <element minOccurs="0" name="uncertainty" type="diggs:UncertaintyPropertyType"/>
-                </sequence>
-                <attributeGroup ref="gml:AggregationAttributeGroup"/>
-            </extension>
-        </complexContent>
-    </complexType>
-    <element name="Shell" substitutionGroup="diggs:AbstractSurface" type="diggs:ShellType">
+    <element name="Shell" substitutionGroup="gml:AbstractSurface" type="diggs:ShellType">
         <annotation>
             <documentation>A shell is used to represent a single connected component of the boundary
                 of a 3D solid. Every diggs:surfaceMember references or contains one surface, i.e.
@@ -38,6 +78,29 @@
                 aggregationType attribute shall have the value "set". </documentation>
         </annotation>
     </element>
+    <complexType name="ShellBaseType">
+        <complexContent>
+            <restriction base="gml:AbstractSurfaceType"/>
+        </complexContent>
+    </complexType>
+    <complexType name="ShellType">
+        <annotation>
+            <documentation>Extended type based on AbstractVolumeType. Adds elements for shell type definition.</documentation>
+        </annotation>
+        <complexContent>
+            <extension base="diggs:ShellBaseType">
+                <sequence>
+                    <element minOccurs="1" ref="gml:surfaceMembers"/>
+                    <element minOccurs="0" name="uncertainty" type="diggs:UncertaintyPropertyType">
+                        <annotation>
+                            <documentation>The uncertainty property.</documentation>
+                        </annotation>
+                    </element>
+                </sequence>
+                <attributeGroup ref="gml:AggregationAttributeGroup"/>
+            </extension>
+        </complexContent>
+    </complexType>
     <complexType name="ShellPropertyType">
         <annotation>
             <documentation>A property with the content model of gml:ShellPropertyType encapsulates a
@@ -47,44 +110,26 @@
             <element ref="diggs:Shell"/>
         </sequence>
     </complexType>
-    <complexType name="RectifiedGridType">
-        <complexContent>
-            <extension base="diggs:GridType">
-                <sequence>
-                    <element name="origin" type="diggs:PointLocationPropertyType"/>
-                    <element maxOccurs="unbounded" name="offsetVector" type="gml:VectorType"/>
-                    <element minOccurs="0" name="uncertainty"
-                        type="diggs:LocationUncertaintyPropertyType"/>
-                </sequence>
-            </extension>
-        </complexContent>
-    </complexType>
-    <element name="RectifiedGrid" substitutionGroup="diggs:AbstractGeometry"
-        type="diggs:RectifiedGridType"/>
-    <element name="Grid" type="diggs:GridType"/>
-    <complexType name="GridType">
-        <complexContent>
-            <extension base="diggs:AbstractGeometryType">
-                <sequence>
-                    <element name="limits" type="gml:GridLimitsType"/>
-                    <choice>
-                        <element name="axisLabels" type="gml:NCNameList"/>
-                        <element maxOccurs="unbounded" name="axisName" type="string"/>
-                    </choice>
-                </sequence>
-                <attribute name="dimension" type="positiveInteger" use="required"/>
-            </extension>
-        </complexContent>
-    </complexType>
     <complexType name="PolygonPatchType">
+        <annotation>
+            <documentation>Extended type based on AbstractSurfacePatchType. Adds elements for polygon patch type definition.</documentation>
+        </annotation>
         <complexContent>
             <extension base="gml:AbstractSurfacePatchType">
                 <sequence>
                     <element minOccurs="0" ref="gml:exterior"/>
                     <element maxOccurs="unbounded" minOccurs="0" ref="gml:interior"/>
-                    <element minOccurs="0" name="uncertainty" type="diggs:UncertaintyPropertyType"/>
+                    <element minOccurs="0" name="uncertainty" type="diggs:UncertaintyPropertyType">
+                        <annotation>
+                            <documentation>The uncertainty property.</documentation>
+                        </annotation>
+                    </element>
                 </sequence>
-                <attribute fixed="planar" name="interpolation" type="gml:SurfaceInterpolationType"/>
+                <attribute fixed="planar" name="interpolation" type="gml:SurfaceInterpolationType">
+                    <annotation>
+                        <documentation>The interpolation attribute.</documentation>
+                    </annotation>
+                </attribute>
             </extension>
         </complexContent>
     </complexType>
@@ -95,19 +140,7 @@
                 of a patch comprising a MultiPlanarSurface</documentation>
         </annotation>
     </element>
-    <complexType name="PolygonType">
-        <complexContent>
-            <extension base="diggs:AbstractSurfaceType">
-                <sequence>
-                    <element minOccurs="0" ref="gml:exterior"/>
-                    <element maxOccurs="unbounded" minOccurs="0" ref="gml:interior"/>
-                    <element minOccurs="0" name="uncertainty"
-                        type="diggs:LocationUncertaintyPropertyType"/>
-                </sequence>
-            </extension>
-        </complexContent>
-    </complexType>
-    <element name="PlanarSurface" substitutionGroup="diggs:AbstractSurface" type="diggs:PolygonType">
+    <element name="Polygon" substitutionGroup="gml:AbstractSurface" type="diggs:PolygonType">
         <annotation>
             <documentation>A Diggs geometry object that represents a surface that lies within a
                 single plain. It's properties are of a polygon with an outer ring and optionally
@@ -115,11 +148,26 @@
                 coplanar</documentation>
         </annotation>
     </element>
-    <complexType name="MultiPlanarSurfaceType">
+    <complexType name="PolygonBaseType">
         <complexContent>
-            <extension base="diggs:AbstractSurfaceType">
+            <restriction base="gml:AbstractSurfaceType"> </restriction>
+        </complexContent>
+    </complexType>
+    <complexType name="PolygonType">
+        <annotation>
+            <documentation>Extended type based on AbstractSurfaceType. Adds elements for polygon type definition.</documentation>
+        </annotation>
+        <complexContent>
+            <extension base="diggs:PolygonBaseType">
                 <sequence>
-                    <element ref="gml:patches"/>
+                    <element minOccurs="0" ref="gml:exterior"/>
+                    <element maxOccurs="unbounded" minOccurs="0" ref="gml:interior"/>
+                    <element minOccurs="0" name="uncertainty"
+                        type="diggs:LocationUncertaintyPropertyType">
+                        <annotation>
+                            <documentation>The uncertainty property.</documentation>
+                        </annotation>
+                    </element>
                 </sequence>
             </extension>
         </complexContent>
@@ -134,29 +182,53 @@
                 an edge with an adjacent patch to form a continuous surface. </documentation>
         </annotation>
     </element>
-    <element name="MultiCurve" substitutionGroup="diggs:AbstractGeometry"
-        type="diggs:MultiCurveType">
+    <complexType name="MultiPlanarSurfaceType">
+        <annotation>
+            <documentation>Extended type based on AbstractSurfaceType. Adds elements for multi planar surface type definition.</documentation>
+        </annotation>
+        <complexContent>
+            <extension base="diggs:AbstractSurfaceType">
+                <sequence>
+                    <element ref="gml:patches"/>
+                </sequence>
+            </extension>
+        </complexContent>
+    </complexType>
+    <element name="MultiCurve" substitutionGroup="diggs:AbstractCurve" type="diggs:MultiCurveType">
         <annotation>
             <documentation>A Diggs geometry object that holds a collection of curve
                 geometries.</documentation>
         </annotation>
     </element>
     <complexType name="MultiCurvePropertyType">
+        <annotation>
+            <documentation>Property type for multi curve references. Used to wrap multi curve objects or references in properties.</documentation>
+        </annotation>
         <sequence>
             <element ref="diggs:MultiCurve"/>
         </sequence>
     </complexType>
     <complexType name="MultiCurveType">
+        <annotation>
+            <documentation>Extended type based on AbstractGeometricAggregateType. Adds elements for multi curve type definition.</documentation>
+        </annotation>
         <complexContent>
-            <extension base="diggs:AbstractGeometricAggregateType">
+            <extension base="diggs:AbstractCurveType">
                 <sequence>
                     <element maxOccurs="1" minOccurs="0" ref="diggs:curveMembers"/>
                 </sequence>
             </extension>
         </complexContent>
     </complexType>
-    <element name="curveMembers" type="diggs:curveMembersArrayPropertyType"/>
+    <element name="curveMembers" type="diggs:curveMembersArrayPropertyType">
+        <annotation>
+            <documentation>The curve members property.</documentation>
+        </annotation>
+    </element>
     <complexType name="curveMembersArrayPropertyType">
+        <annotation>
+            <documentation>Property type for curve members array references. Used to wrap curve members array objects or references in properties.</documentation>
+        </annotation>
         <sequence maxOccurs="unbounded">
             <element ref="diggs:LinearExtent"/>
         </sequence>
@@ -168,6 +240,9 @@
         </annotation>
     </element>
     <complexType name="PlanarObservationRepresentationType">
+        <annotation>
+            <documentation>Extended type based on AbstractGeometryType. Adds elements for planar observation representation type definition.</documentation>
+        </annotation>
         <complexContent>
             <extension base="diggs:AbstractGeometryType">
                 <sequence>
@@ -200,15 +275,25 @@
         </complexContent>
     </complexType>
     <complexType name="TimeArrayPropertyType">
+        <annotation>
+            <documentation>Property type for time array references. Used to wrap time array objects or references in properties.</documentation>
+        </annotation>
         <sequence maxOccurs="1" minOccurs="1">
             <element ref="gml:TimeInstant"/>
         </sequence>
     </complexType>
     <complexType name="TimePositionListType">
+        <annotation>
+            <documentation>Extended type based on AbstractTimeObjectType. Adds elements for time position list type definition.</documentation>
+        </annotation>
         <complexContent>
             <extension base="diggs:AbstractTimeObjectType">
                 <sequence>
-                    <element name="timePositionList" type="diggs:TimeListSimpleType"/>
+                    <element name="timePositionList" type="diggs:TimeListSimpleType">
+                        <annotation>
+                            <documentation>The time position list property.</documentation>
+                        </annotation>
+                    </element>
                 </sequence>
             </extension>
         </complexContent>
@@ -229,14 +314,29 @@
         </annotation>
     </element>
     <complexType name="TimeIntervalListType">
+        <annotation>
+            <documentation>Extended type based on AbstractTimeObjectType. Adds elements for time interval list type definition.</documentation>
+        </annotation>
         <complexContent>
             <extension base="diggs:AbstractTimeObjectType">
                 <sequence>
                     <element ref="diggs:timeIntervalList"/>
                 </sequence>
-                <attribute name="unit" type="gml:TimeUnitType" use="required"/>
-                <attribute name="radix" type="positiveInteger"/>
-                <attribute name="factor" type="integer"/>
+                <attribute name="unit" type="gml:TimeUnitType" use="required">
+                    <annotation>
+                        <documentation>The unit attribute.</documentation>
+                    </annotation>
+                </attribute>
+                <attribute name="radix" type="positiveInteger">
+                    <annotation>
+                        <documentation>The radix attribute.</documentation>
+                    </annotation>
+                </attribute>
+                <attribute name="factor" type="integer">
+                    <annotation>
+                        <documentation>The factor attribute.</documentation>
+                    </annotation>
+                </attribute>
             </extension>
         </complexContent>
     </complexType>
@@ -246,7 +346,11 @@
         </annotation>
         <list itemType="gml:TimePositionUnion"/>
     </simpleType>
-    <element name="timeIntervalList" type="diggs:TimeIntervalListSimpleType"/>
+    <element name="timeIntervalList" type="diggs:TimeIntervalListSimpleType">
+        <annotation>
+            <documentation>The time interval list property.</documentation>
+        </annotation>
+    </element>
     <simpleType name="TimeIntervalListSimpleType">
         <annotation>
             <documentation>A list of decimal values representing time intervals (duration or elapsed

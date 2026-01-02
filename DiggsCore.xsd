@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="utf-8"?>
-  <schema xmlns="http://www.w3.org/2001/XMLSchema" xmlns:diggs="http://diggsml.org/schemas/3.0"
+<schema xmlns="http://www.w3.org/2001/XMLSchema" xmlns:diggs="http://diggsml.org/schemas/3.0"
   xmlns:gml="http://www.opengis.net/gml/3.2" xmlns:vc="http://www.w3.org/2007/XMLSchema-versioning"
   vc:maxVersion="1.1" vc:minVersion="1.0" elementFormDefault="qualified"
   targetNamespace="http://diggsml.org/schemas/3.0" version="3.0b">
@@ -7,66 +7,255 @@
   <!-- ================================================================ -->
   <!-- MAIN SCHEMA FILE FOR DIGGS CORE GEOTECHNICAL PROFILE             -->
   <!-- ================================================================ -->
- 
+  <!-- This is the schema file for the DIGGS Core profile, which       -->
+  <!-- provides essential geotechnical data exchange capabilities for  -->
+  <!-- basic site investigations including boreholes, samples, and     -->
+  <!-- common field and laboratory tests. This profile omits extended  -->
+  <!-- and specialty modules for applications requiring only core      -->
+  <!-- functionality.                                                   -->
+  <!-- ================================================================ -->
+
   <!-- ================================================================ -->
   <!-- IMPORTS                                                          -->
   <!-- ================================================================ -->
-  
-  <import namespace="http://www.opengis.net/gml/3.2" schemaLocation="gml3.2Profile_diggs.xsd"/>
-  <import namespace="http://www.w3.org/XML/1998/namespace" schemaLocation="xml.xsd"/>
-  
+
+  <import namespace="http://www.opengis.net/gml/3.2" schemaLocation="gml3.2Profile_diggs.xsd">
+    <annotation>
+      <documentation>Import of the DIGGS profile of GML 3.2.1. This profile includes the essential
+        GML components needed for DIGGS Core features including geometry, temporal objects, units of
+        measure, and feature collections. The GML profile is streamlined to include only those
+        components actually used in DIGGS, reducing schema complexity.</documentation>
+    </annotation>
+  </import>
+
+  <import namespace="http://www.w3.org/XML/1998/namespace" schemaLocation="xml.xsd">
+    <annotation>
+      <documentation>Import of the XML namespace to support the xml:lang attribute for language
+        specification throughout DIGGS documents. This enables internationalization support for
+        multi-language data exchange.</documentation>
+    </annotation>
+  </import>
+
   <!-- Uncomment this import to utilize deprecated objects from the diggs_geo namespace -->
   <!-- <import namespace="http://diggsml.org/schemas/3.0/geotechnical" schemaLocation="Diggs_geo_deprecated.xsd"/>  -->
-  
+
   <!-- ================================================================ -->
   <!-- INCLUDE COMMON SCHEMA FILES                                      -->
   <!-- ================================================================ -->
-  
-  <include schemaLocation="BaseTypes.xsd"/>
-  <include schemaLocation="Common.xsd"/>
-  <include schemaLocation="MeasureTypes.xsd"/>
-  <include schemaLocation="LinearReferencing.xsd"/>
-  <include schemaLocation="LocalReferencing.xsd"/>
-  <include schemaLocation="Dictionary_diggs.xsd"/>
+  <!-- Common modules provide foundational types and structures used    -->
+  <!-- throughout the DIGGS Core profile.                               -->
+  <!-- ================================================================ -->
+
+  <include schemaLocation="AbstractTypes.xsd">
+    <annotation>
+      <documentation>Includes all abstract base types and elements that form the foundation of DIGGS
+        objects. This module contains the inheritance hierarchy for the principal DIGGS object
+        classes (project, program, samplingFeature, samplingActivity, sample, observation,
+        measurements, constructionActivity and groups, and other core abstractions.</documentation>
+    </annotation>
+  </include>
+
+  <include schemaLocation="Common.xsd">
+    <annotation>
+      <documentation>Includes common concrete types, reference element and enumerations used
+        throughout DIGGS including Role, Remark, AssociatedFile, BusinessAssociate, Parameter,
+        Specification, and other frequently-used components.</documentation>
+    </annotation>
+  </include>
+
+  <include schemaLocation="MeasureTypes.xsd">
+    <annotation>
+      <documentation>Includes all measurement and quantity types with proper units of measure.
+        Provides type-safe measurements for length, mass, pressure, temperature, angle, velocity,
+        and other physical quantities used in geotechnical data. Based on the Energistics Units of
+        Measurement Dictionary quantity classes and units with DIGGS-specific
+        extensions.</documentation>
+    </annotation>
+  </include>
+
+  <include schemaLocation="LinearReferencing.xsd">
+    <annotation>
+      <documentation>Includes types and elements for ISO-compliant linear referencing systems.
+        Enables definition of depth-based, station/offset, and other linear coordinate systems for
+        locating measurements and observations along boreholes and other linear sampling features.
+        Supports coordinate transformations between different linear reference
+        methods.</documentation>
+    </annotation>
+  </include>
+
+  <include schemaLocation="LocalReferencing.xsd">
+    <annotation>
+      <documentation>Includes types for local coordinate reference systems (CRS) that are relative
+        to sampling features. Supports engineering coordinate systems, project-specific datums, and
+        custom reference frames. Enables proper documentation of coordinate transformations between
+        local and absolute (geodetic) reference systems.</documentation>
+    </annotation>
+  </include>
+
+  <include schemaLocation="Dictionary_diggs.xsd">
+    <annotation>
+      <documentation>Includes dictionary and controlled vocabulary support based on GML dictionary
+        schema. Provides mechanisms for defining and referencing standardized term lists (e.g., USCS
+        soil classifications, rock type lists), ensuring consistent terminology across data
+        exchanges. Supports both internal and externally-referenced vocabularies.</documentation>
+    </annotation>
+  </include>
 
   <!-- ================================================================ -->
   <!-- INCLUDE CORE SCHEMA FILES                                        -->
   <!-- ================================================================ -->
+  <!-- Core modules provide the essential geotechnical features and     -->
+  <!-- procedures for basic site investigation data exchange.           -->
+  <!-- ================================================================ -->
 
-  <include schemaLocation="Core.xsd"/>
-  <include schemaLocation="CoreProcedures.xsd"/>
-  
+  <include schemaLocation="Core.xsd">
+    <annotation>
+      <documentation>Includes core geotechnical features: Project, Borehole, Sample, Test,
+        MaterialTest, Monitor, and related types. This module provides the fundamental data
+        structures for documenting site investigations including project metadata, borehole
+        construction details, sample descriptions, field testing, and laboratory analysis. This is
+        the heart of the DIGGS Core profile.</documentation>
+    </annotation>
+  </include>
+
+  <include schemaLocation="CoreProcedures.xsd">
+    <annotation>
+      <documentation>Includes standard testing procedures commonly used in geotechnical practice.
+        Provides concrete implementations of frequently-performed field tests (SPT, CPT, vane shear,
+        permeability tests) and laboratory tests (Atterberg limits, grain size analysis, moisture
+        content, unit weight, unconfined compression, direct shear, consolidation). Each procedure
+        type includes appropriate properties for test parameters and results.</documentation>
+    </annotation>
+  </include>
+
+  <include schemaLocation="CoreDomains.xsd">
+    <annotation>
+      <documentation>Incluses basic geometry and time domain objects neceesary for the core
+        schema</documentation>
+    </annotation>
+  </include>
+
+
   <!-- ================================================================ -->
   <!-- DIGGS CORE ROOT ELEMENT                                          -->
   <!-- ================================================================ -->
-  
-  <element name="Diggs" type="diggs:DiggsType" substitutionGroup="gml:AbstractFeature"
-    abstract="false">
+  <element abstract="false" name="Diggs" substitutionGroup="gml:AbstractFeature"
+    type="diggs:DiggsType">
     <annotation>
-      <documentation>Top level object of a DIGGS xml instance.</documentation>
+      <documentation>The root element of a DIGGS XML instance document. This element contains all
+        geotechnical, geoenvironmental, geophysical, and construction data for data exchange. It
+        serves as the top-level container for projects, sampling features, samples, tests,
+        observations, and construction activities. Every valid DIGGS document must have exactly one
+        Diggs root element.</documentation>
     </annotation>
   </element>
-
   <complexType name="DiggsType">
+    <annotation>
+      <documentation>The complex type for the DIGGS root element. Extends GML's AbstractFeatureType
+        to provide a feature collection that can contain multiple projects and all associated data
+        objects. The structure allows for flexible organization of data while maintaining
+        referential integrity through gml:id and xlink:href relationships.</documentation>
+    </annotation>
     <complexContent>
       <extension base="gml:AbstractFeatureType">
         <sequence>
-          <element name="documentInformation" type="diggs:DocumentInformationPropertyType"
-            minOccurs="1" maxOccurs="1"/>
-          <element name="project" type="diggs:ProjectPropertyType" minOccurs="0"
-            maxOccurs="unbounded"/>
-          <element minOccurs="0" name="samplingFeature" type="diggs:SamplingFeaturePropertyType"
-            maxOccurs="unbounded"/>
-          <element minOccurs="0" name="samplingActivity" type="diggs:SamplingActivityPropertyType"
-            maxOccurs="unbounded"/>
-          <element name="sample" type="diggs:SamplePropertyType" minOccurs="0" maxOccurs="unbounded"/>
-          <element minOccurs="0" name="observation" type="diggs:ObservationSystemPropertyType"
-            maxOccurs="unbounded"/>
-          <element minOccurs="0" name="measurement" type="diggs:MeasurementPropertyType"
-            maxOccurs="unbounded"/>
-          <element name="group" type="diggs:GroupPropertyType" minOccurs="0" maxOccurs="unbounded"/>
+          <element maxOccurs="1" minOccurs="1" name="documentInformation"
+            type="diggs:DocumentInformationPropertyType">
+            <annotation>
+              <documentation>Required element containing metadata about the DIGGS document itself
+                including creation date, originating organization, software used, coordinate
+                reference systems employed, and other document-level information. This element must
+                appear exactly once and should be the first element in the document
+                content.</documentation>
+            </annotation>
+          </element>
+
+          <element maxOccurs="unbounded" minOccurs="0" name="project"
+            type="diggs:ProjectPropertyType">
+            <annotation>
+              <documentation>Container for Project features. Projects serve as the primary
+                organizational unit for geotechnical investigations and construction activities.
+                Each project typically represents a single site investigation, construction project,
+                monitoring or research program. Most other features in the document will reference
+                back to their associated project(s).</documentation>
+            </annotation>
+          </element>
+
+          <element maxOccurs="unbounded" minOccurs="0" name="samplingFeature"
+            type="diggs:SamplingFeaturePropertyType">
+            <annotation>
+              <documentation>Container for SamplingFeature elements. Sampling features are physical
+                locations or objects where observations and measurements are made or activities
+                conducted, including boreholes, test pits, monitoring wells, CPT soundings, surface
+                sample locations, geophysical lines, and other investigation features. These
+                features define the spatial framework for data collection.</documentation>
+            </annotation>
+          </element>
+
+          <element maxOccurs="unbounded" minOccurs="0" name="samplingActivity"
+            type="diggs:SamplingActivityPropertyType">
+            <annotation>
+              <documentation>Container for SamplingActivity features. Sampling activities document
+                the collection, subsampling, or aggregation of physical samples. Each activity
+                records the time, location, methods, equipment, and environmental conditions under
+                which samples were obtained, along with recovery information and sample production
+                details.</documentation>
+            </annotation>
+          </element>
+
+          <element maxOccurs="unbounded" minOccurs="0" name="sample" type="diggs:SamplePropertyType">
+            <annotation>
+              <documentation>Container for Sample features. Samples are physical specimens of
+                material (soil, rock, water, grout, etc.) collected from sampling features or
+                created for a project that are destined for analysis and testing. Each sample
+                records its physical condition and chain of custody, and links to the sampling
+                activity that produced it.</documentation>
+            </annotation>
+          </element>
+
+          <element maxOccurs="unbounded" minOccurs="0" name="observation"
+            type="diggs:ObservationSystemPropertyType">
+            <annotation>
+              <documentation>Container for ObservationSystem features. Observation systems organize
+                qualitative descriptions and interpretive classifications along sampling features or
+                samples. Examples include lithologic descriptions, discontinuity logs, stratigraphic
+                interpretations, and other qualitative characterizations. Each system contains
+                multiple zones or regions (observations) with consistent description
+                methodology.</documentation>
+            </annotation>
+          </element>
+
+          <element maxOccurs="unbounded" minOccurs="0" name="measurement"
+            type="diggs:MeasurementPropertyType">
+            <annotation>
+              <documentation>Container for Measurement features including Tests, MaterialTests, and
+                Monitors. These features document quantitative testing and monitoring activities.
+                Tests are field or lab procedures where the results are relevant to spatial
+                locations. MaterialTests are laboratory procedures on samples that have no location
+                relevance (eg. tests on grout samples). Monitors are long-term measurements at
+                specific locations where the results vary with time.</documentation>
+            </annotation>
+          </element>
+
+          <element maxOccurs="unbounded" minOccurs="0" name="group" type="diggs:GroupPropertyType">
+            <annotation>
+              <documentation>Container for Group features. Groups provide flexible mechanisms for
+                organizing and collecting related features into logical sets. Examples include
+                grouping all boreholes from a specific investigation phase, all tests on a
+                particular geologic unit, or all monitoring activities in a specific area.
+              </documentation>
+            </annotation>
+          </element>
         </sequence>
-        <attribute ref="xml:lang"/>
+
+        <attribute ref="xml:lang">
+          <annotation>
+            <documentation>Specifies the default language for text content throughout the DIGGS
+              document. Individual features can override this with their own xml:lang attributes. If
+              not specified, English is assumed. Use ISO 639 language codes (e.g., "en" for English,
+              "fr" for French, "es" for Spanish).</documentation>
+          </annotation>
+        </attribute>
       </extension>
     </complexContent>
   </complexType>

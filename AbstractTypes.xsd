@@ -8,7 +8,109 @@
     <import namespace="http://www.opengis.net/gml/3.2" schemaLocation="gml3.2Profile_diggs.xsd"/>
     <import namespace="http://www.w3.org/XML/1998/namespace" schemaLocation="xml.xsd"/>
 
+    <!-- HIERARCHY LEVEL 1: Root Base Type (Foundation of DIGGS Schema)    -->
+    <!--=============================================================================-->
+    <complexType abstract="true" name="AbstractDiggsType">
+        <annotation>
+            <documentation>The root abstract type for all DIGGS objects. This type extends GML's AbstractGMLType but restricts it to require a gml:id attribute. The gml:id serves as a unique identifier for the object within the DIGGS document and enables XML linking and referencing. All DIGGS types that need to be referenced ultimately derive from this base type, ensuring every object in the schema has a unique identifier for cross-referencing and data integrity.</documentation>
+        </annotation>
+        <complexContent>
+            <restriction base="gml:AbstractGMLType">
+                <attribute ref="gml:id" use="required"/>
+            </restriction>
+        </complexContent>
+    </complexType>
+    <!--=============================================================================-->
+    <!-- HIERARCHY LEVEL 2: Major Category Base Types                       -->
+    <!--=============================================================================-->
+    <complexType name="AbstractObjectBaseType" abstract="true">
+        <annotation>
+            <documentation>Base type for all DIGGS objects, including required gmlid, description and identifier properties. This is the fundamental abstract type for objects (non-feature objects) in DIGGS, that represent supporting information like methods, structures and metadata, rather than primary geotechnical features.</documentation>
+        </annotation>
+        <complexContent>
+            <extension base="diggs:AbstractDiggsType">
+                <sequence>
+                    <element ref="gml:description" minOccurs="0"/>
+                    <element minOccurs="0" ref="gml:identifier"/>
+                </sequence>
+            </extension>
+        </complexContent>
+    </complexType>
+    <complexType name="AbstractObjectNoDescriptionType" mixed="false" abstract="true">
+        <annotation>
+            <documentation>Base type for all objects without description field. This is the fundamental abstract type for component objects (non-feature objects) in DIGGS, providing core properties including identifier,status, remark, and xml:lang, but excluding the description field. Used as a base for specialized objects where descriptions are not required or are provided through alternative mechanisms. Component objects typically represent supporting information like equipment, procedures, and metadata rather than primary geotechnical features.</documentation>
+        </annotation>
+        <complexContent>
+            <extension base="diggs:AbstractDiggsType">
+                <sequence>
+                    <sequence>
+                        <element minOccurs="0" ref="gml:identifier"/>
+                        <element minOccurs="0" ref="diggs:status">
+                            <annotation>
+                                <documentation>A text string to provide information about the status
+                                    of the object to be used to track QA/QC controls, review or
+                                    release status, etc. The values used are intended to come from a
+                                    controlled list of terms maintained by an
+                                    organization.</documentation>
+                            </annotation>
+                        </element>
+                        <element maxOccurs="unbounded" minOccurs="0" ref="diggs:remark"/>
+                    </sequence>
+                </sequence>
+            </extension>
+        </complexContent>
+    </complexType>
+    <!--=============================================================================-->
+    <!-- HIERARCHY LEVEL 3+: Specialized Derived Types                      -->
+    <!--=============================================================================-->
+    <complexType name="AbstractComponentObjectBaseType" abstract="true">
+        <annotation>
+            <documentation>Base type for all component objects where gml:AbstractGML is restricted to only allow for an optional gml:id.</documentation>
+        </annotation>
+        <complexContent>
+            <restriction base="gml:AbstractGMLType">
+                <sequence> </sequence>
+            </restriction>
+        </complexContent>
+    </complexType>
+    <complexType name="AbstractComponentObjectNoDescriptionType" abstract="true">
+        <annotation>
+            <documentation>Restricted component object type without description or name elements. Restricts AbstractComponentObjectType to remove the description and name elements, retaining only identifier, status, and remark properties.</documentation>
+        </annotation>
+        <complexContent>
+            <restriction base="diggs:AbstractComponentObjectType">
+                <sequence>
+                    <sequence>
+                        <element minOccurs="0" ref="gml:identifier"/>
+                    </sequence>
+                    <sequence>
+                        <element minOccurs="0" ref="diggs:status">
+                            <annotation>
+                                <documentation>A text string to provide information about the status
+                                    of the object to be used to track QA/QC controls, review or
+                                    release status, etc. The values used are intended to come from a
+                                    controlled list of terms maintained by an
+                                    organization.</documentation>
+                            </annotation>
+                        </element>
+                        <element maxOccurs="unbounded" minOccurs="0" name="remark"
+                            type="diggs:RemarkPropertyType">
+                            <annotation>
+                                <documentation>Any comment or remark associated with this specific
+                                    object.</documentation>
+                            </annotation>
+                        </element>
+                    </sequence>
+                </sequence>
+                <attribute ref="gml:id" use="optional"/>
+                <attribute ref="xml:lang"/>
+            </restriction>
+        </complexContent>
+    </complexType>
     <complexType name="AbstractComponentObjectType" abstract="true">
+        <annotation>
+            <documentation>Standard base type for component objects with full metadata properties. This type extends AbstractComponentObjectBaseType to include GML description, identifier, name elements, plus DIGGS-specific status and remark properties.</documentation>
+        </annotation>
         <complexContent>
             <extension base="diggs:AbstractComponentObjectBaseType">
                 <sequence>
@@ -44,50 +146,6 @@
             </extension>
         </complexContent>
     </complexType>
-
-    <complexType name="AbstractComponentObjectBaseType" abstract="true">
-        <complexContent>
-            <restriction base="gml:AbstractGMLType">
-                <sequence> </sequence>
-            </restriction>
-        </complexContent>
-    </complexType>
-
-    <complexType name="AbstractComponentObjectNoDescriptionType" abstract="true">
-        <annotation>
-            <documentation/>
-        </annotation>
-        <complexContent>
-            <restriction base="diggs:AbstractComponentObjectType">
-                <sequence>
-                    <sequence>
-                        <element minOccurs="0" ref="gml:identifier"/>
-                    </sequence>
-                    <sequence>
-                        <element minOccurs="0" ref="diggs:status">
-                            <annotation>
-                                <documentation>A text string to provide information about the status
-                                    of the object to be used to track QA/QC controls, review or
-                                    release status, etc. The values used are intended to come from a
-                                    controlled list of terms maintained by an
-                                    organization.</documentation>
-                            </annotation>
-                        </element>
-                        <element maxOccurs="unbounded" minOccurs="0" name="remark"
-                            type="diggs:RemarkPropertyType">
-                            <annotation>
-                                <documentation>Any comment or remark associated with this specific
-                                    object.</documentation>
-                            </annotation>
-                        </element>
-                    </sequence>
-                </sequence>
-                <attribute ref="gml:id" use="optional"/>
-                <attribute ref="xml:lang"/>
-            </restriction>
-        </complexContent>
-    </complexType>
-
     <element name="AbstractConstructionActivity" type="diggs:AbstractConstructionActivityType"
         abstract="true">
         <annotation>
@@ -95,13 +153,15 @@
                 alter ground conditions.</documentation>
         </annotation>
     </element>
-
     <complexType name="AbstractConstructionActivityType" abstract="false">
+        <annotation>
+            <documentation>Base type for construction activity features. Construction activities are specialized activities that modify or improve ground conditions.</documentation>
+        </annotation>
         <complexContent>
             <extension base="diggs:AbstractFeatureType">
                 <sequence>
                     <element ref="diggs:investigationTarget" maxOccurs="unbounded" minOccurs="0"/>
-                    <element ref="diggs:projectRef"/>
+                    <element ref="diggs:projectRef" maxOccurs="unbounded"/>
                     <element minOccurs="1" ref="diggs:samplingFeatureRef" maxOccurs="1"/>
                     <element minOccurs="0" ref="diggs:programRef" maxOccurs="1"/>
                     <element minOccurs="0" ref="diggs:programSpecificationRef" maxOccurs="1"/>
@@ -150,29 +210,6 @@
             </extension>
         </complexContent>
     </complexType>
-
-    <element abstract="true" name="AbstractCurve"
-        substitutionGroup="diggs:AbstractGeometricPrimitive" type="diggs:AbstractCurveType"/>
-
-    <complexType abstract="true" name="AbstractCurveType">
-        <annotation>
-            <documentation>diggs:AbstractCurveType is an abstraction of a curve to support the
-                different levels of complexity. The curve may always be viewed as a geometric
-                primitive, i.e. is continuous.</documentation>
-        </annotation>
-        <complexContent>
-            <extension base="diggs:AbstractGeometricPrimitiveType"/>
-        </complexContent>
-    </complexType>
-
-    <complexType abstract="true" name="AbstractDiggsType">
-        <complexContent>
-            <restriction base="gml:AbstractGMLType">
-                <attribute ref="gml:id" use="required"/>
-            </restriction>
-        </complexContent>
-    </complexType>
-
     <element name="AbstractEquipment" abstract="true" type="diggs:AbstractEquipmentType">
         <annotation>
             <documentation>The base type for Diggs equipment types. Derivations are objects that
@@ -180,8 +217,10 @@
                 the geotechnical and geoenvironmental domains.</documentation>
         </annotation>
     </element>
-
     <complexType name="AbstractEquipmentType" abstract="true">
+        <annotation>
+            <documentation>Base type for equipment objects used in geotechnical investigations. Includes manufacturer, model, serial number, and calibration information.</documentation>
+        </annotation>
         <complexContent>
             <extension base="diggs:AbstractFeatureType">
                 <sequence>
@@ -191,20 +230,18 @@
                                 etc. Intended to come from a controlled list.</documentation>
                         </annotation>
                     </element>
-                    <element name="make" type="diggs:DiggsStringType" minOccurs="0" maxOccurs="1">
+                    <element name="make" type="string" minOccurs="0" maxOccurs="1">
                         <annotation>
                             <documentation>The manufacturer or brand of the
                                 equipment</documentation>
                         </annotation>
                     </element>
-                    <element name="modelNumber" type="diggs:DiggsStringType" minOccurs="0"
-                        maxOccurs="1">
+                    <element name="modelNumber" type="string" minOccurs="0" maxOccurs="1">
                         <annotation>
                             <documentation>The model name or number of the equipment</documentation>
                         </annotation>
                     </element>
-                    <element name="serialNumber" type="diggs:DiggsStringType" minOccurs="0"
-                        maxOccurs="1">
+                    <element name="serialNumber" type="string" minOccurs="0" maxOccurs="1">
                         <annotation>
                             <documentation>The serial number that identifies the unique equipment
                                 item.</documentation>
@@ -217,7 +254,6 @@
                                 calibration information for the equipment</documentation>
                         </annotation>
                     </element>
-
                     <element maxOccurs="unbounded" minOccurs="0" name="otherEquipmentProperty"
                         type="diggs:ParameterPropertyType">
                         <annotation>
@@ -230,8 +266,10 @@
             </extension>
         </complexContent>
     </complexType>
-
     <complexType name="AbstractEventType" abstract="true">
+        <annotation>
+            <documentation>Base type for event objects that record time-based or location-based occurrences during investigations.</documentation>
+        </annotation>
         <complexContent>
             <extension base="diggs:AbstractObjectType">
                 <sequence>
@@ -259,8 +297,10 @@
             </extension>
         </complexContent>
     </complexType>
-
     <complexType name="AbstractFeatureBaseType" abstract="true">
+        <annotation>
+            <documentation>Minimal base type for DIGGS features, providing only GML description, identifier, and required gml:id.</documentation>
+        </annotation>
         <complexContent>
             <restriction base="gml:AbstractFeatureType">
                 <sequence>
@@ -273,12 +313,13 @@
                             xml instance.</documentation>
                     </annotation>
                 </attribute>
-
             </restriction>
         </complexContent>
     </complexType>
-
     <complexType name="AbstractFeatureType" abstract="true">
+        <annotation>
+            <documentation>Standard base type for all DIGGS feature objects. Features represent identifiable real-world entities such as projects, sampling features, samples, and tests.</documentation>
+        </annotation>
         <complexContent>
             <extension base="diggs:AbstractFeatureBaseType">
                 <sequence>
@@ -326,66 +367,22 @@
             </extension>
         </complexContent>
     </complexType>
-
-    <element abstract="true" name="AbstractGeometricAggregate"
-        substitutionGroup="diggs:AbstractGeometry" type="diggs:AbstractGeometricAggregateType"/>
-    <complexType abstract="true" name="AbstractGeometricAggregateType">
-        <complexContent>
-            <extension base="diggs:AbstractGeometryType"> </extension>
-        </complexContent>
-    </complexType>
-
-    <element abstract="true" name="AbstractGeometricPrimitive"
-        substitutionGroup="diggs:AbstractGeometry" type="diggs:AbstractGeometricPrimitiveType">
-        <annotation>
-            <documentation>Base type for DIGGS geometry primitives </documentation>
-        </annotation>
-    </element>
-
-    <complexType abstract="true" name="AbstractGeometricPrimitiveType">
-        <annotation>
-            <documentation>diggs:AbstractGeometricPrimitiveType is the abstract root type of the
-                geometric primitives. A geometric primitive is a geometric object that is not
-                decomposed further into other primitives in the system. All primitives are oriented
-                in the direction implied by the sequence of their coordinate tuples.</documentation>
-        </annotation>
-        <complexContent>
-            <extension base="diggs:AbstractGeometryType"/>
-        </complexContent>
-    </complexType>
-
-    <element abstract="true" name="AbstractGeometry" substitutionGroup="gml:AbstractGeometry"
-        type="diggs:AbstractGeometryType">
-        <annotation>
-            <documentation>Base type for DIGGS geometry objects </documentation>
-        </annotation>
-    </element>
-
-    <complexType name="AbstractGeometryType" abstract="true">
-        <complexContent>
-            <restriction base="gml:AbstractGeometryType">
-                <sequence>
-                    <element ref="gml:description" minOccurs="0"/>
-                </sequence>
-            </restriction>
-        </complexContent>
-    </complexType>
-
     <element name="AbstractGroup" type="diggs:AbstractGroupType" abstract="true">
         <annotation>
             <documentation>Base type for DIGGS groups - logical associations of projects, sampling
                 features, or samples</documentation>
         </annotation>
     </element>
-
     <complexType name="AbstractGroupType" abstract="true">
+        <annotation>
+            <documentation>Base type for flexible grouping of DIGGS features for organizational or analytical purposes. Groups allow logical associations of projects, sampling features, samples, or other features without establishing strict hierarchical relationships. Groups can be used to organize features by geographic area, time period, purpose, contractor, or any other organizational principle. Groups can contain mixed feature types and features can belong to multiple groups.</documentation>
+        </annotation>
         <complexContent>
             <extension base="diggs:AbstractFeatureType">
                 <sequence/>
             </extension>
         </complexContent>
     </complexType>
-
     <element name="AbstractInsituTestProcedure" type="diggs:AbstractInsituTestProcedureType"
         substitutionGroup="diggs:AbstractTestProcedure" abstract="true">
         <annotation>
@@ -393,6 +390,9 @@
         </annotation>
     </element>
     <complexType abstract="true" name="AbstractInsituTestProcedureType">
+        <annotation>
+            <documentation>Base type for in-situ test procedures performed at sampling features without removing specimens.</documentation>
+        </annotation>
         <complexContent>
             <extension base="diggs:AbstractTestProcedureType">
                 <sequence>
@@ -414,7 +414,6 @@
             </extension>
         </complexContent>
     </complexType>
-
     <element name="AbstractLaboratoryTestProcedure" type="diggs:AbstractLaboratoryTestProcedureType"
         substitutionGroup="diggs:AbstractTestProcedure" abstract="true">
         <annotation>
@@ -428,8 +427,10 @@
                 specimen.</documentation>
         </annotation>
     </element>
-
     <complexType name="AbstractLaboratoryTestProcedureType" abstract="true">
+        <annotation>
+            <documentation>Base type for laboratory test procedures performed on specimens removed from sampling features.</documentation>
+        </annotation>
         <complexContent>
             <extension base="diggs:AbstractTestProcedureType">
                 <sequence>
@@ -454,101 +455,16 @@
             </extension>
         </complexContent>
     </complexType>
-
-    <element abstract="true" name="AbstractLinearInstallation"
-        substitutionGroup="diggs:AbstractSamplingFeature"
-        type="diggs:AbstractLinearInstallationType"/>
-    <complexType abstract="true" name="AbstractLinearInstallationType">
-        <complexContent>
-            <extension base="diggs:AbstractLinearSamplingFeatureType">
-                <sequence>
-                    <element ref="diggs:samplingFeatureRef"/>
-                    <element minOccurs="0" name="installationConstructionEvent"
-                        type="diggs:InstallationEventPropertyType" maxOccurs="unbounded">
-                        <annotation>
-                            <documentation>Information on the occurrence and activities involved
-                                during construction of the installation within the sampling
-                                feature</documentation>
-                        </annotation>
-                    </element>
-                    <element maxOccurs="unbounded" minOccurs="0" name="installationEquipment"
-                        type="diggs:EquipmentPropertyType"/>
-                </sequence>
-            </extension>
-        </complexContent>
-    </complexType>
-
-    <element name="AbstractLinearSamplingFeature" type="diggs:AbstractLinearSamplingFeatureType"
-        substitutionGroup="diggs:AbstractSamplingFeature" abstract="true">
+    <complexType name="AbstractMaterialTestProcedurePropertyType">
         <annotation>
-            <documentation>Base type for a sampling feature with a linear geometry (eg. sounding or
-                borehole). </documentation>
+            <documentation>Property type wrapper for AbstractMaterialTestProcedure elements. This type enables AbstractMaterialTestProcedure to be used as a property in other types, following the GML property pattern. The property type provides a container that can hold a reference to a MaterialTestProcedure element defined elsewhere in the document or include the element inline.</documentation>
         </annotation>
-    </element>
-
-    <complexType name="AbstractLinearSamplingFeatureType" abstract="true">
-        <complexContent>
-            <extension base="diggs:AbstractSamplingFeatureType">
-                <sequence>
-                    <element name="centerLine" type="diggs:LinearExtentPropertyType"
-                        maxOccurs="unbounded" minOccurs="1">
-                        <annotation>
-                            <documentation>A reference to a LinearExtent object that represents the
-                                linear geometry of the feature, defining its shape and location. For
-                                a borehole for example, the linestring would represent the
-                                borehole's trajectory in 3D space. Multiple centerlines can be
-                                defined (all associated with the same reference point) to define
-                                complex objects such as a wellbore with sidetracks, or different
-                                reference datums for a single borehole.</documentation>
-                        </annotation>
-                    </element>
-                    <element name="linearReferencing"
-                        type="diggs:LinearSpatialReferenceSystemPropertyType" minOccurs="0"
-                        maxOccurs="unbounded">
-                        <annotation>
-                            <documentation>A reference to a LinearSpatialReferenceSystem object for
-                                this sampling feature. A linear SRS allows other objects to
-                                reference their position (location) on the sampling feature with 1D
-                                coordinates that represents distance along the linear sampling
-                                feature, typically from the centerline origin. For sampling features
-                                such as boreholes the linear SRS coordinates define measured depths
-                                down the hole's centerline.</documentation>
-                        </annotation>
-                    </element>
-                    <element minOccurs="0" name="plunge" type="diggs:PlungeMeasureType">
-                        <annotation>
-                            <documentation>For an inclined feature, the plunge angle, measured from
-                                the horizontal, positive up</documentation>
-                        </annotation>
-                    </element>
-                    <element minOccurs="0" name="bearing" type="diggs:BearingMeasureType">
-                        <annotation>
-                            <documentation>For an inclined feature, the direction of plunge,
-                                positive clockwise from the reference azimuth, as expressed in the
-                                refAzimuth attribute.</documentation>
-                        </annotation>
-                    </element>
-                </sequence>
-            </extension>
-        </complexContent>
+        <sequence>
+            <element ref="diggs:AbstractMaterialTestProcedure"/>
+        </sequence>
+        <attributeGroup ref="gml:AssociationAttributeGroup"/>
+        <attributeGroup ref="gml:OwnershipAttributeGroup"/>
     </complexType>
-
-    <complexType name="AbstractMaterialTestlProcedureType" abstract="true">
-        <complexContent>
-            <extension base="diggs:AbstractTestProcedureType">
-                <sequence>
-                    <element minOccurs="0" name="testEvent"
-                        type="diggs:LaboratoryTestEventPropertyType"/>
-                    <choice>
-                        <element maxOccurs="unbounded" minOccurs="1" ref="diggs:sampleRef"/>
-                        <element maxOccurs="unbounded" minOccurs="1" name="specimen"
-                            type="diggs:SpecimenPropertyType"/>
-                    </choice>
-                </sequence>
-            </extension>
-        </complexContent>
-    </complexType>
-
     <element abstract="true" name="AbstractMaterialTestProcedure"
         substitutionGroup="diggs:AbstractTestProcedure"
         type="diggs:AbstractMaterialTestlProcedureType">
@@ -563,15 +479,27 @@
                 the properties of a geographic feature of interest</documentation>
         </annotation>
     </element>
-
-    <complexType name="AbstractMaterialTestProcedurePropertyType">
-        <sequence>
-            <element ref="diggs:AbstractMaterialTestProcedure"/>
-        </sequence>
-        <attributeGroup ref="gml:AssociationAttributeGroup"/>
-        <attributeGroup ref="gml:OwnershipAttributeGroup"/>
+    <complexType name="AbstractMaterialTestlProcedureType" abstract="true">
+        <annotation>
+            <documentation>Base type for all laboratory test procedures performed on manufactured material samples (as opposed to field-collected samples). Material tests include procedures on grout, concrete, slurry, and other engineered materials. These tests differ from standard laboratory tests in that they are performed on specially prepared specimens rather than samples extracted from a sampling feature.</documentation>
+        </annotation>
+        <complexContent>
+            <extension base="diggs:AbstractTestProcedureType">
+                <sequence>
+                    <element minOccurs="0" name="testEvent"
+                        type="diggs:LaboratoryTestEventPropertyType"/>
+                    <choice>
+                        <annotation>
+                            <documentation>Event that occurred during the laboratory material test. Records time-based observations, environmental conditions, or procedural notes made during test execution on manufactured material specimens.</documentation>
+                        </annotation>
+                        <element maxOccurs="unbounded" minOccurs="1" ref="diggs:sampleRef"/>
+                        <element maxOccurs="unbounded" minOccurs="1" name="specimen"
+                            type="diggs:SpecimenPropertyType"/>
+                    </choice>
+                </sequence>
+            </extension>
+        </complexContent>
     </complexType>
-
     <element abstract="true" name="AbstractMeasurement" type="diggs:AbstractMeasurementType">
         <annotation>
             <documentation>Base type for measurement features - tests or monitoring activities that
@@ -579,13 +507,15 @@
                 sample.</documentation>
         </annotation>
     </element>
-
     <complexType name="AbstractMeasurementType" abstract="true">
+        <annotation>
+            <documentation>Base type for all measurements and quantitative testing procedures. Measurements include in-situ tests, laboratory tests, and monitoring activities that produce quantitative data. This abstract type is extended by Test (in-situ procedures), MaterialTest (laboratory procedures on samples), and Monitor (continuous or periodic monitoring) types.</documentation>
+        </annotation>
         <complexContent>
             <extension base="diggs:AbstractFeatureType">
                 <sequence>
                     <element ref="diggs:investigationTarget" maxOccurs="unbounded" minOccurs="0"/>
-                    <element ref="diggs:projectRef"/>
+                    <element ref="diggs:projectRef" maxOccurs="unbounded"/>
                     <element minOccurs="0" ref="diggs:programRef" maxOccurs="1"/>
                     <choice>
                         <sequence>
@@ -611,8 +541,10 @@
             </extension>
         </complexContent>
     </complexType>
-
     <complexType name="AbstractNamedFeatureType" abstract="true">
+        <annotation>
+            <documentation>Feature type emphasizing naming through multiple gml:name elements.</documentation>
+        </annotation>
         <complexContent>
             <restriction base="diggs:AbstractFeatureType">
                 <sequence>
@@ -678,8 +610,10 @@
             </restriction>
         </complexContent>
     </complexType>
-
     <complexType name="AbstractNamedObjectType" abstract="true">
+        <annotation>
+            <documentation>Component object type emphasizing naming through multiple gml:name elements.</documentation>
+        </annotation>
         <complexContent>
             <extension base="diggs:AbstractObjectBaseType">
                 <sequence>
@@ -704,8 +638,10 @@
             </extension>
         </complexContent>
     </complexType>
-
     <complexType name="AbstractNamedRoleObjectType">
+        <annotation>
+            <documentation>Specialized object type for entities that perform roles such as personnel or organizations.</documentation>
+        </annotation>
         <complexContent>
             <restriction base="diggs:AbstractNamedFeatureType">
                 <sequence>
@@ -744,8 +680,10 @@
             </restriction>
         </complexContent>
     </complexType>
-
     <complexType name="AbstractObjectType" abstract="true">
+        <annotation>
+            <documentation>Standard base type for DIGGS component objects such as specifications, parameters, and materials.</documentation>
+        </annotation>
         <complexContent>
             <extension base="diggs:AbstractObjectBaseType">
                 <sequence>
@@ -779,43 +717,42 @@
             </extension>
         </complexContent>
     </complexType>
-
-    <complexType name="AbstractObjectBaseType" abstract="true">
-        <complexContent>
-            <extension base="diggs:AbstractDiggsType">
-                <sequence>
-                    <element ref="gml:description" minOccurs="0"/>
-                    <element minOccurs="0" ref="gml:identifier"/>
-                </sequence>
-            </extension>
-        </complexContent>
-    </complexType>
-
-    <complexType name="AbstractObjectNoDescriptionType" mixed="false" abstract="true">
+    <element abstract="true" name="AbstractObservationSystem"
+        type="diggs:AbstractObservationSystemType">
         <annotation>
-            <documentation/>
+            <documentation>A system of zones or regions associated with a sampling feature or sample
+                for which a single class of qualitative description is assigned (eg. lithology,
+                color, discontinuity, etc.)</documentation>
+        </annotation>
+    </element>
+    <complexType abstract="true" name="AbstractObservationSystemType">
+        <annotation>
+            <documentation>Base type for observation systems that monitor conditions including instrumentation and sensors.</documentation>
         </annotation>
         <complexContent>
-            <extension base="diggs:AbstractDiggsType">
+            <extension base="diggs:AbstractFeatureType">
                 <sequence>
-                    <sequence>
-                        <element minOccurs="0" ref="gml:identifier"/>
-                        <element minOccurs="0" ref="diggs:status">
-                            <annotation>
-                                <documentation>A text string to provide information about the status
-                                    of the object to be used to track QA/QC controls, review or
-                                    release status, etc. The values used are intended to come from a
-                                    controlled list of terms maintained by an
-                                    organization.</documentation>
-                            </annotation>
-                        </element>
-                        <element maxOccurs="unbounded" minOccurs="0" ref="diggs:remark"/>
-                    </sequence>
+                    <element ref="diggs:projectRef" maxOccurs="unbounded"/>
+                    <element minOccurs="0" ref="diggs:programRef"/>
+                    <choice>
+                        <element ref="diggs:samplingFeatureRef"/>
+                        <element ref="diggs:sampleRef"/>
+                    </choice>
+                    <element minOccurs="0" name="observationProcedure"
+                        type="diggs:SpecificationPropertyType">
+                        <annotation>
+                            <documentation>A property containing a Specification object that
+                                describes the method used for all of the obserations contained
+                                within this ObservationSystem. Where procedures vary among
+                                individual observations, use appropriate properties and attributes
+                                within the various observation objects to describe the approach
+                                used.</documentation>
+                        </annotation>
+                    </element>
                 </sequence>
             </extension>
         </complexContent>
     </complexType>
-
     <complexType abstract="true" name="AbstractObservationType">
         <annotation>
             <documentation>The base type for all descriptions, which extend this
@@ -879,248 +816,16 @@
             </extension>
         </complexContent>
     </complexType>
-
-    <element abstract="true" name="AbstractObservationSystem"
-        type="diggs:AbstractObservationSystemType">
-        <annotation>
-            <documentation>A system of zones or regions associated with a sampling feature or sample
-                for which a single class of qualitative description is assigned (eg. lithology,
-                color, discontinuity, etc.)</documentation>
-        </annotation>
-    </element>
-
-    <complexType abstract="true" name="AbstractObservationSystemType">
-        <complexContent>
-            <extension base="diggs:AbstractFeatureType">
-                <sequence>
-                    <element ref="diggs:projectRef"/>
-                    <element minOccurs="0" ref="diggs:programRef"/>
-                    <choice>
-                        <element ref="diggs:samplingFeatureRef"/>
-                        <element ref="diggs:sampleRef"/>
-                    </choice>
-                    <element minOccurs="0" name="observationProcedure"
-                        type="diggs:SpecificationPropertyType">
-                        <annotation>
-                            <documentation>A property containing a Specification object that
-                                describes the method used for all of the obserations contained
-                                within this ObservationSystem. Where procedures vary among
-                                individual observations, use appropriate properties and attributes
-                                within the various observation objects to describe the approach
-                                used.</documentation>
-                        </annotation>
-                    </element>
-                </sequence>
-            </extension>
-        </complexContent>
-    </complexType>
-
-    <element abstract="true" name="AbstractPlanarInstallation"
-        substitutionGroup="diggs:AbstractSamplingFeature"
-        type="diggs:AbstractPlanarInstallationType">
-        <annotation>
-            <documentation>Base type for installations with planar (2D) geometries. An installation
-                is a sampling feature that is installed within another sampling
-                feature.</documentation>
-        </annotation>
-    </element>
-
-    <complexType abstract="true" name="AbstractPlanarInstallationType">
-        <complexContent>
-            <extension base="diggs:AbstractPlanarSamplingFeatureType">
-                <sequence>
-                    <element ref="diggs:samplingFeatureRef"/>
-                    <element minOccurs="0" name="installationConstructionEvent"
-                        type="diggs:InstallationEventPropertyType" maxOccurs="unbounded">
-                        <annotation>
-                            <documentation>Information on the occurrence and activities involved
-                                during construction of the installation within the sampling
-                                feature</documentation>
-                        </annotation>
-                    </element>
-                    <element maxOccurs="unbounded" minOccurs="0" name="installationEquipment"
-                        type="diggs:EquipmentPropertyType"/>
-                </sequence>
-            </extension>
-        </complexContent>
-    </complexType>
-
-    <element name="AbstractPlanarSamplingFeature" type="diggs:AbstractPlanarSamplingFeatureType"
-        substitutionGroup="diggs:AbstractSamplingFeature" abstract="true">
-        <annotation>
-            <documentation>Base type for sampling features with planar (2D)
-                geometries.</documentation>
-        </annotation>
-    </element>
-
-    <complexType name="AbstractPlanarSamplingFeatureType" abstract="true">
-        <complexContent>
-            <extension base="diggs:AbstractSamplingFeatureType">
-                <sequence>
-                    <choice>
-                        <sequence>
-                            <annotation>
-                                <documentation>This sequence is used if planarReferencing is not
-                                    used and locations within the sampling feature are given as
-                                    absolute coordinates.</documentation>
-                            </annotation>
-                            <element name="featureExtent" type="diggs:SurfacePropertyType"
-                                maxOccurs="1" minOccurs="1">
-                                <annotation>
-                                    <documentation> This element defines the extent of the surface
-                                        feature using a absolute CRS. This element can be used for
-                                        visual representations using typical/simple mapping
-                                        software. Either this element, or relativeFeatureExtent is
-                                        required, and can be optionally added if
-                                        relativeFeatureExtent is used. </documentation>
-                                </annotation>
-                            </element>
-                        </sequence>
-                        <sequence>
-                            <annotation>
-                                <documentation>This sequence is used if planarReferencing is used
-                                    and locations within the sampling feature are given as relative
-                                    coordinates.</documentation>
-                            </annotation>
-                            <element name="referenceEdge" type="diggs:LinearExtentPropertyType"
-                                minOccurs="1" maxOccurs="1">
-                                <annotation>
-                                    <documentation>A horizontal line, whose vertices are described
-                                        in the same absolute CRS as the A line that defines one edge
-                                        (usually either the top or bottom edge)of the sampling
-                                        feature’s surface. Where appropriate, this unit is used to
-                                        represent the intersection of a 2D surface with the ground,
-                                        or more commonly, when a single line (2 vertices only), is
-                                        used to represent the x-axis of a 2D or 3D local
-                                        CRS.</documentation>
-                                </annotation>
-                            </element>
-                            <choice>
-                                <sequence>
-                                    <element name="featureExtent" type="diggs:SurfacePropertyType"
-                                        maxOccurs="1" minOccurs="1">
-                                        <annotation>
-                                            <documentation> This element defines the extent of the
-                                                surface feature using a absolute CRS. This element
-                                                can be used for visual representations using
-                                                typical/simple mapping software. Either this
-                                                element, or relativeFeatureExtent is required, and
-                                                can be optionally added if relativeFeatureExtent is
-                                                used. </documentation>
-                                        </annotation>
-                                    </element>
-                                    <element name="relativeFeatureBoundary"
-                                        type="diggs:SurfacePropertyType" maxOccurs="1" minOccurs="0">
-                                        <annotation>
-                                            <documentation> This element defines the extent of the
-                                                surface feature using a relative planar referencing
-                                                system (must use planarReferencing property
-                                                contents). This element should be used for software
-                                                that can handle planar referencing (e.g.
-                                                LinearSpatialReferenceSystem in GML 3.3). Either
-                                                this element, or featureExtent is required, and can
-                                                be optionally added if featureExtent is
-                                                used.</documentation>
-                                        </annotation>
-                                    </element>
-                                </sequence>
-                                <sequence>
-                                    <element name="relativeFeatureBoundary"
-                                        type="diggs:SurfacePropertyType" maxOccurs="1" minOccurs="1">
-                                        <annotation>
-                                            <documentation> This element defines the extent of the
-                                                surface feature using a relative planar referencing
-                                                system (must use planarReferencing property
-                                                contents). This element should be used for software
-                                                that can handle planar referencing (e.g.
-                                                LinearSpatialReferenceSystem in GML 3.3). Either
-                                                this element, or featureExtent is required, and can
-                                                be optionally added if featureExtent is
-                                                used.</documentation>
-                                        </annotation>
-                                    </element>
-                                </sequence>
-                            </choice>
-                            <element name="planarReferencing" minOccurs="0" maxOccurs="unbounded"
-                                type="diggs:LocalReferencingPropertyType">
-                                <annotation>
-                                    <documentation>A property that holds the local coordinate
-                                        reference system for the feature, if relative coordinates
-                                        are used for defining the feature and its properties instead
-                                        of spatial coordinates. Beginning with version 3.0,
-                                        VectorLinearSpatialReferenceSystem is deprecated in favor of
-                                        LocalCartesianCRS, which derives from gml:EngineeringCRS and
-                                        defines a standard means of referencing a 2D or 3D local
-                                        coordinate system where locations are defined in Cartesian
-                                        coordinates.</documentation>
-                                </annotation>
-                            </element>
-                        </sequence>
-                    </choice>
-                </sequence>
-            </extension>
-        </complexContent>
-    </complexType>
-
-    <element abstract="true" name="AbstractPointInstallation"
-        substitutionGroup="diggs:AbstractSamplingFeature" type="diggs:AbstractPointInstallationType">
-        <annotation>
-            <documentation>Base type for installations with point (0D) geometries. An installation
-                is a sampling feature that is installed within another sampling
-                feature.</documentation>
-        </annotation>
-    </element>
-
-    <complexType abstract="true" name="AbstractPointInstallationType">
-        <complexContent>
-            <extension base="diggs:AbstractPointSamplingFeatureType">
-                <sequence>
-                    <element ref="diggs:samplingFeatureRef"/>
-                    <element minOccurs="0" name="installationConstructionEvent"
-                        type="diggs:InstallationEventPropertyType" maxOccurs="unbounded">
-                        <annotation>
-                            <documentation>Information on the occurrence and activities involved
-                                during construction of the installation within the sampling
-                                feature</documentation>
-                        </annotation>
-                    </element>
-                    <element maxOccurs="unbounded" minOccurs="0" name="installationEquipment"
-                        type="diggs:EquipmentPropertyType"/>
-                </sequence>
-            </extension>
-        </complexContent>
-    </complexType>
-
-    <element abstract="true" name="AbstractPointSamplingFeature"
-        substitutionGroup="diggs:AbstractSamplingFeature"
-        type="diggs:AbstractPointSamplingFeatureType"/>
-
-    <complexType name="AbstractPointSamplingFeatureType">
-        <complexContent>
-            <extension base="diggs:AbstractSamplingFeatureType">
-                <sequence> </sequence>
-            </extension>
-        </complexContent>
-    </complexType>
-
-    <element abstract="true" name="AbstractProcedure" type="diggs:AbstractProcedureType"/>
-
-    <complexType abstract="true" name="AbstractProcedureType">
-        <complexContent>
-            <extension base="diggs:AbstractFeatureType">
-                <sequence/>
-            </extension>
-        </complexContent>
-    </complexType>
-
     <element name="AbstractProcedureTrial" type="diggs:AbstractProcedureTrialType" abstract="true">
         <annotation>
             <documentation>Base type for procedure trial - activities that are repeated as part of a
                 test procedure.</documentation>
         </annotation>
     </element>
-
     <complexType name="AbstractProcedureTrialType" abstract="true">
+        <annotation>
+            <documentation>Base type for individual trials or repetitions within a test procedure. Many test procedures involve multiple trials (e.g., multiple readings, repeat measurements, or staged loading sequences). Each trial represents a discrete execution of the test methodology, and the trial results can be aggregated or analyzed to produce the final test result. Common examples include multiple blows in a Standard Penetration Test or repeated readings in a laboratory consolidation test.</documentation>
+        </annotation>
         <complexContent>
             <extension base="diggs:AbstractObjectType">
                 <sequence>
@@ -1130,7 +835,48 @@
             </extension>
         </complexContent>
     </complexType>
-
+    <element abstract="true" name="AbstractProcedure" type="diggs:AbstractProcedureType">
+        <annotation>
+            <documentation>Abstract element for procedures used in investigations. Serves as the head of the substitution group for procedure types.</documentation>
+        </annotation>
+    </element>
+    <complexType abstract="true" name="AbstractProcedureType">
+        <annotation>
+            <documentation>Base type for all procedure objects. Procedures define methods, standards, and specifications for conducting activities within DIGGS. This includes test procedures (how tests are conducted), sampling procedures (how samples are collected), monitoring procedures (how sensors collect data), and other methodological specifications. Procedures can reference published standards (e.g., ASTM, ISO) or describe custom methods specific to a project.</documentation>
+        </annotation>
+        <complexContent>
+            <extension base="diggs:AbstractFeatureType">
+                <sequence/>
+            </extension>
+        </complexContent>
+    </complexType>
+    <element abstract="true" name="AbstractProgramDesign" type="diggs:AbstractProgramDesignType">
+        <annotation>
+            <documentation>Abstract element for program designs. Serves as the head of the substitution group for program design types.</documentation>
+        </annotation>
+    </element>
+    <complexType abstract="true" name="AbstractProgramDesignType">
+        <annotation>
+            <documentation>Base type for program design specifications that define the planned characteristics and requirements for a program of work. Program designs typically specify target parameters, acceptance criteria, testing frequencies, quality control measures, and other requirements that guide program execution. Design specifications can be compared with actual program implementation to track compliance and identify deviations.</documentation>
+        </annotation>
+        <complexContent>
+            <extension base="diggs:AbstractFeatureType"/>
+        </complexContent>
+    </complexType>
+    <element abstract="true" name="AbstractProgramSpecificaton"
+        type="diggs:AbstractProgramSpecificationType">
+        <annotation>
+            <documentation>Abstract element for program specifications. Serves as the head of the substitution group for specification types.</documentation>
+        </annotation>
+    </element>
+    <complexType abstract="true" name="AbstractProgramSpecificationType">
+        <annotation>
+            <documentation>Base type for detailed program specifications that define technical requirements and acceptance criteria. Specifications typically reference specific standards (e.g., ASTM, AASHTO), specify numerical acceptance criteria, define testing methods and frequencies, and establish quality control requirements. Unlike designs, specifications are typically contractual documents that establish enforceable requirements for program execution.</documentation>
+        </annotation>
+        <complexContent>
+            <extension base="diggs:AbstractFeatureType"/>
+        </complexContent>
+    </complexType>
     <element abstract="true" name="AbstractProgram" type="diggs:AbstractProgramType">
         <annotation>
             <documentation>This feature serves as the head of a substitution group for program
@@ -1141,7 +887,6 @@
                 specification data for exploration efforts. </documentation>
         </annotation>
     </element>
-
     <complexType abstract="true" name="AbstractProgramType">
         <annotation>
             <documentation>The base type for all programs, which extend this type</documentation>
@@ -1149,44 +894,39 @@
         <complexContent>
             <extension base="diggs:AbstractFeatureType">
                 <sequence>
-                    <element minOccurs="1" ref="diggs:projectRef">
+                    <element minOccurs="1" ref="diggs:projectRef" maxOccurs="unbounded">
                         <annotation>
                             <documentation>The location of the description</documentation>
                         </annotation>
                     </element>
                     <element maxOccurs="unbounded" minOccurs="0" name="design"
-                        type="diggs:ProgramDesignPropertyType"/>
+                        type="diggs:ProgramDesignPropertyType">
+                        <annotation>
+                            <documentation>Design specifications for the program. Defines the planned approach, sampling locations, test requirements, and acceptance criteria that guide program execution. Multiple designs can be specified for different aspects or phases of the program.</documentation>
+                        </annotation>
+                    </element>
                     <element maxOccurs="unbounded" minOccurs="0" name="specification"
-                        type="diggs:ProgramSpecificationPropertyType"/>
+                        type="diggs:ProgramSpecificationPropertyType">
+                        <annotation>
+                            <documentation>Technical specifications for the program. Provides detailed requirements, standards references, acceptance criteria, and quality control measures that govern program execution. Specifications are more detailed than designs and typically reference specific standards (ASTM, AASHTO, etc.) and numerical acceptance criteria.</documentation>
+                        </annotation>
+                    </element>
                 </sequence>
             </extension>
         </complexContent>
     </complexType>
-
-    <element abstract="true" name="AbstractProgramDesign" type="diggs:AbstractProgramDesignType"/>
-
-    <complexType abstract="true" name="AbstractProgramDesignType">
-        <complexContent>
-            <extension base="diggs:AbstractFeatureType"/>
-        </complexContent>
-    </complexType>
-
-    <element abstract="true" name="AbstractProgramSpecificaton"
-        type="diggs:AbstractProgramSpecificationType"/>
-
-    <complexType abstract="true" name="AbstractProgramSpecificationType">
-        <complexContent>
-            <extension base="diggs:AbstractFeatureType"/>
-        </complexContent>
-    </complexType>
-
-    <element abstract="true" name="AbstractProject" type="diggs:AbstractProjectType"> </element>
-
+    <element abstract="true" name="AbstractProject" type="diggs:AbstractProjectType">
+        <annotation>
+            <documentation>Abstract element serving as the head of the substitution group for all project types. A Project represents an organizational unit that contains one or more sampling features, samples, and associated data. Projects typically correspond to specific geographical locations or engineering studies. All DIGGS data must be associated with a project, which provides the organizational context for the investigation.</documentation>
+        </annotation>
+    </element>
     <complexType name="AbstractProjectType" abstract="true">
+        <annotation>
+            <documentation>Base type for projects that organize investigations with defined scope, location, and time frame.</documentation>
+        </annotation>
         <complexContent>
             <extension base="diggs:AbstractNamedFeatureType">
                 <sequence>
-
                     <element name="referencePoint" type="diggs:PointLocationPropertyType"
                         minOccurs="0" maxOccurs="1">
                         <annotation>
@@ -1264,21 +1004,22 @@
             </extension>
         </complexContent>
     </complexType>
-
     <element abstract="true" name="AbstractSample" type="diggs:AbstractSampleType">
         <annotation>
             <documentation>Base object and Abstract head of a substitution group for all material
                 samples. </documentation>
         </annotation>
     </element>
-
     <complexType name="AbstractSampleType" abstract="true">
+        <annotation>
+            <documentation>Base type for all sample objects. A sample represents physical material collected from a sampling feature during a sampling activity. Samples are the fundamental link between field investigations (sampling features) and laboratory testing (specimens and material tests). Samples maintain information about their collection location, parent sampling feature, collection method, and physical characteristics. Samples can be subdivided into specimens for laboratory testing or aggregated from multiple source samples.</documentation>
+        </annotation>
         <complexContent>
             <extension base="diggs:AbstractNamedFeatureType">
                 <sequence>
                     <element name="projectRef" type="diggs:FeatureReferenceType" minOccurs="1">
                         <annotation>
-                            <documentation/>
+                            <documentation>Reference to the project that this sample is associated with. Every sample must be associated with a project, which provides the organizational and geographical context for the sample. This reference links the sample to its parent project, enabling queries and organization by project.</documentation>
                         </annotation>
                     </element>
                     <element ref="diggs:samplingActivityRef"/>
@@ -1291,20 +1032,25 @@
             </extension>
         </complexContent>
     </complexType>
-
     <element abstract="true" name="AbstractSamplingActivity"
-        type="diggs:AbstractSamplingActivityType"/>
-
+        type="diggs:AbstractSamplingActivityType">
+        <annotation>
+            <documentation>Abstract element for sampling activities. Serves as the head of the substitution group for sampling activity types.</documentation>
+        </annotation>
+    </element>
     <complexType name="AbstractSamplingActivityType" abstract="true">
+        <annotation>
+            <documentation>Base type for sampling activities that collect materials from sampling features.</documentation>
+        </annotation>
         <complexContent>
             <extension base="diggs:AbstractFeatureType">
                 <sequence>
                     <element ref="diggs:investigationTarget" maxOccurs="unbounded" minOccurs="0">
                         <annotation>
-                            <documentation/>
+                            <documentation>Abstract element serving as the head of the substitution group for all sampling activity types. Sampling activities represent the actions taken to collect samples from sampling features. Activities include drilling, coring, excavation, grab sampling, and other collection methods. Each activity records the who, what, when, where, and how of sample collection, including equipment used, environmental conditions, and recovery information.</documentation>
                         </annotation>
                     </element>
-                    <element ref="diggs:projectRef"/>
+                    <element ref="diggs:projectRef" maxOccurs="unbounded"/>
                     <element minOccurs="0" ref="diggs:programRef"/>
                     <element minOccurs="0" ref="diggs:constructionActivityRef"/>
                     <choice>
@@ -1365,7 +1111,7 @@
                                 cylindrical core piece of the sample</documentation>
                         </annotation>
                     </element>
-                    <element minOccurs="0" name="purpose" type="diggs:DiggsStringType">
+                    <element minOccurs="0" name="purpose" type="string">
                         <annotation>
                             <documentation>Purpose of taking this sample. This is an uncontrolled
                                 string that describes the test or tests that are intended to be run
@@ -1504,7 +1250,6 @@
             </extension>
         </complexContent>
     </complexType>
-
     <element abstract="true" name="AbstractSamplingFeature" type="diggs:AbstractSamplingFeatureType">
         <annotation>
             <documentation>An abstract object that serves as the head of a substitution group for
@@ -1515,13 +1260,15 @@
             </documentation>
         </annotation>
     </element>
-
     <complexType name="AbstractSamplingFeatureType" abstract="true">
+        <annotation>
+            <documentation>Base type for all sampling features where investigations are conducted.</documentation>
+        </annotation>
         <complexContent>
             <extension base="diggs:AbstractNamedFeatureType">
                 <sequence>
                     <element ref="diggs:investigationTarget" maxOccurs="unbounded" minOccurs="0"/>
-                    <element ref="diggs:projectRef"/>
+                    <element ref="diggs:projectRef" maxOccurs="unbounded"/>
                     <element minOccurs="0" ref="diggs:originalProjectRef"/>
                     <element maxOccurs="unbounded" minOccurs="0" ref="diggs:associatedProjectRef"/>
                     <element minOccurs="0" ref="diggs:programRef"/>
@@ -1569,11 +1316,16 @@
             </extension>
         </complexContent>
     </complexType>
-
     <element name="AbstractSensor" substitutionGroup="diggs:AbstractEquipment"
-        type="diggs:AbstractSensorType" abstract="true"/>
-
+        type="diggs:AbstractSensorType" abstract="true">
+        <annotation>
+            <documentation>Abstract element for sensors. Serves as the head of the substitution group for sensor types.</documentation>
+        </annotation>
+    </element>
     <complexType name="AbstractSensorType" abstract="true">
+        <annotation>
+            <documentation>Base type for sensors that measure physical parameters such as temperature or pressure.</documentation>
+        </annotation>
         <complexContent>
             <extension base="diggs:AbstractEquipmentType">
                 <sequence>
@@ -1587,16 +1339,23 @@
                         </annotation>
                     </element>
                     <element minOccurs="0" name="dateInstalled"
-                        type="diggs:TimeIntervalPropertyType"/>
+                        type="diggs:TimeIntervalPropertyType">
+                        <annotation>
+                            <documentation>Date and time when the sensor was installed. Can specify a single installation time or a time period for multi-stage installation. Critical for interpreting monitoring data relative to installation date.</documentation>
+                        </annotation>
+                    </element>
                     <element name="detector" type="diggs:DetectorPropertyType" minOccurs="0"
-                        maxOccurs="unbounded"/>
+                        maxOccurs="unbounded">
+                        <annotation>
+                            <documentation>Detection device or mechanism used by the sensor. Describes the physical detector that responds to the measured parameter (e.g., pressure transducer, vibrating wire, thermistor). Multiple detectors can be specified if the sensor uses multiple detection methods.</documentation>
+                        </annotation>
+                    </element>
                 </sequence>
                 <attributeGroup ref="gml:AssociationAttributeGroup"/>
                 <attributeGroup ref="gml:OwnershipAttributeGroup"/>
             </extension>
         </complexContent>
     </complexType>
-
     <element abstract="true" name="AbstractSpecimen" type="diggs:AbstractSpecimenType">
         <annotation>
             <documentation>AbstractSpecimen serves as the head of a substitution group for concrete
@@ -1606,10 +1365,9 @@
                 it.</documentation>
         </annotation>
     </element>
-
     <complexType abstract="true" name="AbstractSpecimenType">
         <annotation>
-            <documentation/>
+            <documentation>Base type for test specimens derived from samples or manufactured materials. A specimen is a prepared portion of a sample used for a specific laboratory test. Specimens differ from samples in that they are typically prepared to standard dimensions and conditions (e.g., trimmed, molded, cured) according to test method requirements. A single sample may yield multiple specimens for different tests or repeat testing. Specimens are always associated with a MaterialTest procedure.</documentation>
         </annotation>
         <complexContent>
             <extension base="diggs:AbstractFeatureType">
@@ -1657,24 +1415,6 @@
         </complexContent>
     </complexType>
 
-    <element abstract="true" name="AbstractSurface" nillable="false"
-        substitutionGroup="diggs:AbstractGeometry" type="diggs:AbstractSurfaceType">
-        <annotation>
-            <documentation>Head of a substitution group for all 2D surface objects.</documentation>
-        </annotation>
-    </element>
-
-    <complexType abstract="true" name="AbstractSurfaceType">
-        <annotation>
-            <documentation>gml:AbstractSurfaceType is an abstraction of a surface to support the
-                different levels of complexity. A surface is always a continuous region of a
-                plane.</documentation>
-        </annotation>
-        <complexContent>
-            <extension base="diggs:AbstractGeometricPrimitiveType"/>
-        </complexContent>
-    </complexType>
-
     <element name="AbstractTestProcedure" type="diggs:AbstractTestProcedureType"
         substitutionGroup="diggs:AbstractProcedure" abstract="true">
         <annotation>
@@ -1682,8 +1422,10 @@
             </documentation>
         </annotation>
     </element>
-
     <complexType name="AbstractTestProcedureType">
+        <annotation>
+            <documentation>Base type for test procedures that define how tests are performed.</documentation>
+        </annotation>
         <complexContent>
             <extension base="diggs:AbstractProcedureType">
                 <sequence>
@@ -1715,108 +1457,6 @@
                     </element>
                     <element maxOccurs="unbounded" minOccurs="0" name="otherTestProperty"
                         type="diggs:ParameterPropertyType"/>
-                </sequence>
-            </extension>
-        </complexContent>
-    </complexType>
-
-    <element name="AbstractTimeObject" substitutionGroup="gml:AbstractTimeObject"
-        type="diggs:AbstractTimeObjectType" abstract="true">
-        <annotation>
-            <documentation>Base type for DIGGS time objects</documentation>
-        </annotation>
-    </element>
-
-    <complexType name="AbstractTimeObjectBaseType" abstract="true">
-        <complexContent>
-            <restriction base="gml:AbstractTimeObjectType">
-                <sequence>
-                    <element ref="gml:description" minOccurs="0"/>
-                </sequence>
-            </restriction>
-        </complexContent>
-    </complexType>
-
-    <complexType abstract="true" name="AbstractTimeObjectType">
-        <complexContent>
-            <extension base="diggs:AbstractTimeObjectBaseType">
-                <sequence>
-                    <element minOccurs="0" ref="diggs:status">
-                        <annotation>
-                            <documentation>A text string to provide information about the status of
-                                the object to be used to track QA/QC controls, review or release
-                                status, etc. The values used are intended to come from a controlled
-                                list of terms maintained by an organization.</documentation>
-                        </annotation>
-                    </element>
-                    <element name="remark" type="diggs:RemarkPropertyType" minOccurs="0"
-                        maxOccurs="unbounded"/>
-                </sequence>
-            </extension>
-        </complexContent>
-    </complexType>
-
-    <element abstract="true" name="AbstractVolume" type="diggs:AbstractVolumeType"
-        substitutionGroup="diggs:AbstractGeometricPrimitive">
-        <annotation>
-            <documentation>The head of a substitution group for 3D geometries</documentation>
-        </annotation>
-    </element>
-
-    <complexType abstract="true" name="AbstractVolumeType">
-        <annotation>
-            <documentation>diggs:AbstractSolidType is an abstraction of a solid to support the
-                different levels of complexity. The solid may always be viewed as a geometric
-                primitive, i.e. is continuous.</documentation>
-        </annotation>
-        <complexContent>
-            <extension base="diggs:AbstractGeometricPrimitiveType">
-                <sequence>
-                    <element minOccurs="0" name="exterior" type="gml:ShellPropertyType"/>
-                    <element maxOccurs="unbounded" minOccurs="0" name="interior"
-                        type="gml:ShellPropertyType"/>
-                    <element minOccurs="0" name="uncertainty" type="diggs:UncertaintyPropertyType"/>
-                </sequence>
-            </extension>
-        </complexContent>
-    </complexType>
-
-    <element abstract="true" name="AbstractVolumeSamplingFeature"
-        substitutionGroup="diggs:AbstractSamplingFeature"
-        type="diggs:AbstractVolumeSamplingFeatureType">
-        <annotation>
-            <documentation>The head of a substitution group for sampling features with volume (3D)
-                geometries.</documentation>
-        </annotation>
-    </element>
-
-    <complexType abstract="true" name="AbstractVolumeSamplingFeatureType">
-        <complexContent>
-            <extension base="diggs:AbstractSamplingFeatureType">
-                <sequence>
-                    <element minOccurs="0" name="referenceEdge"
-                        type="diggs:LinearExtentPropertyType"/>
-                    <element maxOccurs="1" minOccurs="0" name="featureExtent"
-                        type="diggs:VolumePropertyType">
-                        <annotation>
-                            <documentation> This element defines the extent of the solid feature
-                                using a absolute CRS. This element can be used for visual
-                                representations using typical/simple mapping software
-                            </documentation>
-                        </annotation>
-                    </element>
-                    <element maxOccurs="1" minOccurs="0" name="relativeFeatureExtent"
-                        type="diggs:VolumePropertyType">
-                        <annotation>
-                            <documentation> This element defines the polygon extent of the planar
-                                feature using a relative planar referencing system (must use
-                                planarReferencing property contents). This element should be used
-                                for software that can handle planar referencing (e.g.
-                                VectorLinearSpatialReferenceSystem in GML 3.3) </documentation>
-                        </annotation>
-                    </element>
-                    <element maxOccurs="unbounded" minOccurs="0" name="volumeReferencing"
-                        type="diggs:LocalReferencingPropertyType"/>
                 </sequence>
             </extension>
         </complexContent>
