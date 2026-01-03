@@ -1,12 +1,13 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<schema xmlns="http://www.w3.org/2001/XMLSchema" xmlns:diggs="http://diggsml.org/schemas/3.0"
+<schema xmlns="http://www.w3.org/2001/XMLSchema" xmlns:diggs="http://diggsml.org/schemas/3"
     xmlns:gml="http://www.opengis.net/gml/3.2"
     xmlns:vc="http://www.w3.org/2007/XMLSchema-versioning" vc:maxVersion="1.1" vc:minVersion="1.0"
-    elementFormDefault="qualified" targetNamespace="http://diggsml.org/schemas/3.0" version="3.0b">
+    elementFormDefault="qualified" targetNamespace="http://diggsml.org/schemas/3" version="3.0.0">
 
 
-    <import namespace="http://www.opengis.net/gml/3.2" schemaLocation="gml3.2Profile_diggs" />
-    <element name="LocalCartesianCRS" substitutionGroup="gml:AbstractSingleCRS" type="diggs:LocalCartesianCRSType">
+    <import namespace="http://www.opengis.net/gml/3.2" schemaLocation="gml3.2Profile_diggs"/>
+    <element name="LocalCartesianCRS" substitutionGroup="gml:AbstractSingleCRS"
+        type="diggs:LocalCartesianCRSType">
         <annotation>
             <documentation>
                 A local Cartesian coordinate reference system with spatial positioning
@@ -56,7 +57,8 @@
                             </documentation>
                         </annotation>
                     </element>
-                    <element name="axisLocation" type="diggs:AxisLocationPropertyType" minOccurs="1" maxOccurs="unbounded">
+                    <element name="axisLocation" type="diggs:AxisLocationPropertyType" minOccurs="1"
+                        maxOccurs="unbounded">
                         <annotation>
                             <documentation>
                                 Spatial extent and direction for each axis defined in the
@@ -76,7 +78,8 @@
                             </documentation>
                         </annotation>
                     </element>
-                    <element name="rotationAngle" type="diggs:PlaneAngleMeasureType" minOccurs="0" maxOccurs="3">
+                    <element name="rotationAngle" type="diggs:PlaneAngleMeasureType" minOccurs="0"
+                        maxOccurs="3">
                         <annotation>
                             <documentation>
                                 Rotation angle(s) for orienting the local coordinate system
@@ -101,7 +104,8 @@
                             </documentation>
                         </annotation>
                     </element>
-                    <element name="transformationAccuracy" type="diggs:LengthMeasureType" minOccurs="0">
+                    <element name="transformationAccuracy" type="diggs:LengthMeasureType"
+                        minOccurs="0">
                         <annotation>
                             <documentation>
                                 Estimated accuracy of coordinate transformation between this
@@ -124,9 +128,9 @@
             </documentation>
         </annotation>
         <sequence minOccurs="0">
-            <element ref="diggs:LocalCartesianCRS" />
+            <element ref="diggs:LocalCartesianCRS"/>
         </sequence>
-        <attributeGroup ref="gml:AssociationAttributeGroup" />
+        <attributeGroup ref="gml:AssociationAttributeGroup"/>
     </complexType>
     <element name="AxisLocation" type="diggs:AxisLocationType">
         <annotation>
@@ -159,19 +163,6 @@
                             </documentation>
                         </annotation>
                     </element>
-                    <element name="location" type="diggs:LinearExtentPropertyType" minOccurs="0">
-                        <annotation>
-                            <documentation>
-                                The spatial direction and extent of this axis, expressed as a
-                                LinearExtent in a spatial coordinate reference system. The
-                                start point of the LinearExtent typically corresponds to the
-                                origin location of the parent CRS, and the end point indicates
-                                the direction and length of the axis in spatial coordinates.
-                                The vector from start to end defines the positive direction of
-                                the axis. If omitted, the property directionVector must be used.
-                            </documentation>
-                        </annotation>
-                    </element>
                     <element name="axisOrder" type="positiveInteger">
                         <annotation>
                             <documentation>
@@ -183,9 +174,25 @@
                             </documentation>
                         </annotation>
                     </element>
-                    <element name="directionVector" type="gml:VectorType" minOccurs="0">
-                        <annotation>
-                            <documentation>
+                    <choice>
+                        <sequence>
+                            <element name="location" type="diggs:LinearExtentPropertyType"
+                                minOccurs="1">
+                                <annotation>
+                                    <documentation>
+                                The spatial direction and extent of this axis, expressed as a
+                                LinearExtent in a spatial coordinate reference system. The
+                                start point of the LinearExtent typically corresponds to the
+                                origin location of the parent CRS, and the end point indicates
+                                the direction and length of the axis in spatial coordinates.
+                                The vector from start to end defines the positive direction of
+                                the axis. If omitted, the property directionVector must be used.
+                            </documentation>
+                                </annotation>
+                            </element>
+                            <element name="directionVector" type="gml:VectorType" minOccurs="0">
+                                <annotation>
+                                    <documentation>
                                 Optional normalized direction vector (unit vector) for this axis
                                 in spatial coordinates. This provides an alternative or supplementary
                                 method to specify axis direction beyond the LinearExtent. When both
@@ -193,8 +200,24 @@
                                 components correspond to the spatial CRS axes (typically X, Y, Z or
                                 Easting, Northing, Elevation). If omitted, location must be used.
                             </documentation>
-                        </annotation>
-                    </element>
+                                </annotation>
+                            </element>
+                        </sequence>
+                        <sequence>
+                            <element name="directionVector" type="gml:VectorType" minOccurs="1">
+                                <annotation>
+                                    <documentation>
+                                Optional normalized direction vector (unit vector) for this axis
+                                in spatial coordinates. This provides an alternative or supplementary
+                                method to specify axis direction beyond the LinearExtent. When both
+                                are provided, they should be consistent with each other. The vector
+                                components correspond to the spatial CRS axes (typically X, Y, Z or
+                                Easting, Northing, Elevation). If omitted, location must be used.
+                            </documentation>
+                                </annotation>
+                            </element>
+                        </sequence>
+                    </choice>
                 </sequence>
             </extension>
         </complexContent>
@@ -206,8 +229,8 @@
             </documentation>
         </annotation>
         <sequence minOccurs="0">
-            <element ref="diggs:AxisLocation" />
+            <element ref="diggs:AxisLocation"/>
         </sequence>
-        <attributeGroup ref="gml:AssociationAttributeGroup" />
+        <attributeGroup ref="gml:AssociationAttributeGroup"/>
     </complexType>
 </schema>

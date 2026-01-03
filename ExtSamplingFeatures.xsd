@@ -1,0 +1,721 @@
+<?xml version="1.0" encoding="utf-8"?>
+<schema xmlns="http://www.w3.org/2001/XMLSchema" xmlns:diggs="http://diggsml.org/schemas/3"
+    xmlns:gml="http://www.opengis.net/gml/3.2"
+    xmlns:vc="http://www.w3.org/2007/XMLSchema-versioning" vc:maxVersion="1.1" vc:minVersion="1.0"
+    elementFormDefault="qualified" targetNamespace="http://diggsml.org/schemas/3" version="3.0.0">
+
+    <!-- ================================================================================= -->
+    <!-- This schema file contains abstract and concrete elements and types that define    -->
+    <!-- EXTENDED samplng features ans associated geometry and time domain objects.            -->
+    <!-- ================================================================================= -->
+    <!-- ================================================================================= -->
+    <!-- SAMPLING FEATURE OBJECTS                                                                  -->
+    <!-- ================================================================================= -->
+
+    <import namespace="http://www.opengis.net/gml/3.2" schemaLocation="gml3.2Profile_diggs.xsd"/>
+    <import namespace="http://www.opengis.net/gml/3.2" schemaLocation="gml3.2Profile_diggs.xsd"/>
+
+    <element abstract="true" name="AbstractPointSamplingFeature"
+        substitutionGroup="diggs:AbstractSamplingFeature"
+        type="diggs:AbstractPointSamplingFeatureType">
+        <annotation>
+            <documentation>Abstract element for point-based sampling features. Serves as the head of
+                the substitution group for point sampling feature types.</documentation>
+        </annotation>
+    </element>
+    <complexType name="AbstractPointSamplingFeatureType">
+        <annotation>
+            <documentation>Base type for all point sampling features - discrete locations where
+                samples are collected or measurements made. Point sampling features represent
+                zero-dimensional sampling positions at the scale of the investigation. Examples
+                include CPT soundings, groundwater monitoring points, surface soil sample locations,
+                and probe test positions. While these features may have physical dimensions (e.g., a
+                monitoring well has a diameter), they are treated as points because their spatial
+                extent is negligible compared to the investigation area. Point features are
+                characterized by a single location coordinate.</documentation>
+        </annotation>
+        <complexContent>
+            <extension base="diggs:AbstractSamplingFeatureType">
+                <sequence> </sequence>
+            </extension>
+        </complexContent>
+    </complexType>
+
+    <element abstract="true" name="AbstractPointInstallation"
+        substitutionGroup="diggs:AbstractSamplingFeature" type="diggs:AbstractPointInstallationType">
+        <annotation>
+            <documentation>Base type for installations with point (0D) geometries. An installation
+                is a sampling feature that is installed within another sampling
+                feature.</documentation>
+        </annotation>
+    </element>
+    <complexType abstract="true" name="AbstractPointInstallationType">
+        <annotation>
+            <documentation>Base type for point installations such as monitoring points or
+                instrumentation nodes.</documentation>
+        </annotation>
+        <complexContent>
+            <extension base="diggs:AbstractPointSamplingFeatureType">
+                <sequence>
+                    <element ref="diggs:samplingFeatureRef"/>
+                    <element minOccurs="0" name="installationConstructionEvent"
+                        type="diggs:InstallationEventPropertyType" maxOccurs="unbounded">
+                        <annotation>
+                            <documentation>Information on the occurrence and activities involved
+                                during construction of the installation within the sampling
+                                feature</documentation>
+                        </annotation>
+                    </element>
+                    <element maxOccurs="unbounded" minOccurs="0" name="installationEquipment"
+                        type="diggs:EquipmentPropertyType">
+                        <annotation>
+                            <documentation>Equipment used to install the point installation.
+                                References the machinery, tools, or devices employed during
+                                installation of the monitoring point or
+                                instrumentation.</documentation>
+                        </annotation>
+                    </element>
+                </sequence>
+            </extension>
+        </complexContent>
+    </complexType>
+
+    <element abstract="false" name="Transect"
+        substitutionGroup="diggs:AbstractLinearSamplingFeature" type="diggs:TransectType">
+        <annotation>
+            <documentation>A generic linear sampling feature that extends along the surface of an
+                investigation target; used for such features as geophysical arrays, measured
+                sections, etc.</documentation>
+        </annotation>
+    </element>
+    <complexType name="TransectType">
+        <annotation>
+            <documentation>Extended type based on AbstractLinearSamplingFeatureType. Adds elements
+                for transect type definition.</documentation>
+        </annotation>
+        <complexContent>
+            <extension base="diggs:AbstractLinearSamplingFeatureType">
+                <sequence>
+                    <element maxOccurs="1" minOccurs="0" name="whenTransectRun"
+                        type="diggs:TimeIntervalPropertyType">
+                        <annotation>
+                            <documentation>The period of time when during which the transect is
+                                run.</documentation>
+                        </annotation>
+                    </element>
+                    <element minOccurs="0" name="totalTransectLength" type="diggs:LengthMeasureType">
+                        <annotation>
+                            <documentation>The total length of the transect.</documentation>
+                        </annotation>
+                    </element>
+                    <element maxOccurs="1" minOccurs="0" name="transectPurpose" type="gml:CodeType">
+                        <annotation>
+                            <documentation>A description of the purpose for running the transect.
+                                Intended to come from a controlled list.</documentation>
+                        </annotation>
+                    </element>
+                </sequence>
+            </extension>
+        </complexContent>
+    </complexType>
+
+    <element abstract="false" name="Station" substitutionGroup="diggs:AbstractPointSamplingFeature"
+        type="diggs:StationType">
+        <annotation>
+            <documentation>A sampling feature that is a point in or on the earth's surface where
+                observations or tests are performed, where samples are collected, or where
+                monitoring devices are installed.</documentation>
+        </annotation>
+    </element>
+    <complexType name="StationType">
+        <annotation>
+            <documentation>Extended type based on AbstractPointSamplingFeatureType. Adds elements
+                for station type definition.</documentation>
+        </annotation>
+        <complexContent>
+            <extension base="diggs:AbstractPointSamplingFeatureType">
+                <sequence>
+                    <element minOccurs="0" name="type" type="gml:CodeType">
+                        <annotation>
+                            <documentation>A definition of the type of station (eg. outcrop, survey
+                                marker, etc.). This is intended to come from a list controlled by an
+                                authority. </documentation>
+                        </annotation>
+                    </element>
+                </sequence>
+            </extension>
+        </complexContent>
+    </complexType>
+
+    <element name="AbstractPlanarSamplingFeature" type="diggs:AbstractPlanarSamplingFeatureType"
+        substitutionGroup="diggs:AbstractSamplingFeature" abstract="true">
+        <annotation>
+            <documentation>Base type for sampling features with planar (2D)
+                geometries.</documentation>
+        </annotation>
+    </element>
+    <complexType name="AbstractPlanarSamplingFeatureType" abstract="true">
+        <annotation>
+            <documentation>Base type for sampling features with planar (2D) geometries including
+                test pits and excavations.</documentation>
+        </annotation>
+        <complexContent>
+            <extension base="diggs:AbstractSamplingFeatureType">
+                <sequence>
+                    <choice>
+                        <sequence>
+                            <annotation>
+                                <documentation>This sequence is used if no LocalCartesianCRS is 
+                                    defined and locations within the sampling feature are given as
+                                    spatial coordinates.</documentation>
+                            </annotation>
+                            <element name="featureExtent" type="diggs:SurfacePropertyType"
+                                maxOccurs="1" minOccurs="1">
+                                <annotation>
+                                    <documentation> This element defines the extent of the surface
+                                        feature using a spatial CRS. This element can be used for
+                                        visual representations using typical/simple mapping
+                                        software. Either this element, or relativeFeatureExtent is
+                                        required, and can be optionally added if
+                                        relativeFeatureExtent is used. </documentation>
+                                </annotation>
+                            </element>
+                        </sequence>
+                        <sequence>
+                            <annotation>
+                                <documentation>This sequence is used if a LocalCartesianCRS is defined
+                                    and locations within the sampling feature are given as relative
+                                    coordinates.</documentation>
+                            </annotation>
+                            <element name="referenceEdge" type="diggs:LinearExtentPropertyType"
+                                minOccurs="1" maxOccurs="1">
+                                <annotation>
+                                    <documentation>A horizontal line, whose vertices are described
+                                        in the same absolute CRS as the line that defines one edge
+                                        (usually either the top or bottom edge)of the sampling
+                                        feature’s surface. Where appropriate, this unit is used to
+                                        represent the intersection of a 2D surface with the ground,
+                                        or more commonly, when a single line (2 vertices only), is
+                                        used to represent the x-axis of a 2D or 3D local
+                                        CRS.</documentation>
+                                </annotation>
+                            </element>
+                            <choice>
+                                <sequence>
+                                    <element name="featureExtent" type="diggs:SurfacePropertyType"
+                                        maxOccurs="1" minOccurs="1">
+                                        <annotation>
+                                            <documentation> This element defines the extent of the
+                                                surface feature using a absolute CRS. This element
+                                                can be used for visual representations using
+                                                typical/simple mapping software. Either this
+                                                element, or relativeFeatureExtent is required, and
+                                                can be optionally added if relativeFeatureExtent is
+                                                used. </documentation>
+                                        </annotation>
+                                    </element>
+                                    <element name="relativeFeatureBoundary"
+                                        type="diggs:SurfacePropertyType" maxOccurs="1" minOccurs="0">
+                                        <annotation>
+                                            <documentation> This element defines the extent of the
+                                                surface feature using a relative planar referencing
+                                                system (must define a LocalcCartesanCRS object. Either
+                                                this element, or featureExtent is required, and can
+                                                be optionally added if featureExtent is
+                                                used.</documentation>
+                                        </annotation>
+                                    </element>
+                                </sequence>
+                                <sequence>
+                                    <element name="relativeFeatureBoundary"
+                                        type="diggs:SurfacePropertyType" maxOccurs="1" minOccurs="1">
+                                        <annotation>
+                                            <documentation> This element defines the extent of the
+                                                surface feature using a relative planar referencing
+                                                system (must define a LocalCartesianCRS objec). 
+                                                This element should be used for software
+                                                that can handle planar referencing. Either
+                                                this element, or featureExtent is required, and can
+                                                be optionally added if featureExtent is
+                                                used.</documentation>
+                                        </annotation>
+                                    </element>
+                                </sequence>
+                            </choice>
+                            <element ref="diggs:planarReferencing" maxOccurs="unbounded" minOccurs="0"/>
+                        </sequence>
+                    </choice>
+                </sequence>
+            </extension>
+        </complexContent>
+    </complexType>
+    
+    <element abstract="true" name="AbstractPlanarInstallation"
+        substitutionGroup="diggs:AbstractSamplingFeature"
+        type="diggs:AbstractPlanarInstallationType">
+        <annotation>
+            <documentation>Base type for installations with planar (2D) geometries. An installation
+                is a sampling feature that is installed within another sampling
+                feature.</documentation>
+        </annotation>
+    </element>
+    <complexType abstract="true" name="AbstractPlanarInstallationType">
+        <annotation>
+            <documentation>Base type for planar (2D) installations within sampling
+                features.</documentation>
+        </annotation>
+        <complexContent>
+            <extension base="diggs:AbstractPlanarSamplingFeatureType">
+                <sequence>
+                    <element ref="diggs:samplingFeatureRef"/>
+                    <element minOccurs="0" name="installationConstructionEvent"
+                        type="diggs:InstallationEventPropertyType" maxOccurs="unbounded">
+                        <annotation>
+                            <documentation>Information on the occurrence and activities involved
+                                during construction of the installation within the sampling
+                                feature</documentation>
+                        </annotation>
+                    </element>
+                    <element maxOccurs="unbounded" minOccurs="0" name="installationEquipment"
+                        type="diggs:EquipmentPropertyType"/>
+                </sequence>
+            </extension>
+        </complexContent>
+    </complexType>
+
+    <element name="PlanarSamplingFeature" substitutionGroup="diggs:AbstractPlanarSamplingFeature"
+        type="diggs:PlanarSamplingFeatureType">
+        <annotation>
+            <documentation>A generic Diggs 2D sampling feature that represents a 2D sampling space. The featureExtent property can be of a PlanarSurface
+                geometry (used for simple cross-sections or maps), where the surface is entirely
+                coplanar, or a MultiPlanarSurface geometry, where the overall surface consists of
+                multiple coplanar patches (used for dog-leg sections or non-complanar
+                surfaces).</documentation>
+        </annotation>
+    </element>
+    <complexType name="PlanarSamplingFeatureType">
+        <annotation>
+            <documentation>Concrete type extending AbstractPlanarSamplingFeatureType. Provides
+                implementation for surface space type.</documentation>
+        </annotation>
+        <complexContent>
+            <extension base="diggs:AbstractPlanarSamplingFeatureType">
+                <sequence/>
+            </extension>
+        </complexContent>
+    </complexType>
+
+    <element name="TrenchWall" substitutionGroup="diggs:AbstractPlanarSamplingFeature"
+        type="diggs:TrenchWallType">
+        <annotation>
+            <documentation>A wall of a trench or pit dug into the ground and represented by a
+                PlanarSurface or MultiPlanar surface geometry.</documentation>
+        </annotation>
+    </element>
+    <element name="TrenchWallEvent" type="diggs:TrialPitEventType">
+        <annotation>
+            <documentation>An object containing properties describing a time or location related
+                event that occurs during construction of a trial pit or trench wall.</documentation>
+        </annotation>
+    </element>
+    <complexType name="TrenchWallEventPropertyType">
+        <annotation>
+            <documentation>Property type for trench wall event references. Used to wrap trench wall
+                event objects or references in properties.</documentation>
+        </annotation>
+        <sequence>
+            <element ref="diggs:TrenchWallEvent"/>
+        </sequence>
+    </complexType>
+    <complexType name="TrenchWallType">
+        <annotation>
+            <documentation>Extended type based on AbstractPlanarSamplingFeatureType. Adds elements
+                for trench wall type definition.</documentation>
+        </annotation>
+        <complexContent>
+            <extension base="diggs:AbstractPlanarSamplingFeatureType">
+                <sequence>
+                    <element maxOccurs="1" minOccurs="0" name="whenConstructed"
+                        type="diggs:TimeIntervalPropertyType">
+                        <annotation>
+                            <documentation>The period of time when the trench is constructed. This
+                                should include the entire time the trench is open for
+                                logging.</documentation>
+                        </annotation>
+                    </element>
+                    <element minOccurs="0" name="trenchDepth" type="diggs:LengthMeasureType">
+                        <annotation>
+                            <documentation>The maximum depth of the trench, referenced to a linear
+                                reference system.</documentation>
+                        </annotation>
+                    </element>
+                    <element maxOccurs="1" minOccurs="0" name="trenchLength"
+                        type="diggs:LengthMeasureType">
+                        <annotation>
+                            <documentation>The length of the long horizontal dimension of the
+                                trench. </documentation>
+                        </annotation>
+                    </element>
+                    <element maxOccurs="1" minOccurs="0" name="trenchWidth"
+                        type="diggs:LengthMeasureType">
+                        <annotation>
+                            <documentation>The length of the short horizontal dimension of the
+                                trench.</documentation>
+                        </annotation>
+                    </element>
+                    <element maxOccurs="1" minOccurs="0" name="shoring" type="string">
+                        <annotation>
+                            <documentation>Description of shoring equipment and method used for
+                                shoring trench.</documentation>
+                        </annotation>
+                    </element>
+                    <element maxOccurs="1" minOccurs="0" name="trenchPurpose" type="gml:CodeType">
+                        <annotation>
+                            <documentation>A description of the purpose for excavating the trench
+                                (eg. exploratory). Intended to come from a controlled
+                                list.</documentation>
+                        </annotation>
+                    </element>
+                    <element minOccurs="0" name="backfill" type="diggs:BackfillPropertyType">
+                        <annotation>
+                            <documentation>Information on construction of the trench backfill
+                                covering the trench wall exposure.</documentation>
+                        </annotation>
+                    </element>
+                    <element maxOccurs="unbounded" minOccurs="0" name="constructionMethod"
+                        type="diggs:TrenchConstructionMethodPropertyType">
+                        <annotation>
+                            <documentation>Information regarding construction of the pit over
+                                different depth intervals</documentation>
+                        </annotation>
+                    </element>
+                    <element maxOccurs="unbounded" minOccurs="0" name="constructionEvent"
+                        type="diggs:TrenchWallEventPropertyType">
+                        <annotation>
+                            <documentation>Information on construction of the trench with
+                                time</documentation>
+                        </annotation>
+                    </element>
+                </sequence>
+            </extension>
+        </complexContent>
+    </complexType>
+
+    <element abstract="true" name="AbstractVolumeSamplingFeature"
+        substitutionGroup="diggs:AbstractSamplingFeature"
+        type="diggs:AbstractVolumeSamplingFeatureType">
+        <annotation>
+            <documentation>The head of a substitution group for sampling features with volume (3D)
+                geometries.</documentation>
+        </annotation>
+    </element>
+    <complexType abstract="true" name="AbstractVolumeSamplingFeatureType">
+        <annotation>
+            <documentation>Base type for sampling features with volume (3D) geometries.</documentation>
+        </annotation>
+        <complexContent>
+            <extension base="diggs:AbstractSamplingFeatureType">
+                <sequence>
+                    <element minOccurs="0" name="referenceEdge"
+                        type="diggs:LinearExtentPropertyType"/>
+                    <element maxOccurs="1" minOccurs="0" name="featureExtent"
+                        type="diggs:VolumePropertyType">
+                        <annotation>
+                            <documentation> This element defines the extent of the solid feature
+                                using a absolute CRS. This element can be used for visual
+                                representations using typical/simple mapping software
+                            </documentation>
+                        </annotation>
+                    </element>
+                    <element maxOccurs="1" minOccurs="0" name="relativeFeatureExtent"
+                        type="diggs:VolumePropertyType">
+                        <annotation>
+                            <documentation> This element defines the polygon extent of the planar
+                                feature using a relative planar referencing system (must use
+                                planarReferencing property contents). This element should be used
+                                for software that can handle planar referencing (e.g.
+                                VectorLinearSpatialReferenceSystem in GML 3.3) </documentation>
+                        </annotation>
+                    </element>
+                    <element maxOccurs="unbounded" minOccurs="0" ref="diggs:volumeReferencing"/>
+                </sequence>
+            </extension>
+        </complexContent>
+    </complexType>
+
+    <element name="VolumetricSamplingFeature"
+        substitutionGroup="diggs:AbstractVolumeSamplingFeature"
+        type="diggs:VolumetricSamplingFeatureType">
+        <annotation>
+            <documentation>A generic Diggs 3D sampling feature that represents a volume that defines
+                the sampling space. The featureExtent properties uses Solid
+                geometry.</documentation>
+        </annotation>
+    </element>
+    <complexType name="VolumetricSamplingFeatureType">
+        <annotation>
+            <documentation>Concrete type extending AbstractVolumeSamplingFeatureType. Provides
+                implementation for volume space type.</documentation>
+        </annotation>
+        <complexContent>
+            <extension base="diggs:AbstractVolumeSamplingFeatureType">
+                <sequence/>
+            </extension>
+        </complexContent>
+    </complexType>
+
+    <!-- ================================================================================= -->
+    <!-- GEOMETRY OBJECTS                                                                  -->
+    <!-- ================================================================================= -->
+
+    <element abstract="true" name="AbstractVolume" type="diggs:AbstractVolumeType"
+        substitutionGroup="diggs:AbstractGeometricPrimitive">
+        <annotation>
+            <documentation>The head of a substitution group for 3D geometries</documentation>
+        </annotation>
+    </element>
+    <complexType abstract="true" name="AbstractVolumeType">
+        <annotation>
+            <documentation>diggs:AbstractSolidType is an abstraction of a solid to support the
+                different levels of complexity. The solid may always be viewed as a geometric
+                primitive, i.e. is continuous.</documentation>
+        </annotation>
+        <complexContent>
+            <extension base="diggs:AbstractGeometricPrimitiveType">
+                <sequence>
+                    <element minOccurs="0" name="exterior" type="diggs:ShellPropertyType">
+                        <annotation>
+                            <documentation>The exterior boundary surface of the volume. Defines the outer shell that encloses the three-dimensional feature. For solid volumes, this is the only boundary surface needed.</documentation>
+                        </annotation>
+                    </element>
+                    <element maxOccurs="unbounded" minOccurs="0" name="interior"
+                        type="diggs:ShellPropertyType">
+                        <annotation>
+                            <documentation>Interior boundary surfaces (voids or holes) within the volume. Defines hollow spaces or cavities inside the three-dimensional feature. Multiple interior boundaries can be specified for complex geometries with multiple voids. Optional - not needed for solid volumes without internal voids.</documentation>
+                        </annotation>
+                    </element>
+                    <element minOccurs="0" name="uncertainty" type="diggs:UncertaintyPropertyType"/>
+                </sequence>
+            </extension>
+        </complexContent>
+    </complexType>
+
+    <complexType name="VolumePropertyType">
+        <annotation>
+            <documentation>Complex type: VolumePropertyType</documentation>
+        </annotation>
+        <complexContent>
+            <restriction base="gml:DomainSetType">
+                <sequence minOccurs="0">
+                    <choice>
+                        <element ref="diggs:AbstractVolume"/>
+                    </choice>
+                </sequence>
+                <attributeGroup ref="gml:OwnershipAttributeGroup"/>
+                <attributeGroup ref="gml:AssociationAttributeGroup"/>
+            </restriction>
+        </complexContent>
+    </complexType>
+    <complexType name="SolidType">
+        <annotation>
+            <documentation>Concrete type extending AbstractVolumeType. Provides implementation for solid type.</documentation>
+        </annotation>
+        <complexContent>
+            <extension base="diggs:AbstractVolumeType"> </extension>
+        </complexContent>
+    </complexType>
+    <element name="Solid" substitutionGroup="diggs:AbstractVolume" type="diggs:SolidType">
+        <annotation>
+            <documentation>A Diggs geometry object that forms the basis for 3-dimensional geometry.
+                The extent of a solid is defined by the boundary surfaces. exterior specifies the
+                outer boundary, interior the inner boundary of the solid.</documentation>
+        </annotation>
+    </element>
+    <element name="Shell" substitutionGroup="gml:AbstractSurface" type="diggs:ShellType">
+        <annotation>
+            <documentation>A shell is used to represent a single connected component of the boundary
+                of a 3D solid. Every diggs:surfaceMember references or contains one surface, i.e.
+                any element which is substitutable for diggs:AbstractSurface. In the context of a
+                shell, the surfaces describe the boundary of the solid. If provided, the
+                aggregationType attribute shall have the value "set". </documentation>
+        </annotation>
+    </element>
+    <complexType name="ShellBaseType">
+        <complexContent>
+            <restriction base="gml:AbstractSurfaceType"/>
+        </complexContent>
+    </complexType>
+    <complexType name="ShellType">
+        <annotation>
+            <documentation>Extended type based on AbstractVolumeType. Adds elements for shell type definition.</documentation>
+        </annotation>
+        <complexContent>
+            <extension base="diggs:ShellBaseType">
+                <sequence>
+                    <element minOccurs="1" ref="diggs:surfaceMembers"/>
+                    <element minOccurs="0" name="uncertainty" type="diggs:UncertaintyPropertyType">
+                        <annotation>
+                            <documentation>The uncertainty property.</documentation>
+                        </annotation>
+                    </element>
+                </sequence>
+                <attributeGroup ref="gml:AggregationAttributeGroup"/>
+            </extension>
+        </complexContent>
+    </complexType>
+    <complexType name="ShellPropertyType">
+        <annotation>
+            <documentation>A property with the content model of gml:ShellPropertyType encapsulates a
+                shell to represent a component of a solid boundary.</documentation>
+        </annotation>
+        <sequence>
+            <element ref="diggs:Shell"/>
+        </sequence>
+    </complexType>
+    <element name="MultiCurve" substitutionGroup="diggs:AbstractCurve" type="diggs:MultiCurveType">
+        <annotation>
+            <documentation>A Diggs geometry object that holds a collection of curve
+                geometries.</documentation>
+        </annotation>
+    </element>
+    <complexType name="MultiCurvePropertyType">
+        <annotation>
+            <documentation>Property type for multi curve references. Used to wrap multi curve objects or references in properties.</documentation>
+        </annotation>
+        <sequence>
+            <element ref="diggs:MultiCurve"/>
+        </sequence>
+    </complexType>
+    <complexType name="MultiCurveType">
+        <annotation>
+            <documentation>Extended type based on AbstractGeometricAggregateType. Adds elements for multi curve type definition.</documentation>
+        </annotation>
+        <complexContent>
+            <extension base="diggs:AbstractCurveType">
+                <sequence>
+                    <element maxOccurs="1" minOccurs="0" ref="diggs:curveMembers"/>
+                </sequence>
+            </extension>
+        </complexContent>
+    </complexType>
+    <element name="curveMembers" type="diggs:curveMembersArrayPropertyType">
+        <annotation>
+            <documentation>The curve members property.</documentation>
+        </annotation>
+    </element>
+    <complexType name="curveMembersArrayPropertyType">
+        <annotation>
+            <documentation>Property type for curve members array references. Used to wrap curve members array objects or references in properties.</documentation>
+        </annotation>
+        <sequence maxOccurs="unbounded">
+            <element ref="diggs:LinearExtent"/>
+        </sequence>
+    </complexType>
+    <element name="surfaceMembers" type="diggs:surfaceMembersArrayPropertyType">
+
+        <annotation>
+            <documentation>The curve members property.</documentation>
+        </annotation>
+    </element>
+
+    <complexType name="surfaceMembersArrayPropertyType">
+        <annotation>
+            <documentation>Property type for curve members array references. Used to wrap curve members array objects or references in properties.</documentation>
+        </annotation>
+        <sequence maxOccurs="unbounded">
+            <element ref="diggs:PlanarSurface"/>
+        </sequence>
+    </complexType>
+
+    <element name="PlanarObservationRepresentation" substitutionGroup="diggs:AbstractGeometry"
+        type="diggs:PlanarObservationRepresentationType">
+        <annotation>
+            <documentation>An object that defines the planar extent, top and bottom locations of a planar surface observation.In practical usage, the PlanarSurfaceRepresentation incorporates the geometries of the top and bottom surfaces of a volume of earth material where they contact a planar surface, such as a geologic contact or stratigraphic boundary and the area (as a surface) between the two contacts.</documentation>
+        </annotation>
+    </element>
+    <complexType name="PlanarObservationRepresentationType">
+        <annotation>
+            <documentation>Extended type based on AbstractGeometryType. Adds elements for planar observation representation type definition.</documentation>
+        </annotation>
+        <complexContent>
+            <extension base="diggs:AbstractGeometryType">
+                <sequence>
+                    <element name="layerTopIntersection" type="diggs:LinearExtentPropertyType">
+                        <annotation>
+                            <documentation>The line that represents the intersection of the top surface of a volume of earth material or othrewise) with a planar sampling feature.</documentation>
+                        </annotation>
+                    </element>
+                    <element name="layerBaseIntersection" type="diggs:LinearExtentPropertyType">
+                        <annotation>
+                            <documentation>The location of the basal surface of a layer (a volume of
+                                earth material) that intersects a planar sampling feature. Depending
+                                on how a planar sampling feature is encoded, there could be multiple
+                                line strings that define this basal surface.</documentation>
+                        </annotation>
+                    </element>
+                    <element maxOccurs="unbounded" name="representativeSurface"
+                        type="diggs:SurfacePropertyType">
+                        <annotation>
+                            <documentation>One or more polygons that represent the layer volume in
+                                the plane of the planar sampling feature. This would typically be a
+                                ring polygon with curve members that consist of the layer top
+                                intersection, layer bottom intersection, and two edges that would
+                                normally be at the lateral extent of the planar
+                                feature.</documentation>
+                        </annotation>
+                    </element>
+                </sequence>
+            </extension>
+        </complexContent>
+    </complexType>
+
+    <!-- ================================================================================= -->
+    <!-- DEPRECATED ELEMENTS                                                                  -->
+    <!-- ================================================================================= -->
+ 
+    <element name="planarReferencing" type="diggs:LocalReferencingPropertyType">
+        <annotation>
+            <documentation>A property that holds the local coordinate
+                reference system for the feature, if relative coordinates
+                are used for defining the feature and its properties instead
+                of spatial coordinates. Beginning with version 3.0, this property 
+                is deprecated and should not be used. Instead, a LocalCartesianCRS
+                should be defined in the crs property of DocumentInformation
+            </documentation>
+        </annotation>
+    </element>
+    
+    <element name="volumeReferencing" type="diggs:LocalReferencingPropertyType">
+        <annotation>
+            <documentation>This property is deprecated and should not be used. Instead, a LocalCartesionCRS should be defined in the crs property of DocumentInformation</documentation>
+        </annotation>
+        </element>
+        
+        <complexType name="LocalReferencingPropertyType">
+            <annotation>
+                <documentation> Property type for associating a planar (2D) or volume (3D) engineering
+                    coordinate reference system with a feature. This allows the feature to use local 2D
+                    or 3D coordinates. Supports both vector-based linear reference systems and local
+                    Cartesian coordinate systems. As of version 3.0, the vector-based system is
+                    deprecated. </documentation>
+            </annotation>
+            <sequence minOccurs="0">
+                <choice>
+                    <element ref="diggs:VectorLinearSpatialReferenceSystem">
+                        <annotation>
+                            <documentation> A vector-based linear spatial reference system for planar
+                                referencing. </documentation>
+                        </annotation>
+                    </element>
+                    <element ref="diggs:LocalCartesianCRS">
+                        <annotation>
+                            <documentation> A local Cartesian coordinate reference system for planar
+                                referencing. </documentation>
+                        </annotation>
+                    </element>
+                </choice>
+            </sequence>
+            <attributeGroup ref="gml:AssociationAttributeGroup"/>
+        </complexType>
+    
+</schema>
