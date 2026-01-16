@@ -13,6 +13,7 @@
             is the heart of the DIGGS Core profile. </documentation>
     </annotation>
 
+    <include schemaLocation="../Diggs.xsd"/>
     <import namespace="http://www.opengis.net/gml/3.2" schemaLocation="gml3.2Profile_diggs.xsd"/>
     <import namespace="http://www.w3.org/1999/xlink" schemaLocation="xlinks.xsd"/>
 
@@ -6301,6 +6302,108 @@
         </annotation>
         <sequence>
             <element ref="diggs:AbstractGroup" minOccurs="1" maxOccurs="1"/>
+        </sequence>
+    </complexType>
+
+    <!-- ================================================================================== -->
+    <!-- TEST SCHEDULING ELEMENTS                                                                -->
+    <!-- ================================================================================== -->
+
+    <element name="TestingProgram" substitutionGroup="diggs:AbstractProgram"
+        type="diggs:TestingProgramType"/>
+    <complexType name="TestingProgramType">
+        <complexContent>
+            <extension base="diggs:AbstractProgramType">
+                <sequence>
+                    <element maxOccurs="unbounded" minOccurs="0" name="testingSchedule"
+                        type="diggs:TestingSchedulePropertyType"/>
+                </sequence>
+            </extension>
+        </complexContent>
+    </complexType>
+    <complexType name="TestingSchedulePropertyType">
+        <sequence>
+            <element ref="diggs:TestingSchedule"/>
+        </sequence>
+        <attributeGroup ref="gml:AssociationAttributeGroup"/>
+        <attributeGroup ref="gml:OwnershipAttributeGroup"/>
+    </complexType>
+    <element name="TestingSchedule" substitutionGroup="diggs:AbstractProgramDesign"
+        type="diggs:TestingScheduleType"/>
+
+    <complexType name="TestingScheduleType">
+        <complexContent>
+            <extension base="diggs:AbstractProgramDesignType">
+                <sequence>
+                    <element minOccurs="0" name="submittingEntity"
+                        type="diggs:BusinessAssociatePropertyType">
+                        <annotation>
+                            <documentation>The entity that submits the schedule to the receiving entity (laboratory) for analysis</documentation>
+                        </annotation>
+                    </element>
+                    <element name="receivingEntity" type="diggs:BusinessAssociatePropertyType">
+                        <annotation>
+                            <documentation>The entity that takes receipt of the submitted schedule</documentation>
+                        </annotation>
+                    </element>
+                    <element maxOccurs="1" minOccurs="0" name="proposedCompletionDate"
+                        type="gml:TimeInstantPropertyType">
+                        <annotation>
+                            <documentation>The date/time that the complete schedule is proposed to be completed</documentation>
+                        </annotation>
+                    </element>
+                    <element minOccurs="0" name="scheduleProgress"
+                        type="diggs:ProgressEventArrayPropertyType"/>
+                    <element maxOccurs="unbounded" name="requestedTest"
+                        type="diggs:RequestedTestArrayPropertyType"/>
+                </sequence>
+            </extension>
+        </complexContent>
+    </complexType>
+
+    <element name="ProgressEvent" type="diggs:ProgressEventType"/>
+    <complexType name="ProgressEventType">
+        <complexContent>
+            <extension base="diggs:AbstractComponentObjectType">
+                <sequence>
+                    <element name="timeStamp" type="gml:TimePositionType"/>
+                    <element name="state" type="gml:CodeType"/>
+                </sequence>
+            </extension>
+        </complexContent>
+    </complexType>
+
+    <complexType name="ProgressEventArrayPropertyType">
+        <sequence maxOccurs="unbounded">
+            <element ref="diggs:ProgressEvent"/>
+        </sequence>
+    </complexType>
+    <complexType name="RequestedTestType">
+        <complexContent>
+            <extension base="diggs:AbstractProgramSpecificationType">
+                <sequence>
+                    <element maxOccurs="1" ref="diggs:sampleRef"/>
+                    <element name="testSpecificationRef" type="diggs:FeatureReferenceType"/>
+                    <element minOccurs="0" name="testingProgress"
+                        type="diggs:ProgressEventArrayPropertyType"/>
+                    <element minOccurs="0" ref="diggs:measurementRef"/>
+                </sequence>
+            </extension>
+        </complexContent>
+    </complexType>
+
+
+    <element name="RequestedTest" type="diggs:RequestedTestType"/>
+    <complexType name="LaboratoryTestProcedurePropertyType">
+        <sequence>
+            <element ref="diggs:AbstractLaboratoryTestProcedure"/>
+        </sequence>
+        <attributeGroup ref="gml:AssociationAttributeGroup"/>
+        <attributeGroup ref="gml:OwnershipAttributeGroup"/>
+    </complexType>
+    <complexType name="RequestedTestArrayPropertyType">
+        <sequence maxOccurs="unbounded" minOccurs="0">
+            <element ref="diggs:RequestedTest"/>
         </sequence>
     </complexType>
 
