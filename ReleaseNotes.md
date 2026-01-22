@@ -13,12 +13,15 @@ https://diggsml.org/schemas/3.0.0/DiggsCore.xsd (core schema - supports basic bo
 
 ### XML Namespace
  http://diggsml.org/schemas/3
+ 
+ ### Online schema documentation (this specific version)
+ https://diggsml.org/docs/3.0.0
 
 ### Example instances
 https://github.com/DIGGSml/diggs-examples/tree/master/3.x%20Example%20Instances
 
 ## What's Changed
-Complete rearchitecting of the schema modules was performed for this release:
+Complete rearchitecting of the schema modules was performed for this release: This change facilitates profiling, documentation and maintenance of the schema but does not in itself affect instance files.
 
 **Full Changelog**: https://github.com/DIGGSml/schema-dev/compare/2.6...3.0.0
 
