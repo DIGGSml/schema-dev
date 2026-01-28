@@ -61,17 +61,17 @@
             <documentation>This enumerated list adds a new quantity class to the Energistics Unit Dictionary (reciprocal square root time) to provide units for pressure filtration coefficient.</documentation>
         </annotation>
         <restriction base="eml:UomEnum">
-            <enumeration value="1/min0.5">
+            <enumeration value="1/rtMin">
                 <annotation>
                     <documentation>per square root of minute</documentation>
                 </annotation>
             </enumeration>
-            <enumeration value="1/s0.5">
+            <enumeration value="1/rtS">
                 <annotation>
                     <documentation>per square root of second</documentation>
                 </annotation>
             </enumeration>
-            <enumeration value="1/h0.5">
+            <enumeration value="1/rtH">
                 <annotation>
                     <documentation>per square root of hour</documentation>
                 </annotation>
@@ -79,6 +79,16 @@
         </restriction>
     </simpleType>
 
+    <simpleType name="DiggsSquareRootTimeUomEnumBaseType">
+        <annotation>
+            <documentation>This enumerated list adds a new quantity class to the Energistics Unit Dictionary square root time to provide atomic units with a fractional exponent that will conform to unit semantics.</documentation>
+        </annotation>
+        <restriction base="string">
+            <enumeration value="rtH"/>
+            <enumeration value="rtS"/>
+            <enumeration value="rtMin"/>
+        </restriction>
+    </simpleType>
     <simpleType name="DiggsRelativeRateUomEnumBaseType">
         <annotation>
             <documentation>This enumerated list is a DIGGS extension to the Energistics Unit of Measurement Dictionary (and a new quantity class of relative rate) used to provide units for strain rates.</documentation>
@@ -629,6 +639,12 @@
         />
     </simpleType>
 
+    <simpleType name="DiggsSquareRootTimeUomEnumType">
+        <annotation>
+            <documentation>This enumerated list adds a new quantity class to the Energistics Unit Dictionary (square root time) to provide atomic units.</documentation>
+        </annotation>
+        <union memberTypes="diggs:DiggsSquareRootTimeUomEnumBaseType diggs:OtherNameType"/>
+    </simpleType>
     <simpleType name="DiggsRelativeRateUomEnumType">
         <annotation>
             <documentation>This enumerated list is a DIGGS extension to the Energistics Unit of Measurement Dictionary (and a new quantity class of relative rate) used to provide units for strain rates.</documentation>
@@ -826,7 +842,7 @@
 
     <complexType name="ReciprocalSquareRootTimeMeasureType">
         <annotation>
-            <documentation>A measure type for quantities that vary with the reciprocal of the square root of time. This unusual unit is used primarily for pressure filtration coefficients in soil testing, where the rate of pressure dissipation or consolidation follows a square-root-of-time relationship. Common units are 1/√min, 1/√s, or 1/√h.</documentation>
+            <documentation>A measure type for quantities that vary with the reciprocal of the square root of time. This unusual unit is used primarily for pressure filtration coefficients in soil testing, where the rate of pressure dissipation or consolidation follows a square-root-of-time relationship. Common units are 1/rtMin, 1/rtS, or 1/rtH.</documentation>
         </annotation>
         <simpleContent>
             <extension base="diggs:DescriptorValueType">
@@ -840,6 +856,20 @@
         </simpleContent>
     </complexType>
 
+    <complexType name="SquareRootTimeMeasureType">
+        <annotation>
+            <documentation>A measure type for quantities that vary with the square root of time.</documentation>
+        </annotation>
+        <simpleContent>
+            <extension base="diggs:DescriptorValueType">
+                <attribute name="uom" type="diggs:DiggsSquareRootTimeUomEnumType" use="required">
+                    <annotation>
+                        <documentation>The unit of measure expressed as reciprocal square root of time (e.g., 1/√min, 1/√s, 1/√h). Used in consolidation theory and filtration analysis.</documentation>
+                    </annotation>
+                </attribute>
+            </extension>
+        </simpleContent>
+    </complexType>
     <complexType name="RelativeRateMeasureType">
         <annotation>
             <documentation>A measure type for rates expressed as a percentage change per unit time (strain rates). Used extensively in geotechnical engineering for creep testing, consolidation rates, and time-dependent deformation. Units include %/s, %/min, %/h, %/d, %/month, %/year, and %/ky (per thousand years). This allows strain rates to be expressed at appropriate time scales from laboratory tests (seconds, minutes) to geological processes (years, millennia).</documentation>
