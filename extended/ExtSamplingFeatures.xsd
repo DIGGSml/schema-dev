@@ -12,6 +12,10 @@
     <!-- SAMPLING FEATURE OBJECTS                                                                  -->
     <!-- ================================================================================= -->
 
+
+    <!-- Uncomment to clear validation errors without a master file
+    <include schemaLocation="../Diggs.xsd"/>
+-->
     <import namespace="http://www.opengis.net/gml/3.2"
         schemaLocation="../core/gml3.2Profile_diggs.xsd"/>
 
@@ -162,90 +166,19 @@
         <complexContent>
             <extension base="diggs:AbstractSamplingFeatureType">
                 <sequence>
-                    <choice>
-                        <sequence>
-                            <annotation>
-                                <documentation>This sequence is used if no LocalCartesianCRS is 
-                                    defined and locations within the sampling feature are given as
-                                    spatial coordinates.</documentation>
-                            </annotation>
-                            <element name="featureExtent" type="diggs:SurfacePropertyType"
-                                maxOccurs="1" minOccurs="1">
-                                <annotation>
-                                    <documentation> This element defines the extent of the surface
-                                        feature using a spatial CRS. This element can be used for
-                                        visual representations using typical/simple mapping
-                                        software. Either this element, or relativeFeatureExtent is
-                                        required, and can be optionally added if
-                                        relativeFeatureExtent is used. </documentation>
-                                </annotation>
-                            </element>
-                        </sequence>
-                        <sequence>
-                            <annotation>
-                                <documentation>This sequence is used if a LocalCartesianCRS is defined
-                                    and locations within the sampling feature are given as relative
-                                    coordinates.</documentation>
-                            </annotation>
-                            <element name="referenceEdge" type="diggs:LinearExtentPropertyType"
-                                minOccurs="1" maxOccurs="1">
-                                <annotation>
-                                    <documentation>A horizontal line, whose vertices are described
-                                        in the same absolute CRS as the line that defines one edge
-                                        (usually either the top or bottom edge)of the sampling
-                                        feature’s surface. Where appropriate, this unit is used to
-                                        represent the intersection of a 2D surface with the ground,
-                                        or more commonly, when a single line (2 vertices only), is
-                                        used to represent the x-axis of a 2D or 3D local
-                                        CRS.</documentation>
-                                </annotation>
-                            </element>
-                            <choice>
-                                <sequence>
-                                    <element name="featureExtent" type="diggs:SurfacePropertyType"
-                                        maxOccurs="1" minOccurs="1">
-                                        <annotation>
-                                            <documentation> This element defines the extent of the
-                                                surface feature using a absolute CRS. This element
-                                                can be used for visual representations using
-                                                typical/simple mapping software. Either this
-                                                element, or relativeFeatureExtent is required, and
-                                                can be optionally added if relativeFeatureExtent is
-                                                used. </documentation>
-                                        </annotation>
-                                    </element>
-                                    <element name="relativeFeatureBoundary"
-                                        type="diggs:SurfacePropertyType" maxOccurs="1" minOccurs="0">
-                                        <annotation>
-                                            <documentation> This element defines the extent of the
-                                                surface feature using a relative planar referencing
-                                                system (must define a LocalcCartesanCRS object. Either
-                                                this element, or featureExtent is required, and can
-                                                be optionally added if featureExtent is
-                                                used.</documentation>
-                                        </annotation>
-                                    </element>
-                                </sequence>
-                                <sequence>
-                                    <element name="relativeFeatureBoundary"
-                                        type="diggs:SurfacePropertyType" maxOccurs="1" minOccurs="1">
-                                        <annotation>
-                                            <documentation> This element defines the extent of the
-                                                surface feature using a relative planar referencing
-                                                system (must define a LocalCartesianCRS objec). 
-                                                This element should be used for software
-                                                that can handle planar referencing. Either
-                                                this element, or featureExtent is required, and can
-                                                be optionally added if featureExtent is
-                                                used.</documentation>
-                                        </annotation>
-                                    </element>
-                                </sequence>
-                            </choice>
-                            <element ref="diggs:planarReferencing" maxOccurs="unbounded"
-                                minOccurs="0"/>
-                        </sequence>
-                    </choice>
+                    <element minOccurs="0" maxOccurs="1" ref="diggs:referenceEdge"/>
+                    <element name="featureExtent" type="diggs:SurfacePropertyType" maxOccurs="1"
+                        minOccurs="1">
+                        <annotation>
+                            <documentation> This element defines the extent of the surface feature
+                                using a spatial CRS. This element can be used for visual
+                                representations using typical/simple mapping software. Either this
+                                element, or relativeFeatureExtent is required, and can be optionally
+                                added if relativeFeatureExtent is used. </documentation>
+                        </annotation>
+                    </element>
+                    <element ref="diggs:relativeFeatureBoundary" maxOccurs="1" minOccurs="0"/>
+                    <element ref="diggs:planarReferencing" maxOccurs="unbounded" minOccurs="0"/>
                 </sequence>
             </extension>
         </complexContent>
@@ -287,11 +220,11 @@
     <element name="PlanarSamplingFeature" substitutionGroup="diggs:AbstractPlanarSamplingFeature"
         type="diggs:PlanarSamplingFeatureType">
         <annotation>
-            <documentation>A generic Diggs 2D sampling feature that represents a 2D sampling space. The featureExtent property can be of a PlanarSurface
-                geometry (used for simple cross-sections or maps), where the surface is entirely
-                coplanar, or a MultiPlanarSurface geometry, where the overall surface consists of
-                multiple coplanar patches (used for dog-leg sections or non-complanar
-                surfaces).</documentation>
+            <documentation>A generic Diggs 2D sampling feature that represents a 2D sampling space.
+                The featureExtent property can be of a PlanarSurface geometry (used for simple
+                cross-sections or maps), where the surface is entirely coplanar, or a
+                MultiPlanarSurface geometry, where the overall surface consists of multiple coplanar
+                patches (used for dog-leg sections or non-complanar surfaces).</documentation>
         </annotation>
     </element>
     <complexType name="PlanarSamplingFeatureType">
@@ -412,14 +345,14 @@
     </element>
     <complexType abstract="true" name="AbstractVolumeSamplingFeatureType">
         <annotation>
-            <documentation>Base type for sampling features with volume (3D) geometries.</documentation>
+            <documentation>Base type for sampling features with volume (3D)
+                geometries.</documentation>
         </annotation>
         <complexContent>
             <extension base="diggs:AbstractSamplingFeatureType">
                 <sequence>
-                    <element minOccurs="0" name="referenceEdge"
-                        type="diggs:LinearExtentPropertyType"/>
-                    <element maxOccurs="1" minOccurs="0" name="featureExtent"
+                    <element minOccurs="0" ref="diggs:referenceEdge"/>
+                    <element maxOccurs="1" minOccurs="1" name="featureExtent"
                         type="diggs:VolumePropertyType">
                         <annotation>
                             <documentation> This element defines the extent of the solid feature
@@ -428,16 +361,7 @@
                             </documentation>
                         </annotation>
                     </element>
-                    <element maxOccurs="1" minOccurs="0" name="relativeFeatureExtent"
-                        type="diggs:VolumePropertyType">
-                        <annotation>
-                            <documentation> This element defines the polygon extent of the planar
-                                feature using a relative planar referencing system (must use
-                                planarReferencing property contents). This element should be used
-                                for software that can handle planar referencing (e.g.
-                                VectorLinearSpatialReferenceSystem in GML 3.3) </documentation>
-                        </annotation>
-                    </element>
+                    <element maxOccurs="1" minOccurs="0" ref="diggs:relativeFeatureExtent"/>
                     <element maxOccurs="unbounded" minOccurs="0" ref="diggs:volumeReferencing"/>
                 </sequence>
             </extension>
@@ -486,13 +410,19 @@
                 <sequence>
                     <element minOccurs="0" name="exterior" type="diggs:ShellPropertyType">
                         <annotation>
-                            <documentation>The exterior boundary surface of the volume. Defines the outer shell that encloses the three-dimensional feature. For solid volumes, this is the only boundary surface needed.</documentation>
+                            <documentation>The exterior boundary surface of the volume. Defines the
+                                outer shell that encloses the three-dimensional feature. For solid
+                                volumes, this is the only boundary surface needed.</documentation>
                         </annotation>
                     </element>
                     <element maxOccurs="unbounded" minOccurs="0" name="interior"
                         type="diggs:ShellPropertyType">
                         <annotation>
-                            <documentation>Interior boundary surfaces (voids or holes) within the volume. Defines hollow spaces or cavities inside the three-dimensional feature. Multiple interior boundaries can be specified for complex geometries with multiple voids. Optional - not needed for solid volumes without internal voids.</documentation>
+                            <documentation>Interior boundary surfaces (voids or holes) within the
+                                volume. Defines hollow spaces or cavities inside the
+                                three-dimensional feature. Multiple interior boundaries can be
+                                specified for complex geometries with multiple voids. Optional - not
+                                needed for solid volumes without internal voids.</documentation>
                         </annotation>
                     </element>
                     <element minOccurs="0" name="uncertainty" type="diggs:UncertaintyPropertyType"/>
@@ -519,7 +449,8 @@
     </complexType>
     <complexType name="SolidType">
         <annotation>
-            <documentation>Concrete type extending AbstractVolumeType. Provides implementation for solid type.</documentation>
+            <documentation>Concrete type extending AbstractVolumeType. Provides implementation for
+                solid type.</documentation>
         </annotation>
         <complexContent>
             <extension base="diggs:AbstractVolumeType"> </extension>
@@ -548,7 +479,8 @@
     </complexType>
     <complexType name="ShellType">
         <annotation>
-            <documentation>Extended type based on AbstractVolumeType. Adds elements for shell type definition.</documentation>
+            <documentation>Extended type based on AbstractVolumeType. Adds elements for shell type
+                definition.</documentation>
         </annotation>
         <complexContent>
             <extension base="diggs:ShellBaseType">
@@ -581,7 +513,8 @@
     </element>
     <complexType name="MultiCurvePropertyType">
         <annotation>
-            <documentation>Property type for multi curve references. Used to wrap multi curve objects or references in properties.</documentation>
+            <documentation>Property type for multi curve references. Used to wrap multi curve
+                objects or references in properties.</documentation>
         </annotation>
         <sequence>
             <element ref="diggs:MultiCurve"/>
@@ -589,7 +522,8 @@
     </complexType>
     <complexType name="MultiCurveType">
         <annotation>
-            <documentation>Extended type based on AbstractGeometricAggregateType. Adds elements for multi curve type definition.</documentation>
+            <documentation>Extended type based on AbstractGeometricAggregateType. Adds elements for
+                multi curve type definition.</documentation>
         </annotation>
         <complexContent>
             <extension base="diggs:AbstractCurveType">
@@ -606,7 +540,8 @@
     </element>
     <complexType name="curveMembersArrayPropertyType">
         <annotation>
-            <documentation>Property type for curve members array references. Used to wrap curve members array objects or references in properties.</documentation>
+            <documentation>Property type for curve members array references. Used to wrap curve
+                members array objects or references in properties.</documentation>
         </annotation>
         <sequence maxOccurs="unbounded">
             <element ref="diggs:LinearExtent"/>
@@ -621,7 +556,8 @@
 
     <complexType name="surfaceMembersArrayPropertyType">
         <annotation>
-            <documentation>Property type for curve members array references. Used to wrap curve members array objects or references in properties.</documentation>
+            <documentation>Property type for curve members array references. Used to wrap curve
+                members array objects or references in properties.</documentation>
         </annotation>
         <sequence maxOccurs="unbounded">
             <element ref="diggs:PlanarSurface"/>
@@ -631,19 +567,27 @@
     <element name="PlanarObservationRepresentation" substitutionGroup="diggs:AbstractGeometry"
         type="diggs:PlanarObservationRepresentationType">
         <annotation>
-            <documentation>An object that defines the planar extent, top and bottom locations of a planar surface observation.In practical usage, the PlanarSurfaceRepresentation incorporates the geometries of the top and bottom surfaces of a volume of earth material where they contact a planar surface, such as a geologic contact or stratigraphic boundary and the area (as a surface) between the two contacts.</documentation>
+            <documentation>An object that defines the planar extent, top and bottom locations of a
+                planar surface observation.In practical usage, the PlanarSurfaceRepresentation
+                incorporates the geometries of the top and bottom surfaces of a volume of earth
+                material where they contact a planar surface, such as a geologic contact or
+                stratigraphic boundary and the area (as a surface) between the two
+                contacts.</documentation>
         </annotation>
     </element>
     <complexType name="PlanarObservationRepresentationType">
         <annotation>
-            <documentation>Extended type based on AbstractGeometryType. Adds elements for planar observation representation type definition.</documentation>
+            <documentation>Extended type based on AbstractGeometryType. Adds elements for planar
+                observation representation type definition.</documentation>
         </annotation>
         <complexContent>
             <extension base="diggs:AbstractGeometryType">
                 <sequence>
                     <element name="layerTopIntersection" type="diggs:LinearExtentPropertyType">
                         <annotation>
-                            <documentation>The line that represents the intersection of the top surface of a volume of earth material or othrewise) with a planar sampling feature.</documentation>
+                            <documentation>The line that represents the intersection of the top
+                                surface of a volume of earth material or othrewise) with a planar
+                                sampling feature.</documentation>
                         </annotation>
                     </element>
                     <element name="layerBaseIntersection" type="diggs:LinearExtentPropertyType">
@@ -676,47 +620,86 @@
 
     <element name="planarReferencing" type="diggs:LocalReferencingPropertyType">
         <annotation>
-            <documentation>A property that holds the local coordinate
-                reference system for the feature, if relative coordinates
-                are used for defining the feature and its properties instead
-                of spatial coordinates. Beginning with version 3.0, this property 
-                is deprecated and should not be used. Instead, a LocalCartesianCRS
-                should be defined in the crs property of DocumentInformation
-            </documentation>
+            <appinfo>DEPRECATED 1/26.  This property is not needed. Instead, a LocalCartesianCRS should be defined in the crs property of DocumentInformation </appinfo>
+            <documentation>A property that holds the local coordinate reference system for the
+                feature, if relative coordinates are used for defining the feature and its
+                properties instead of spatial coordinates. Beginning with version 3.0, this property
+                is deprecated and should not be used. Instead, a LocalCartesianCRS should be defined
+                in the crs property of DocumentInformation </documentation>
         </annotation>
     </element>
 
     <element name="volumeReferencing" type="diggs:LocalReferencingPropertyType">
         <annotation>
-            <documentation>This property is deprecated and should not be used. Instead, a LocalCartesionCRS should be defined in the crs property of DocumentInformation</documentation>
+            <appinfo>DEPRECATED 1/26. Instead, a LocalCartesionCRS should be defined in the crs property of DocumentInformation</appinfo>
+            <documentation>This property is deprecated and should not be used. Instead, a
+                LocalCartesionCRS should be defined in the crs property of
+                DocumentInformation</documentation>
         </annotation>
     </element>
 
     <complexType name="LocalReferencingPropertyType">
         <annotation>
+            <appinfo>DEPRECATED 1/26.</appinfo>
             <documentation> Property type for associating a planar (2D) or volume (3D) engineering
-                    coordinate reference system with a feature. This allows the feature to use local 2D
-                    or 3D coordinates. Supports both vector-based linear reference systems and local
-                    Cartesian coordinate systems. As of version 3.0, the vector-based system is
-                    deprecated. </documentation>
+                coordinate reference system with a feature. This allows the feature to use local 2D
+                or 3D coordinates. Supports both vector-based linear reference systems and local
+                Cartesian coordinate systems. As of version 3.0, the vector-based system is
+                deprecated. </documentation>
         </annotation>
         <sequence minOccurs="0">
             <choice>
                 <element ref="diggs:VectorLinearSpatialReferenceSystem">
                     <annotation>
                         <documentation> A vector-based linear spatial reference system for planar
-                                referencing. </documentation>
+                            referencing. </documentation>
                     </annotation>
                 </element>
                 <element ref="diggs:LocalCartesianCRS">
                     <annotation>
                         <documentation> A local Cartesian coordinate reference system for planar
-                                referencing. </documentation>
+                            referencing. </documentation>
                     </annotation>
                 </element>
             </choice>
         </sequence>
         <attributeGroup ref="gml:AssociationAttributeGroup"/>
     </complexType>
+
+    <element name="referenceEdge" type="diggs:LinearExtentPropertyType">
+        <annotation>
+            <appinfo>DEPRECATED 1/26.Only necessary with deprecated VectorLinearReferenceSystem. Instead, this element is replaced by
+                the x-axis definition of a LocalCartesianCRS where relative coordinates are used to
+                define the feature or observations/samples within it. </appinfo>
+            <documentation>A line, whose vertices are described in the same absolute CRS as the line
+                that defines one edge (usually either the top or bottom edge) of the sampling
+                feature’s surface. Where appropriate, this unit is used to represent the
+                intersection of a 2D surface with the ground, DEPRECTED. Only necessary with deprecated VectorLinearReferenceSystem. Instead, this element is replaced by
+                the x-axis definition of a LocalCartesianCRS where relative coordinates are used to
+                define the feature or observations/samples within it. </documentation>
+        </annotation>
+    </element>
+
+    <element name="relativeFeatureBoundary" type="diggs:SurfacePropertyType">
+        <annotation>
+            <appinfo>DEPRECATED 1/26. This element no longer necessary as featureExtent may be defined in either a spatial or Local CRS</appinfo>
+            <documentation> This element defines the extent of the surface feature using a relative
+                planar referencing system (must define a LocalcCartesanCRS object. DEPRECATED. This
+                element no longer necessary as featureExtent may be defined in either a spatial or
+                local CRS</documentation>
+        </annotation>
+    </element>
+
+    <element name="relativeFeatureExtent" type="diggs:VolumePropertyType">
+        <annotation>
+            <appinfo>deprecated 1/26. This property should not be used. featureExtent can hold a 2D or 3D object expressed in spatiol or local coordinate systems</appinfo>
+            <documentation> This element defines the polygon extent of the planar
+                feature using a relative planar referencing system (must use
+                planarReferencing property contents). This element should be used
+                for software that can handle planar referencing (e.g.
+                VectorLinearSpatialReferenceSystem in GML 3.3) </documentation>
+        </annotation>
+    </element>
+
 
 </schema>

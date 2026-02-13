@@ -5,15 +5,17 @@
     elementFormDefault="qualified" targetNamespace="http://diggsml.org/schemas/3" version="3.0.0">
 
     <annotation>
-        <documentation> Includes core geotechnical features: projects, sampling features,
-            sampling activities and samples, observations, measurements, equipment, geometry
-            and time objects and related elements. This module provides the fundamental data
-            structures for documenting site investigations including project metadata, borehole
-            construction details, sample descriptions, field testing, and laboratory analysis. This
-            is the heart of the DIGGS Core profile. </documentation>
+        <documentation> Includes core geotechnical features: projects, sampling features, sampling
+            activities and samples, observations, measurements, equipment, geometry and time objects
+            and related elements. This module provides the fundamental data structures for
+            documenting site investigations including project metadata, borehole construction
+            details, sample descriptions, field testing, and laboratory analysis. This is the heart
+            of the DIGGS Core profile. </documentation>
     </annotation>
 
+    <!-- Uncomment to clear validation errors without a master file
     <include schemaLocation="../Diggs.xsd"/>
+-->
     <import namespace="http://www.opengis.net/gml/3.2" schemaLocation="gml3.2Profile_diggs.xsd"/>
     <import namespace="http://www.w3.org/1999/xlink" schemaLocation="xlinks.xsd"/>
 
@@ -153,7 +155,6 @@
         <sequence>
             <element maxOccurs="1" minOccurs="1" ref="diggs:AbstractProject"> </element>
         </sequence>
-        <attributeGroup ref="gml:AssociationAttributeGroup"/>
     </complexType>
 
     <!-- ================================================================================== -->
@@ -597,11 +598,7 @@
                         maxOccurs="unbounded">
                         <annotation>
                             <documentation>Information on when ground water is struck during
-                                drilling of the hole. Note, option for more than one waterstrike
-                                property is deprecated in 2.6. Only one waterstrike property should
-                                be used. Post-strike readings should use the postStrikeReading
-                                property within the Waterstrike onject and not additional
-                                waterstrike properties.</documentation>
+                                drilling of the hole.</documentation>
                         </annotation>
                     </element>
                 </sequence>
@@ -717,12 +714,7 @@
                                 of rock.</documentation>
                         </annotation>
                     </element>
-                    <element minOccurs="0" ref="diggs:penetrationRate">
-                        <annotation>
-                            <documentation>Rate of advancement of the drill head. Deprecated - use
-                                advamcementRate instead</documentation>
-                        </annotation>
-                    </element>
+                    <element minOccurs="0" ref="diggs:penetrationRate"/>
                     <element name="restrainingForce" minOccurs="0" type="diggs:ForceMeasureType">
                         <annotation>
                             <documentation>Restraining (holdback) force</documentation>
@@ -1037,7 +1029,7 @@
                 advancement objects or references in properties.</documentation>
         </annotation>
         <sequence>
-            <element ref="diggs:CasingAdvancement"/>
+            <element ref="diggs:CasingAdvancement" minOccurs="0"/>
         </sequence>
         <attributeGroup ref="gml:AssociationAttributeGroup"/>
         <attributeGroup ref="gml:OwnershipAttributeGroup"/>
@@ -1180,7 +1172,7 @@
                 advancement array objects or references in properties.</documentation>
         </annotation>
         <sequence maxOccurs="unbounded">
-            <element maxOccurs="1" minOccurs="1" ref="diggs:Advancement">
+            <element maxOccurs="1" minOccurs="0" ref="diggs:Advancement">
                 <annotation>
                     <documentation>Data describing drilling parameters and observations while
                         advancing a section of the borehole, such as drill advancement rate, mud
@@ -1911,14 +1903,7 @@
                                 Recorded in a linear reference system for the well.</documentation>
                         </annotation>
                     </element>
-                    <element minOccurs="0" ref="diggs:filterPackInterval">
-                        <annotation>
-                            <documentation>The depth interval in which the filter pack surrounding
-                                the well screen or well openings occur. DEPRECATED. Filter pack
-                                information should be entered as a Backfill object with a reference
-                                there to this well opening object.</documentation>
-                        </annotation>
-                    </element>
+                    <element minOccurs="0" ref="diggs:filterPackInterval"/>
                     <element minOccurs="0" name="openingLength" type="diggs:LengthMeasureType">
                         <annotation>
                             <documentation>The opening length property.</documentation>
@@ -2148,8 +2133,7 @@
             <extension base="diggs:AbstractSampleType">
                 <sequence>
                     <element name="relativeReferencingSystem"
-                        type="diggs:AbstractRelativeReferenceSystemPropertyType" minOccurs="0"
-                        maxOccurs="1">
+                        type="diggs:RelativeReferenceSystemPropertyType" minOccurs="0" maxOccurs="1">
                         <annotation>
                             <documentation>For a core or block sample, this property can be used to
                                 introduce a relative spatial reference system for describing the
@@ -2339,10 +2323,8 @@
                 of custody event objects or references in properties.</documentation>
         </annotation>
         <sequence>
-            <element ref="diggs:ChainOfCustodyEvent"/>
+            <element ref="diggs:ChainOfCustodyEvent" minOccurs="1"/>
         </sequence>
-        <attributeGroup ref="gml:AssociationAttributeGroup"/>
-        <attributeGroup ref="gml:OwnershipAttributeGroup"/>
     </complexType>
     <complexType mixed="false" name="ChainOfCustodyEventType">
         <annotation>
@@ -2415,7 +2397,7 @@
                 references in properties.</documentation>
         </annotation>
         <sequence>
-            <element ref="diggs:Container" maxOccurs="1" minOccurs="1"/>
+            <element ref="diggs:Container" maxOccurs="1" minOccurs="0"/>
         </sequence>
         <attributeGroup ref="gml:AssociationAttributeGroup"/>
         <attributeGroup ref="gml:OwnershipAttributeGroup"/>
@@ -2986,7 +2968,7 @@
                 observation objects or references in properties.</documentation>
         </annotation>
         <sequence>
-            <element ref="diggs:GeoUnitObservation">
+            <element ref="diggs:GeoUnitObservation" maxOccurs="1" minOccurs="0">
                 <annotation>
                     <documentation>A geotechnical unit defined within a project and generally
                         identified by one or more characteristic physical or engineering
@@ -3356,6 +3338,19 @@
                                 objects or tables.</documentation>
                         </annotation>
                     </element>
+                    <element minOccurs="0" name="colorCharacter"
+                        type="diggs:ColorCharacterEnumExtType">
+                        <annotation>
+                            <documentation>Describes the character of the color property or collection of color properties, from the following enumerated list: banded - multiple colors occur
+                            in horizontal layers within the unit mottled - unit consists of a
+                            pattern of irregular spots, blotches or patches of a different color
+                            than the unit matrix color multicalored - unit consists of multiple
+                            colors where there is no description of the pattern or character of the
+                            various colors uniform - unit consists of a single color variegated - a
+                            multicolored unit containing spots, streaks, or blotches of multiple
+                            colors </documentation>
+                        </annotation>
+                    </element>
                     <element maxOccurs="unbounded" name="color" type="diggs:ColorPropertyType"
                         minOccurs="0">
                         <annotation>
@@ -3580,19 +3575,6 @@
                         </annotation>
                     </element>
                 </sequence>
-                <attribute name="character" type="diggs:ColorCharacterEnumType">
-                    <annotation>
-                        <documentation>Describes the character of the color(s) in the associated
-                            unit, from the following enumerated list: banded - multiple colors occur
-                            in horizontal layers within the unit mottled - unit consists of a
-                            pattern of irregular spots, blotches or patches of a different color
-                            than the unit matrix color multicalored - unit consists of multiple
-                            colors where there is no description of the pattern or character of the
-                            various colors uniform - unit consists of a single color variegated - a
-                            multicolored unit containing spots, streaks, or blotches of multiple
-                            colors </documentation>
-                    </annotation>
-                </attribute>
                 <attribute name="origin" type="diggs:ColorOriginEnumType">
                     <annotation>
                         <documentation>A term from an enumerated list that identifies the location
@@ -3649,47 +3631,40 @@
             <documentation>An object that describes the color of earth materials.</documentation>
         </annotation>
     </element>
-    <simpleType name="ColorCharacterEnumType">
+    <simpleType name="ColorCharacterEnumExtType">
         <annotation>
-            <documentation>Union type for color character enum type. Accepts values from
-                .</documentation>
+            <documentation>Union type for color character enum type.</documentation>
         </annotation>
-        <union>
-            <simpleType>
-                <restriction base="string">
-                    <enumeration value="banded">
-                        <annotation>
-                            <documentation>banded - banded value.</documentation>
-                        </annotation>
-                    </enumeration>
-                    <enumeration value="mottled">
-                        <annotation>
-                            <documentation>mottled - mottled value.</documentation>
-                        </annotation>
-                    </enumeration>
-                    <enumeration value="multicolored">
-                        <annotation>
-                            <documentation>multicolored - multicolored value.</documentation>
-                        </annotation>
-                    </enumeration>
-                    <enumeration value="uniform">
-                        <annotation>
-                            <documentation>uniform - uniform value.</documentation>
-                        </annotation>
-                    </enumeration>
-                    <enumeration value="variegated">
-                        <annotation>
-                            <documentation>variegated - variegated value.</documentation>
-                        </annotation>
-                    </enumeration>
-                </restriction>
-            </simpleType>
-            <simpleType>
-                <restriction base="string">
-                    <pattern value="Other: .{2,}"/>
-                </restriction>
-            </simpleType>
-        </union>
+        <union memberTypes="diggs:ColorCharacterEnumType diggs:OtherNameType"> </union>
+    </simpleType>
+    <simpleType name="ColorCharacterEnumType">
+        <restriction base="string">
+            <enumeration value="banded">
+                <annotation>
+                    <documentation>Multiple colors occur in horizontal layers within the unit.</documentation>
+                </annotation>
+            </enumeration>
+            <enumeration value="mottled">
+                <annotation>
+                    <documentation>A pattern of irregular spots, blotches or patches of a different color than the unit matrix color.</documentation>
+                </annotation>
+            </enumeration>
+            <enumeration value="multicolored">
+                <annotation>
+                    <documentation>Described as multiple colors where there is no indication of the pattern or character of the various colors.</documentation>
+                </annotation>
+            </enumeration>
+            <enumeration value="uniform">
+                <annotation>
+                    <documentation>A single, uniform color is observed.</documentation>
+                </annotation>
+            </enumeration>
+            <enumeration value="variegated">
+                <annotation>
+                    <documentation>Multiple colors consisting of spots, streaks, or blotches.</documentation>
+                </annotation>
+            </enumeration>
+        </restriction>
     </simpleType>
     <complexType name="ColorComponentsPropertyType">
         <annotation>
@@ -4120,6 +4095,19 @@
                                 is the liquid limit and PI is the plasticity index. </documentation>
                         </annotation>
                     </element>
+                    <element minOccurs="0" name="colorCharacter"
+                        type="diggs:ColorCharacterEnumExtType">
+                        <annotation>
+                            <documentation>Describes the character of the color property or collection of color properties, from the following enumerated list: banded - multiple colors occur
+                            in horizontal layers within the unit mottled - unit consists of a
+                            pattern of irregular spots, blotches or patches of a different color
+                            than the unit matrix color multicalored - unit consists of multiple
+                            colors where there is no description of the pattern or character of the
+                            various colors uniform - unit consists of a single color variegated - a
+                            multicolored unit containing spots, streaks, or blotches of multiple
+                            colors </documentation>
+                        </annotation>
+                    </element>
                     <element maxOccurs="unbounded" name="color" type="diggs:ColorPropertyType"
                         minOccurs="0">
                         <annotation>
@@ -4325,9 +4313,9 @@
                         type="diggs:ParticleSizeDistributionPropertyType" maxOccurs="1">
                         <annotation>
                             <documentation>Particle size distribution information providing details
-                                such as mean grain size, maximum grain size, etc. As opposed to
+                                such as mean grain size, maximum grain size, etc. As opposed to qualitative distribution.
                                 Properties in this object support quantitative values derived from
-                                laboratory analyses can carry descriptive terms. Detailed properties
+                                laboratory analyses that can carry descriptive terms. Detailed properties
                                 of a grain size distribution curve should be reported as test
                                 results of a ParticleSizeTest</documentation>
                         </annotation>
@@ -4774,6 +4762,7 @@
                 </attribute>
                 <attribute name="legendCode" type="string">
                     <annotation>
+                        <appinfo>DEPRECATED 1/26. Use legendCode property instead of this attribute</appinfo>
                         <documentation>Deprecated - use legendCode property instead</documentation>
                     </annotation>
                 </attribute>
@@ -5552,7 +5541,7 @@
                             present. Both are allowed.</documentation>
                     </annotation>
                     <sequence>
-                        <element name="particleSizeValue" type="diggs:ParticleSizeValueType"
+                        <element name="particleSizeValue" type="diggs:ParticleSizeMeasureType"
                             minOccurs="1">
                             <annotation>
                                 <documentation>A numeric value for the particle size, in length
@@ -5949,7 +5938,7 @@
                         </annotation>
                     </element>
                     <element maxOccurs="unbounded" minOccurs="0" name="procedure"
-                        type="diggs:ProcedurePropertyType">
+                        type="diggs:LaboratoryTestProcedurePropertyType">
                         <annotation>
                             <documentation>The procedure property.</documentation>
                         </annotation>
@@ -6889,7 +6878,7 @@
                 references in properties.</documentation>
         </annotation>
         <sequence>
-            <element ref="diggs:Sensor" minOccurs="1" maxOccurs="1"/>
+            <element ref="diggs:Sensor" minOccurs="0" maxOccurs="1"/>
         </sequence>
         <attributeGroup ref="gml:AssociationAttributeGroup"/>
         <attributeGroup ref="gml:OwnershipAttributeGroup"/>
@@ -8142,6 +8131,7 @@
 
     <element name="filterPackInterval" type="diggs:LinearExtentPropertyType">
         <annotation>
+            <appinfo>DEPRECATED 1/26. Filter pack information should be entered as a Backfill object with a reference there to this well opening object.</appinfo>
             <documentation>The depth interval in which the filter pack surrounding the well screen
                 or well openings occur. DEPRECATED. Filter pack information should be entered as a
                 Backfill object with a reference there to this well opening object.</documentation>
@@ -8149,6 +8139,7 @@
     </element>
     <element name="holeBearing" type="diggs:PlaneAngleMeasureType">
         <annotation>
+            <appinfo>DEPRECATED 1/26. Use bearing property instead.</appinfo>
             <documentation>Deprecated - use bearing property from abstract type</documentation>
         </annotation>
     </element>
@@ -8159,11 +8150,12 @@
     </element>
     <element name="chiseling" type="diggs:ChiselingPropertyType">
         <annotation>
+            <appinfo>DEPRECATED 1/26. Chiseling should be encoded within the BoreholeConstructionMethod object (to define the interval over which chiseling occurs, chiseling tool used, and the DrillAdvancement object to record chiseling rate of advancement. </appinfo>
             <documentation>Information on chiseling activity in a hole. Used as legacy to directly
                 accommodate AGS CHIS group data. This property is deprecated and instead, data on
                 chiseling should be encoded within the BoreholeConstructionMethod object (to define
                 the interval over which chiseling occurs, chiseling tool used, and the
-                DrillAdvancement object to record chiseling rate of advancement.</documentation>
+                DrillAdvancement object to record chiseling rate of advancement. </documentation>
         </annotation>
     </element>
     <element name="Chiseling" type="diggs:ChiselingType">
@@ -8216,6 +8208,7 @@
     </complexType>
     <element name="sanitarySealLocation" type="diggs:PointLocationPropertyType">
         <annotation>
+            <appinfo>DEPRECATED 1/26. Use Backfill object of the borehole to represent the sanitary seal</appinfo>
             <documentation>Distance to the base of the sanitary seal; measured in the borehole's
                 linear reference system. DEPRECATED. Use Backfill object of the borehole to
                 represent the sanitary seal</documentation>
@@ -8223,6 +8216,7 @@
     </element>
     <element name="sanitarySealType" type="gml:CodeType">
         <annotation>
+            <appinfo>DEPRECATED 1/26. Use Backfill object of the borehole to represent the sanitary seal</appinfo>
             <documentation>The type of material used for the sanitary or surface seal (eg.
                 bentonite, grout, etc.) DEPRECATED, use Backfill object to identify the sanitary
                 seal material</documentation>
@@ -8230,6 +8224,7 @@
     </element>
     <element name="penetrationRate" type="diggs:LengthPerTimeMeasureType">
         <annotation>
+            <appinfo>DEPRECATED 1/26. Use advamcementRate instead. </appinfo>
             <documentation>Rate of advancement of the drill head. Deprecated - use advamcementRate
                 instead</documentation>
         </annotation>
@@ -8238,6 +8233,7 @@
     <element name="MultiTimeInstant" type="diggs:MultiTimeInstantType"
         substitutionGroup="diggs:AbstractTimeObject" abstract="false">
         <annotation>
+            <appinfo>DEPRECATED 1/26. Use TimePositionInstance instead for time instances expressed in xsd:CalDate format.</appinfo>
             <documentation>A Diggs time object that contains a collection of time instances.
                 Deprecated as of 2.6. Use TimePositionInstance instead for time instances expressed
                 in xsd:CalDate format.</documentation>
@@ -8253,5 +8249,4 @@
             </extension>
         </complexContent>
     </complexType>
-
 </schema>
