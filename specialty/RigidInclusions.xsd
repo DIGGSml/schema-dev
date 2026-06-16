@@ -17,12 +17,9 @@
         <complexContent>
             <extension base="diggs:AbstractPlanarSamplingFeatureType">
                 <sequence>
-                    <element minOccurs="0" name="designLTPRef"/>
                     <element minOccurs="0" name="whenConstructed"
                         type="diggs:TimeIntervalPropertyType"/>
                     <element minOccurs="0" name="purpose" type="string"/>
-                    <element maxOccurs="unbounded" minOccurs="1" name="ltpZone"
-                        type="diggs:LTPZonePropertyType"/>
                     <element minOccurs="0" name="totalArea" type="diggs:AreaMeasureType">
                         <annotation>
                             <documentation>The total area of the LTP</documentation>
@@ -31,6 +28,13 @@
                     <element minOccurs="0" name="workingPlatformLevel" type="diggs:ElevationType">
                         <annotation>
                             <documentation>The total area of the LTP</documentation>
+                        </annotation>
+                    </element>
+                    <element minOccurs="0" name="workingPlatformBearingCapacity"
+                        type="diggs:PressureMeasureType">
+                        <annotation>
+                            <documentation>Should this be zonal?
+</documentation>
                         </annotation>
                     </element>
                     <element minOccurs="0" name="averageExistingGL" type="diggs:ElevationType">
@@ -56,16 +60,20 @@
     <element name="LTPZone" type="diggs:LTPZoneType"/>
     <complexType name="LTPZoneType">
         <complexContent>
-            <extension base="diggs:AbstractNamedObjectType">
+            <extension base="diggs:AbstractPlanarInstallationType">
                 <sequence>
-                    <element minOccurs="0" name="designLTPZoneRef" type="gml:ReferenceType"/>
-                    <element name="location" type="diggs:PlanarSurfacePropertyType"/>
                     <element minOccurs="0" name="materialType" type="diggs:LithologyPropertyType"/>
-                    <element minOccurs="0" name="elevationCMCCutoff" type="diggs:ElevationType"/>
                     <element minOccurs="0" name="elevationTopLTP" type="diggs:ElevationType"/>
                     <element name="impliedLTPThickness" type="diggs:LengthMeasureType"/>
                     <element maxOccurs="unbounded" minOccurs="0" name="geosynthetic"
-                        type="diggs:GeosyntheticPropertyType"/>
+                        type="diggs:GeosyntheticPropertyType">
+                        <annotation>
+                            <documentation>Should this be zone level? Both?
+</documentation>
+                        </annotation>
+                    </element>
+                    <element maxOccurs="unbounded" minOccurs="0" name="cmcLocations"
+                        type="diggs:CMCArrayPropertyType"/>
                 </sequence>
             </extension>
         </complexContent>
@@ -95,5 +103,124 @@
         </sequence>
         <attributeGroup ref="gml:OwnershipAttributeGroup"/>
         <attributeGroup ref="gml:AssociationAttributeGroup"/>
+    </complexType>
+    <element name="CMCArray" type="diggs:CMCArrayType"/>
+    <complexType name="CMCArrayType">
+        <complexContent>
+            <extension base="diggs:AbstractObjectType">
+                <sequence>
+                    <element minOccurs="0" name="columnType" type="gml:CodeType"/>
+                    <element name="columnIds" type="gml:NCNameList">
+                        <annotation>
+                            <documentation>A list of id's for te columns in this zone. The id's must conform with XML NCName convention.Values for any columns in this list that have a discrete RigidInclusion object defined, should match the gml:id of the corresponding RigidInclusion.</documentation>
+                        </annotation>
+                    </element>
+                    <element name="columnTopLocations" type="diggs:MultiPointPropertyType">
+                        <annotation>
+                            <documentation>A list of coordinates, within a geospatial CRS (2D or 3D), that defines the locations of the top of the columns installed in this zone. For 3D coordinates, the height coordinate shall correspond to the cutoff elevation for the column. The order of coordinate tuples must follow the order of columnids to allow for location/id assignment.</documentation>
+                        </annotation>
+                    </element>
+                    <element name="columnLengths" type="diggs:LengthDoubleListMeasureType"/>
+                    <element minOccurs="0" name="placedGroutVolumes"
+                        type="diggs:VolumeDoubleListMeasureType"/>
+                    <element minOccurs="0" name="installationType" type="gml:CodeType">
+                        <annotation>
+                            <documentation>Could be converted to an enum type with the following enumerations:
+1) simple bored
+2) bored with casing
+3) bored with slurry
+4) continuous flight hollow auger
+5) micropile
+6) cast-in-place, vibro-driven
+7) cast=in-place, driven
+8) prefabricated, vibro-driven
+9) prefabricated, driven
+10) soil mixin11)
+11) jet grouting</documentation>
+                        </annotation>
+                    </element>
+                    <element maxOccurs="unbounded" minOccurs="0" name="installationEquipment"
+                        type="diggs:EquipmentPropertyType"/>
+                    <element maxOccurs="unbounded" minOccurs="0" name="cuttingEquipment"
+                        type="diggs:EquipmentPropertyType"/>
+                    <element minOccurs="0" name="cutoffMethod"
+                        type="diggs:SpecificationPropertyType"/>
+                    <element minOccurs="0" name="columnCapheadPresent" type="boolean"/>
+                </sequence>
+            </extension>
+        </complexContent>
+    </complexType>
+    <complexType name="CMCArrayPropertyType">
+        <sequence>
+            <element ref="diggs:CMCArray"/>
+        </sequence>
+    </complexType>
+    <element name="CMCConstructionActivity" type="diggs:CMCConstructionActivityType"/>
+    <complexType name="CMCConstructionActivityType">
+        <complexContent>
+            <extension base="diggs:AbstractConstructionActivityType">
+                <sequence>
+                    <element minOccurs="0" name="torqueApplied"
+                        type="diggs:MomentOfForceMeasureType"/>
+                    <element minOccurs="0" name="penetrationPerRevolution"
+                        type="diggs:LengthMeasureType"/>
+                    <element minOccurs="0" name="penetrationRate"
+                        type="diggs:LengthPerTimeMeasureType">
+                        <annotation>
+                            <documentation>The rate that the drill is advanced into the ground; also known as driliing speed.
+</documentation>
+                        </annotation>
+                    </element>
+                    <element minOccurs="0" name="withdrawalRate"
+                        type="diggs:LengthPerTimeMeasureType"/>
+                    <element minOccurs="0" name="rotationSpeeed"
+                        type="diggs:AngularVelocityMeasureType"/>
+                    <element minOccurs="0" name="groutPressure" type="diggs:PressureMeasureType"/>
+                    <element minOccurs="0" name="groutFlowRate"
+                        type="diggs:VolumePerTimeMeasureType"/>
+                </sequence>
+            </extension>
+        </complexContent>
+    </complexType>
+    <complexType name="RigidInclusionType">
+        <complexContent>
+            <extension base="diggs:AbstractLinearInstallationType">
+                <sequence>
+                    <element minOccurs="1" name="LTPRef" type="diggs:FeatureReferenceType"/>
+                    <element minOccurs="1" name="LTPZoneRef" type="diggs:FeatureReferenceType"/>
+                    <element minOccurs="0" name="installationType" type="gml:CodeType">
+                        <annotation>
+                            <documentation>Could be converted to an enum type with the following enumerations:
+1) simple bored
+2) bored with casing
+3) bored with slurry
+4) continuous flight hollow auger
+5) micropile
+6) cast-in-place, vibro-driven
+7) cast=in-place, driven
+8) prefabricated, vibro-driven
+9) prefabricated, driven
+10) soil mixin11)
+11) jet grouting</documentation>
+                        </annotation>
+                    </element>
+                    <element minOccurs="0" name="columnType" type="gml:CodeType"/>
+                    <element minOccurs="0" name="theoreticalGroutVolume"
+                        type="diggs:VolumeDoubleListMeasureType"/>
+                    <element minOccurs="0" name="placedGroutVolume"
+                        type="diggs:VolumeDoubleListMeasureType"/>
+                    <element maxOccurs="unbounded" minOccurs="0" name="cuttingEquipment"
+                        type="diggs:EquipmentPropertyType"/>
+                    <element minOccurs="0" name="cutoffMethod"
+                        type="diggs:SpecificationPropertyType"/>
+                    <element minOccurs="0" name="columnCapheadPresent" type="boolean"/>
+                    <element minOccurs="0" name="meetsVerticality" type="boolean">
+                        <annotation>
+                            <documentation>True when verticality of the rigid inclusion meets specified verticality tolerances. Such tolerances should be specified in the ColumnSpec object of RIDesignSpec.</documentation>
+                        </annotation>
+                    </element>
+                </sequence>
+            </extension>
+        </complexContent>
     </complexType>
 </schema>
