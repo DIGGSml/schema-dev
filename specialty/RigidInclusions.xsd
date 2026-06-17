@@ -11,70 +11,96 @@
     <import namespace="http://www.opengis.net/gml/3.2" schemaLocation="gml3.2Profile_diggs.xsd"/>
     <import namespace="http://www.w3.org/1999/xlink" schemaLocation="xlinks.xsd"/>
 
-    <element name="LoadTransferPlatform" type="diggs:LoadTransferPlatformType"
-        substitutionGroup="diggs:AbstractPlanarSamplingFeature"/>
-    <complexType name="LoadTransferPlatformType">
+    <element name="RIFoundationSystem" type="diggs:RIFoundationSystemType"
+        substitutionGroup="diggs:AbstractPlanarSamplingFeature">
+        <annotation>
+            <documentation>A top-level, complex sampling feature describing the components of a rigid inclusion foundation system. It consists of child sampling features describing the load transfer platforms and individual rigid inclusion columns constructed within the soil below the LTP. Each of these sampling features can be individually referenced by observations, measurements and construction activities.</documentation>
+        </annotation>
+    </element>
+    <complexType name="RIFoundationSystemType">
         <complexContent>
             <extension base="diggs:AbstractPlanarSamplingFeatureType">
                 <sequence>
                     <element minOccurs="0" name="whenConstructed"
-                        type="diggs:TimeIntervalPropertyType"/>
+                        type="diggs:TimeIntervalPropertyType">
+                        <annotation>
+                            <documentation>The date range spanning construction of the foundation system (MC's and LTP's.</documentation>
+                        </annotation>
+                    </element>
                     <element minOccurs="0" name="purpose" type="string"/>
                     <element minOccurs="0" name="totalArea" type="diggs:AreaMeasureType">
                         <annotation>
-                            <documentation>The total area of the LTP</documentation>
+                            <documentation>The total area of the site occupying the RI Foundation System. This should correspont to the area of the featureExten property.</documentation>
                         </annotation>
                     </element>
                     <element minOccurs="0" name="workingPlatformLevel" type="diggs:ElevationType">
                         <annotation>
-                            <documentation>The total area of the LTP</documentation>
+                            <documentation>The elevation of the temporary, heavy-duty layer of compacted granular material installed across the site before ground improvement begins.</documentation>
                         </annotation>
                     </element>
                     <element minOccurs="0" name="workingPlatformBearingCapacity"
                         type="diggs:PressureMeasureType">
                         <annotation>
-                            <documentation>Should this be zonal?
+                            <documentation>The design bearing capacity of the working platform, sufficient to handle expected track pressures of the drilling rigs, grout pumps, and support equipment used to install the rigid inclusions. Is this actually a measured value or a design specification for the working platform? If design, then probably should be placed in program element somewhere.
 </documentation>
                         </annotation>
                     </element>
                     <element minOccurs="0" name="averageExistingGL" type="diggs:ElevationType">
                         <annotation>
-                            <documentation>The average elevation of the existing ground level.</documentation>
+                            <documentation>The average elevation of the existing ground level below the working platform.</documentation>
                         </annotation>
                     </element>
                     <element maxOccurs="1" minOccurs="0" name="averageWTLevel"
                         type="diggs:ElevationType">
                         <annotation>
-                            <documentation>The average elevation of the water table beneath the LTP.</documentation>
+                            <documentation>The average elevation of the water table beneath the site.</documentation>
                         </annotation>
                     </element>
+                    <element name="loadTransferPlatforms" type="diggs:LTPArrayPropertyType"/>
                 </sequence>
             </extension>
         </complexContent>
     </complexType>
-    <element name="LTPZone" type="diggs:LTPZoneType"
-        substitutionGroup="diggs:AbstractPlanarInstallation"/>
-    <complexType name="LTPZoneType">
+    <complexType name="LTPArrayPropertyType">
+        <sequence minOccurs="0" maxOccurs="unbounded">
+            <element ref="diggs:LoadTransferPlatform"/>
+        </sequence>
+        <attributeGroup ref="gml:OwnershipAttributeGroup"/>
+        <attributeGroup ref="gml:AssociationAttributeGroup"/>
+    </complexType>
+    <element name="LoadTransferPlatform" type="diggs:LoadTransferPlatformType"/>
+    <complexType name="LoadTransferPlatformType">
         <complexContent>
-            <extension base="diggs:AbstractPlanarInstallationType">
+            <extension base="diggs:AbstractPlanarSamplingFeatureType">
                 <sequence>
                     <element minOccurs="0" name="totalArea" type="diggs:AreaMeasureType">
                         <annotation>
-                            <documentation>The total area of the LTP zone</documentation>
+                            <documentation>The total area of the LTP.</documentation>
                         </annotation>
                     </element>
                     <element minOccurs="0" name="materialType" type="diggs:LithologyPropertyType"/>
-                    <element minOccurs="0" name="elevationTopLTP" type="diggs:ElevationType"/>
-                    <element name="impliedLTPThickness" type="diggs:LengthMeasureType"/>
-                    <element maxOccurs="unbounded" minOccurs="0" name="geosynthetic"
-                        type="diggs:GeosyntheticPropertyType">
+                    <element minOccurs="0" name="elevationTopLTP" type="diggs:ElevationType">
                         <annotation>
-                            <documentation>Should this be zone level? Both?
-</documentation>
+                            <documentation>The elevation of the top of the load transfer platform</documentation>
                         </annotation>
                     </element>
-                    <element maxOccurs="unbounded" minOccurs="0" name="cmcLocations"
-                        type="diggs:CMCArrayPropertyType"/>
+                    <element name="impliedLTPThickness" type="diggs:LengthMeasureType">
+                        <annotation>
+                            <documentation>The thickness of the load transfer platform, inferred from the LTP top and workding platform elevations.</documentation>
+                        </annotation>
+                    </element>
+                    <element maxOccurs="unbounded" minOccurs="0" name="geosynthetics"
+                        type="diggs:GeosyntheticArrayPropertyType">
+                        <annotation>
+                            <documentation>A property that holds the Geosyntheic objects installed within this LTP.</documentation>
+                        </annotation>
+                    </element>
+                    <element maxOccurs="unbounded" minOccurs="1" name="rigidInclusions"
+                        type="diggs:RIArrayPropertyType">
+                        <annotation>
+                            <documentation>A property that holds the rigid inclusions (CMC) that underlie this LTP</documentation>
+                        </annotation>
+                    </element>
                 </sequence>
             </extension>
         </complexContent>
@@ -89,23 +115,208 @@
                             <documentation>Identifies the type of geosynthetic used, for example, "geotextile", "geogrid", "geomembrane", etc. Intended to come from a controlled list of terms.</documentation>
                         </annotation>
                     </element>
+                    <element maxOccurs="1" minOccurs="0" name="heightAboveWorkingPlatform">
+                        <annotation>
+                            <documentation>The measured height of the geosynthetic above the working platform.</documentation>
+                        </annotation>
+                    </element>
                     <element minOccurs="0" name="elevation" type="diggs:ElevationType">
                         <annotation>
-                            <documentation>The elevation of the geogrid within the zone. Use srsName to specify absolute vertical CRS and/or datumReference to specify local datum type.</documentation>
+                            <documentation>The elevation of the geosynthetic within the LTP. Use srsName to specify absolute vertical CRS and/or datumReference to specify local datum type.</documentation>
+                        </annotation>
+                    </element>
+                    <element minOccurs="0" name="rxtent" type="diggs:PlanarSurfacePropertyType">
+                        <annotation>
+                            <documentation>A planar surface (polygon) whose geospatial coordinates mark the lateral extent of the geosynthetic within the LTP. If this element is not present, it is assumeed that the geosynthetic extends across the entire LTP.</documentation>
                         </annotation>
                     </element>
                 </sequence>
             </extension>
         </complexContent>
     </complexType>
-    <complexType name="GeosyntheticPropertyType">
-        <sequence minOccurs="0">
+    <complexType name="GeosyntheticArrayPropertyType">
+        <sequence minOccurs="0" maxOccurs="unbounded">
             <element ref="diggs:Geosynthetic"/>
         </sequence>
         <attributeGroup ref="gml:OwnershipAttributeGroup"/>
         <attributeGroup ref="gml:AssociationAttributeGroup"/>
     </complexType>
-    <element name="CMCArray" type="diggs:CMCArrayType"/>
+    <element name="CMCSubmittedDesign" type="diggs:CMCArrayType"/>
+    <element name="RigidInclusion" type="diggs:RigidInclusionType">
+        <annotation>
+            <documentation>A sampling feature describing the location and properties of a single rigid inclusion element (CMC).</documentation>
+        </annotation>
+    </element>
+    <complexType name="RigidInclusionType">
+        <complexContent>
+            <extension base="diggs:AbstractLinearSamplingFeatureType">
+                <sequence>
+                    <element minOccurs="0" name="columnType" type="gml:CodeType"/>
+                    <element maxOccurs="1" minOccurs="0" name="whenConstructed"
+                        type="diggs:TimeIntervalPropertyType">
+                        <annotation>
+                            <documentation>The period of time when the hole is constructed. This
+                                should include the entire time the drill rig is on
+                                site.</documentation>
+                        </annotation>
+                    </element>
+                    <element maxOccurs="unbounded" minOccurs="0" name="constructionMethod"
+                        type="diggs:RIConstructionMethodPropertyType">
+                        <annotation>
+                            <documentation>Information regarding construction of the rigid inclusion over
+                                different depth and/or time 
+                               intervals</documentation>
+                        </annotation>
+                    </element>
+                    <element maxOccurs="unbounded" minOccurs="0" name="constructionEvent"
+                        type="diggs:RIEventPropertyType">
+                        <annotation>
+                            <documentation>Information about events recorded during construction of
+                                the rigid inclusion.</documentation>
+                        </annotation>
+                    </element>
+                    <element minOccurs="0" name="columnLength" type="diggs:LengthMeasureType"/>
+                    <element minOccurs="0" name="columnDiameter" type="diggs:LengthMeasureType"/>
+                    <element minOccurs="0" name="theoreticalGroutVolume"
+                        type="diggs:VolumeMeasureType"/>
+                    <element minOccurs="0" name="placedGroutVolume" type="diggs:VolumeMeasureType"/>
+                    <element minOccurs="0" name="cutoffMethod"
+                        type="diggs:SpecificationPropertyType"/>
+                    <element minOccurs="0" name="columnCapheadPresent" type="boolean"/>
+                    <element minOccurs="0" name="meetsVerticality" type="boolean">
+                        <annotation>
+                            <documentation>True when verticality of the rigid inclusion meets specified verticality tolerances. Such tolerances should be specified in the ColumnSpec object of RIDesignSpec.</documentation>
+                        </annotation>
+                    </element>
+                    <element maxOccurs="unbounded" minOccurs="0" name="waterStrike"
+                        type="diggs:WaterStrikePropertyType">
+                        <annotation>
+                            <documentation>Information on when ground water is struck during
+                                drilling of the hole.</documentation>
+                        </annotation>
+                    </element>
+                </sequence>
+            </extension>
+        </complexContent>
+    </complexType>
+    <complexType name="RIArrayPropertyType">
+        <sequence minOccurs="0" maxOccurs="unbounded">
+            <element ref="diggs:RigidInclusion"/>
+        </sequence>
+        <attributeGroup ref="gml:OwnershipAttributeGroup"/>
+        <attributeGroup ref="gml:AssociationAttributeGroup"/>
+    </complexType>
+    <complexType name="RIConstructionMethodType">
+        <complexContent>
+            <extension base="diggs:AbstractNamedRoleObjectType">
+                <sequence>
+                    <element minOccurs="0" ref="diggs:location">
+                        <annotation>
+                            <documentation>The location within the sampling feature that corresponds
+                                to the particular construction method being referenced here. If
+                                omitted, it is assumed that the procedures specified apply to the
+                                entire extent of the sampling feature</documentation>
+                        </annotation>
+                    </element>
+                    <element maxOccurs="1" minOccurs="0" name="methodTime"
+                        type="diggs:TimeIntervalPropertyType">
+                        <annotation>
+                            <documentation>The period of time during which the construction event is
+                                occurring</documentation>
+                        </annotation>
+                    </element>
+                    <element minOccurs="0" name="holeStability" type="string">
+                        <annotation>
+                            <documentation>Uncontrolled string describing stability conditions of
+                                the hole during this interval</documentation>
+                        </annotation>
+                    </element>
+                    <element maxOccurs="unbounded" minOccurs="0" name="constructionMethod"
+                        type="diggs:SpecificationPropertyType">
+                        <annotation>
+                            <documentation>Contains a Specification object that may be used to
+                                describe any details regarding the method of construction. It should
+                                not be used to simply provide a name for the construction method.
+                                That value should be entered in the gml:name property for this
+                                object.</documentation>
+                        </annotation>
+                    </element>
+                    <element maxOccurs="unbounded" minOccurs="0" name="constructionEquipment"
+                        type="diggs:EquipmentPropertyType">
+                        <annotation>
+                            <documentation>A property element that contains an Equipment feature (or
+                                reference to one) that details the construction equipment
+                                used.</documentation>
+                        </annotation>
+                    </element>
+                    <element minOccurs="0" name="cuttingToolInfo"
+                        type="diggs:CuttingToolArrayPropertyType">
+                        <annotation>
+                            <documentation>The cutting tool info property.</documentation>
+                        </annotation>
+                    </element>
+                    <element minOccurs="0" name="drillPipeInfo"
+                        type="diggs:DrillPipeArrayPropertyType">
+                        <annotation>
+                            <documentation>The drill pipe info property.</documentation>
+                        </annotation>
+                    </element>
+                    <element minOccurs="0" name="hydraulicFluidFlowRate"
+                        type="diggs:VolumePerTimeMeasureType">
+                        <annotation>
+                            <documentation>The flow rate of the hydraulic fluid.</documentation>
+                        </annotation>
+                    </element>
+                    <element minOccurs="0" ref="diggs:groutRef"/>
+                </sequence>
+            </extension>
+        </complexContent>
+    </complexType>
+    <element name="RIConstructionMethod" type="diggs:RIConstructionMethodType"/>
+    <complexType name="RIConstructionMethodPropertyType">
+        <sequence minOccurs="0" maxOccurs="1">
+            <element ref="diggs:RIConstructionMethod"/>
+        </sequence>
+        <attributeGroup ref="gml:OwnershipAttributeGroup"/>
+        <attributeGroup ref="gml:AssociationAttributeGroup"/>
+    </complexType>
+    <element name="RIEvent" type="diggs:RIEventType"/>
+    <complexType name="RIEventType">
+        <complexContent>
+            <extension base="diggs:AbstractEventType">
+                <sequence>
+                    <element minOccurs="0" name="riDepth" type="diggs:PointLocationPropertyType">
+                        <annotation>
+                            <documentation>Measured Depth to the base of the rigid inclusion at this event time,
+                                reported in the RI's linear referencing system.</documentation>
+                        </annotation>
+                    </element>
+                    <choice>
+                        <element minOccurs="0" name="depthToWater"
+                            type="diggs:PointLocationPropertyType">
+                            <annotation>
+                                <documentation>Depth to Water Surface as measured at this event
+                                    time, recorded in the hole's linear referencing
+                                    system.</documentation>
+                            </annotation>
+                        </element>
+                        <element fixed="true" minOccurs="0" name="isDry" type="boolean">
+                            <annotation>
+                                <documentation>Indicates whether dry.</documentation>
+                            </annotation>
+                        </element>
+                    </choice>
+                </sequence>
+            </extension>
+        </complexContent>
+    </complexType>
+    <complexType name="RIEventPropertyType">
+        <sequence minOccurs="0" maxOccurs="1">
+            <element ref="diggs:RIEvent"/>
+        </sequence>
+        <attributeGroup ref="gml:OwnershipAttributeGroup"/>
+        <attributeGroup ref="gml:AssociationAttributeGroup"/>
+    </complexType>
     <complexType name="CMCArrayType">
         <complexContent>
             <extension base="diggs:AbstractObjectType">
@@ -169,7 +380,7 @@
     </complexType>
     <complexType name="CMCArrayPropertyType">
         <sequence>
-            <element ref="diggs:CMCArray"/>
+            <element ref="diggs:CMCSubmittedDesign"/>
         </sequence>
     </complexType>
     <element name="CMCConstructionActivity" type="diggs:CMCConstructionActivityType"/>
@@ -195,50 +406,6 @@
                     <element minOccurs="0" name="groutPressure" type="diggs:PressureMeasureType"/>
                     <element minOccurs="0" name="groutFlowRate"
                         type="diggs:VolumePerTimeMeasureType"/>
-                </sequence>
-            </extension>
-        </complexContent>
-    </complexType>
-    <element name="RigidInclusion" substitutionGroup="diggs:AbstractLinearInstallation"
-        type="diggs:RigidInclusionType"/>
-    <complexType name="RigidInclusionType">
-        <complexContent>
-            <extension base="diggs:AbstractLinearInstallationType">
-                <sequence>
-                    <element minOccurs="1" name="LTPRef" type="diggs:FeatureReferenceType"/>
-                    <element minOccurs="1" name="LTPZoneRef" type="diggs:FeatureReferenceType"/>
-                    <element minOccurs="0" name="columnType" type="gml:CodeType"/>
-                    <element minOccurs="0" name="installationType" type="gml:CodeType">
-                        <annotation>
-                            <documentation>Could be converted to an enum type with the following enumerations:
-1) simple bored
-2) bored with casing
-3) bored with slurry
-4) continuous flight hollow auger
-5) micropile
-6) cast-in-place, vibro-driven
-7) cast=in-place, driven
-8) prefabricated, vibro-driven
-9) prefabricated, driven
-10) soil mixin11)
-11) jet grouting</documentation>
-                        </annotation>
-                    </element>
-                    <element minOccurs="0" name="columnLength" type="diggs:LengthMeasureType"/>
-                    <element minOccurs="0" name="columnDiameter" type="diggs:LengthMeasureType"/>
-                    <element minOccurs="0" name="theoreticalGroutVolume"
-                        type="diggs:VolumeMeasureType"/>
-                    <element minOccurs="0" name="placedGroutVolume" type="diggs:VolumeMeasureType"/>
-                    <element maxOccurs="unbounded" minOccurs="0" name="cuttingEquipment"
-                        type="diggs:EquipmentPropertyType"/>
-                    <element minOccurs="0" name="cutoffMethod"
-                        type="diggs:SpecificationPropertyType"/>
-                    <element minOccurs="0" name="columnCapheadPresent" type="boolean"/>
-                    <element minOccurs="0" name="meetsVerticality" type="boolean">
-                        <annotation>
-                            <documentation>True when verticality of the rigid inclusion meets specified verticality tolerances. Such tolerances should be specified in the ColumnSpec object of RIDesignSpec.</documentation>
-                        </annotation>
-                    </element>
                 </sequence>
             </extension>
         </complexContent>
