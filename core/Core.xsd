@@ -7903,6 +7903,7 @@
                 <sequence minOccurs="0">
                     <choice>
                         <element ref="gml:AbstractSurface"/>
+                        <element ref="diggs:MultiSurfaceAggregate"/>
                     </choice>
                 </sequence>
                 <attributeGroup ref="gml:OwnershipAttributeGroup"/>
@@ -7959,9 +7960,9 @@
     <element name="MultiPlanarSurface" substitutionGroup="gml:AbstractSurface"
         type="diggs:MultiPlanarSurfaceType">
         <annotation>
-            <documentation>A Diggs geometry object that represents a surface that does not lie
+            <documentation>A Diggs geometry object that represents a single contiguous surface that does not lie
                 within a single plane. It contains an array of polygon patches, each of which
-                contain and inner and optionally outer ring that define the extent of the patch. All
+                contain an outer and optionally one or more interior rings that define the extent of the patch. All
                 of the coordinate points within a patch must be coplanar, and each patch must share
                 an edge with an adjacent patch to form a continuous surface. </documentation>
         </annotation>
@@ -8028,10 +8029,33 @@
     </complexType>
 
 
+    <complexType name="MultiSurfaceAggregateType">
+        <complexContent>
+            <extension base="gml:AbstractGeometricAggregateType">
+                <sequence>
+                    <element ref="diggs:surfaceMembers"/>
+                </sequence>
+            </extension>
+
+        </complexContent>
+    </complexType>
+
     <!-- ================================================================================= -->
     <!-- TIME OBJECTS                                                                  -->
     <!-- ================================================================================= -->
 
+    <element name="MultiSurfaceAggregate" substitutionGroup="gml:AbstractGeometricAggregate"
+        type="diggs:MultiSurfaceAggregateType"/>
+    <complexType name="MultiSurfaceAggregatePropertyType">
+        <annotation>
+            <documentation> Property type for referencing a MultiPlanarSurface element, following GML property type pattern. </documentation>
+        </annotation>
+        <sequence>
+            <element ref="diggs:MultiSurfaceAggregate"/>
+        </sequence>
+        <attributeGroup ref="gml:OwnershipAttributeGroup"/>
+        <attributeGroup ref="gml:AssociationAttributeGroup"/>
+    </complexType>
     <complexType name="AbstractTimeObjectBaseType" abstract="true">
         <annotation>
             <documentation>Base type for all time-related objects without description field. This
