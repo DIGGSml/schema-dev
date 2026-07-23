@@ -706,6 +706,111 @@
                 VectorLinearSpatialReferenceSystem in GML 3.3) </documentation>
         </annotation>
     </element>
+    <!-- ================================================================================= -->
+    <!-- TRIANGULATED SURFACE - v 3.1 addition (planar-triangle-mesh equivalent of gml:TriangulatedSurface)  -->
+    <!-- Parallels MultiPlanarSurface/PlanarSurfacePatch exactly: restricts/extends the     -->
+    <!-- GML type directly and substitutes into GML's own substitution groups, so it's     -->
+    <!-- automatically usable anywhere PlanarSurface/MultiPlanarSurface already are today   -->
+    <!-- (arealExtent's SurfacePropertyType choice, a Solid's Shell surfaceMember, etc.) —  -->
+    <!-- no other schema changes are needed to wire it in.                                 -->
+    <!-- ================================================================================= -->
+
+    <element name="TriangulatedSurface" substitutionGroup="gml:AbstractSurface"
+        type="diggs:TriangulatedSurfaceType">
+        <annotation>
+            <documentation>A Diggs geometry object that represents a single contiguous surface
+                composed exclusively of planar triangular patches (diggs:TriangulatedSurfacePatch).
+                Unlike diggs:MultiPlanarSurface, whose patches are arbitrary polygons that must be
+                independently verified as coplanar, every patch here has exactly three vertices and
+                is therefore planar by construction. Intended for representing an inherently
+                irregular (non-planar) surface — e.g. a geologic contact, stratigraphic boundary, or
+                other soil/rock-model bounding surface — as a triangulated mesh, typically as one of
+                several faces (diggs:Shell surfaceMembers) forming a gml:Solid soil-model volume.
+                Each patch must share an edge with an adjacent patch to form a continuous surface,
+                the same connectivity requirement as diggs:MultiPlanarSurface.</documentation>
+        </annotation>
+    </element>
+    <complexType name="TriangulatedSurfaceBaseType">
+        <complexContent>
+            <restriction base="gml:AbstractSurfaceType"/>
+        </complexContent>
+    </complexType>
+    <complexType name="TriangulatedSurfaceType">
+        <annotation>
+            <documentation>Extended type based on AbstractSurfaceType. Adds elements for
+                triangulated (planar-triangle-mesh) surface type definition.</documentation>
+        </annotation>
+        <complexContent>
+            <extension base="diggs:TriangulatedSurfaceBaseType">
+                <sequence>
+                    <element ref="gml:patches">
+                        <annotation>
+                            <documentation>The patches property. Every member is expected to be a
+                                diggs:TriangulatedSurfacePatch (enforced by convention/documentation
+                                only, the same way gml:TriangulatedSurface's own patches are not
+                                machine-restricted to gml:Triangle members by the XSD content
+                                model).</documentation>
+                        </annotation>
+                    </element>
+                </sequence>
+            </extension>
+        </complexContent>
+    </complexType>
+
+    <complexType name="TriangulatedSurfacePropertyType">
+        <annotation>
+            <documentation> Property type for referencing a TriangulatedSurface element, following GML property type pattern. </documentation>
+        </annotation>
+        <sequence minOccurs="0">
+            <element ref="diggs:TriangulatedSurface"/>
+        </sequence>
+        <attributeGroup ref="gml:OwnershipAttributeGroup"/>
+        <attributeGroup ref="gml:AssociationAttributeGroup"/>
+    </complexType>
+
+    <element name="TrianglePatch" substitutionGroup="gml:AbstractSurfacePatch"
+        type="diggs:TriangulatedSurfacePatchType">
+        <annotation>
+            <documentation>A Diggs geometry object defining a single planar triangle that serves as
+                one patch comprising a diggs:TriangulatedSurface. Structurally the triangle-only
+                counterpart of diggs:PlanarSurfacePatch: exactly one required exterior boundary
+                (no interior rings — a triangle has no holes), whose ring shall be a gml:LinearRing
+                with exactly four positions (three distinct triangle corners, first and last
+                coincident) — the same convention gml:Triangle itself uses; not machine-enforced by
+                this content model, only by documentation, matching the base GML type's own
+                approach.</documentation>
+        </annotation>
+    </element>
+    <complexType name="TriangulatedSurfacePatchType">
+        <annotation>
+            <documentation>Extended type based on AbstractSurfacePatchType. Adds elements for
+                triangle patch type definition.</documentation>
+        </annotation>
+        <complexContent>
+            <extension base="gml:AbstractSurfacePatchType">
+                <sequence>
+                    <element ref="gml:exterior">
+                        <annotation>
+                            <documentation>The exterior boundary of the triangle — required
+                                (unlike diggs:PlanarSurfacePatch's optional exterior), and must
+                                form a 3-sided ring (4 positions, first = last).</documentation>
+                        </annotation>
+                    </element>
+                    <element minOccurs="0" name="uncertainty" type="diggs:UncertaintyPropertyType">
+                        <annotation>
+                            <documentation>The uncertainty property.</documentation>
+                        </annotation>
+                    </element>
+                </sequence>
+                <attribute fixed="planar" name="interpolation" type="gml:SurfaceInterpolationType">
+                    <annotation>
+                        <documentation>The interpolation attribute.</documentation>
+                    </annotation>
+                </attribute>
+                <attributeGroup ref="gml:SRSReferenceGroup"/>
+            </extension>
+        </complexContent>
+    </complexType>
 
 
 </schema>
