@@ -553,23 +553,48 @@
             <element ref="diggs:LinearExtent"/>
         </sequence>
     </complexType>
-    <element name="surfaceMembers" type="diggs:surfaceMembersArrayPropertyType">
-
+    <element name="surfaceMember" type="diggs:SurfaceMemberPropertyType">
         <annotation>
-            <documentation>The curve members property.</documentation>
+            <documentation>A single surface member of a diggs:CompositeSurface or
+                diggs:MultiSurface. Either references a surface via the xlink:href attributes or
+                contains the surface element inline. A surface element here is any element
+                substitutable for diggs:AbstractSurface — deliberately excludes diggs:Shell, which
+                represents a solid's boundary component rather than a standalone
+                surface.</documentation>
         </annotation>
     </element>
-
+    <complexType name="SurfaceMemberPropertyType">
+        <annotation>
+            <documentation>Property type for a single surface member reference, following GML's
+                surfaceMember/SurfacePropertyType pattern. Either the reference or the contained
+                element shall be given, but not both nor neither.</documentation>
+        </annotation>
+        <sequence minOccurs="0">
+            <element ref="diggs:AbstractSurface"/>
+        </sequence>
+        <attributeGroup ref="gml:AssociationAttributeGroup"/>
+        <attributeGroup ref="gml:OwnershipAttributeGroup"/>
+    </complexType>
+    <element name="surfaceMembers" type="diggs:surfaceMembersArrayPropertyType">
+        <annotation>
+            <documentation>An inline array of surface members of a diggs:CompositeSurface or
+                diggs:MultiSurface. The order of the elements is significant and shall be preserved
+                when processing the array. Prefer this form over repeated diggs:surfaceMember
+                elements when every member is inline and element count should stay directly
+                readable (e.g. a coverage domain with one value per surface).</documentation>
+        </annotation>
+    </element>
     <complexType name="surfaceMembersArrayPropertyType">
         <annotation>
-            <documentation>Property type for curve members array references. Used to wrap curve
-                members array objects or references in properties.</documentation>
+            <documentation>Property type for an inline array of surface members. Referencing surface
+                elements or arrays of surface elements via xlink is not supported here — use the
+                singular diggs:surfaceMember for that.</documentation>
         </annotation>
         <sequence maxOccurs="unbounded">
-            <element ref="gml:AbstractSurface"/>
+            <element ref="diggs:AbstractSurface"/>
         </sequence>
     </complexType>
-
+    
     <element name="PlanarObservationRepresentation" substitutionGroup="diggs:AbstractGeometry"
         type="diggs:PlanarObservationRepresentationType">
         <annotation>
@@ -709,13 +734,13 @@
     <!-- ================================================================================= -->
     <!-- TRIANGULATED SURFACE - v 3.1 addition (planar-triangle-mesh equivalent of gml:TriangulatedSurface)  -->
     <!-- Parallels MultiPlanarSurface/PlanarSurfacePatch exactly: restricts/extends the     -->
-    <!-- GML type directly and substitutes into GML's own substitution groups, so it's     -->
-    <!-- automatically usable anywhere PlanarSurface/MultiPlanarSurface already are today   -->
-    <!-- (arealExtent's SurfacePropertyType choice, a Solid's Shell surfaceMember, etc.) —  -->
-    <!-- no other schema changes are needed to wire it in.                                 -->
+    <!-- GML type directly and substitutes into diggs:AbstractSurface (which itself        -->
+    <!-- substitutes into gml:AbstractSurface), so it's automatically usable anywhere       -->
+    <!-- PlanarSurface/MultiPlanarSurface already are today (arealExtent's SurfacePropertyType -->
+    <!-- choice, a Solid's Shell surfaceMember, etc.) — no other schema changes needed.-->   
     <!-- ================================================================================= -->
 
-    <element name="TriangulatedSurface" substitutionGroup="gml:AbstractSurface"
+    <element name="TriangulatedSurface" substitutionGroup="diggs:AbstractSurface"
         type="diggs:TriangulatedSurfaceType">
         <annotation>
             <documentation>A Diggs geometry object that represents a single contiguous surface
@@ -730,18 +755,14 @@
                 the same connectivity requirement as diggs:MultiPlanarSurface.</documentation>
         </annotation>
     </element>
-    <complexType name="TriangulatedSurfaceBaseType">
-        <complexContent>
-            <restriction base="gml:AbstractSurfaceType"/>
-        </complexContent>
-    </complexType>
+
     <complexType name="TriangulatedSurfaceType">
         <annotation>
             <documentation>Extended type based on AbstractSurfaceType. Adds elements for
                 triangulated (planar-triangle-mesh) surface type definition.</documentation>
         </annotation>
         <complexContent>
-            <extension base="diggs:TriangulatedSurfaceBaseType">
+            <extension base="diggs:AbstractSurfaceType">
                 <sequence>
                     <element ref="gml:patches">
                         <annotation>

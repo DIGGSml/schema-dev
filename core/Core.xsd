@@ -7717,7 +7717,7 @@
         </annotation>
     </element>
 
-    <element name="Grid" type="diggs:GridType">
+    <element name="Grid" type="diggs:GridType" substitutionGroup="diggs:AbstractGeometry">
         <annotation>
             <documentation>The grid property.</documentation>
         </annotation>
@@ -7881,7 +7881,7 @@
                 <sequence minOccurs="0">
                     <choice>
                         <element ref="gml:AbstractSurface"/>
-                        <element ref="diggs:MultiSurfaceAggregate"/>
+                        <element ref="diggs:MultiSurface"/>
                     </choice>
                 </sequence>
                 <attributeGroup ref="gml:OwnershipAttributeGroup"/>
@@ -7889,8 +7889,31 @@
             </restriction>
         </complexContent>
     </complexType>
-
-    <element name="PlanarSurface" substitutionGroup="gml:AbstractSurface"
+    
+    <element abstract="true" name="AbstractSurface" substitutionGroup="gml:AbstractSurface"
+        type="diggs:AbstractSurfaceType">
+        <annotation>
+            <documentation>Abstract head of the substitution group for DIGGS standalone surface
+                geometries (diggs:PlanarSurface, diggs:MultiPlanarSurface,
+                diggs:TriangulatedSurface, diggs:CompositeSurface). Deliberately excludes
+                diggs:Shell, which represents one boundary component of a solid rather than a
+                standalone surface in its own right — a property that wants "any real surface, not
+                a solid's boundary piece" (e.g. diggs:CompositeSurface's own members) should
+                reference diggs:AbstractSurface, not gml:AbstractSurface.</documentation>
+        </annotation>
+    </element>
+    
+    <complexType abstract="true" name="AbstractSurfaceType">
+        <complexContent>
+            <restriction base="gml:AbstractSurfaceType">
+                <sequence>
+                    <element ref="gml:description" minOccurs="0"/>
+                </sequence>
+            </restriction>
+        </complexContent>
+    </complexType>
+    
+    <element name="PlanarSurface" substitutionGroup="diggs:AbstractSurface"
         type="diggs:PlanarSurfaceType">
         <annotation>
             <documentation>A Diggs geometry object that represents a surface that lies within a
@@ -7899,18 +7922,13 @@
                 coplanar</documentation>
         </annotation>
     </element>
-    <complexType name="PlanarSurfaceBaseType">
-        <complexContent>
-            <restriction base="gml:AbstractSurfaceType"> </restriction>
-        </complexContent>
-    </complexType>
     <complexType name="PlanarSurfaceType">
         <annotation>
             <documentation>Extended type based on AbstractSurfaceType. Adds elements for polygon
                 type definition.</documentation>
         </annotation>
         <complexContent>
-            <extension base="diggs:PlanarSurfaceBaseType">
+            <extension base="diggs:AbstractSurfaceType">
                 <sequence>
                     <element minOccurs="0" ref="gml:exterior"/>
                     <element maxOccurs="unbounded" minOccurs="0" ref="gml:interior"/>
@@ -7935,28 +7953,27 @@
         <attributeGroup ref="gml:OwnershipAttributeGroup"/>
         <attributeGroup ref="gml:AssociationAttributeGroup"/>
     </complexType>
-    <element name="MultiPlanarSurface" substitutionGroup="gml:AbstractSurface"
+    <element name="MultiPlanarSurface" substitutionGroup="diggs:AbstractSurface"
         type="diggs:MultiPlanarSurfaceType">
         <annotation>
             <documentation>A Diggs geometry object that represents a single contiguous surface that does not lie
                 within a single plane. It contains an array of polygon patches, each of which
                 contain an outer and optionally one or more interior rings that define the extent of the patch. All
                 of the coordinate points within a patch must be coplanar, and each patch must share
-                an edge with an adjacent patch to form a continuous surface. </documentation>
+                an edge with an adjacent patch to form a continuous surface.
+                Patches are not individually addressable (no gml:id, no independent srsName); use
+                diggs:CompositeSurface instead when panels need their own CRS, gml:id, or reuse by
+                reference, and diggs:MultiSurface for a collection with no assumed adjacency between
+                members. </documentation>
         </annotation>
     </element>
-    <complexType name="MultiPlanarSurfaceBaseType">
-        <complexContent>
-            <restriction base="gml:AbstractSurfaceType"/>
-        </complexContent>
-    </complexType>
     <complexType name="MultiPlanarSurfaceType">
         <annotation>
             <documentation>Extended type based on AbstractSurfaceType. Adds elements for multi
                 planar surface type definition.</documentation>
         </annotation>
         <complexContent>
-            <extension base="diggs:MultiPlanarSurfaceBaseType">
+            <extension base="diggs:AbstractSurfaceType">
                 <sequence>
                     <element ref="gml:patches"/>
                 </sequence>
@@ -7974,6 +7991,56 @@
         <attributeGroup ref="gml:OwnershipAttributeGroup"/>
         <attributeGroup ref="gml:AssociationAttributeGroup"/>
     </complexType>
+    
+    <element name="CompositeSurface" substitutionGroup="diggs:AbstractSurface"
+        type="diggs:CompositeSurfaceType">
+        <annotation>
+            <documentation>A DIGGS geometry object representing a single contiguous surface
+                assembled from one or more independently-existing surface members that join along
+                shared boundaries (ISO 19107 GM_CompositeSurface). Unlike diggs:MultiPlanarSurface
+                (one surface subdivided into non-addressable patches), each member here is a
+                complete diggs:AbstractSurface object with its own gml:id and optional srsName, and
+                may be given inline or by xlink:href to a surface defined elsewhere in the document.
+                Use CompositeSurface when panels need their own CRS, gml:id, or reuse by reference
+                (e.g. a dog-leg trench wall whose segments were surveyed in different local datums);
+                use diggs:MultiPlanarSurface for a single, non-addressable multi-panel surface; use
+                diggs:MultiSurface for a genuinely discontinuous collection with no assumed
+                adjacency, or a coverage domain needing one value per member.</documentation>
+        </annotation>
+    </element>
+    <complexType name="CompositeSurfaceType">
+        <annotation>
+            <documentation>Extended type based on AbstractSurfaceType. A composite surface built
+                from one or more surfaceMember/surfaceMembers references, each member contiguous
+                with its neighbor.</documentation>
+        </annotation>
+        <complexContent>
+            <extension base="diggs:AbstractSurfaceType">
+                <sequence>
+                    <element ref="diggs:surfaceMember" minOccurs="0" maxOccurs="unbounded"/>
+                    <element ref="diggs:surfaceMembers" minOccurs="0"/>
+                    <element minOccurs="0" name="uncertainty"
+                        type="diggs:LocationUncertaintyPropertyType">
+                        <annotation>
+                            <documentation>The uncertainty property.</documentation>
+                        </annotation>
+                    </element>
+                </sequence>
+                <attributeGroup ref="gml:AggregationAttributeGroup"/>
+            </extension>
+        </complexContent>
+    </complexType>
+    <complexType name="CompositeSurfacePropertyType">
+        <annotation>
+            <documentation> Property type for referencing a CompositeSurface element, following GML property type pattern. </documentation>
+        </annotation>
+        <sequence minOccurs="0">
+            <element ref="diggs:CompositeSurface"/>
+        </sequence>
+        <attributeGroup ref="gml:OwnershipAttributeGroup"/>
+        <attributeGroup ref="gml:AssociationAttributeGroup"/>
+    </complexType>
+    
     <element name="PlanarSurfacePatch" substitutionGroup="gml:AbstractSurfacePatch"
         type="diggs:PlanarSurfacePatchType">
         <annotation>
@@ -8002,39 +8069,63 @@
                         <documentation>The interpolation attribute.</documentation>
                     </annotation>
                 </attribute>
-                <attributeGroup ref="gml:SRSReferenceGroup"/>
             </extension>
         </complexContent>
     </complexType>
-
-
-    <complexType name="MultiSurfaceAggregateType">
+    <complexType name="MultiSurfaceType">
+        <annotation>
+            <documentation>Extended type based on AbstractGeometricAggregateType. A collection of
+                surfaces with no assumed adjacency or contiguity between members (ISO 19107
+                GM_MultiSurface) — use for a genuinely discontinuous extent (e.g. several isolated
+                footing surfaces) or for a coverage domain needing one value per surface (e.g. a
+                gridded geophysical inversion result, one cell per surface member). Contrast with
+                diggs:CompositeSurface (one contiguous surface assembled from members, one domain
+                value) and diggs:MultiPlanarSurface (one contiguous surface subdivided into
+                non-addressable patches).</documentation>
+        </annotation>
         <complexContent>
-            <extension base="gml:AbstractGeometricAggregateType">
+            <extension base="diggs:AbstractGeometricAggregateType">
                 <sequence>
-                    <element ref="diggs:surfaceMembers"/>
+                    <element ref="diggs:surfaceMember" minOccurs="0" maxOccurs="unbounded"/>
+                    <element ref="diggs:surfaceMembers" minOccurs="0"/>
+                    <element minOccurs="0" name="uncertainty"
+                        type="diggs:LocationUncertaintyPropertyType">
+                        <annotation>
+                            <documentation>The uncertainty property.</documentation>
+                        </annotation>
+                    </element>
                 </sequence>
             </extension>
-
         </complexContent>
     </complexType>
-
-    <!-- ================================================================================= -->
-    <!-- TIME OBJECTS                                                                  -->
-    <!-- ================================================================================= -->
-
-    <element name="MultiSurfaceAggregate" substitutionGroup="gml:AbstractGeometricAggregate"
-        type="diggs:MultiSurfaceAggregateType"/>
-    <complexType name="MultiSurfaceAggregatePropertyType">
+    <element name="MultiSurface" substitutionGroup="diggs:AbstractGeometricAggregate"
+        type="diggs:MultiSurfaceType">
         <annotation>
-            <documentation> Property type for referencing a MultiPlanarSurface element, following GML property type pattern. </documentation>
+            <documentation>A DIGGS geometry object that holds a collection of surface geometries
+                with no assumed contiguity between members — a coverage domain (N surfaces, N
+                values) or a genuinely discontinuous extent. Members may be given inline
+                (surfaceMember/surfaceMembers) or by xlink:href to a surface defined elsewhere in
+                the document; a coverage domain should prefer the inline surfaceMembers array so its
+                element count stays directly readable without resolving references. Contrast with
+                diggs:CompositeSurface (contiguous, one domain value) and diggs:MultiPlanarSurface
+                (contiguous, non-addressable patches).</documentation>
+        </annotation>
+    </element>
+    <complexType name="MultiSurfacePropertyType">
+        <annotation>
+            <documentation> Property type for referencing a MultiSurface element, following GML property type pattern. </documentation>
         </annotation>
         <sequence>
-            <element ref="diggs:MultiSurfaceAggregate"/>
+            <element ref="diggs:MultiSurface"/>
         </sequence>
         <attributeGroup ref="gml:OwnershipAttributeGroup"/>
         <attributeGroup ref="gml:AssociationAttributeGroup"/>
     </complexType>
+    
+    <!-- ================================================================================= -->
+    <!-- TIME OBJECTS                                                                  -->
+    <!-- ================================================================================= -->
+    
     <complexType name="AbstractTimeObjectBaseType" abstract="true">
         <annotation>
             <documentation>Base type for all time-related objects without description field. This
