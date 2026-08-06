@@ -7756,6 +7756,54 @@
             </extension>
         </complexContent>
     </complexType>
+    
+    <element name="ReferenceableGridByArray" substitutionGroup="diggs:AbstractGeometry"
+        type="diggs:ReferenceableGridByArrayType">
+        <annotation>
+            <documentation>A DIGGS geometry object representing a grid whose node positions are
+                given explicitly as an ordered list of coordinates (posList), rather than derived
+                from an affine origin + offsetVector (diggs:RectifiedGrid). Use for a non-uniform
+                and/or terrain-draped grid — e.g. a geophysical inversion mesh — where node spacing
+                is irregular on one or more axes and cannot be expressed as a uniform offset.
+                Mirrors GML 3.3 gmlrgrid:ReferenceableGridByArrayType (see
+                referenceableGrid.xsd), continuing the same diggs:-native mirroring convention
+                diggs:RectifiedGrid already uses for gml:RectifiedGrid.</documentation>
+        </annotation>
+    </element>
+    <complexType name="ReferenceableGridByArrayType">
+        <annotation>
+            <documentation>Extended type based on GridType. Adds the explicit list of node
+                positions and the traversal order that, together with GridType's own limits (the
+                grid's index-space extent) and axisLabels/axisName, fully define the grid.</documentation>
+        </annotation>
+        <complexContent>
+            <extension base="diggs:GridType">
+                <sequence>
+                    <element ref="gml:posList">
+                        <annotation>
+                            <documentation>The ordered list of node positions, one coordinate tuple
+                                per grid node, in the traversal order given by sequenceRule. The
+                                number of tuples must equal the product of GridType's own limits
+                                (every axis extent inclusive, per gml:GridEnvelope).</documentation>
+                        </annotation>
+                    </element>
+                    <element name="sequenceRule" type="gml:SequenceRuleType">
+                        <annotation>
+                            <documentation>The traversal order of the node positions in posList
+                                relative to the grid's own index axes (e.g. Linear,
+                                Boustrophedonic).</documentation>
+                        </annotation>
+                    </element>
+                    <element minOccurs="0" name="uncertainty"
+                        type="diggs:LocationUncertaintyPropertyType">
+                        <annotation>
+                            <documentation>The uncertainty property.</documentation>
+                        </annotation>
+                    </element>
+                </sequence>
+            </extension>
+        </complexContent>
+    </complexType>
 
     <element abstract="true" name="AbstractCurve"
         substitutionGroup="diggs:AbstractGeometricPrimitive" type="diggs:AbstractCurveType">
