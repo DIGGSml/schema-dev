@@ -606,22 +606,29 @@ diggs:Station</appinfo>
     </complexType>
     <complexType name="ParameterArrayPropertyType">
         <annotation>
-            <documentation>Property type for arrays of parameters. Contains one or more Parameter
-                elements in sequence. Used for collections of related parameters.</documentation>
+            <documentation>Property type for arrays of parameters. Contains one or more Parameter or
+                AuthorizedParameter elements in any order. Used for collections of related
+                parameters. Use Parameter where the parameter name is uncontrolled free text; use
+                AuthorizedParameter where the name is bound to a dictionary definition and the data
+                type of the value is declared. A single array may mix the two.</documentation>
         </annotation>
-        <sequence maxOccurs="unbounded" minOccurs="1">
-            <element ref="diggs:Parameter" maxOccurs="1" minOccurs="1"/>
-        </sequence>
+        <choice maxOccurs="unbounded" minOccurs="1">
+            <element ref="diggs:Parameter"/>
+            <element ref="diggs:AuthorizedParameter"/>
+        </choice>
     </complexType>
     <complexType name="ParameterPropertyType">
         <annotation>
-            <documentation> Property type for containing a single Parameter object,</documentation>
+            <documentation> Property type for containing a single Parameter or AuthorizedParameter
+                object. Use Parameter where the parameter name is uncontrolled free text; use
+                AuthorizedParameter where the name is bound to a dictionary definition and the data
+                type of the value is declared.</documentation>
         </annotation>
-        <sequence maxOccurs="1">
-            <element ref="diggs:Parameter" maxOccurs="1" minOccurs="1"/>
-        </sequence>
-    </complexType>
-    <complexType name="PlssPropertyType">
+        <choice minOccurs="1" maxOccurs="1">
+            <element ref="diggs:Parameter"/>
+            <element ref="diggs:AuthorizedParameter"/>
+        </choice>
+    </complexType>    <complexType name="PlssPropertyType">
         <annotation>
             <documentation> Property type for containing a PLSS object.</documentation>
         </annotation>
@@ -998,6 +1005,84 @@ diggs:Station</appinfo>
                         </element>
                     </sequence>
                 </sequence>
+            </extension>
+        </complexContent>
+    </complexType>
+    <element name="AuthorizedParameter" type="diggs:AuthorizedParameterType">
+        <annotation>
+            <documentation>An object containing the name, value or range of values, and unit of
+                measure of a property or measurement parameter, where the name is bound to a
+                definition in a properties dictionary and the data type of the value is declared.
+                Use this in preference to diggs:Parameter wherever the parameter being reported has
+                a dictionary definition: a consumer can then type the value and check it against the
+                definition without inferring anything from its lexical form. Use diggs:Parameter
+                where the name is genuinely uncontrolled. AuthorizedParameter is accepted anywhere
+                diggs:ParameterPropertyType or diggs:ParameterArrayPropertyType is used.</documentation>
+        </annotation>
+    </element>
+    <complexType name="AuthorizedParameterType">
+        <annotation>
+            <documentation>Complex type: AuthorizedParameterType. A parameter whose name is
+                dictionary-bound and whose value carries a declared data type. Parallel to
+                diggs:ParameterType, from which it is deliberately not derived; see the comment
+                preceding the AuthorizedParameter element declaration.</documentation>
+        </annotation>
+        <complexContent>
+            <extension base="diggs:AbstractComponentObjectBaseType">
+                <sequence>
+                    <element minOccurs="1" maxOccurs="1" name="parameterName"
+                        type="gml:CodeWithAuthorityType">
+                        <annotation>
+                            <documentation>A code identifying what the value property represents.
+                                The codeSpace attribute is mandatory and must contain the URI of the
+                                definition in a properties dictionary (eg. codeSpace="https://diggsml.org/def/codes/DIGGS/0.1/properties.xml#liquid_limit"),
+                                so that an application can resolve and validate the name. Where no
+                                such definition exists, use diggs:Parameter instead.</documentation>
+                        </annotation>
+                    </element>
+                    <element minOccurs="1" maxOccurs="1" name="typeData"
+                        type="diggs:DataTypeEnumType">
+                        <annotation>
+                            <documentation>The data type of the parameter value (eg. double, long,
+                                string, etc.). Mandatory: declaring the type is the point of this
+                                object, so that a consumer need not infer it from the lexical form
+                                of the value or resolve the dictionary definition to obtain it. The
+                                type is diggs:DataTypeEnumType and not
+                                diggs:PropertyDataTypeEnumType, which additionally permits the empty
+                                string; there is no unknown-type case here.</documentation>
+                        </annotation>
+                    </element>
+                    <element name="parameterMinValue" type="string" minOccurs="0">
+                        <annotation>
+                            <documentation>For numeric parameter values where a value range is
+                                expressed instead of a fixed value, this property contains the
+                                minimum value of the range.</documentation>
+                        </annotation>
+                    </element>
+                    <element minOccurs="0" name="parameterValue" type="string">
+                        <annotation>
+                            <documentation>A value associated with the name.</documentation>
+                        </annotation>
+                    </element>
+                    <element name="parameterMaxValue" type="string" minOccurs="0">
+                        <annotation>
+                            <documentation>For numeric parameter values where a value range is
+                                expressed instead of a fixed value, this property contains the
+                                maximum value of the range.</documentation>
+                        </annotation>
+                    </element>
+                    <element name="parameterUnits" type="diggs:AllUnits" minOccurs="0">
+                        <annotation>
+                            <documentation>Unit of measure of the parameter.</documentation>
+                        </annotation>
+                    </element>
+                </sequence>
+                <attribute name="index" type="positiveInteger" use="optional">
+                    <annotation>
+                        <documentation>An integer that indicates the order of the parameter
+                            results.</documentation>
+                    </annotation>
+                </attribute>
             </extension>
         </complexContent>
     </complexType>
@@ -1720,6 +1805,14 @@ diggs:Station</appinfo>
             <pattern value="Other: [a-z\-\+\.]+/[a-z0-9\-\+\.]+"/>
         </restriction>
     </simpleType>
+    
+    <!-- diggs:ParameterType is the uncontrolled form: the name may be free text and the
+         value is soft-typed, which is correct for the otherProperty bags this type mostly
+         serves. Where the parameter has a dictionary definition, use
+         diggs:AuthorizedParameter (declared above, in the alphabetical A block of this
+         file) instead — it makes codeSpace mandatory on parameterName and adds a
+         mandatory typeData. The two types share five particles and the index attribute by
+         deliberate duplication rather than derivation; keep them in step. -->
     <element name="Parameter" type="diggs:ParameterType">
         <annotation>
             <documentation>An object containing the name, value or range of values and unit of
