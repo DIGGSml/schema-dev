@@ -160,103 +160,6 @@
     <!-- ================================================================================== -->
     <!-- GENERAL SAMPLING FEATURE ELEMENTS                                                  -->
     <!-- ================================================================================== -->
-
-    <element name="AbstractLinearSamplingFeature" type="diggs:AbstractLinearSamplingFeatureType"
-        substitutionGroup="diggs:AbstractSamplingFeature" abstract="true">
-        <annotation>
-            <documentation>Base type for a sampling feature with a linear geometry (eg. sounding or
-                borehole). </documentation>
-        </annotation>
-    </element>
-    <complexType name="AbstractLinearSamplingFeatureType" abstract="true">
-        <annotation>
-            <documentation>Base type for sampling features with linear (1D) geometries including
-                boreholes and trenches.</documentation>
-        </annotation>
-        <complexContent>
-            <extension base="diggs:AbstractSamplingFeatureType">
-                <sequence>
-                    <element name="centerLine" type="diggs:LinearExtentPropertyType"
-                        maxOccurs="unbounded" minOccurs="1">
-                        <annotation>
-                            <documentation>A reference to a LinearExtent object that represents the
-                                linear geometry of the feature, defining its shape and location. For
-                                a borehole for example, the linestring would represent the
-                                borehole's trajectory in 3D space. Multiple centerlines can be
-                                defined (all associated with the same reference point) to define
-                                complex objects such as a wellbore with sidetracks, or different
-                                reference datums for a single borehole.</documentation>
-                        </annotation>
-                    </element>
-                    <element name="linearReferencing"
-                        type="diggs:LinearSpatialReferenceSystemPropertyType" minOccurs="0"
-                        maxOccurs="unbounded">
-                        <annotation>
-                            <documentation>A reference to a LinearSpatialReferenceSystem object for
-                                this sampling feature. A linear SRS allows other objects to
-                                reference their position (location) on the sampling feature with 1D
-                                coordinates that represents distance along the linear sampling
-                                feature, typically from the centerline origin. For sampling features
-                                such as boreholes the linear SRS coordinates define measured depths
-                                down the hole's centerline.</documentation>
-                        </annotation>
-                    </element>
-                    <element minOccurs="0" name="plunge" type="diggs:PlungeMeasureType">
-                        <annotation>
-                            <documentation>For an inclined feature, the plunge angle, measured from
-                                the horizontal, positive up</documentation>
-                        </annotation>
-                    </element>
-                    <element minOccurs="0" name="bearing" type="diggs:BearingMeasureType">
-                        <annotation>
-                            <documentation>For an inclined feature, the direction of plunge,
-                                positive clockwise from the reference azimuth, as expressed in the
-                                refAzimuth attribute.</documentation>
-                        </annotation>
-                    </element>
-                </sequence>
-            </extension>
-        </complexContent>
-    </complexType>
-    <element abstract="true" name="AbstractLinearInstallation"
-        substitutionGroup="diggs:AbstractSamplingFeature"
-        type="diggs:AbstractLinearInstallationType">
-        <annotation>
-            <documentation>Abstract element for linear installations within sampling features.
-                Serves as the head of the substitution group for linear installation
-                types.</documentation>
-        </annotation>
-    </element>
-    <complexType abstract="true" name="AbstractLinearInstallationType">
-        <annotation>
-            <documentation>Base type for linear installations within sampling features such as
-                instrumentation strings or casing.</documentation>
-        </annotation>
-        <complexContent>
-            <extension base="diggs:AbstractLinearSamplingFeatureType">
-                <sequence>
-                    <element ref="diggs:samplingFeatureRef"/>
-                    <element minOccurs="0" name="installationConstructionEvent"
-                        type="diggs:InstallationEventPropertyType" maxOccurs="unbounded">
-                        <annotation>
-                            <documentation>Information on the occurrence and activities involved
-                                during construction of the installation within the sampling
-                                feature</documentation>
-                        </annotation>
-                    </element>
-                    <element maxOccurs="unbounded" minOccurs="0" name="installationEquipment"
-                        type="diggs:EquipmentPropertyType">
-                        <annotation>
-                            <documentation> Equipment used to install the point installation.
-                                References the machinery, tools, or devices employed during
-                                installation of the monitoring point or instrumentation.
-                            </documentation>
-                        </annotation>
-                    </element>
-                </sequence>
-            </extension>
-        </complexContent>
-    </complexType>
     <element name="InstallationEvent" type="diggs:InstallationEventType">
         <annotation>
             <documentation>An object that contains properties about a time or depth related event
@@ -6385,7 +6288,8 @@
             <element ref="diggs:PlannedTest"/>
         </sequence>
     </complexType>
-    <element name="TestSpecification" type="diggs:TestSpecificationType"/>
+    <element name="TestSpecification" type="diggs:TestSpecificationType"
+        substitutionGroup="diggs:AbstractProgramSpecification"/>
     <complexType name="TestSpecificationType">
         <complexContent>
             <extension base="diggs:AbstractProgramSpecificationType"/>
@@ -6396,7 +6300,8 @@
             <element ref="diggs:TestSpecification"/>
         </sequence>
     </complexType>
-    <element name="SpecimenPrepSpecification" type="diggs:SpecimenPrepSpecificationType">
+    <element name="SpecimenPrepSpecification" type="diggs:SpecimenPrepSpecificationType"
+        substitutionGroup="diggs:AbstractProgramSpecification">
         <annotation>
             <documentation>A program specification governing the preparation of a Specimen from one
                 or more Samples - trimming, molding, curing or otherwise conditioning sampled
@@ -6415,6 +6320,102 @@
         <sequence>
             <element ref="diggs:SpecimenPrepSpecification"/>
         </sequence>
+    </complexType>
+    <simpleType name="CriterionOperatorEnumType">
+        <annotation>
+            <documentation>The comparison an acceptance criterion applies between the evaluated
+                value and its limit. Closed enumeration: these five comparisons are complete for
+                the purpose, and an uninterpretable extension value would defeat automated
+                evaluation of the criterion.</documentation>
+        </annotation>
+        <restriction base="string">
+            <enumeration value="le">
+                <annotation>
+                    <documentation>Less than or equal to the limit's value.</documentation>
+                </annotation>
+            </enumeration>
+            <enumeration value="ge">
+                <annotation>
+                    <documentation>Greater than or equal to the limit's value.</documentation>
+                </annotation>
+            </enumeration>
+            <enumeration value="eq">
+                <annotation>
+                    <documentation>Equal to the limit's value.</documentation>
+                </annotation>
+            </enumeration>
+            <enumeration value="ne">
+                <annotation>
+                    <documentation>Not equal to the limit's value.</documentation>
+                </annotation>
+            </enumeration>
+            <enumeration value="within">
+                <annotation>
+                    <documentation>Within an inclusive range. Use with a limit that populates
+                        parameterMinValue and parameterMaxValue rather than parameterValue - this is
+                        the operator that carries a tolerance band such as "0.25 to 0.75
+                        in".</documentation>
+                </annotation>
+            </enumeration>
+        </restriction>
+    </simpleType>
+    <element name="PerformanceCriterion" type="diggs:PerformanceCriterionType"
+        substitutionGroup="diggs:AbstractAcceptanceCriterion">
+        <annotation>
+            <documentation>An acceptance criterion on a measured physical property of the completed
+                work - a strength, a permeability, a settlement, a modulus. Post-construction
+                acceptance: it is evaluated against what was built, and the property it names is
+                dictionary-bound so that the quantity is unambiguous.</documentation>
+        </annotation>
+    </element>
+    
+    <complexType name="PerformanceCriterionType">
+        <complexContent>
+            <extension base="diggs:AbstractAcceptanceCriterionType">
+                <sequence>
+                    <element minOccurs="1" maxOccurs="1" name="propertyClass"
+                        type="gml:CodeWithAuthorityType">
+                        <annotation>
+                            <documentation>The physical property this criterion governs. The
+                                codeSpace attribute is mandatory and must resolve the property in a
+                                properties dictionary, so that a consumer can identify the quantity
+                                without interpreting free text. Where the requirement is on a
+                                constructional or geometric property rather than a measured physical
+                                one, use diggs:DesignConformanceCriterion
+                                instead.</documentation>
+                        </annotation>
+                    </element>
+                </sequence>
+            </extension>
+        </complexContent>
+    </complexType>
+    
+    <element name="DesignConformanceCriterion" type="diggs:DesignConformanceCriterionType"
+        substitutionGroup="diggs:AbstractAcceptanceCriterion">
+        <annotation>
+            <documentation>An acceptance criterion on a geometric or constructional property
+                measured against its design intent - position, verticality, diameter, length,
+                cut-off elevation. A tolerance: it asks whether what was built matches what was
+                designed, rather than whether it performs.</documentation>
+        </annotation>
+    </element>
+    <complexType name="DesignConformanceCriterionType">
+        <complexContent>
+            <extension base="diggs:AbstractAcceptanceCriterionType">
+                <sequence>
+                    <element minOccurs="1" maxOccurs="1" name="designProperty" type="gml:CodeType">
+                        <annotation>
+                            <documentation>The design property this criterion governs - for example
+                                position, verticality, diameter, cut-off elevation. gml:CodeType
+                                rather than gml:CodeWithAuthorityType because no design-property
+                                dictionary exists yet; populate codeSpace once one does. Where the
+                                requirement is on a measured physical property, use
+                                diggs:PerformanceCriterion instead.</documentation>
+                        </annotation>
+                    </element>
+                </sequence>
+            </extension>
+        </complexContent>
     </complexType>
     
     <!-- ================================================================================== -->
@@ -7948,26 +7949,6 @@
                 <attributeGroup ref="gml:OwnershipAttributeGroup"/>
                 <attributeGroup ref="gml:AssociationAttributeGroup"/>
             </restriction>
-        </complexContent>
-    </complexType>
-
-    <element abstract="true" name="AbstractSurface"
-        substitutionGroup="diggs:AbstractGeometricPrimitive" type="diggs:AbstractSurfaceType">
-        <annotation>
-            <documentation>Abstract head of the substitution group for DIGGS standalone surface
-                geometries (diggs:PlanarSurface, diggs:MultiPlanarSurface,
-                diggs:TriangulatedSurface, diggs:CompositeSurface). Deliberately excludes
-                diggs:Shell, which represents one boundary component of a solid rather than a
-                standalone surface in its own right — a property that wants "any real surface, not
-                a solid's boundary piece" (e.g. diggs:CompositeSurface's own members) should
-                reference diggs:AbstractSurface, not gml:AbstractSurface.</documentation>
-        </annotation>
-    </element>
-
-    <complexType abstract="true" name="AbstractSurfaceType">
-        <complexContent>
-            <extension base="diggs:AbstractGeometricPrimitiveType"/>
-
         </complexContent>
     </complexType>
 

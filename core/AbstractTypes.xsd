@@ -14,6 +14,127 @@
     <!-- HIERARCHY LEVEL 1: Root Base Type (Foundation of DIGGS Schema)    -->
     <!--=============================================================================-->
 
+    <element abstract="true" name="AbstractAcceptanceCriterion"
+        type="diggs:AbstractAcceptanceCriterionType"
+        substitutionGroup="diggs:AbstractProgramSpecification">
+        <annotation>
+            <documentation>Head of the substitution group for acceptance criteria - a single
+                testable requirement stating what is measured, how the measurements are reduced to
+                one value, the comparison applied, and the limit compared against. Being a program
+                specification, a criterion also carries the scope of features it governs and may
+                specialize a more general criterion through basedOnRef.
+                
+                Its two members differ only in WHAT IS MEASURED, and that difference is carried by
+                the element name rather than by a discriminator field:
+                diggs:PerformanceCriterion measures a physical property of the completed work,
+                diggs:DesignConformanceCriterion measures a geometric or constructional property
+                against its design intent.
+                
+                One criterion states ONE requirement. A specification imposing several requirements
+                on the same property - say a mean and a minimum - is several criteria sharing a
+                scope, not one criterion with several limits.</documentation>
+        </annotation>
+    </element>
+    <complexType abstract="true" name="AbstractAcceptanceCriterionType">
+        <annotation>
+            <documentation>Base type for acceptance criteria. Carries everything a criterion needs
+                except its subject, which its concrete members supply.
+                
+                Factoring the criterion this way - subject, statistic, operator, limit - is what
+                lets one type express what diggs:GroutingPerformanceSpecificationType
+                (specialty/Grouting.xsd) spells out as roughly thirty separately named elements
+                encoding property x statistic x bound. That type is untouched by this step;
+                re-expressing it against this family comes later, with a migration
+                path.</documentation>
+        </annotation>
+        <complexContent>
+            <extension base="diggs:AbstractProgramSpecificationType">
+                <sequence>
+                    <element minOccurs="0" name="statistic" type="gml:CodeType">
+                        <annotation>
+                            <documentation>How multiple measurements within the criterion's scope
+                                are reduced to the single value that is compared against the limit.
+                                Intended values: individual, mean, minimum, maximum, percentile.
+                                Omit where the criterion applies to each measurement
+                                individually.</documentation>
+                        </annotation>
+                    </element>
+                    <element minOccurs="0" name="percentileValue" type="double">
+                        <annotation>
+                            <documentation>The percentile intended, where statistic is "percentile"
+                                - for example 90 for a 90th-percentile criterion. Meaningless
+                                otherwise; that this element and statistic must agree is a
+                                correlation XSD cannot express, and is left to the validation
+                                chain.</documentation>
+                        </annotation>
+                    </element>
+                    <element minOccurs="1" maxOccurs="1" name="operator"
+                        type="diggs:CriterionOperatorEnumType">
+                        <annotation>
+                            <documentation>The comparison applied between the evaluated value and
+                                the limit. Mandatory: a limit without a comparison states no
+                                requirement.</documentation>
+                        </annotation>
+                    </element>
+                    <element minOccurs="1" maxOccurs="1" name="limit"
+                        type="diggs:ParameterPropertyType">
+                        <annotation>
+                            <documentation>The value or range the evaluated value is compared
+                                against, with its unit. A diggs:ParameterPropertyType so that the
+                                limit may be a single value (parameterValue) or a band
+                                (parameterMinValue / parameterMaxValue, with operator "within"),
+                                and so that a dictionary-bound or provenanced form may be used where
+                                the limit itself derives from evidence - the widened property type
+                                admits diggs:Parameter, diggs:AuthorizedParameter and
+                                diggs:ProvenancedParameter alike.</documentation>
+                        </annotation>
+                    </element>
+                    <element minOccurs="0" name="basis" type="gml:CodeType">
+                        <annotation>
+                            <documentation>The unit of work the criterion is assessed over - for
+                                example per element, per unit cell, per 100 ft, or as a multiple of
+                                diameter. Distinct from scope, which says WHICH features are
+                                governed; basis says over what quantum each evaluation is
+                                made.</documentation>
+                        </annotation>
+                    </element>
+                    <element minOccurs="0" name="baseLength" type="diggs:LengthMeasureType">
+                        <annotation>
+                            <documentation>The reference length over which a gradient or
+                                rate-of-change criterion is assessed, where basis expresses a per
+                                unit length quantum. Together with limit this is what lets a
+                                criterion state a gradient such as "0.5 in per 100 ft", which no
+                                single length-valued element can carry.</documentation>
+                        </annotation>
+                    </element>
+                    <element minOccurs="0" maxOccurs="unbounded" name="evaluatedAgainstRef"
+                        type="diggs:FeatureReferenceType">
+                        <annotation>
+                            <documentation>A reference to a feature that supplies the value this
+                                criterion is evaluated against - typically a Test, a Monitor, or a
+                                sampling feature. Repeatable, since a statistic may be computed over
+                                many. Carries no targetElement appinfo deliberately: the legitimate
+                                targets share no single substitution-group head, and enumerating
+                                members instead of naming a head is the pattern that left
+                                diggs:samplingFeatureRef stale.</documentation>
+                        </annotation>
+                    </element>
+                    <element minOccurs="0" maxOccurs="1" name="sourceSpecRef"
+                        type="diggs:FeatureReferenceType">
+                        <annotation>
+                            <appinfo source="urn:x-gml:targetElement">diggs:Specification</appinfo>
+                            <documentation>A reference to the published standard or project clause
+                                this criterion was taken from. Points at a diggs:Specification, the
+                                COMPONENT OBJECT that cites a standard - not at a program
+                                specification, which is what this criterion itself
+                                is.</documentation>
+                        </annotation>
+                    </element>
+                </sequence>
+            </extension>
+        </complexContent>
+    </complexType>
+    
     <complexType abstract="true" name="AbstractDiggsType">
         <annotation>
             <documentation>The root abstract type for all DIGGS objects. This type extends GML's AbstractGMLType but restricts it to require a gml:id attribute. The gml:id serves as a unique identifier for the object within the DIGGS document and enables XML linking and referencing. All DIGGS types that need to be referenced ultimately derive from this base type, ensuring every object in the schema has a unique identifier for cross-referencing and data integrity.</documentation>
@@ -448,6 +569,101 @@
             </extension>
         </complexContent>
     </complexType>
+    <element name="AbstractLinearSamplingFeature" type="diggs:AbstractLinearSamplingFeatureType"
+        substitutionGroup="diggs:AbstractSamplingFeature" abstract="true">
+        <annotation>
+            <documentation>Base type for a sampling feature with a linear geometry (eg. sounding or
+                borehole). </documentation>
+        </annotation>
+    </element>
+    <complexType name="AbstractLinearSamplingFeatureType" abstract="true">
+        <annotation>
+            <documentation>Base type for sampling features with linear (1D) geometries including
+                boreholes and trenches.</documentation>
+        </annotation>
+        <complexContent>
+            <extension base="diggs:AbstractSamplingFeatureType">
+                <sequence>
+                    <element name="centerLine" type="diggs:LinearExtentPropertyType"
+                        maxOccurs="unbounded" minOccurs="1">
+                        <annotation>
+                            <documentation>A reference to a LinearExtent object that represents the
+                                linear geometry of the feature, defining its shape and location. For
+                                a borehole for example, the linestring would represent the
+                                borehole's trajectory in 3D space. Multiple centerlines can be
+                                defined (all associated with the same reference point) to define
+                                complex objects such as a wellbore with sidetracks, or different
+                                reference datums for a single borehole.</documentation>
+                        </annotation>
+                    </element>
+                    <element name="linearReferencing"
+                        type="diggs:LinearSpatialReferenceSystemPropertyType" minOccurs="0"
+                        maxOccurs="unbounded">
+                        <annotation>
+                            <documentation>A reference to a LinearSpatialReferenceSystem object for
+                                this sampling feature. A linear SRS allows other objects to
+                                reference their position (location) on the sampling feature with 1D
+                                coordinates that represents distance along the linear sampling
+                                feature, typically from the centerline origin. For sampling features
+                                such as boreholes the linear SRS coordinates define measured depths
+                                down the hole's centerline.</documentation>
+                        </annotation>
+                    </element>
+                    <element minOccurs="0" name="plunge" type="diggs:PlungeMeasureType">
+                        <annotation>
+                            <documentation>For an inclined feature, the plunge angle, measured from
+                                the horizontal, positive up</documentation>
+                        </annotation>
+                    </element>
+                    <element minOccurs="0" name="bearing" type="diggs:BearingMeasureType">
+                        <annotation>
+                            <documentation>For an inclined feature, the direction of plunge,
+                                positive clockwise from the reference azimuth, as expressed in the
+                                refAzimuth attribute.</documentation>
+                        </annotation>
+                    </element>
+                </sequence>
+            </extension>
+        </complexContent>
+    </complexType>
+    <element abstract="true" name="AbstractLinearInstallation"
+        substitutionGroup="diggs:AbstractSamplingFeature" type="diggs:AbstractLinearInstallationType">
+        <annotation>
+            <documentation>Abstract element for linear installations within sampling features.
+                Serves as the head of the substitution group for linear installation
+                types.</documentation>
+        </annotation>
+    </element>
+    <complexType abstract="true" name="AbstractLinearInstallationType">
+        <annotation>
+            <documentation>Base type for linear installations within sampling features such as
+                instrumentation strings or casing.</documentation>
+        </annotation>
+        <complexContent>
+            <extension base="diggs:AbstractLinearSamplingFeatureType">
+                <sequence>
+                    <element ref="diggs:samplingFeatureRef"/>
+                    <element minOccurs="0" name="installationConstructionEvent"
+                        type="diggs:InstallationEventPropertyType" maxOccurs="unbounded">
+                        <annotation>
+                            <documentation>Information on the occurrence and activities involved
+                                during construction of the installation within the sampling
+                                feature</documentation>
+                        </annotation>
+                    </element>
+                    <element maxOccurs="unbounded" minOccurs="0" name="installationEquipment"
+                        type="diggs:EquipmentPropertyType">
+                        <annotation>
+                            <documentation> Equipment used to install the point installation.
+                                References the machinery, tools, or devices employed during
+                                installation of the monitoring point or instrumentation.
+                            </documentation>
+                        </annotation>
+                    </element>
+                </sequence>
+            </extension>
+        </complexContent>
+    </complexType>
     <complexType name="AbstractMaterialTestProcedurePropertyType">
         <annotation>
             <documentation>Property type wrapper for AbstractMaterialTestProcedure elements. This type enables AbstractMaterialTestProcedure to be used as a property in other types, following the GML property pattern. The property type provides a container that can hold a reference to a MaterialTestProcedure element defined elsewhere in the document or include the element inline.</documentation>
@@ -866,8 +1082,7 @@
         <complexContent>
             <extension base="diggs:AbstractProgramModuleType">
                 <sequence>
-                    <element minOccurs="0" maxOccurs="unbounded"
-                        ref="diggs:programSpecificationRef">
+                    <element minOccurs="0" maxOccurs="unbounded" ref="diggs:programSpecificationRef">
                         <annotation>
                             <documentation>Zero or more references to the specifications this design
                                 was prepared to satisfy. Design-to-specification is a different
@@ -880,7 +1095,7 @@
                 </sequence>
             </extension>
         </complexContent>
-    </complexType>    
+    </complexType>
     <element abstract="true" name="AbstractProgramModule" type="diggs:AbstractProgramModuleType">
         <annotation>
             <documentation>Abstract element serving as the common ancestor of the three kinds of
@@ -1488,6 +1703,25 @@
                         type="diggs:ParameterPropertyType" maxOccurs="unbounded"/>
                 </sequence>
             </extension>
+        </complexContent>
+    </complexType>
+    
+    <element abstract="true" name="AbstractSurface" substitutionGroup="diggs:AbstractGeometricPrimitive"
+        type="diggs:AbstractSurfaceType">
+        <annotation>
+            <documentation>Abstract head of the substitution group for DIGGS standalone surface
+                geometries (diggs:PlanarSurface, diggs:MultiPlanarSurface,
+                diggs:TriangulatedSurface, diggs:CompositeSurface). Deliberately excludes
+                diggs:Shell, which represents one boundary component of a solid rather than a
+                standalone surface in its own right — a property that wants "any real surface, not
+                a solid's boundary piece" (e.g. diggs:CompositeSurface's own members) should
+                reference diggs:AbstractSurface, not gml:AbstractSurface.</documentation>
+        </annotation>
+    </element>
+    <complexType abstract="true" name="AbstractSurfaceType">
+        <complexContent>
+            <extension base="diggs:AbstractGeometricPrimitiveType"/>
+            
         </complexContent>
     </complexType>
 
