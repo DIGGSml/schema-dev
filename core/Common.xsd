@@ -658,30 +658,34 @@
     </complexType>
     <complexType name="ParameterArrayPropertyType">
         <annotation>
-            <documentation>Property type for arrays of parameters. Contains one or more Parameter or
-                AuthorizedParameter elements in any order. Used for collections of related
-                parameters. Use Parameter where the parameter name is uncontrolled free text; use
-                AuthorizedParameter where the name is bound to a dictionary definition and the data
-                type of the value is declared. A single array may mix the two.</documentation>
+            <documentation>Property type for arrays of parameters. Contains one or more Parameter,
+                AuthorizedParameter or ProvenancedParameter elements in any order. Used for
+                collections of related parameters. Use Parameter where the parameter name is
+                uncontrolled free text; use AuthorizedParameter where the name is bound to a
+                dictionary definition and the data type of the value is declared; use
+                ProvenancedParameter where, additionally, the value's subject and source need
+                stating. A single array may mix all three.</documentation>
         </annotation>
         <choice maxOccurs="unbounded" minOccurs="1">
             <element ref="diggs:Parameter"/>
             <element ref="diggs:AuthorizedParameter"/>
+            <element ref="diggs:ProvenancedParameter"/>
         </choice>
     </complexType>
     <complexType name="ParameterPropertyType">
         <annotation>
-            <documentation> Property type for containing a single Parameter or AuthorizedParameter
-                object. Use Parameter where the parameter name is uncontrolled free text; use
-                AuthorizedParameter where the name is bound to a dictionary definition and the data
-                type of the value is declared.</documentation>
+            <documentation> Property type for containing a single Parameter, AuthorizedParameter or
+                ProvenancedParameter object. Use Parameter where the parameter name is uncontrolled
+                free text; use AuthorizedParameter where the name is bound to a dictionary
+                definition and the data type of the value is declared; use ProvenancedParameter
+                where, additionally, the value's subject and source need stating.</documentation>
         </annotation>
         <choice minOccurs="1" maxOccurs="1">
             <element ref="diggs:Parameter"/>
             <element ref="diggs:AuthorizedParameter"/>
+            <element ref="diggs:ProvenancedParameter"/>
         </choice>
-    </complexType>   
-    <complexType name="PlannedPositionsPropertyType">
+    </complexType>    <complexType name="PlannedPositionsPropertyType">
         <annotation>
             <documentation>Property type for containing the planned layout of a designed population
                 as a grid geometry. Restricted to grid geometries deliberately: a grid declares an
@@ -806,6 +810,28 @@
             </restriction>
         </complexContent>
     </complexType>
+    <complexType name="ProvenancedParameterPropertyType">
+        <annotation>
+            <documentation>Property type for containing a single ProvenancedParameter object. Unlike
+                diggs:ParameterPropertyType, only diggs:ProvenancedParameter is admitted here: use
+                this property type where a value is meaningless without stating what it describes
+                and where it came from, rather than merely permitting that it may.</documentation>
+        </annotation>
+        <sequence>
+            <element ref="diggs:ProvenancedParameter" minOccurs="1" maxOccurs="1"/>
+        </sequence>
+    </complexType>
+    <complexType name="ProvenancedParameterArrayPropertyType">
+        <annotation>
+            <documentation>Property type for arrays of ProvenancedParameter objects. Unlike
+                diggs:ParameterArrayPropertyType, only diggs:ProvenancedParameter is admitted
+                here.</documentation>
+        </annotation>
+        <sequence>
+            <element ref="diggs:ProvenancedParameter" minOccurs="1" maxOccurs="unbounded"/>
+        </sequence>
+    </complexType>
+    
     <complexType name="QualifierPropertyType">
         <annotation>
             <documentation> Property type for containing a Qualifier object. </documentation>
@@ -2376,6 +2402,59 @@
                     <element name="parameter" type="diggs:ParameterPropertyType"/>
                     <element maxOccurs="unbounded" minOccurs="0" name="inputParameter"
                         type="diggs:InputParameterPropertyType"/>
+                </sequence>
+            </extension>
+        </complexContent>
+    </complexType>
+    <element name="ProvenancedParameter" type="diggs:ProvenancedParameterType">
+        <annotation>
+            <documentation>An AuthorizedParameter that additionally states what its value describes
+                and where the value came from. Use this in preference to diggs:AuthorizedParameter
+                wherever a value's provenance needs to be traceable — a design or basis value derived
+                from, or assigned on the strength of, specific evidence. ProvenancedParameter is
+                accepted anywhere diggs:ParameterPropertyType or diggs:ParameterArrayPropertyType is
+                used, and is the only variant accepted by
+                diggs:ProvenancedParameterPropertyType / diggs:ProvenancedParameterArrayPropertyType,
+                which are used where provenance is not merely permitted but required.</documentation>
+        </annotation>
+    </element>
+    <complexType name="ProvenancedParameterType">
+        <annotation>
+            <documentation>Complex type: ProvenancedParameterType. Extends diggs:AuthorizedParameterType
+                by plain extension, adding the value's subject and source. A provenanced parameter
+                genuinely IS an authorized parameter that carries its provenance, so this is
+                inheritance rather than composition around a wrapper element.</documentation>
+        </annotation>
+        <complexContent>
+            <extension base="diggs:AuthorizedParameterType">
+                <sequence>
+                    <element minOccurs="0" maxOccurs="1" name="subjectRef"
+                        type="diggs:FeatureReferenceType">
+                        <annotation>
+                            <documentation>A reference to the feature or object that the parameter
+                                value describes — for example a geotechnical unit, a material, or a
+                                sampling feature. Optional because the subject is sometimes evident
+                                from context (the object or property that holds this
+                                ProvenancedParameter); state it explicitly wherever that context is
+                                not enough to identify the subject unambiguously.</documentation>
+                        </annotation>
+                    </element>
+                    <element minOccurs="0" maxOccurs="1" name="derivation" type="gml:CodeType">
+                        <annotation>
+                            <documentation>How the value was derived from its source(s). Typical
+                                values: characteristic, mean, lower-bound, correlated,
+                                assumed.</documentation>
+                        </annotation>
+                    </element>
+                    <element minOccurs="0" maxOccurs="unbounded" name="sourceRef"
+                        type="diggs:FeatureReferenceType">
+                        <annotation>
+                            <documentation>A reference to an object providing the value's provenance
+                                — typically a Test, an Observation, or a Sounding. Repeatable: a
+                                value may be derived from more than one source, for example a
+                                correlation drawing on several tests.</documentation>
+                        </annotation>
+                    </element>
                 </sequence>
             </extension>
         </complexContent>
