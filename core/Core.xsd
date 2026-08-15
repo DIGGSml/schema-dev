@@ -6628,6 +6628,24 @@
         <complexContent>
             <extension base="diggs:AbstractTargetObjectType">
                 <sequence>
+                    <element minOccurs="0" name="measurementKind" type="gml:CodeType">
+                        <annotation>
+                            <documentation>What kind of measurement is planned, so that a reader knows what is
+                                intended before any realized object exists to inspect.
+                                
+                                gml:CodeType with a dictionary vocabulary, deliberately NOT a closed XSD
+                                enumeration: the set of measurement kinds grows without a schema release. Note the
+                                contrast with diggs:TargetSamplingFeatureType/targetSFType, which is
+                                gml:CodeWithAuthorityType. That element is mandatory and its values must be precise,
+                                so it compels a codeSpace; this one is optional and largely derivable, so it does
+                                not.
+                                
+                                KEEP IT OPTIONAL AND EXPECT IT TO BE OMITTED. It is largely redundant with
+                                measurementMethod below: a planned ASTM D1143 test already announces itself as a
+                                static load test. State it where no method is cited, or where the method admits
+                                several kinds of measurement.</documentation>
+                        </annotation>
+                    </element>
                     <element minOccurs="0" maxOccurs="unbounded" name="targetSFRef"
                         type="diggs:FeatureReferenceType">
                         <annotation>
@@ -6660,6 +6678,44 @@
                                 typically shared across many planned measurements - renamed from an
                                 earlier inline testSpecification for exactly that reuse
                                 reason.</documentation>
+                        </annotation>
+                    </element>
+                    <element minOccurs="0" name="readingFrequency" type="diggs:ReciprocalTimeMeasureType">
+                        <annotation>
+                            <documentation>How often this measurement is planned to be taken.
+                                
+                                ONE FIELD FAMILY, NOT A MONITORING-SPECIFIC FIELD. A measurement-while-drilling
+                                logging interval, a dynamic-testing sampling rate, a load-test hold increment and an
+                                instrument read frequency are the same quantity under four names, which is why this
+                                sits on the generic planned-measurement type rather than on a monitoring
+                                specialization or in a specialty file.
+                                
+                                diggs:ReciprocalTimeMeasureType rather than diggs:FrequencyMeasureType: the
+                                reciprocal-time units are the ones this quantity is actually written in - 1/d for a
+                                daily instrument reading, 1/h, 1/min, 1/s - whereas FrequencyMeasureType is the
+                                hertz-based vibration and signal-processing type. A daily reading is
+                                uom="1/d" with a value of 1.
+                                
+                                XSD CANNOT ENFORCE that a reading frequency appears only where it makes sense; that
+                                is the cost of one planned-measurement type serving every measurement kind. Recover
+                                it with dictionary Occurrence conditions keyed on measurementKind, or in the
+                                validation module's context checks.</documentation>
+                        </annotation>
+                    </element>
+                    <element minOccurs="0" name="duration" type="diggs:TimeMeasureType">
+                        <annotation>
+                            <documentation>How long this measurement is planned to run - a monitoring campaign's
+                                span, a load-test hold time, the length of a logging window.
+                                
+                                Named and typed to match diggs:TimeIntervalType/duration
+                                (core/Common.xsd), which is the realized-side counterpart and is also
+                                diggs:TimeMeasureType, so one concept keeps one name across the plan/realized
+                                boundary. Not to be confused with the gml:duration of the GML profile, which is in
+                                a different namespace and is an XSD duration lexical form rather than a measure.
+                                
+                                State a start or end time, where one is planned, through the scope and progress
+                                machinery inherited from the Target spine rather than here: this element carries an
+                                elapsed span, not a position in time.</documentation>
                         </annotation>
                     </element>
                 </sequence>
