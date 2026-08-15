@@ -6667,6 +6667,83 @@
         </complexContent>
     </complexType>
     
+    <complexType name="ConstructionMethodPropertyType">
+        <annotation>
+            <documentation>Property type for containing or referencing the diggs:Specification a
+                planned construction activity is to follow. A twin of
+                diggs:MeasurementMethodPropertyType (this file), not a reuse of it: the two wrap the
+                same diggs:Specification the same way (modelled on diggs:ProcedurePropertyType,
+                core/Common.xsd:722, with the contained element minOccurs="0" so the by-reference
+                form is actually valid - see diggs:MeasurementMethodPropertyType's documentation for
+                why that matters), but a property named constructionMethod typed
+                "MeasurementMethodPropertyType" would misdescribe itself to a schema browser. No
+                house-style mechanism (xsd:group, attributeGroup) exists to share the shape without
+                that cost - the same trade AuthorizedParameterType/ParameterType already
+                accepted.</documentation>
+        </annotation>
+        <sequence>
+            <element minOccurs="0" ref="diggs:Specification" maxOccurs="1"/>
+        </sequence>
+        <attributeGroup ref="gml:AssociationAttributeGroup"/>
+        <attributeGroup ref="gml:OwnershipAttributeGroup"/>
+    </complexType>
+    
+    <element name="TargetConstructionActivity" type="diggs:TargetConstructionActivityType"
+        substitutionGroup="diggs:AbstractTargetObject">
+        <annotation>
+            <documentation>A planned counterpart of a realized diggs:AbstractConstructionActivity -
+                the act that builds something, not the thing built. Where
+                diggs:TargetSamplingFeature plans "a column here", TargetConstructionActivity plans
+                "installed by full-displacement auger, terminated on this refusal criterion, in this
+                sequence relative to neighbours" - installation-tab rows 7, 8, 39 and 40, which
+                TargetSamplingFeature cannot hold because they describe the act, not the object. The
+                termination/refusal criterion itself is not a property of this type: it is cited the
+                same way any other requirement is, through programSpecificationRef, inherited from
+                diggs:AbstractProgramDesignType.</documentation>
+        </annotation>
+    </element>
+    <complexType name="TargetConstructionActivityType">
+        <annotation>
+            <documentation>Base type for planned construction activities.</documentation>
+        </annotation>
+        <complexContent>
+            <extension base="diggs:AbstractTargetObjectType">
+                <sequence>
+                    <element minOccurs="0" maxOccurs="unbounded" name="targetSFRef"
+                        type="diggs:FeatureReferenceType">
+                        <annotation>
+                            <appinfo source="urn:x-gml:targetElement">diggs:TargetSamplingFeature</appinfo>
+                            <documentation>A reference to the planned sampling feature this activity
+                                is to construct or act on - the planned counterpart of
+                                diggs:samplingFeatureRef (AbstractConstructionActivityType, where it
+                                is mandatory and single-valued). Widened to [0..*] here, matching
+                                diggs:TargetMeasurement's targetSFRef rather than a literal mirror of
+                                the realized cardinality: a population-scope activity plan (scope,
+                                inherited) governs many features without naming one, and an
+                                individual activity may reasonably act on more than one feature (a
+                                platform excavation spanning several planned columns). Plan-to-plan:
+                                cites a TargetSamplingFeature (or one of its specializations,
+                                diggs:TargetBorehole / diggs:TargetInstallation), an antecedent
+                                within the plan graph, never a realized sampling
+                                feature.</documentation>
+                        </annotation>
+                    </element>
+                    <element minOccurs="0" maxOccurs="unbounded" name="constructionMethod"
+                        type="diggs:ConstructionMethodPropertyType">
+                        <annotation>
+                            <documentation>The method(s) this activity is planned to follow, held
+                                inline or by reference (see diggs:ConstructionMethodPropertyType).
+                                Unbounded and by-reference-capable because the same method is
+                                typically shared across many planned activities - the same reuse
+                                reason diggs:TargetMeasurement.measurementMethod was widened for
+                                (architecture §9 item 8).</documentation>
+                        </annotation>
+                    </element>
+                </sequence>
+            </extension>
+        </complexContent>
+    </complexType>
+    
     <!-- ================================================================================== -->
     <!-- EQUIPMENT ELEMENTS                                                                 -->
     <!-- ================================================================================== -->
