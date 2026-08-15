@@ -6417,6 +6417,255 @@
             </extension>
         </complexContent>
     </complexType>
+
+    <element name="TargetSamplingFeature" type="diggs:TargetSamplingFeatureType"
+        substitutionGroup="diggs:AbstractTargetObject">
+        <annotation>
+            <documentation>A planned counterpart of a realized diggs:AbstractSamplingFeature - a
+                borehole, sounding, trial pit, well, pile, or an RI sampling feature
+                (RigidInclusion, LoadTransferPlatform, RIFoundationSystem). One Target for the whole
+                realized head, per the granularity rule: what varies between concrete sampling
+                feature kinds is result content, which a target does not carry.
+                
+                diggs:TargetBorehole and diggs:TargetInstallation specialize this type for feature
+                kinds that genuinely need extra properties; where a feature kind needs nothing
+                beyond what this type already carries, TargetSamplingFeature is used
+                directly.</documentation>
+        </annotation>
+    </element>
+    <complexType name="TargetSamplingFeatureType">
+        <annotation>
+            <documentation>Base type for planned sampling features.</documentation>
+        </annotation>
+        <complexContent>
+            <extension base="diggs:AbstractTargetObjectType">
+                <sequence>
+                    <element minOccurs="1" maxOccurs="1" name="targetSFType"
+                        type="gml:CodeWithAuthorityType">
+                        <annotation>
+                            <documentation>The kind of sampling feature planned - for example
+                                borehole, sounding, trial pit, well, pile, rigid inclusion, load
+                                transfer platform. Mandatory, and codeSpace is mandatory on it
+                                (inherited from gml:CodeWithAuthorityType): the value must resolve
+                                in a dictionary so a consumer need not infer the planned feature kind
+                                from context or a closed schema enumeration.
+                                
+                                NO SUCH DICTIONARY EXISTS YET. The intended one is
+                                samplingFeatureTypes.xml (build step 7, out of scope here), covering
+                                both plain sampling features and installation types in one
+                                vocabulary, since an installation IS a sampling feature
+                                (diggs:AbstractLinearInstallation, diggs:AbstractPlanarInstallation
+                                both substitute diggs:AbstractSamplingFeature directly) - so no
+                                separate installation-type vocabulary is needed. Until the dictionary
+                                exists, populate codeSpace with whatever project-specific vocabulary
+                                is in use; do not leave it empty and do not invent a DIGGS
+                                codeSpace URL.</documentation>
+                        </annotation>
+                    </element>
+                    <element minOccurs="0" maxOccurs="1" name="targetSFLocation"
+                        type="diggs:LocationPropertyType">
+                        <annotation>
+                            <documentation>The planned location or extent of the feature. Optional
+                                because a population-scope design (scope, inherited) has no single
+                                location - the population's extent is expressed there instead.
+                                diggs:LocationPropertyType admits every DIGGS geometry, so the choice
+                                of geometry kind is guidance rather than a schema constraint:
+                                PointLocation for a point feature (a borehole, a pile), an
+                                AbstractCurve for a linear transect, an AbstractSurface or
+                                MultiSurface for a planar feature (a load transfer platform), an
+                                AbstractVolume for a 3-D extent.</documentation>
+                        </annotation>
+                    </element>
+                    <element minOccurs="0" name="diameter" type="diggs:LengthMeasureType">
+                        <annotation>
+                            <documentation>The planned diameter, where the feature kind has one (a
+                                pile, a rigid inclusion, a sounding). Informational convenience: THE
+                                GEOMETRY PREVAILS where targetSFLocation carries an extent that
+                                disagrees with this value.</documentation>
+                        </annotation>
+                    </element>
+                    <element minOccurs="0" name="totalLength" type="diggs:LengthMeasureType">
+                        <annotation>
+                            <documentation>The planned total length, for a linear feature - the
+                                analogue of the realized side's totalMeasuredDepth. Informational
+                                convenience: THE GEOMETRY PREVAILS where targetSFLocation carries a
+                                curve whose length disagrees with this value.</documentation>
+                        </annotation>
+                    </element>
+                </sequence>
+            </extension>
+        </complexContent>
+    </complexType>
+    
+    <element name="TargetBorehole" type="diggs:TargetBoreholeType"
+        substitutionGroup="diggs:AbstractTargetObject">
+        <annotation>
+            <documentation>A specialization of diggs:TargetSamplingFeature for a planned borehole,
+                carrying the two properties a borehole plan needs beyond the base: what casing and
+                backfill are planned. Substitutes diggs:AbstractTargetObject directly rather than
+                diggs:TargetSamplingFeature - concrete DIGGS elements are never substitution-group
+                heads - but its type extends diggs:TargetSamplingFeatureType, the same pattern
+                diggs:ConcretePile (specialty/DeepFoundation.xsd) uses against
+                diggs:AbstractLinearInstallation.</documentation>
+        </annotation>
+    </element>
+    <complexType name="TargetBoreholeType">
+        <complexContent>
+            <extension base="diggs:TargetSamplingFeatureType">
+                <sequence>
+                    <element minOccurs="0" name="casingDescription" type="string">
+                        <annotation>
+                            <documentation>A description of the casing planned for the
+                                borehole.</documentation>
+                        </annotation>
+                    </element>
+                    <element minOccurs="0" name="backfillDescription" type="string">
+                        <annotation>
+                            <documentation>A description of the backfill planned for the
+                                borehole.</documentation>
+                        </annotation>
+                    </element>
+                </sequence>
+            </extension>
+        </complexContent>
+    </complexType>
+    
+    <element name="TargetInstallation" type="diggs:TargetInstallationType"
+        substitutionGroup="diggs:AbstractTargetObject">
+        <annotation>
+            <documentation>A specialization of diggs:TargetSamplingFeature for a planned
+                installation - a well, a pile, a rigid inclusion, or any other member of
+                diggs:AbstractLinearInstallation / diggs:AbstractPlanarInstallation, all of which
+                substitute diggs:AbstractSamplingFeature directly (there is no separate installation
+                head on the realized side to target). Adds no properties of its own: targetSFType
+                (inherited) already carries which installation kind is planned, dictionary-bound, so
+                nothing here needs to be closed-enumerated. Substitutes diggs:AbstractTargetObject
+                directly, matching diggs:TargetBorehole.</documentation>
+        </annotation>
+    </element>
+    <complexType name="TargetInstallationType">
+        <complexContent>
+            <extension base="diggs:TargetSamplingFeatureType"/>
+        </complexContent>
+    </complexType>
+    
+    <element name="TargetSample" type="diggs:TargetSampleType"
+        substitutionGroup="diggs:AbstractTargetObject">
+        <annotation>
+            <documentation>A planned counterpart of a realized diggs:Sample - covers the whole
+                diggs:AbstractSample head (currently one concrete member,
+                Sample).</documentation>
+        </annotation>
+    </element>
+    <complexType name="TargetSampleType">
+        <annotation>
+            <documentation>Base type for planned samples. Deliberately thin: what varies between
+                planned samples belongs in otherProperty (inherited) rather than as named elements,
+                since a sample's plannable content is almost entirely what its collection activity
+                and material determine, neither of which the target references (no
+                plan-to-realized links).</documentation>
+        </annotation>
+        <complexContent>
+            <extension base="diggs:AbstractTargetObjectType">
+                <sequence>
+                    <element minOccurs="0" maxOccurs="unbounded" name="sourceTargetSampleRef"
+                        type="diggs:FractionalReferenceType">
+                        <annotation>
+                            <appinfo source="urn:x-gml:targetElement">diggs:TargetSample</appinfo>
+                            <documentation>A reference to the planned sample(s) this one is to be
+                                subsampled or aggregated from - the planned counterpart of
+                                diggs:sourceSampleRef (AbstractSamplingActivityType), and typed the
+                                same way (diggs:FractionalReferenceType) so a planned subsample can
+                                state what percentage of the source it will take. Plan-to-plan: this
+                                cites another TargetSample, an antecedent within the plan graph,
+                                never a realized Sample.</documentation>
+                        </annotation>
+                    </element>
+                </sequence>
+            </extension>
+        </complexContent>
+    </complexType>
+    
+    <complexType name="MeasurementMethodPropertyType">
+        <annotation>
+            <documentation>Property type for containing or referencing the diggs:Specification a
+                planned measurement is to follow. Modelled on diggs:ProcedurePropertyType
+                (core/Common.xsd:722) rather than the schema's more common
+                gml:AssociationAttributeGroup usage: of the 44 property types carrying that
+                attribute group, 29 still require the contained object (minOccurs defaults to 1),
+                which makes the by-reference form schema-invalid in practice (architecture §9 item
+                8). Here the contained element is explicitly minOccurs="0", so a producer may supply
+                the Specification inline, by xlink:href, or both, with the embedded object
+                prevailing when both are present.
+                
+                Renamed from an earlier inline testSpecification to avoid a third schema-wide
+                collision on the word "Specification", alongside diggs:Specification (the component
+                object this property type wraps) and diggs:AbstractProgramSpecification (the
+                feature head).</documentation>
+        </annotation>
+        <sequence>
+            <element minOccurs="0" ref="diggs:Specification" maxOccurs="1"/>
+        </sequence>
+        <attributeGroup ref="gml:AssociationAttributeGroup"/>
+        <attributeGroup ref="gml:OwnershipAttributeGroup"/>
+    </complexType>
+    
+    <element name="TargetMeasurement" type="diggs:TargetMeasurementType"
+        substitutionGroup="diggs:AbstractTargetObject">
+        <annotation>
+            <documentation>A planned counterpart of a realized diggs:AbstractMeasurement - covers
+                all five concrete members (Test, Monitor, MaterialTest, MeasurementWhileDrilling,
+                GeophysicalFieldSurvey) with one type, since what is plannable is already common to
+                the abstract head and what differs between the concretes is their result content.
+                Renamed from an earlier TargetTest for exactly that reason: a type named for one
+                member would misdescribe what it actually covers.</documentation>
+        </annotation>
+    </element>
+    <complexType name="TargetMeasurementType">
+        <annotation>
+            <documentation>Base type for planned measurements.</documentation>
+        </annotation>
+        <complexContent>
+            <extension base="diggs:AbstractTargetObjectType">
+                <sequence>
+                    <element minOccurs="0" maxOccurs="unbounded" name="targetSFRef"
+                        type="diggs:FeatureReferenceType">
+                        <annotation>
+                            <appinfo source="urn:x-gml:targetElement">diggs:TargetSamplingFeature</appinfo>
+                            <documentation>A reference to the planned sampling feature this
+                                measurement is to be performed on or from - the planned counterpart
+                                of diggs:samplingFeatureRef (AbstractMeasurementType), and typed the
+                                same way. Plan-to-plan: cites a TargetSamplingFeature (or one of its
+                                specializations, diggs:TargetBorehole / diggs:TargetInstallation), an
+                                antecedent within the plan graph, never a realized sampling
+                                feature.</documentation>
+                        </annotation>
+                    </element>
+                    <element minOccurs="0" maxOccurs="unbounded" name="targetSampleRef"
+                        type="diggs:FractionalReferenceType">
+                        <annotation>
+                            <appinfo source="urn:x-gml:targetElement">diggs:TargetSample</appinfo>
+                            <documentation>A reference to the planned sample this measurement is to
+                                be performed on - the planned counterpart of diggs:sampleRef
+                                (AbstractMeasurementType), and typed the same way. Plan-to-plan:
+                                cites a TargetSample, never a realized Sample.</documentation>
+                        </annotation>
+                    </element>
+                    <element minOccurs="0" maxOccurs="unbounded" name="measurementMethod"
+                        type="diggs:MeasurementMethodPropertyType">
+                        <annotation>
+                            <documentation>The method(s) this measurement is planned to follow, held
+                                inline or by reference (see diggs:MeasurementMethodPropertyType).
+                                Unbounded and by-reference-capable because the same method is
+                                typically shared across many planned measurements - renamed from an
+                                earlier inline testSpecification for exactly that reuse
+                                reason.</documentation>
+                        </annotation>
+                    </element>
+                </sequence>
+            </extension>
+        </complexContent>
+    </complexType>
     
     <!-- ================================================================================== -->
     <!-- EQUIPMENT ELEMENTS                                                                 -->

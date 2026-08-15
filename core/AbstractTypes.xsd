@@ -1725,6 +1725,61 @@
         </complexContent>
     </complexType>
 
+    <element abstract="true" name="AbstractTargetObject" type="diggs:AbstractTargetObjectType"
+        substitutionGroup="diggs:AbstractProgramDesign">
+        <annotation>
+            <documentation>Head of the substitution group for the Target pattern: a planned
+                counterpart of a realized DIGGS object, carrying what is intended (through inherited
+                scope and basedOnRef) and a progress track, but never a reference to its own
+                realization - the realized object cites the plan instead
+                (diggs:programDesignRef), never the reverse. Being a program design, a target also
+                carries the specification(s) it must satisfy (programSpecificationRef) and the basis
+                it rests on (basisRef), both inherited.
+                
+                One Target exists per REALIZED ABSTRACT HEAD that is independently instantiable at
+                document root - never one per concrete type, and never for a head that exists only
+                inside another object's context (diggs:AbstractSpecimen is the case that fails this
+                test and gets no Target: it exists only inside a MaterialTest, and planning it is
+                already covered by diggs:PlannedTest). A Target plans the inputs and the procedure;
+                concrete realized types differ from one another almost entirely in their RESULTS,
+                which do not exist at planning time and so have nothing to target.</documentation>
+        </annotation>
+    </element>
+    <complexType abstract="true" name="AbstractTargetObjectType">
+        <annotation>
+            <documentation>Base type for the Target pattern. Carries a progress track and a
+                dictionary escape hatch; everything else a target needs comes from
+                diggs:AbstractProgramDesignType (programSpecificationRef, basisRef) and, through it,
+                diggs:AbstractProgramModuleType (scope, basedOnRef) - nothing is redeclared
+                here.</documentation>
+        </annotation>
+        <complexContent>
+            <extension base="diggs:AbstractProgramDesignType">
+                <sequence>
+                    <element minOccurs="0" name="progress"
+                        type="diggs:ProgressEventArrayPropertyType">
+                        <annotation>
+                            <documentation>The lifecycle of this planned object, as a track of dated
+                                states. This is what answers "what is planned but not yet built?"
+                                without any reference from the plan to its realization: a target
+                                with no progress recorded, or whose latest progressState has not
+                                reached completion, is not yet fulfilled.</documentation>
+                        </annotation>
+                    </element>
+                    <element minOccurs="0" maxOccurs="unbounded" name="otherProperty"
+                        type="diggs:ParameterPropertyType">
+                        <annotation>
+                            <documentation>The dictionary escape hatch: a planned property that has
+                                no named element on this or a more specific target type. Prefer a
+                                named element wherever the plan has one; use this only where none
+                                exists.</documentation>
+                        </annotation>
+                    </element>
+                </sequence>
+            </extension>
+        </complexContent>
+    </complexType>
+    
     <element name="AbstractTestProcedure" type="diggs:AbstractTestProcedureType"
         substitutionGroup="diggs:AbstractProcedure" abstract="true">
         <annotation>
