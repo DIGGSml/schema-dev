@@ -831,7 +831,30 @@
             </extension>
         </complexContent>
     </complexType>
-    <element abstract="true" name="AbstractProgramDesign" type="diggs:AbstractProgramDesignType">
+    <element abstract="true" name="AbstractProgramBasis" type="diggs:AbstractProgramBasisType"
+        substitutionGroup="diggs:AbstractProgramModule">
+        <annotation>
+            <documentation>Abstract element for program bases. Serves as the head of the
+                substitution group for the objects a design was prepared FROM - ground models,
+                requirement sets, governing standards, calculation inputs. A basis is evidence, not
+                intent and not constraint: it is what the designer relied on, and it is cited by a
+                design through basisRef.</documentation>
+        </annotation>
+    </element>
+    <complexType abstract="true" name="AbstractProgramBasisType">
+        <annotation>
+            <documentation>Base type for program basis features. Adds nothing to
+                diggs:AbstractProgramModuleType: a basis is distinguished by being a separate
+                substitution-group head, which is what lets basedOnRef chains stay within a kind and
+                what lets basisRef name a single target. Concrete bases add their own
+                content.</documentation>
+        </annotation>
+        <complexContent>
+            <extension base="diggs:AbstractProgramModuleType"/>
+        </complexContent>
+    </complexType>
+    <element abstract="true" name="AbstractProgramDesign" type="diggs:AbstractProgramDesignType"
+        substitutionGroup="diggs:AbstractProgramModule">
         <annotation>
             <documentation>Abstract element for program designs. Serves as the head of the substitution group for program design types.</documentation>
         </annotation>
@@ -841,11 +864,59 @@
             <documentation>Base type for program design specifications that define the planned characteristics and requirements for a program of work. Program designs typically specify target parameters, acceptance criteria, testing frequencies, quality control measures, and other requirements that guide program execution. Design specifications can be compared with actual program implementation to track compliance and identify deviations.</documentation>
         </annotation>
         <complexContent>
-            <extension base="diggs:AbstractFeatureType"/>
+            <extension base="diggs:AbstractProgramModuleType">
+                <sequence>
+                    <element minOccurs="0" maxOccurs="unbounded"
+                        ref="diggs:programSpecificationRef">
+                        <annotation>
+                            <documentation>Zero or more references to the specifications this design
+                                was prepared to satisfy. Design-to-specification is a different
+                                relationship from basedOnRef and is carried here so that inheritance
+                                up the basedOnRef chain does not silently pull constraint into the
+                                intent chain.</documentation>
+                        </annotation>
+                    </element>
+                    <element minOccurs="0" maxOccurs="unbounded" ref="diggs:basisRef"/>
+                </sequence>
+            </extension>
+        </complexContent>
+    </complexType>    
+    <element abstract="true" name="AbstractProgramModule" type="diggs:AbstractProgramModuleType">
+        <annotation>
+            <documentation>Abstract element serving as the common ancestor of the three kinds of
+                object a program issues or relies on: designs (intent), specifications (constraint)
+                and bases (evidence). It exists to declare, once, the two properties all three
+                share - scope and basedOnRef - and to give basedOnRef a single abstract target to
+                name. It is not itself a substitution group member of anything, and no object
+                substitutes it directly; instances substitute one of the three heads below
+                it.</documentation>
+        </annotation>
+    </element>
+    <complexType abstract="true" name="AbstractProgramModuleType">
+        <annotation>
+            <documentation>Base type for program modules - the designs, specifications and bases a
+                program issues or relies on. Carries only what all three share.</documentation>
+        </annotation>
+        <complexContent>
+            <extension base="diggs:AbstractFeatureType">
+                <sequence>
+                    <element minOccurs="0" name="scope" type="diggs:ProgramScopePropertyType">
+                        <annotation>
+                            <documentation>The population of features this module applies to,
+                                declared prospectively by geometry or feature type rather than by
+                                enumerating realized features. Where absent, the module applies to
+                                the whole program, or inherits a scope through
+                                basedOnRef.</documentation>
+                        </annotation>
+                    </element>
+                    <element minOccurs="0" ref="diggs:basedOnRef"/>
+                </sequence>
+            </extension>
         </complexContent>
     </complexType>
-    <element abstract="true" name="AbstractProgramSpecificaton"
-        type="diggs:AbstractProgramSpecificationType">
+    <element abstract="true" name="AbstractProgramSpecification"
+        type="diggs:AbstractProgramSpecificationType"
+        substitutionGroup="diggs:AbstractProgramModule">
         <annotation>
             <documentation>Abstract element for program specifications. Serves as the head of the substitution group for specification types.</documentation>
         </annotation>
@@ -855,7 +926,7 @@
             <documentation>Base type for detailed program specifications that define technical requirements and acceptance criteria. Specifications typically reference specific standards (e.g., ASTM, AASHTO), specify numerical acceptance criteria, define testing methods and frequencies, and establish quality control requirements. Unlike designs, specifications are typically contractual documents that establish enforceable requirements for program execution.</documentation>
         </annotation>
         <complexContent>
-            <extension base="diggs:AbstractFeatureType"/>
+            <extension base="diggs:AbstractProgramModuleType"/>
         </complexContent>
     </complexType>
     <element abstract="true" name="AbstractProgram" type="diggs:AbstractProgramType">

@@ -208,6 +208,34 @@
                 as defined in the observation's location property. In the case of planar or volume representations where the character of the boundary may change along its length or surface, multiple baseBoundary properties are allowed. In the case of a linear sampling feature, multiple baseBoundary properties are not applicable, and any multiples beyond the first in document order should be ignored.</documentation>
         </annotation>
     </element>
+    <element name="basedOnRef" type="diggs:FeatureReferenceType">
+        <annotation>
+            <appinfo source="urn:x-gml:targetElement">diggs:AbstractProgramModule</appinfo>
+            <documentation>A reference to a more general program module that this one specializes.
+                Resolution is per property, most specific first: a value stated here is overridden
+                by the same property stated on the referring object.
+                
+                Two constraints on the target cannot be expressed in XSD and are enforced by the
+                validation chain instead. First, the target must belong to the SAME
+                substitution-group head as the referring object - a design cites a design, a
+                specification cites a specification, a basis cites a basis. A design citing a
+                specification would silently pull constraint into the intent chain; that
+                relationship belongs in programSpecificationRef. Second, chains must be ACYCLIC.
+                
+                Distinct from basisRef, which cites the evidence a design was prepared from rather
+                than a more general object of the same kind.</documentation>
+        </annotation>
+    </element>
+    <element name="basisRef" type="diggs:FeatureReferenceType">
+        <annotation>
+            <appinfo source="urn:x-gml:targetElement">diggs:AbstractProgramBasis</appinfo>
+            <documentation>A reference to a program basis object - the evidence, ground model,
+                requirement set or other input a design was prepared from. Distinct from
+                basedOnRef, which cites a more general object of the SAME kind that this one
+                specializes, and from programSpecificationRef, which cites a constraint the design
+                must satisfy.</documentation>
+        </annotation>
+    </element>
     <element name="constructionActivityRef" type="diggs:FeatureReferenceType">
         <annotation>
             <appinfo source="urn:x-gml:targetElement">Diggs:AbstractConstructionActivity</appinfo>
@@ -652,7 +680,34 @@
             <element ref="diggs:Parameter"/>
             <element ref="diggs:AuthorizedParameter"/>
         </choice>
-    </complexType>    <complexType name="PlssPropertyType">
+    </complexType>   
+    <complexType name="PlannedPositionsPropertyType">
+        <annotation>
+            <documentation>Property type for containing the planned layout of a designed population
+                as a grid geometry. Restricted to grid geometries deliberately: a grid declares an
+                index space, which is what lets a realized feature identify which planned position
+                it fulfils, through diggs:realizesGridIndex. diggs:MultiPoint is excluded for that
+                reason - it enumerates positions but declares no index space, so nothing could
+                address a single planned position. A scattered or irregular layout is expressed as a
+                degenerate one-dimensional diggs:ReferenceableGridByArray.</documentation>
+        </annotation>
+        <choice>
+            <element ref="diggs:RectifiedGrid">
+                <annotation>
+                    <documentation>A regular lattice defined by an origin and offset vectors. The
+                        offset vectors need not be orthogonal, so a triangular or staggered layout
+                        is a RectifiedGrid.</documentation>
+                </annotation>
+            </element>
+            <element ref="diggs:ReferenceableGridByArray">
+                <annotation>
+                    <documentation>An irregular layout, with positions given explicitly against a
+                        declared index space.</documentation>
+                </annotation>
+            </element>
+        </choice>
+    </complexType>
+    <complexType name="PlssPropertyType">
         <annotation>
             <documentation> Property type for containing a PLSS object.</documentation>
         </annotation>
@@ -689,13 +744,21 @@
             <element maxOccurs="1" minOccurs="1" ref="diggs:AbstractProgram"/>
         </sequence>
     </complexType>
+    <complexType name="ProgramScopePropertyType">
+        <annotation>
+            <documentation> Property type for containing a ProgramScope object.</documentation>
+        </annotation>
+        <sequence>
+            <element ref="diggs:ProgramScope" minOccurs="1" maxOccurs="1"/>
+        </sequence>
+    </complexType>
     <complexType abstract="false" name="ProgramSpecificationPropertyType">
         <annotation>
             <documentation> Property type for containing any program specification object (belonging
                 to the AbstractProgramSpecification substitution group).</documentation>
         </annotation>
         <sequence>
-            <element ref="diggs:AbstractProgramSpecificaton"/>
+            <element ref="diggs:AbstractProgramSpecification"/>
         </sequence>
     </complexType>
     <complexType name="ProjectEventPropertyType">
@@ -1991,6 +2054,75 @@
                 </sequence>
             </extension>
         </complexContent>
+    </complexType>
+    <element name="ProgramScope" type="diggs:ProgramScopeType">
+        <annotation>
+            <documentation>An object declaring the population of features to which a program design,
+                specification or acceptance criterion applies.</documentation>
+        </annotation>
+    </element>
+    <complexType name="ProgramScopeType">
+        <annotation>
+            <documentation>Declares the population of features to which a program design or
+                specification applies. Scope is prospective and declarative: it states where the
+                provision applies, not which realized features fulfil it. A realized feature asserts
+                its own membership through programDesignRef / programSpecificationRef.</documentation>
+        </annotation>
+        <sequence>
+            <element minOccurs="0" name="appliesToFeatureType" type="gml:CodeType">
+                <annotation>
+                    <documentation>The kind of feature this provision governs, eg. "RigidInclusion",
+                        "LoadTransferPlatform". From a controlled list. May accompany any of the
+                        branches below, or stand alone for a provision that applies to every feature
+                        of that kind in the program.</documentation>
+                </annotation>
+            </element>
+            <choice minOccurs="0">
+                <sequence>
+                    <element name="zoneExtent" type="diggs:SurfacePropertyType">
+                        <annotation>
+                            <documentation>A surface (polygon) within which this provision applies.
+                                Bounds applicability; states no layout. This is the only form
+                                available to a provision that does not know the layout - which is
+                                the normal case for a specification or an acceptance criterion.
+                                Where plannedPositions also appears, the planned population is the
+                                grid's lattice INTERSECTED WITH this surface; a node on the boundary
+                                is included.</documentation>
+                        </annotation>
+                    </element>
+                    <element minOccurs="0" name="plannedPositions"
+                        type="diggs:PlannedPositionsPropertyType">
+                        <annotation>
+                            <documentation>The planned layout within the zone. The grid registers
+                                where the lattice sits, and its limits need only COVER the zone - it
+                                does not enumerate the features, and index positions falling outside
+                                zoneExtent are not part of the population. Optional: a design that
+                                states no layout inherits one through basedOnRef.</documentation>
+                        </annotation>
+                    </element>
+                </sequence>
+                <element name="plannedPositions" type="diggs:PlannedPositionsPropertyType">
+                    <annotation>
+                        <documentation>The planned layout, where the layout itself delimits the
+                            population and no separate zone boundary is drawn. This is the one case
+                            in which the grid's limits ARE the population, there being nothing to
+                            intersect with - appropriate for a test panel or any layout whose extent
+                            genuinely is the lattice.</documentation>
+                    </annotation>
+                </element>
+                <element maxOccurs="unbounded" name="appliesToFeatureRef"
+                    type="diggs:FeatureReferenceType">
+                    <annotation>
+                        <appinfo source="urn:x-gml:targetElement">diggs:AbstractSamplingFeature</appinfo>
+                        <documentation>An explicit set of existing features this provision applies
+                            to. Valid only where those features PRECEDE the design - remedial or
+                            retrofit work. For prospective design use zoneExtent or
+                            plannedPositions; a design must not reference features it has not yet
+                            caused to exist.</documentation>
+                    </annotation>
+                </element>
+            </choice>
+        </sequence>
     </complexType>
     <element name="ProjectEvent" type="diggs:ProjectEventType">
         <annotation>
