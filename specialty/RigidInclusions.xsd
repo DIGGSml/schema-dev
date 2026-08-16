@@ -33,43 +33,106 @@
                             <documentation>The total area of the site occupying the RI Foundation System. This should correspont to the area of the featureExten property.</documentation>
                         </annotation>
                     </element>
-                    <element minOccurs="0" name="workingPlatformLevel" type="diggs:ElevationType">
+                    <element minOccurs="0" name="workingPlatformElevation"
+                        type="diggs:PointLocationPropertyType">
                         <annotation>
-                            <documentation>The elevation of the temporary, heavy-duty layer of compacted granular material installed across the site before ground improvement begins.</documentation>
+                            <documentation>The elevation of the temporary, heavy-duty layer of
+                                compacted granular material installed across the site before ground
+                                improvement begins.
+
+                                A working platform is constructed horizontal, so it has no
+                                variability and one definite elevation - which makes this a
+                                position, not an averaged level. Renamed from workingPlatformLevel
+                                in A6 for that reason: "Level" implied a statistic.
+
+                                PRECEDENCE HAS TWO BRANCHES here, and which applies depends on the
+                                RIFoundationSystem's featureExtent. Where that extent is expressed
+                                in a 3-D or compound CRS it already carries this elevation, and THE
+                                GEOMETRY PREVAILS - this property is then a convenience for
+                                consumers that do not want to walk the geometry. Where the extent is
+                                2-D it carries no elevation at all, and THIS PROPERTY IS THE
+                                PREVAILING VALUE. A consumer cannot tell which branch applies
+                                without inspecting the extent's srsDimension.
+
+                                The value may be given as a one-dimensional position in a vertical
+                                CRS or as a full three-dimensional position; populate uomLabels so
+                                the unit is readable without resolving the CRS.</documentation>
                         </annotation>
                     </element>
                     <element minOccurs="0" name="workingPlatformBearingCapacity"
                         type="diggs:PressureMeasureType">
                         <annotation>
-                            <documentation>The design bearing capacity of the working platform, sufficient to handle expected track pressures of the drilling rigs, grout pumps, and support equipment used to install the rigid inclusions. Is this actually a measured value or a design specification for the working platform? If design, then probably should be placed in program element somewhere.
-</documentation>
+                            <documentation>The bearing capacity the working platform was verified to
+                                provide before rigid inclusion installation began - sufficient to
+                                carry the maximum ground pressure exerted by the drill rigs, grout
+                                pumps and support equipment used to install the columns.
+
+                                A THRESHOLD VERIFIED ONCE, NOT A DESIGN VALUE TRACKED AGAINST AN
+                                AS-BUILT OUTCOME. Working platform adequacy is a go/no-go check made
+                                before RI work starts: if the existing ground cannot carry the rig,
+                                the site is modified - typically a granular platform layer, often
+                                geosynthetic-reinforced - until it can. There is no case in current
+                                practice where a platform proceeds to use while under its required
+                                capacity, so design intent and as-built outcome do not diverge here
+                                the way they do for column diameter or toe elevation, and this single
+                                value on the as-built RIFoundationSystem is sufficient; no parallel
+                                design-side element is modeled.
+
+                                IF THAT EVER CHANGES - a platform is used despite a test result below
+                                target, under a documented waiver - this element cannot express the
+                                distinction. That case would need the same treatment as every other
+                                RI requirement: a diggs:PerformanceCriterion or
+                                diggs:DesignConformanceCriterion stating the required value, with this
+                                element (or a cited test) as what it is evaluated
+                                against.</documentation>
                         </annotation>
                     </element>
                     <element minOccurs="0" name="averageExistingGL" type="diggs:ElevationType">
                         <annotation>
-                            <documentation>The average elevation of the existing ground level below the working platform.</documentation>
+                            <documentation>The average elevation of the existing ground level below
+                                the working platform.
+
+                                Stays a scalar diggs:ElevationType, unlike the other elevations in
+                                this file. An average over an area has no definite position and so
+                                no domain, which is what diggs:PointLocationPropertyType is for. The
+                                test is not "is it spread over an area?" but "does it have a
+                                definite position, or is it a statistic?"</documentation>
                         </annotation>
                     </element>
                     <element maxOccurs="1" minOccurs="0" name="averageWTLevel"
                         type="diggs:ElevationType">
                         <annotation>
-                            <documentation>The average elevation of the water table beneath the site.</documentation>
+                            <documentation>The average elevation of the water table beneath the
+                                site. Stays a scalar diggs:ElevationType for the same reason as
+                                averageExistingGL: a mean water table is a statistic, not a
+                                position.</documentation>
                         </annotation>
                     </element>
-                    <element name="loadTransferPlatforms" type="diggs:LTPArrayPropertyType"/>
+                    <!-- The loadTransferPlatforms containment array was removed here. Load transfer
+                         platforms are now top-level sampling features that cite this system through
+                         their own mandatory samplingFeatureRef; see LoadTransferPlatformType below.
+                         Containment made a foundation system undeliverable until at least one
+                         platform existed, which is backwards from construction order - the columns
+                         are installed before the platform is built over them. -->
                 </sequence>
             </extension>
         </complexContent>
     </complexType>
-    <complexType name="LTPArrayPropertyType">
-        <sequence minOccurs="1" maxOccurs="unbounded">
-            <element ref="diggs:LoadTransferPlatform"/>
-        </sequence>
-    </complexType>
-    <element name="LoadTransferPlatform" type="diggs:LoadTransferPlatformType"/>
+    <element name="LoadTransferPlatform" type="diggs:LoadTransferPlatformType"
+        substitutionGroup="diggs:AbstractPlanarInstallation">
+        <annotation>
+            <documentation>A load transfer platform: the compacted granular layer, usually
+                reinforced with geosynthetics, constructed over a field of rigid inclusions to
+                distribute structural loads onto the column heads. It is a planar installation
+                within a rigid inclusion foundation system, and cites that system through the
+                mandatory samplingFeatureRef inherited from AbstractPlanarInstallationType. The
+                rigid inclusions beneath a platform are not enumerated here: a column's membership
+                is determined by testing its position against this platform's featureExtent.</documentation>
+        </annotation>
+    </element>
     <complexType name="LoadTransferPlatformType">
         <complexContent>
-            <extension base="diggs:AbstractPlanarSamplingFeatureType">
+            <extension base="diggs:AbstractPlanarInstallationType">
                 <sequence>
                     <element minOccurs="0" name="whenConstructed"
                         type="diggs:TimeIntervalPropertyType">
@@ -98,14 +161,37 @@
                         </annotation>
                     </element>
                     <element minOccurs="0" name="materialType" type="diggs:LithologyPropertyType"/>
-                    <element minOccurs="0" name="elevationTopLTP" type="diggs:ElevationType">
+                    <element minOccurs="0" name="elevationTopLTP"
+                        type="diggs:PointLocationPropertyType">
                         <annotation>
-                            <documentation>The elevation of the top of the load transfer platform</documentation>
+                            <documentation>The elevation of the top of the load transfer platform.
+
+                                One LTP is one zone, and a zone has one top elevation applying
+                                across its whole extent - including where that extent is
+                                geometrically discontinuous, a diggs:MultiSurface of several
+                                disjoint polygons. Surfaces that did not share the elevation would
+                                be separate LoadTransferPlatform features. So this is a definite
+                                position, not an averaged level.
+
+                                PRECEDENCE HAS TWO BRANCHES, as for
+                                RIFoundationSystemType/workingPlatformElevation. Where this
+                                platform's featureExtent is 3-D or compound the geometry prevails;
+                                where it is 2-D the geometry carries no elevation and THIS PROPERTY
+                                IS THE PREVAILING VALUE. In practice LTP extents are commonly
+                                delivered as 2-D plan polygons, so this property is usually the only
+                                carrier.</documentation>
                         </annotation>
                     </element>
-                    <element name="impliedLTPThickness" type="diggs:LengthMeasureType">
+                    <element minOccurs="0" name="impliedLTPThickness" type="diggs:LengthMeasureType">
                         <annotation>
-                            <documentation>The thickness of the load transfer platform, inferred from the LTP top and workding platform elevations.</documentation>
+                            <documentation>The thickness of the load transfer platform, inferred from the LTP top and workding platform elevations.
+
+                                Optional, matching its two source elevations: elevationTopLTP on this
+                                type and workingPlatformElevation on RIFoundationSystemType are both
+                                [0..1], so a value inferred from them cannot itself be mandatory. Left
+                                mandatory through C1, which fixed the equivalent problem for
+                                loadTransferPlatforms/rigidInclusions containment but did not revisit
+                                this element - found and corrected in review, 2026-08-16.</documentation>
                         </annotation>
                     </element>
                     <element maxOccurs="1" minOccurs="0" name="geosynthetics"
@@ -114,12 +200,13 @@
                             <documentation>A property that holds the Geosyntheic objects installed within this LTP.</documentation>
                         </annotation>
                     </element>
-                    <element maxOccurs="1" minOccurs="1" name="rigidInclusions"
-                        type="diggs:RIArrayPropertyType">
-                        <annotation>
-                            <documentation>A property that holds the rigid inclusions (CMC) that underlie this LTP</documentation>
-                        </annotation>
-                    </element>
+                    <!-- The rigidInclusions containment array was removed here. Rigid inclusions
+                         are top-level sampling features; the set underlying this platform is
+                         derived by testing each column's position against this platform's
+                         featureExtent, not enumerated. No RI-to-LTP reference is declared either:
+                         the columns precede the platform in construction time, so such a reference
+                         would point forward and would require delivered column records to be
+                         edited once the platform was built. -->
                 </sequence>
             </extension>
         </complexContent>
@@ -140,9 +227,17 @@
                             <documentation>The measured height of the geosynthetic above the working platform.</documentation>
                         </annotation>
                     </element>
-                    <element minOccurs="0" name="elevation" type="diggs:ElevationType">
+                    <element minOccurs="0" name="elevation" type="diggs:PointLocationPropertyType">
                         <annotation>
-                            <documentation>The elevation of the geosynthetic within the LTP. Use srsName to specify absolute vertical CRS and/or datumReference to specify local datum type.</documentation>
+                            <documentation>The elevation of the geosynthetic layer within the LTP.
+
+                                An elevation is a position, not a length. Use srsName on the
+                                PointLocation to state the vertical CRS, and populate uomLabels so
+                                the unit is readable without resolving it. The datumReference
+                                attribute that this property's documentation previously directed
+                                authors to no longer exists: a vertical CRS already carries its
+                                datum, and the referent concept belongs to linear referencing
+                                (diggs:Referent), not to an elevation.</documentation>
                         </annotation>
                     </element>
                     <element minOccurs="0" name="extent" type="diggs:PlanarSurfacePropertyType">
@@ -159,9 +254,12 @@
             <element ref="diggs:Geosynthetic"/>
         </sequence>
     </complexType>
-    <!-- This section commented out pending finalization of Construction Activity and Design/Specification element design
-    <element name="CMCSubmittedDesign" type="diggs:CMCArrayType"/>
-    -->
+    <!-- CMCSubmittedDesign was declared here, typed CMCArrayType. Both are retired (C4). The
+         array scope form they served - a coverage whose range carried a planned-identifier column
+         plus per-column properties - was retracted because a coverage row has no gml:id and so
+         cannot be referenced by a ProgressEvent, an AcceptanceCriterion or a TargetSample. The
+         concept is now RIColumnDesign plus, where columns vary arbitrarily, one
+         TargetSamplingFeature per column. -->
     <element name="RigidInclusion" type="diggs:RigidInclusionType"
         substitutionGroup="diggs:AbstractLinearSamplingFeature">
         <annotation>
@@ -172,6 +270,15 @@
         <complexContent>
             <extension base="diggs:AbstractLinearSamplingFeatureType">
                 <sequence>
+                    <element ref="diggs:samplingFeatureRef" minOccurs="0">
+                        <annotation>
+                            <appinfo source="urn:x-gml:targetElement">diggs:RIFoundationSystem</appinfo>
+                            <documentation>The rigid inclusion foundation system this column forms part of.
+                                Omit for a trial or test column constructed independently of any foundation
+                                system. Absence is meaningful: it is the declared way to identify a trial
+                                column, and must not be inferred from document position.</documentation>
+                        </annotation>
+                    </element>
                     <element minOccurs="0" name="columnType" type="gml:CodeType"/>
                     <element maxOccurs="1" minOccurs="0" name="whenConstructed"
                         type="diggs:TimeIntervalPropertyType">
@@ -194,6 +301,50 @@
                         <annotation>
                             <documentation>Information about events recorded during construction of
                                 the rigid inclusion.</documentation>
+                        </annotation>
+                    </element>
+                    <element minOccurs="0" name="groundSurfaceElevation"
+                        type="diggs:PointLocationPropertyType">
+                        <annotation>
+                            <documentation>The elevation of the ground surface, or of the working
+                                platform where one is present, at this column.
+
+                                An elevation is a position, not a length, and here that is
+                                load-bearing rather than cosmetic. A rigid inclusion conflates the
+                                drilled hole and the grout column into a single sampling feature,
+                                and the column takes precedence for geometry: the centerLine runs
+                                from the column head to the column tip, not from ground level to the
+                                tip. Depths recorded during drilling - measurement-while-drilling
+                                data, and RIEventType/riDepth - are measured instead from the ground
+                                or platform datum the rig works from. This property is what relates
+                                the two, and without it drilling-time depths cannot be placed on the
+                                column.
+
+                                Because it is a position it may be stated in whichever frame it was
+                                actually measured: as a one-dimensional position in a vertical CRS,
+                                as a one-dimensional position in this column's own linear
+                                referencing system, or as a full three-dimensional position. A
+                                scalar could only ever express one of those. Populate uomLabels so
+                                the unit is readable without resolving the CRS.
+
+                                It corresponds to the property of the same name on
+                                diggs:AbstractPileType, which carries it even though piles are
+                                installations that could in principle derive it from a parent
+                                borehole feature.</documentation>
+                        </annotation>
+                    </element>
+                    <element minOccurs="0" name="cutoffElevation"
+                        type="diggs:PointLocationPropertyType">
+                        <annotation>
+                            <documentation>Elevation of the column cutoff - the top of the finished
+                                column.
+
+                                An elevation is a position, not a length; see
+                                groundSurfaceElevation for the frame options and the uomLabels
+                                guidance. Optional and informational, carried for symmetry with
+                                columnLength. Unlike groundSurfaceElevation this value IS derivable
+                                from the geometry, being the first point of the centerLine, so WHERE
+                                THE TWO DISAGREE THE GEOMETRY PREVAILS.</documentation>
                         </annotation>
                     </element>
                     <element minOccurs="0" name="columnLength" type="diggs:LengthMeasureType"/>
@@ -220,12 +371,24 @@
             </extension>
         </complexContent>
     </complexType>
-    <complexType name="RIArrayPropertyType">
-        <sequence minOccurs="0" maxOccurs="unbounded">
-            <element ref="diggs:RigidInclusion"/>
-        </sequence>
-    </complexType>
+    <!-- RIArrayPropertyType was removed with the rigidInclusions containment array that was its
+         only use. LTPArrayPropertyType was removed with loadTransferPlatforms for the same reason.
+         Both are gone rather than left unreferenced: neither had any other use anywhere in the
+         schema. -->
     <complexType name="RIConstructionMethodType">
+        <annotation>
+            <documentation>The construction-method SUMMARY carried on the feature - one or more
+                intervals or discrete method changes over the depth or time of construction,
+                referenced from diggs:RigidInclusionType/constructionMethod.
+
+                THIS STAYS THE SUMMARY. THE REAL-TIME RECORD LIVES ON THE ACTIVITY. C3 added
+                diggs:RIConstructionActivity, whose installationRecord property carries the
+                continuous depth- or time-indexed telemetry stream this type only summarizes in a
+                handful of intervals. WHERE THE TWO DISAGREE, THE RECORD ON THE ACTIVITY GOVERNS -
+                this object is authored or derived from that stream, not the other way round, so a
+                conflict means this summary is stale or was rounded, not that the detailed record
+                is wrong.</documentation>
+        </annotation>
         <complexContent>
             <extension base="diggs:AbstractNamedRoleObjectType">
                 <sequence>
@@ -336,136 +499,848 @@
         <attributeGroup ref="gml:OwnershipAttributeGroup"/>
         <attributeGroup ref="gml:AssociationAttributeGroup"/>
     </complexType>
-    <!-- This section commented out pending finalization of Construction Activity and Design/Specification element design
-    <complexType name="CMCArrayType">
-        <complexContent>
-            <extension base="diggs:AbstractObjectType">
-                <sequence>
-                    <element name="columnIds" type="gml:NCNameList">
-                        <annotation>
-                            <documentation>A list of id's for te columns in this zone. The id's must conform with XML NCName convention.Values for any columns in this list that have a discrete RigidInclusion object defined, should match the gml:id of the corresponding RigidInclusion.</documentation>
-                        </annotation>
-                    </element>
-                    <element name="columnTopLocations" type="diggs:MultiPointPropertyType">
-                        <annotation>
-                            <documentation>A list of coordinates, within a geospatial CRS (2D or 3D), that defines the locations of the top of the columns installed in this zone. For 3D coordinates, the height coordinate shall correspond to the cutoff elevation for the column. The order of coordinate tuples must follow the order of columnids to allow for location/id assignment.</documentation>
-                        </annotation>
-                    </element>
-                    <element name="columnLengths" type="diggs:LengthDoubleListMeasureType"/>
-                    <element minOccurs="0" name="placedGroutVolumes"
-                        type="diggs:VolumeDoubleListMeasureType"/>
-                    <element minOccurs="0" name="columnDiameter" type="diggs:LengthMeasureType">
-                        <annotation>
-                            <documentation>Could be converted to an enum type with the following enumerations:
-1) simple bored
-2) bored with casing
-3) bored with slurry
-4) continuous flight hollow auger
-5) micropile
-6) cast-in-place, vibro-driven
-7) cast=in-place, driven
-8) prefabricated, vibro-driven
-9) prefabricated, driven
-10) soil mixin11)
-11) jet grouting</documentation>
-                        </annotation>
-                    </element>
-                    <element minOccurs="0" name="columnType" type="gml:CodeType"/>
-                    <element minOccurs="0" name="installationType" type="gml:CodeType">
-                        <annotation>
-                            <documentation>Could be converted to an enum type with the following enumerations:
-1) simple bored
-2) bored with casing
-3) bored with slurry
-4) continuous flight hollow auger
-5) micropile
-6) cast-in-place, vibro-driven
-7) cast=in-place, driven
-8) prefabricated, vibro-driven
-9) prefabricated, driven
-10) soil mixin11)
-11) jet grouting</documentation>
-                        </annotation>
-                    </element>
-                    <element maxOccurs="unbounded" minOccurs="0" name="installationEquipment"
-                        type="diggs:EquipmentPropertyType"/>
-                    <element maxOccurs="unbounded" minOccurs="0" name="cuttingEquipment"
-                        type="diggs:EquipmentPropertyType"/>
-                    <element minOccurs="0" name="cutoffMethod"
-                        type="diggs:SpecificationPropertyType"/>
-                    <element minOccurs="0" name="columnCapheadPresent" type="boolean"/>
-                </sequence>
-            </extension>
-        </complexContent>
-    </complexType>
-    <complexType name="CMCArrayPropertyType">
-        <sequence>
-            <element ref="diggs:CMCSubmittedDesign"/>
-        </sequence>
-    </complexType>
-    <element name="CMCConstructionActivity" type="diggs:CMCConstructionActivityType"/>
-    <complexType name="CMCConstructionActivityType">
-        <complexContent>
-            <extension base="diggs:AbstractConstructionActivityType">
-                <sequence>
-                    <element minOccurs="0" name="torqueApplied"
-                        type="diggs:MomentOfForceMeasureType"/>
-                    <element minOccurs="0" name="penetrationPerRevolution"
-                        type="diggs:LengthMeasureType"/>
-                    <element minOccurs="0" name="penetrationRate"
-                        type="diggs:LengthPerTimeMeasureType">
-                        <annotation>
-                            <documentation>The rate that the drill is advanced into the ground; also known as driliing speed.
-</documentation>
-                        </annotation>
-                    </element>
-                    <element minOccurs="0" name="withdrawalRate"
-                        type="diggs:LengthPerTimeMeasureType"/>
-                    <element minOccurs="0" name="rotationSpeeed"
-                        type="diggs:AngularVelocityMeasureType"/>
-                    <element minOccurs="0" name="groutPressure" type="diggs:PressureMeasureType"/>
-                    <element minOccurs="0" name="groutFlowRate"
-                        type="diggs:VolumePerTimeMeasureType"/>
-                </sequence>
-            </extension>
-        </complexContent>
-    </complexType>
-    <element name="RigidInclusionProgram" substitutionGroup="diggs:AbstractProgram"
-        type="diggs:RigidInclusionProgramType"/>
+    <!-- ============================================================ -->
+    <!-- RI PROGRAM MODULES                                           -->
+    <!-- ============================================================ -->
+    <!-- Reinstated in C4 against the program-module heads introduced in B3. What was here before
+         was a commented sketch whose design/specification elements were untyped - <element
+         name="riConcept"/> defaults to anyType and admits anything - which is why it was never
+         released.
+
+         RETIRED here, deliberately, and not to be reinstated:
+           CMCArrayType, CMCArrayPropertyType, and the children columnIds, columnTopLocations,
+             columnLengths - the array scope form; see the note above RigidInclusion.
+           RISystemDesignPropertyType - modules now hang off the program's generic design slot.
+           CMCConstructionActivity / CMCConstructionActivityType - the RI construction activity is
+             built properly in C3, with its measurement-while-drilling coverage. The sketch carried
+             torqueApplied, penetrationPerRevolution, penetrationRate, withdrawalRate,
+             rotationSpeeed (sic), groutPressure and groutFlowRate; that list is preserved in
+             docs/build/C4/NOTES.md as the only record of what the original authors expected to
+             record, and C3 decides which are activity properties and which are coverage columns.
+           RigidInclusionProgramType/explorationPhaseDesign, riPerformanceSpec, riFeasibility,
+             riConcept, riDesignSpec - each named a KIND of module. The kind is now carried by the
+             module object's own type, not by the slot it sits in.
+           RISystemDesignType/columnDesign, ltpDesign - these become RIColumnDesign and RILTPDesign
+             (C2), declared as siblings under the program and citing RISystemDesign through
+             basedOnRef rather than being contained by it.
+           RISystemDesignType/predictedPerformance, globalStability - untyped sketches of design
+             outputs. Retired rather than guessed at; if they return they need real types. -->
+    <element name="RigidInclusionProgram" type="diggs:RigidInclusionProgramType"
+        substitutionGroup="diggs:AbstractProgram">
+        <annotation>
+            <documentation>A program of rigid inclusion ground improvement work: the designs the
+                program issues, the specifications it must satisfy, and the bases those were
+                prepared from.</documentation>
+        </annotation>
+    </element>
     <complexType name="RigidInclusionProgramType">
+        <annotation>
+            <documentation>Type for a rigid inclusion program. Carries three generic module slots
+                rather than one slot per kind of design or specification: what kind of module an
+                object is, is carried by the object's own type and by which substitution group it
+                belongs to, so a slot per kind would restate it and go stale as kinds are
+                added.
+
+                DOCUMENT ORDER IS design*, THEN specification*, THEN basis*, STRICTLY GROUPED - not
+                interleaved. This is an ordinary XSD sequence constraint, not a logical one: a
+                design's programSpecificationRef may point at a specification declared later in the
+                document (the antecedent rule governs logical dependency, not document position), but
+                every design element must precede every specification element regardless of which
+                design cites which specification, and every specification must precede every basis
+                element the same way. A hand-authored instance grouping objects by narrative instead
+                - a TargetMeasurement next to its own criterion, say - will fail here. Found building
+                the B8 worked fragment; recorded on the type itself so it is not rediscovered the same
+                way twice.</documentation>
+        </annotation>
         <complexContent>
             <extension base="diggs:AbstractProgramType">
                 <sequence>
-                    <element minOccurs="0" name="explorationPhaseDesign"/>
-                    <element minOccurs="0" name="riPerformanceSpec"/>
-                    <element minOccurs="0" name="riFeasibility"/>
-                    <element minOccurs="0" name="riConcept"/>
-                    <element minOccurs="0" name="riDesignSpec"/>
-                    <element minOccurs="0" name="riSystemDesign"
-                        type="diggs:RISystemDesignPropertyType"/>
+                    <element minOccurs="0" maxOccurs="unbounded" name="design"
+                        type="diggs:ProgramDesignPropertyType">
+                        <annotation>
+                            <documentation>A design this program issues - what is intended to be
+                                built. Holds any member of the diggs:AbstractProgramDesign
+                                substitution group, so an RI program may carry an RISystemDesign, an
+                                RIColumnDesign and a DesignGroutMix declared in Grouting.xsd
+                                alongside one another.</documentation>
+                        </annotation>
+                    </element>
+                    <element minOccurs="0" maxOccurs="unbounded" name="specification"
+                        type="diggs:ProgramSpecificationPropertyType">
+                        <annotation>
+                            <documentation>A specification this program must satisfy - the
+                                constraints and tolerances the work is judged against. Holds any
+                                member of the diggs:AbstractProgramSpecification substitution
+                                group.</documentation>
+                        </annotation>
+                    </element>
+                    <element minOccurs="0" maxOccurs="unbounded" name="basis"
+                        type="diggs:ProgramBasisPropertyType">
+                        <annotation>
+                            <documentation>A basis the program's designs were prepared from - the
+                                ground model, requirement set or other evidence relied on. Holds any
+                                member of the diggs:AbstractProgramBasis substitution
+                                group.</documentation>
+                        </annotation>
+                    </element>
                 </sequence>
             </extension>
         </complexContent>
     </complexType>
-    <element name="RISystemDesign" type="diggs:RISystemDesignType"/>
+    <element name="RISystemDesign" type="diggs:RISystemDesignType"
+        substitutionGroup="diggs:AbstractProgramDesign">
+        <annotation>
+            <documentation>The site-wide design for a rigid inclusion foundation system: the design
+                properties that hold across the whole system, from which zone- and element-level
+                designs depart.
+
+                It is a thin carrier by intention. It does not CONTAIN the column, LTP or grout
+                designs - those are declared as siblings under the program. An RIColumnDesign or
+                RILTPDesign for a particular zone cites this object through basedOnRef, and property
+                resolution then runs most-specific-first: a zone design that states no value for a
+                property inherits the value stated here. Containment was rejected for the same
+                reason it was rejected for the RI sampling features - a contained design cannot be
+                delivered before its parent exists, cannot be cited from outside without walking
+                into its parent, and a grout mix used across several zones would have to be
+                duplicated.</documentation>
+        </annotation>
+    </element>
     <complexType name="RISystemDesignType">
+        <annotation>
+            <documentation>Type for the site-wide rigid inclusion system design. Inherits scope,
+                basedOnRef, programSpecificationRef and basisRef from
+                diggs:AbstractProgramDesignType.</documentation>
+        </annotation>
         <complexContent>
             <extension base="diggs:AbstractProgramDesignType">
                 <sequence>
-                    <element minOccurs="0" name="columnDesign"/>
-                    <element maxOccurs="unbounded" minOccurs="0" name="groutDesign"
-                        type="diggs:GroutingProgramDesignPropertyType"/>
-                    <element minOccurs="0" name="ltpDesign"/>
-                    <element minOccurs="0" name="predictedPerformance"/>
-                    <element minOccurs="0" name="globalStability"/>
+                    <element minOccurs="0" maxOccurs="unbounded" name="groutDesignRef"
+                        type="diggs:FeatureReferenceType">
+                        <annotation>
+                            <appinfo source="urn:x-gml:targetElement">diggs:DesignGroutMix</appinfo>
+                            <documentation>The grout mix design or designs adopted site-wide. A
+                                reference rather than a contained object: a mix design is a
+                                COMPONENT of the work, not a generalization of it, so basedOnRef
+                                would be the wrong relation, and the same mix is normally used
+                                across several zones. The referenced DesignGroutMix is declared as a
+                                sibling under the program's design slot, and precedes this object -
+                                the mix is designed before the system design adopts it.
+
+                                A zone-level design may override this by stating its own
+                                groutDesignRef; per basedOnRef resolution the most specific value
+                                wins.</documentation>
+                        </annotation>
+                    </element>
                 </sequence>
             </extension>
         </complexContent>
     </complexType>
-    <complexType name="RISystemDesignPropertyType">
-        <sequence>
-            <element ref="diggs:RISystemDesign"/>
-        </sequence>
+    <!-- ============================================================ -->
+    <!-- C2 — RI DESIGN AND SPECIFICATION MODULES                     -->
+    <!-- ============================================================ -->
+    <!-- Four modules: two designs (what is intended to be built) and two
+         specifications (what the work is judged against). All four are SIBLINGS under
+         RigidInclusionProgramType's generic design/specification slots, never contained
+         in one another - see RISystemDesignType above for why containment was rejected.
+
+         ONE TYPE PER THING DESIGNED, NOT ONE TYPE PER SCOPE FORM. RIColumnDesign covers
+         the site-wide, zone and single-element cases alike, because the scope is carried
+         declaratively by the inherited ProgramScope (zoneExtent, plannedPositions or
+         appliesToFeatureType) rather than by which type was chosen.
+
+         EVERY PROPERTY IS OPTIONAL, AND THAT IS STRUCTURAL RATHER THAN PERMISSIVE.
+         Resolution runs per property up the basedOnRef chain, most-specific-first, so a
+         zone design that states nothing but a length is a complete and meaningful object:
+         it inherits diameter, grid and material from the design it specializes. A
+         mandatory property would break that by forcing every specialization to restate
+         a value it means to inherit.
+
+         WHAT IS DELIBERATELY ABSENT. Limits and tolerances are NOT here. Position
+         tolerance, verticality tolerance, minimum bearing-stratum embedment and the
+         serviceability limits are each a diggs:DesignConformanceCriterion or
+         diggs:PerformanceCriterion (B5), declared as a sibling under the program's
+         specification slot and citing the specification below through basedOnRef - which
+         is legal because AbstractAcceptanceCriterion substitutes AbstractProgramSpecification,
+         so criterion-to-specification is a within-head chain. Building typed tolerance
+         elements here as well would give two ways to state one limit with nothing
+         correlating them: the exact failure mode that caused criterionKind to be split
+         out of B5 rather than kept as a field.
+
+         Per-soil-layer quantities (shaft and tip load-transfer moduli, negative skin
+         friction, neutral-plane depth, toe and shaft resistances), reinforcement,
+         geosynthetic layer design, design verifications and design soil parameters are
+         all absent too. Each needs an object keyed by layer, load case or check - not a
+         scalar element - and several of those objects are generic rather than RI-specific.
+         They are later work, not omissions. -->
+    <element name="RIColumnDesign" type="diggs:RIColumnDesignType"
+        substitutionGroup="diggs:AbstractProgramDesign">
+        <annotation>
+            <documentation>The design of the rigid inclusion columns themselves: their layout,
+                geometry, material strength and axial capacity, for whatever population the
+                inherited scope declares.
+
+                One object may govern three thousand columns or one. A site-wide design scopes
+                itself with appliesToFeatureType; a zone design adds a zoneExtent polygon and
+                usually a plannedPositions grid; a local exception carries a clipped polygon, no
+                layout at all, and a basedOnRef to the design it departs from - inheriting the
+                grid it does not restate.
+
+                PROPERTIES THAT VARY WITHIN THE POPULATION DO NOT BELONG HERE. This object
+                carries the uniform values - every column in this design is 400 mm. Where a
+                particular column differs, that column is planned individually as a
+                diggs:TargetSamplingFeature, which is a feature and so can carry its own typed
+                properties, its own ProvenancedParameters, a gml:id that a criterion or a
+                progress event can reference, and provenance for where its value came from. A
+                coverage row could carry none of those, which is why the array design form was
+                retracted.</documentation>
+        </annotation>
+    </element>
+    <complexType name="RIColumnDesignType">
+        <annotation>
+            <documentation>Type for the rigid inclusion column design. Inherits scope,
+                basedOnRef, programSpecificationRef and basisRef from
+                diggs:AbstractProgramDesignType.</documentation>
+        </annotation>
+        <complexContent>
+            <extension base="diggs:AbstractProgramDesignType">
+                <sequence>
+                    <element minOccurs="0" name="gridPattern" type="gml:CodeType">
+                        <annotation>
+                            <documentation>The plan arrangement of the columns - square,
+                                rectangular, triangular, staggered or irregular. gml:CodeType with
+                                a dictionary vocabulary rather than an enumeration, since layout
+                                patterns are named differently across practices and the list is not
+                                closed.
+
+                                THE GEOMETRY PREVAILS where the inherited scope states a
+                                plannedPositions grid: that grid's offsetVectors define the lattice
+                                exactly, including patterns like an equilateral triangular
+                                arrangement whose vectors are not orthogonal, and this code merely
+                                names what they already express. Where scope carries no grid - a
+                                zone-scoped or type-scoped design - THIS PROPERTY AND THE SPACINGS
+                                BELOW ARE THE PREVAILING STATEMENT of the layout. A consumer cannot
+                                tell which branch applies without inspecting the
+                                scope.</documentation>
+                        </annotation>
+                    </element>
+                    <element minOccurs="0" name="spacingX" type="diggs:LengthMeasureType">
+                        <annotation>
+                            <documentation>Centre-to-centre spacing of the columns along the first
+                                grid axis.
+
+                                STATE THIS ELEMENT ALONE for a square or triangular pattern, where
+                                one spacing plus gridPattern is the whole layout. State spacingY as
+                                well only for a rectangular pattern, where the two differ. Two
+                                elements rather than one is deliberate: a single spacing element
+                                would force a rectangular grid to encode two numbers under a
+                                convention, and conventions in a data standard are read wrongly
+                                sooner or later.
+
+                                Informational where the scope carries a plannedPositions grid; see
+                                gridPattern for both branches of the precedence
+                                rule.</documentation>
+                        </annotation>
+                    </element>
+                    <element minOccurs="0" name="spacingY" type="diggs:LengthMeasureType">
+                        <annotation>
+                            <documentation>Centre-to-centre spacing of the columns along the second
+                                grid axis, for a rectangular pattern where it differs from spacingX.
+                                Omit for square and triangular patterns. See spacingX.</documentation>
+                        </annotation>
+                    </element>
+                    <element minOccurs="0" name="columnDiameter" type="diggs:LengthMeasureType">
+                        <annotation>
+                            <documentation>The nominal designed shaft diameter of the columns. Named
+                                to match diggs:RigidInclusionType/columnDiameter, the as-built
+                                counterpart, so that the design value and the constructed value
+                                carry one name across the plan/realized boundary and a conformance
+                                check has an unambiguous pair to compare.</documentation>
+                        </annotation>
+                    </element>
+                    <element minOccurs="0" name="columnLength" type="diggs:LengthMeasureType">
+                        <annotation>
+                            <documentation>The designed column length, measured cut-off to toe.
+                                Named to match diggs:RigidInclusionType/columnLength.
+
+                                A LENGTH AND A TOE ELEVATION ARE DIFFERENT DATA, not two ways of
+                                writing one number, which is why toeElevation below is a separate
+                                element rather than an alternative encoding of this one. Designers
+                                control whichever the ground dictates - commonly the toe elevation,
+                                driven by penetration into the bearing stratum, with the length
+                                falling out of it - and a file that carried only the derived one
+                                would lose which was actually specified. State whichever governs,
+                                or both.</documentation>
+                        </annotation>
+                    </element>
+                    <element minOccurs="0" name="toeElevation" type="diggs:ElevationType">
+                        <annotation>
+                            <documentation>The designed elevation of the column toe.
+
+                                A SCALAR diggs:ElevationType, NOT a position, and the distinction is
+                                the one A6 drew across the whole schema: a position belongs to a
+                                point on a feature, a level belongs to an area. This is a design
+                                level adopted across whatever population the scope declares -
+                                thousands of columns share it - so it has no definite point to be
+                                the position of. Contrast diggs:RigidInclusionType/cutoffElevation
+                                on the as-built side, which is a position because it belongs to one
+                                built column and is extractable from that column's
+                                centerLine.
+
+                                The natural companion to the design bearing-stratum level: the toe
+                                elevation is normally set by required penetration into that stratum,
+                                and the required penetration itself is an acceptance criterion, not
+                                a value here.</documentation>
+                        </annotation>
+                    </element>
+                    <element minOccurs="0" name="areaReplacementRatio"
+                        type="diggs:AreaPerAreaMeasureType">
+                        <annotation>
+                            <documentation>The ratio of inclusion (or cap) cross-sectional area to
+                                the tributary area of one inclusion.
+
+                                diggs:AreaPerAreaMeasureType, DELIBERATELY NOT DimensionlessMeasureType,
+                                and this is the one unit choice in this type that is worth arguing
+                                about. The quantity is quoted as a fraction about as often as a
+                                percentage, and it is among the most-used numbers in rigid inclusion
+                                design - coverage is typically under 10 percent beneath embankments,
+                                an order of magnitude below conventional piled embankments. A file
+                                that reports 0.05 where a reader expects 5 is a silent error with
+                                consequences, and an area-per-area quantity class forces an explicit
+                                uom that makes the mistake impossible to make quietly.</documentation>
+                        </annotation>
+                    </element>
+                    <element minOccurs="0" name="designCompressiveStrength"
+                        type="diggs:PressureMeasureType">
+                        <annotation>
+                            <documentation>The factored design compressive strength of the column
+                                material - f_cd in Eurocode terms, the characteristic strength
+                                reduced by a material factor, or the equivalent construction-method
+                                and inspection-level reduction other practices apply.
+
+                                Distinct from allowableMeanCompressiveStress below, and both may
+                                bind. The CHARACTERISTIC strength this is derived from is a property
+                                of the material, not of the column design, and belongs on the
+                                referenced diggs:DesignGroutMix.</documentation>
+                        </annotation>
+                    </element>
+                    <element minOccurs="0" name="allowableMeanCompressiveStress"
+                        type="diggs:PressureMeasureType">
+                        <annotation>
+                            <documentation>An absolute ceiling on mean compressive stress in the
+                                column, applied on top of designCompressiveStrength rather than
+                                instead of it.
+
+                                THE TWO LIMITS BIND INDEPENDENTLY and a design governed by the
+                                absolute cap looks different from one governed by the factored
+                                strength; conflating them would lose which one controlled. Named
+                                generically rather than after any one practice's symbol, because
+                                several practices reach the same constraint by different routes -
+                                a fixed cap in European ground-improvement recommendations, and
+                                allowable-stress tables for deep foundation materials in US
+                                building codes.</documentation>
+                        </annotation>
+                    </element>
+                    <element minOccurs="0" name="columnAxialCapacity"
+                        type="diggs:ForceMeasureType">
+                        <annotation>
+                            <documentation>The structural axial resistance of one column - the
+                                capacity of the column as a structural member, governed by its
+                                material and cross-section.
+
+                                Not to be confused with the GEOTECHNICAL capacity, which is the sum
+                                of toe and shaft resistances and is a per-soil-layer computation.
+                                Those quantities need an object keyed by geological unit and are not
+                                yet built.</documentation>
+                        </annotation>
+                    </element>
+                    <element minOccurs="0" name="designAxialLoad" type="diggs:ForceMeasureType">
+                        <annotation>
+                            <documentation>The axial load one column is designed to carry.
+
+                                CARRIED AS A SINGLE VALUE HERE, AND THAT IS AN ACKNOWLEDGED
+                                SIMPLIFICATION. The quantity genuinely varies by column position -
+                                edge columns see very different demand from interior ones - and by
+                                load combination, and practice does not even agree on which load to
+                                use, ranging from allowable bearing pressure times area, through
+                                sustained service loads, to a conservative assumption that the
+                                columns take the entire applied load. Expressing that properly needs
+                                a repeating object keyed by load case and carrying the basis of the
+                                load, which is generic design-action machinery rather than anything
+                                RI-specific, and is not yet built. Until it is, state the governing
+                                value here, and carry the load case and basis as otherProperty on
+                                the planned column.</documentation>
+                        </annotation>
+                    </element>
+                    <element minOccurs="0" maxOccurs="unbounded" name="groutDesignRef"
+                        type="diggs:FeatureReferenceType">
+                        <annotation>
+                            <appinfo source="urn:x-gml:targetElement">diggs:DesignGroutMix</appinfo>
+                            <documentation>The grout or concrete mix design adopted for these
+                                columns. Overrides the site-wide groutDesignRef on any
+                                diggs:RISystemDesign this design is based on; per basedOnRef
+                                resolution the most specific value wins, and a design that states
+                                none inherits the system's.
+
+                                A reference rather than a contained object, and a plain reference
+                                rather than basedOnRef, for the reason given on
+                                diggs:RISystemDesignType/groutDesignRef: a mix design is a COMPONENT
+                                of the work, not a generalization of it, so inheritance is the wrong
+                                relation, and one mix is normally shared across
+                                zones.</documentation>
+                        </annotation>
+                    </element>
+                </sequence>
+            </extension>
+        </complexContent>
     </complexType>
-    -->
+    <element name="RILTPDesign" type="diggs:RILTPDesignType"
+        substitutionGroup="diggs:AbstractProgramDesign">
+        <annotation>
+            <documentation>The design of a load transfer platform: its thickness, the arching
+                behaviour it is designed to develop, and the stresses that behaviour delivers to
+                the column heads and to the soil between them.
+
+                Normally instance-scoped rather than population-scoped, unlike RIColumnDesign - a
+                site has a handful of platforms, not thousands, so scoping one design to one
+                platform through appliesToFeatureRef is usually the right form.</documentation>
+        </annotation>
+    </element>
+    <complexType name="RILTPDesignType">
+        <annotation>
+            <documentation>Type for the load transfer platform design. Inherits scope, basedOnRef,
+                programSpecificationRef and basisRef from
+                diggs:AbstractProgramDesignType.</documentation>
+        </annotation>
+        <complexContent>
+            <extension base="diggs:AbstractProgramDesignType">
+                <sequence>
+                    <element minOccurs="0" name="ltpThickness" type="diggs:LengthMeasureType">
+                        <annotation>
+                            <documentation>The designed vertical thickness of the load transfer
+                                platform.
+
+                                THICKNESS IS NOT ONLY AN ARCHING PARAMETER, which is easy to miss
+                                when it is read off a list beside the arching coefficients. It also
+                                controls lateral load transfer and column bending: test data show
+                                the lateral capacity of a stiff-column-supported footing increasing
+                                roughly linearly with platform thickness over the range used in
+                                practice. So this value is an input to the column shear and bending
+                                checks as much as to the stress distribution below.
+
+                                Compare diggs:LoadTransferPlatformType/impliedLTPThickness on the
+                                as-built side, which is inferred from the platform top and working
+                                platform elevations rather than stated.</documentation>
+                        </annotation>
+                    </element>
+                    <element minOccurs="0" name="criticalHeight" type="diggs:LengthMeasureType">
+                        <annotation>
+                            <documentation>The fill height above which differential settlement no
+                                longer reaches the surface - the full-arching height.
+
+                                A UNIVERSAL CONCEPT WITH A MODEL-DEPENDENT VALUE. Every arching
+                                practice has this quantity, which is why it is a typed element here
+                                rather than a dictionary entry; but what it evaluates to depends
+                                entirely on which arching model was used, so the number is not
+                                interpretable without that model. State the model on the design
+                                basis this design cites through basisRef, and read the two together.
+
+                                Placed on the platform design rather than the column design although
+                                the source parameter analysis groups it with layout: it is an output
+                                of the arching calculation, and arching is what the platform is
+                                designed to do.</documentation>
+                        </annotation>
+                    </element>
+                    <choice minOccurs="0">
+                        <element name="sideSlopeRatio" type="diggs:DimensionlessMeasureType">
+                            <annotation>
+                                <documentation>The side slope of the embankment above the platform,
+                                    expressed as a ratio of horizontal to vertical.
+
+                                    A RATIO AND AN ANGLE ARE DIFFERENT QUANTITY CLASSES, not two
+                                    units of one quantity, so they are two elements in a choice
+                                    rather than one element with a permissive uom. Collapsing them
+                                    would put a plane angle and a dimensionless ratio behind the
+                                    same name and leave a consumer to infer which was meant from the
+                                    unit string. State whichever form the design was expressed in;
+                                    the choice makes stating both impossible, which is the
+                                    point.
+
+                                    Applies only where the supported structure is an embankment.</documentation>
+                            </annotation>
+                        </element>
+                        <element name="sideSlopeAngle" type="diggs:PlaneAngleMeasureType">
+                            <annotation>
+                                <documentation>The side slope of the embankment above the platform,
+                                    expressed as an angle from horizontal. See sideSlopeRatio for
+                                    why these are two elements rather than one.</documentation>
+                            </annotation>
+                        </element>
+                    </choice>
+                    <element minOccurs="0" name="stressOnElementHead"
+                        type="diggs:PressureMeasureType">
+                        <annotation>
+                            <documentation>The designed vertical stress delivered to the head of one
+                                rigid inclusion through the platform.
+
+                                THIS AND stressOnSoftSoil ARE THE PAIR THAT MAKES DESIGNS COMPARABLE
+                                ACROSS PRACTICES, and that is why they are typed elements while the
+                                arching coefficients that produce them are not. Every arching model,
+                                whatever its internals, ultimately outputs how much stress lands on
+                                the head and how much lands on the soil between - the load-transfer
+                                decompositions, the dome-arching efficiencies, the cap-stress ratios
+                                and the earth-pressure coefficients all resolve to that pair. Give
+                                the pair two elements, and everything upstream of them dictionary
+                                entries conditioned on the arching model, and a consumer can compare
+                                two designs on the two quantities that are actually
+                                comparable.
+
+                                The source parameter analysis lists this quantity twice under two
+                                symbols; they are one property and are merged
+                                here.</documentation>
+                        </annotation>
+                    </element>
+                    <element minOccurs="0" name="stressOnSoftSoil"
+                        type="diggs:PressureMeasureType">
+                        <annotation>
+                            <documentation>The designed residual vertical stress reaching the
+                                compressible soil between the column heads. The other half of the
+                                arching outcome; see stressOnElementHead.</documentation>
+                        </annotation>
+                    </element>
+                </sequence>
+            </extension>
+        </complexContent>
+    </complexType>
+    <element name="RIColumnSpecification" type="diggs:RIColumnSpecificationType"
+        substitutionGroup="diggs:AbstractProgramSpecification">
+        <annotation>
+            <documentation>The specification the rigid inclusion columns must satisfy - the
+                constraints the work is judged against, as distinct from the design that was
+                prepared to satisfy them.
+
+                A THIN TYPE, AND DELIBERATELY SO. Most of what a column specification says is
+                limits - position tolerance, verticality tolerance, minimum embedment into the
+                bearing stratum, permitted diameter and length ranges - and every one of those is
+                a diggs:DesignConformanceCriterion or diggs:PerformanceCriterion declared as a
+                sibling under the program's specification slot. A criterion carries an operator, a
+                limit with min/value/max and units, a statistic, and a basis that can express
+                "two times the diameter" as readily as an absolute length; restating any of that
+                as a typed element here would be a second, weaker way to say the same thing.
+
+                What remains on this object is the non-limit content: what technique is permitted
+                and what material specification governs. Its other job is to be a single stable
+                reference target - a diggs:RigidInclusion cites it through
+                programSpecificationRef, a design cites it through programSpecificationRef, and
+                each individual criterion cites it through basedOnRef, which is a within-head
+                chain and therefore legal.</documentation>
+        </annotation>
+    </element>
+    <complexType name="RIColumnSpecificationType">
+        <annotation>
+            <documentation>Type for the rigid inclusion column specification. Inherits scope and
+                basedOnRef from diggs:AbstractProgramModuleType by way of
+                diggs:AbstractProgramSpecificationType, which adds nothing of its
+                own.</documentation>
+        </annotation>
+        <complexContent>
+            <extension base="diggs:AbstractProgramSpecificationType">
+                <sequence>
+                    <element minOccurs="0" name="columnType" type="gml:CodeType">
+                        <annotation>
+                            <documentation>The rigid inclusion technique family the specification
+                                permits or requires - controlled modulus columns, auger cast-in-place,
+                                continuous flight auger, vibrated concrete columns, driven precast
+                                and so on.
+
+                                Named to match diggs:RigidInclusionType/columnType, the as-built
+                                counterpart, and typed the same way. gml:CodeType with a dictionary
+                                vocabulary rather than an enumeration: technique families proliferate
+                                under proprietary names and the list cannot be
+                                closed.</documentation>
+                        </annotation>
+                    </element>
+                    <element minOccurs="0" maxOccurs="unbounded"
+                        ref="diggs:groutSpecificationRef">
+                        <annotation>
+                            <appinfo source="urn:x-gml:targetElement">diggs:GroutSpecification</appinfo>
+                            <documentation>The grout or concrete specification governing the column
+                                material - the object that carries strength requirements, permitted
+                                deviations and gradation limits.
+
+                                Reuses the global element already declared in
+                                specialty/Grouting.xsd rather than declaring an RI-specific
+                                equivalent, and cites the existing diggs:GroutSpecification rather
+                                than restating a concrete strength class as a code here.
+                                diggs:GroutSpecificationType already carries strengthMinimum,
+                                strengthAverage and strength90Percent, so a materialClass element on
+                                this type would be a lossier duplicate of a richer object that
+                                exists.
+
+                                A reference rather than basedOnRef even though both objects are
+                                specifications: a material specification is a COMPONENT of the
+                                column specification, not a generalization of it, so inheritance
+                                would be the wrong relation and would silently pull grout
+                                constraints into this object's own resolution
+                                chain.</documentation>
+                        </annotation>
+                    </element>
+                </sequence>
+            </extension>
+        </complexContent>
+    </complexType>
+    <element name="RILTPSpecification" type="diggs:RILTPSpecificationType"
+        substitutionGroup="diggs:AbstractProgramSpecification">
+        <annotation>
+            <documentation>The specification a load transfer platform must satisfy.
+
+                Thinner still than diggs:RIColumnSpecification, and for the same reason: platform
+                requirements are overwhelmingly limits - minimum thickness, target relative
+                compaction, permitted settlement - and every limit is an acceptance criterion
+                declared as a sibling under the program's specification slot, citing this object
+                through basedOnRef.
+
+                THE FILL GRADATION ENVELOPE IS CARRIED HERE; TARGET COMPACTION IS NOT. The platform
+                fill's gradation and compaction requirements appear in essentially every rigid
+                inclusion submittal and drive the post-installation compaction testing, and neither
+                this type nor the as-built diggs:LoadTransferPlatformType carried them - the
+                as-built has materialType alone. The two halves need different mechanisms and get
+                them: target relative compaction is a single limit with an operator, so it is an
+                acceptance criterion and needs nothing new here, whereas a gradation envelope is a
+                pair of CURVES and cannot be an operator-and-limit at all. The curve pair below
+                reuses the shape diggs:GroutSpecificationType already established for exactly this
+                problem.
+
+                PROVISIONAL PENDING SME REVIEW (Dan, 2026-08-16): reuse the shape now, confirm the
+                fit later.</documentation>
+        </annotation>
+    </element>
+    <complexType name="RILTPSpecificationType">
+        <annotation>
+            <documentation>Type for the load transfer platform specification. Inherits scope and
+                basedOnRef from diggs:AbstractProgramModuleType by way of
+                diggs:AbstractProgramSpecificationType.</documentation>
+        </annotation>
+        <complexContent>
+            <extension base="diggs:AbstractProgramSpecificationType">
+                <sequence>
+                    <element minOccurs="0" name="materialType" type="diggs:LithologyPropertyType">
+                        <annotation>
+                            <documentation>The fill material the platform is specified to be built
+                                from. Named to match diggs:LoadTransferPlatformType/materialType,
+                                the as-built counterpart, and typed the same way so that specified
+                                and constructed material can be compared without a
+                                translation.</documentation>
+                        </annotation>
+                    </element>
+                    <element minOccurs="0" name="aggregateGradationCurveCoarseLimit"
+                        type="diggs:SieveAnalysisPropertyType">
+                        <annotation>
+                            <documentation>The COARSE bound of the permitted gradation envelope for
+                                the platform fill - the curve the material may not be coarser than.
+                                Together with aggregateGradationCurveFineLimit it defines the band a
+                                conforming gradation must fall inside.
+
+                                A GRADATION LIMIT IS A CURVE, NOT A NUMBER, which is why this is not
+                                an acceptance criterion like the platform's other requirements. An
+                                AcceptanceCriterion carries an operator and a limit with min, value
+                                and max, which expresses a scalar band perfectly and a
+                                percent-passing curve across a dozen sieve sizes not at all. Target
+                                relative compaction IS a scalar band and correctly stays a
+                                criterion; this is the requirement that cannot be.
+
+                                THE SHAPE IS BORROWED FROM diggs:GroutSpecificationType, which
+                                carries an identically named pair for the aggregate in a grout mix -
+                                one concept, one name, one shape, in the only other place in DIGGS
+                                that had this problem. The object type is not borrowed:
+                                diggs:SieveAnalysisPropertyType is the generic core type, used in
+                                preference to Grouting's GroutGradingSpecificationPropertyType,
+                                which is a bare extension of diggs:SieveAnalysisType adding nothing
+                                at all and whose name would misdescribe a crushed-stone platform
+                                fill. Reusing the generic type takes the shared shape without
+                                importing a grout-specific name or a needless cross-specialty
+                                dependency.
+
+                                Provisional pending SME confirmation that the envelope is the right
+                                expression of the requirement - see this element's parent
+                                documentation.</documentation>
+                        </annotation>
+                    </element>
+                    <element minOccurs="0" name="aggregateGradationCurveFineLimit"
+                        type="diggs:SieveAnalysisPropertyType">
+                        <annotation>
+                            <documentation>The FINE bound of the permitted gradation envelope for
+                                the platform fill - the curve the material may not be finer than.
+                                The other half of the band; see
+                                aggregateGradationCurveCoarseLimit for why a curve pair rather than
+                                an acceptance criterion.</documentation>
+                        </annotation>
+                    </element>
+                </sequence>
+            </extension>
+        </complexContent>
+    </complexType>
+    <!-- ============================================================ -->
+    <!-- C3 — THE RI CONSTRUCTION ACTIVITY                            -->
+    <!-- ============================================================ -->
+    <!-- The real-time telemetry record for constructing one column - drilling and, where the
+         method injects grout during withdrawal, grouting - as a diggs:AbstractConstructionActivity,
+         following the precedent §9 note 8 and architecture's phase-3 correction both point at:
+         PileDrivingActivityType (specialty/DeepFoundation.xsd) - scalar summary properties plus a
+         depth- or time-indexed COVERAGE for the series data, not scalars alone. The commented block
+         C4 retired (CMCConstructionActivityType) modeled torqueApplied, penetrationPerRevolution,
+         penetrationRate, withdrawalRate, rotationSpeeed (sic), groutPressure and groutFlowRate all
+         as SCALARS - one value per activity - which cannot represent what a drill rig's data logger
+         actually produces: a continuous stream against depth or time. All seven become coverage
+         PROPERTY CLASSES here instead, dictionary-bound, per the same logic C2 applied to the
+         measurement-plan properties: a value that varies continuously needs a place to vary, and a
+         single typed element cannot be that place.
+
+         REUSE THE COVERAGE MECHANISM, NOT diggs:MWDResult ITSELF (Dan, 2026-08-16). Core.xsd already
+         has exactly the right shape for this - MWDResultType is a restriction of
+         gml:AbstractCoverageType choosing a depth (location) or time (timeDomain) domain, paired
+         with a diggs:results range whose PropertyParameters/Property/propertyClass values are
+         dictionary-bound and open-ended, not a fixed column list. But MWDResult is the OUTCOME of a
+         diggs:MeasurementWhileDrilling MEASUREMENT (substituting diggs:AbstractMeasurement, living
+         in the <measurement> slot, cited via mwd_properties.xml's own Occurrence condition
+         "ancestor::diggs:measurement//diggs:procedure/diggs:MWDProcedure") - an act of MEASURING,
+         dedicated to drilling. An RI construction activity is a different abstract head entirely
+         (diggs:AbstractConstructionActivity, the <constructionActivity> slot) recording an act of
+         BUILDING, of which drilling is only the first half. Embedding MWDResult inside a
+         construction activity would misuse an object whose identity is bound to being a
+         measurement's outcome, so C3 declares diggs:RIInstallationRecordType as its own
+         restriction of gml:AbstractCoverageType, IDENTICAL IN SHAPE to MWDResultType - same choice,
+         same results particle - but its own name and its own object, correctly scoped to the
+         construction-activity head. The shape is borrowed; the object is not, by direct instruction
+         rather than by the reasoning C2 used for the same move on aggregateGradationCurve.
+
+         ONE STREAM, MIXED COLUMNS, TWO EXISTING DICTIONARIES, ZERO NEW ENTRIES FOR SIX OF SEVEN.
+         "Covering both drilling and grouting" does not need two coverage types: diggs:results'
+         PropertyParameters is an open list of Property definitions, so one ResultSet can carry
+         drilling columns and grouting columns side by side, exactly as a rig that grouts through the
+         auger stem during withdrawal would log them - one continuous depth-indexed stream. Checked
+         against the two dictionaries already live in the def repo:
+
+           torqueApplied            -> mwd_properties.xml#torque / gr_inj_properties.xml#torque
+           penetrationRate          -> mwd_properties.xml#penetration_rate (or #drilling_speed)
+           withdrawalRate           -> gr_inj_properties.xml#pull_speed
+           rotationSpeeed (sic)     -> mwd_properties.xml#rotation_shaft / gr_inj#rotation_speed
+           groutPressure            -> gr_inj_properties.xml#grout_pressure
+           groutFlowRate            -> gr_inj_properties.xml#grout_flow
+           penetrationPerRevolution -> NO MATCH - the one genuine gap, see docs/build/C3/NOTES.md
+
+         Six of the seven retired properties already have a home; nothing needed adding to either
+         dictionary for them. Not one new element was needed on either coverage type either - the
+         PropertyParameters/dataValues machinery built for MWD already does exactly this job. -->
+    <element name="RIInstallationRecord" type="diggs:RIInstallationRecordType">
+        <annotation>
+            <documentation>A depth- or time-indexed record of the real-time telemetry produced while
+                constructing one rigid inclusion column - drilling parameters, grouting parameters,
+                or both mixed in one stream, according to what the producing system actually logs
+                together. Identical in shape to diggs:MWDResultType (a restriction of
+                gml:AbstractCoverageType choosing a location or timeDomain and carrying a
+                diggs:results range) but its own object, scoped to the construction-activity head
+                rather than to a measurement - see the header comment above
+                diggs:RIConstructionActivityType for why the two are not the same
+                object.</documentation>
+        </annotation>
+    </element>
+    <complexType name="RIInstallationRecordType">
+        <annotation>
+            <documentation>Restricted type based on gml:AbstractCoverageType, mirroring
+                diggs:MWDResultType particle for particle. Where location carries the domain, expect
+                a diggs:LinearExtent in the column's own linear referencing system marking the depth
+                interval the record spans - the same idiom diggs:RIConstructionMethodType/location
+                already uses for its own, coarser intervals. Where timeDomain carries it instead, the
+                per-row depth (if wanted) travels as its own property column in results, exactly as
+                "Measured Depth" does in the worked diggs-examples MWD instance. results carries an
+                open PropertyParameters list, so drilling columns (propertyClass values from
+                mwd_properties.xml) and grouting columns (from gr_inj_properties.xml) may sit in the
+                same row set.</documentation>
+        </annotation>
+        <complexContent>
+            <restriction base="gml:AbstractCoverageType">
+                <sequence>
+                    <choice>
+                        <element ref="diggs:location"/>
+                        <element ref="diggs:timeDomain"/>
+                    </choice>
+                    <element ref="diggs:results"/>
+                </sequence>
+            </restriction>
+        </complexContent>
+    </complexType>
+    <complexType name="RIInstallationRecordPropertyType">
+        <annotation>
+            <documentation>Property type for RIInstallationRecord. Carries an index attribute,
+                mirroring diggs:PileDrivingRecordPropertyType, so that where a producer's system
+                emits drilling and grouting as separate records (rather than one mixed stream) their
+                relative sequence is stated rather than left to document
+                order.</documentation>
+        </annotation>
+        <sequence minOccurs="1" maxOccurs="1">
+            <element ref="diggs:RIInstallationRecord"/>
+        </sequence>
+        <attribute name="index" type="positiveInteger">
+            <annotation>
+                <documentation>The sequence position of this record where more than one is present -
+                    for example, 1 for a drilling-phase record and 2 for the grouting-phase record
+                    that follows it during withdrawal.</documentation>
+            </annotation>
+        </attribute>
+    </complexType>
+    <element name="RIConstructionActivity" type="diggs:RIConstructionActivityType"
+        substitutionGroup="diggs:AbstractConstructionActivity">
+        <annotation>
+            <documentation>The act of constructing one rigid inclusion column: drilling, and, where
+                the method grouts through the auger stem, grouting. Carries the real-time telemetry
+                record; diggs:RIConstructionMethodType on the diggs:RigidInclusion feature carries
+                the summary derived from it. Where the two disagree, THIS RECORD GOVERNS.
+
+                Scoped to column construction only. Load transfer platform construction is
+                compaction, not drilling or grouting, and is out of C3's scope - the retired property
+                list this step inherited (torqueApplied, penetrationRate, withdrawalRate,
+                rotationSpeeed, groutPressure, groutFlowRate) names nothing platform-related, and
+                nothing in the plan or architecture asked for an LTP construction
+                activity.</documentation>
+        </annotation>
+    </element>
+    <complexType name="RIConstructionActivityType">
+        <annotation>
+            <documentation>Type for the rigid inclusion construction activity. Inherits
+                investigationTarget, projectRef, the mandatory samplingFeatureRef, programRef,
+                programSpecificationRef, constructionMethod, constructionEnvironment, equipment,
+                otherConstructionActivityProperty and activityDateTime from
+                diggs:AbstractConstructionActivityType.
+
+                THE INHERITED samplingFeatureRef MUST TARGET A diggs:RigidInclusion FOR THIS TYPE,
+                AND XSD CANNOT SAY SO LOCALLY. Its global element already carries a broad appinfo
+                (widened to diggs:AbstractSamplingFeature in C1 item 5) and the particle is declared
+                on the ABSTRACT base type, not here - extension can only ADD particles after an
+                inherited sequence, not narrow one already declared by the type being
+                extended, so there is no XSD position left to hang a local, narrower
+                annotation on. Stated here in prose instead, and left for the reference-validation
+                module's context check (architecture §12) to enforce
+                structurally.</documentation>
+        </annotation>
+        <complexContent>
+            <extension base="diggs:AbstractConstructionActivityType">
+                <sequence>
+                    <element minOccurs="0" maxOccurs="unbounded" name="installationRecord"
+                        type="diggs:RIInstallationRecordPropertyType">
+                        <annotation>
+                            <documentation>The real-time telemetry record of this construction
+                                activity - see the header comment above this type and the one above
+                                diggs:RIInstallationRecordType for the reasoning behind its shape.
+
+                                Unbounded, mirroring diggs:PileDrivingActivityType's
+                                pileDrivingRecord/pdaRecord pair: a producer may supply one mixed
+                                drilling-and-grouting stream, or separate records per phase or per
+                                equipment system, at their own discretion. Nothing here forces a
+                                single row set.</documentation>
+                        </annotation>
+                    </element>
+                </sequence>
+            </extension>
+        </complexContent>
+    </complexType>
 </schema>
