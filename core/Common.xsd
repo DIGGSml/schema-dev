@@ -2459,6 +2459,63 @@
             </extension>
         </complexContent>
     </complexType>
+    <element name="DesignFactor" type="diggs:DesignFactorType">
+        <annotation>
+            <documentation>An AuthorizedParameter that additionally states what the value is
+                applied to - a partial or global safety factor, or a material reduction factor,
+                naming both the factor itself (parameterName, dictionary-bound) and the action,
+                material, resistance or property it modifies (appliesTo). Serves Design Parameter
+                Analysis Group A row 11 (the partial/global factor set a design's safety format
+                applies) and row 65 (geosynthetic reduction factors A1-A5 / material factor f_m,
+                reused by row 93's durability RF chain).
+
+                WHY A NEW TYPE RATHER THAN A Parameter ARRAY: a bare AuthorizedParameter names one
+                thing and carries one value. A factor set needs a second coded dimension - the
+                same partial factor concept (say, a resistance factor) takes different values
+                depending on what it is applied to, and collapsing factor identity and applies-to
+                into one dictionary entry name produces combinatorial growth across every standard
+                x factor category combination. Splitting them into two fields is what a Parameter
+                array cannot do and what this type exists to add.</documentation>
+        </annotation>
+    </element>
+    <complexType name="DesignFactorType">
+        <annotation>
+            <documentation>Complex type: DesignFactorType. Extends diggs:AuthorizedParameterType by
+                plain extension, adding what the factor applies to - the same inheritance pattern
+                diggs:ProvenancedParameterType uses to add provenance. appliesTo necessarily comes
+                after the inherited parameterName/typeData/value/units sequence: extension can only
+                add particles after what is inherited, not interleave with it.</documentation>
+        </annotation>
+        <complexContent>
+            <extension base="diggs:AuthorizedParameterType">
+                <sequence>
+                    <element minOccurs="0" name="appliesTo" type="gml:CodeType">
+                        <annotation>
+                            <documentation>What the factor is applied to - a permanent action, a
+                                variable action, a material property such as friction angle, a
+                                resistance such as bearing capacity, or a geosynthetic property such
+                                as tensile strength. Optional, but stating it is the entire reason
+                                this type exists rather than diggs:AuthorizedParameter directly; omit
+                                only where the factor's identity already implies what it applies to
+                                unambiguously.</documentation>
+                        </annotation>
+                    </element>
+                </sequence>
+            </extension>
+        </complexContent>
+    </complexType>
+    <complexType name="DesignFactorPropertyType">
+        <annotation>
+            <documentation>Property type for containing a single DesignFactor object. Repeating
+                factor sets use a repeated wrapper element of this type, one factor per element -
+                matching diggs:RIColumnDesignType/otherProperty and
+                diggs:RILTPDesignType/archingCoefficients - rather than one array wrapper containing
+                many, per the convention S5 recorded.</documentation>
+        </annotation>
+        <sequence>
+            <element ref="diggs:DesignFactor" minOccurs="1" maxOccurs="1"/>
+        </sequence>
+    </complexType>
     <element abstract="false" name="Qualifier" type="diggs:ParameterType">
         <annotation>
             <documentation>An enumeration of various parameters upon which the property result may
