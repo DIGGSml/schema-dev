@@ -245,6 +245,43 @@
                             <documentation>A planar surface (polygon) whose geospatial coordinates mark the lateral extent of the geosynthetic within the LTP. If this element is not present, it is assumeed that the geosynthetic extends across the entire LTP.</documentation>
                         </annotation>
                     </element>
+                    <element minOccurs="0" name="direction" type="gml:CodeType">
+                        <annotation>
+                            <documentation>machine / cross-machine / isotropic - the as-installed
+                                orientation. Added by S17 (Post-installation Parameter Analysis row
+                                20, "layers, orientation, tension, overlap, cover" - confirmed gap,
+                                `GeosyntheticType` carried none of the four). Named direction, not
+                                orientation, to match diggs:GeosyntheticLayerDesignType/direction
+                                (core/Common.xsd) - the design counterpart this value is checked
+                                against.</documentation>
+                        </annotation>
+                    </element>
+                    <element minOccurs="0" name="installedTension"
+                        type="diggs:ForcePerLengthMeasureType">
+                        <annotation>
+                            <documentation>The tensile force per unit width measured or recorded at
+                                installation. Compare
+                                diggs:GeosyntheticLayerDesignType/designTension, the design
+                                counterpart - that object is split by load path (arching, lateral
+                                spreading, ...); this is the single as-installed value an ITP
+                                records, with no load-path split to make.</documentation>
+                        </annotation>
+                    </element>
+                    <element minOccurs="0" name="overlapLength" type="diggs:LengthMeasureType">
+                        <annotation>
+                            <documentation>The overlap between this panel and the adjacent
+                                one.</documentation>
+                        </annotation>
+                    </element>
+                    <element minOccurs="0" name="coverThickness" type="diggs:LengthMeasureType">
+                        <annotation>
+                            <documentation>The thickness of fill placed over this layer.
+                                Distinct from heightAboveWorkingPlatform (the layer's own height
+                                above the working platform) and elevation (the layer's absolute
+                                level): this is the depth of material subsequently placed on top of
+                                it, which neither existing element states.</documentation>
+                        </annotation>
+                    </element>
                 </sequence>
             </extension>
         </complexContent>
@@ -767,6 +804,66 @@
                                 the same analysis's Group C.</documentation>
                         </annotation>
                     </element>
+                    <element minOccurs="0" name="settlementEfficacy"
+                        type="diggs:DimensionlessMeasureType">
+                        <annotation>
+                            <documentation>E_tass: settlement reduction of the treated ground versus
+                                untreated ground. Row 81 (S20). A site-wide serviceability
+                                comparison, not derived from the LTP's stress pair the way
+                                diggs:RILTPDesignType/loadEfficacy is - contrast that
+                                element.</documentation>
+                        </annotation>
+                    </element>
+                    <element minOccurs="0" name="settlementEfficacyDefinition" type="gml:CodeType">
+                        <annotation>
+                            <documentation>Which definition settlementEfficacy uses. See
+                                diggs:RILTPDesignType/loadEfficacyDefinition for why this
+                                accompanies the value rather than being assumed.</documentation>
+                        </annotation>
+                    </element>
+                    <element minOccurs="0" maxOccurs="unbounded" name="predictedSettlement"
+                        type="diggs:PredictedSettlementPropertyType">
+                        <annotation>
+                            <documentation>The predicted settlement of the system, broken down by
+                                component (Design Parameter Analysis row 89). Repeats per
+                                component - see diggs:PredictedSettlement's own documentation. One
+                                repeated wrapper element per component, matching
+                                diggs:RISystemBasisType/factor's convention rather than an array
+                                wrapper.</documentation>
+                        </annotation>
+                    </element>
+                    <element minOccurs="0" name="differentialSettlement"
+                        type="diggs:LengthMeasureType">
+                        <annotation>
+                            <documentation>Delta-s: the predicted differential or surface
+                                settlement. Row 90 (S20). MEANINGLESS WITHOUT ITS BASIS - "between
+                                adjacent column heads? Across a unit cell? Over a 100 ft span? As an
+                                angular distortion?" - see differentialSettlementBasis/
+                                differentialSettlementBaseLength below, which state it. Modelled
+                                with the same field set as
+                                diggs:AbstractAcceptanceCriterionType's basis/baseLength (F3) rather
+                                than a new wrapper object, so a predicted value and the
+                                serviceability criterion it is checked against (row 91) are directly
+                                comparable field by field.</documentation>
+                        </annotation>
+                    </element>
+                    <element minOccurs="0" name="differentialSettlementBasis" type="gml:CodeType">
+                        <annotation>
+                            <documentation>The unit of work differentialSettlement is assessed
+                                over - per element, per unit cell, per 100 ft, angular distortion,
+                                and so on. See differentialSettlement.</documentation>
+                        </annotation>
+                    </element>
+                    <element minOccurs="0" name="differentialSettlementBaseLength"
+                        type="diggs:LengthMeasureType">
+                        <annotation>
+                            <documentation>The reference length differentialSettlement is assessed
+                                over, where differentialSettlementBasis expresses a gradient (for
+                                example "0.5 in per 100 ft") - the workbook's own example gives both
+                                a magnitude form and a gradient form, different quantity classes.
+                                See differentialSettlement.</documentation>
+                        </annotation>
+                    </element>
                 </sequence>
             </extension>
         </complexContent>
@@ -882,6 +979,15 @@
                             <documentation>Centre-to-centre spacing of the columns along the second
                                 grid axis, for a rectangular pattern where it differs from spacingX.
                                 Omit for square and triangular patterns. See spacingX.</documentation>
+                        </annotation>
+                    </element>
+                    <element minOccurs="0" name="pileGroupLateralExtent"
+                        type="diggs:LengthMeasureType">
+                        <annotation>
+                            <documentation>L_p: the outward extent the column group must cover
+                                beyond the embankment crest. Row 87 (S20); pairs with
+                                RILTPDesignType/embankmentHeight (row 76) per the Design Parameter
+                                Analysis's own cross-reference.</documentation>
                         </annotation>
                     </element>
                     <element minOccurs="0" name="columnDiameter" type="diggs:LengthMeasureType">
@@ -1265,6 +1371,14 @@
                             </annotation>
                         </element>
                     </choice>
+                    <element minOccurs="0" name="embankmentHeight" type="diggs:LengthMeasureType">
+                        <annotation>
+                            <documentation>H: the height of the embankment or fill above the
+                                platform. Row 76 (S20). Conditional on structure type = embankment,
+                                like sideSlopeRatio/sideSlopeAngle above, which it pairs
+                                with.</documentation>
+                        </annotation>
+                    </element>
                     <element minOccurs="0" name="stressOnElementHead"
                         type="diggs:PressureMeasureType">
                         <annotation>
@@ -1296,6 +1410,29 @@
                                 arching outcome; see stressOnElementHead.</documentation>
                         </annotation>
                     </element>
+                    <element minOccurs="0" name="loadEfficacy" type="diggs:DimensionlessMeasureType">
+                        <annotation>
+                            <documentation>E: the fraction of total load carried by the inclusions.
+                                Row 80 (S20). Placed here, with the arching outcome, rather than on
+                                RISystemDesignType: "load efficacy" is defined at least three
+                                different ways in the literature - load on column / total load,
+                                stress on column / average stress, complement of the soil-borne
+                                fraction - and each definition is computed from exactly the
+                                stressOnElementHead/stressOnSoftSoil pair above, not from a
+                                system-wide quantity. Contrast settlementEfficacy on
+                                RISystemDesignType, a genuinely site-wide serviceability
+                                metric.</documentation>
+                        </annotation>
+                    </element>
+                    <element minOccurs="0" name="loadEfficacyDefinition" type="gml:CodeType">
+                        <annotation>
+                            <documentation>Which of the competing definitions loadEfficacy uses.
+                                Mandatory in effect, though optional in XSD terms: Han's 2025 method
+                                comparison uses load efficacy as a headline metric precisely because
+                                methods disagree on its definition, so a value reported without this
+                                code is not comparable across designs.</documentation>
+                        </annotation>
+                    </element>
                     <element minOccurs="0" maxOccurs="unbounded" name="archingCoefficients"
                         type="diggs:ArchingCoefficientsPropertyType">
                         <annotation>
@@ -1310,6 +1447,18 @@
                                 array at minimum wherever criticalHeight or either stress element is
                                 reported, so those values remain interpretable even when no individual
                                 coefficient is being carried.</documentation>
+                        </annotation>
+                    </element>
+                    <element maxOccurs="1" minOccurs="0" name="geosyntheticLayerDesign"
+                        type="diggs:GeosyntheticLayerDesignArrayPropertyType">
+                        <annotation>
+                            <documentation>The geosynthetic reinforcement layers designed into this
+                                platform (Design Parameter Analysis rows 61-69, absorbing 85). One
+                                per layer; repeating this element is row 62's layer count, and its
+                                presence is row 61's "geosynthetic present" - see
+                                diggs:GeosyntheticLayerDesign's own documentation. Compare
+                                diggs:LoadTransferPlatformType/geosynthetics, the as-built
+                                counterpart.</documentation>
                         </annotation>
                     </element>
                     <element minOccurs="0" maxOccurs="unbounded" name="otherProperty"

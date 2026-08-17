@@ -3100,6 +3100,312 @@
             <element ref="diggs:GeoUnitDesignQuantity"/>
         </sequence>
     </complexType>
+    <element name="DesignTension" type="diggs:DesignTensionType">
+        <annotation>
+            <documentation>One tensile force component a geosynthetic reinforcement layer must
+                carry, together with the load path it comes from - arching between column heads,
+                lateral spreading, differential settlement, or their sum. Row 66 of the Design
+                Parameter Analysis conflates three different force components under one symbol
+                (T_rp, T_ds, E_M,geo); this object is the split, repeated once per
+                component.
+
+                BOTH FIELDS MANDATORY, the same reasoning diggs:LoadTransferRelation gives for its
+                own two mandatory fields: a tension value with no stated source cannot be checked
+                against the right design case, and a source with no magnitude carries no
+                information.</documentation>
+        </annotation>
+    </element>
+    <complexType name="DesignTensionType">
+        <annotation>
+            <documentation>Complex type: DesignTensionType. Extends
+                diggs:AbstractComponentObjectBaseType, the same lightweight base
+                diggs:LoadTransferRelationType/diggs:DesignActionType use.</documentation>
+        </annotation>
+        <complexContent>
+            <extension base="diggs:AbstractComponentObjectBaseType">
+                <sequence>
+                    <element name="magnitude" type="diggs:ForcePerLengthMeasureType">
+                        <annotation>
+                            <documentation>The tensile force per unit width this component
+                                contributes.</documentation>
+                        </annotation>
+                    </element>
+                    <element name="tensionSource" type="gml:CodeType">
+                        <annotation>
+                            <documentation>The load path this component comes from - arching,
+                                lateral spreading, differential settlement, or sum (the combined
+                                design tension). Absorbs Design Parameter Analysis row 85 (lateral
+                                spreading demand on the reinforcement) as the lateral_spreading
+                                value of this code, per the plan's own instruction rather than a
+                                separate element.</documentation>
+                        </annotation>
+                    </element>
+                </sequence>
+            </extension>
+        </complexContent>
+    </complexType>
+    <complexType name="DesignTensionPropertyType">
+        <annotation>
+            <documentation>Property type for containing a single DesignTension object. Repeating
+                tension components use a repeated wrapper element of this type, one component per
+                element, matching diggs:DesignFactorPropertyType's convention rather than an array
+                wrapper containing many.</documentation>
+        </annotation>
+        <sequence>
+            <element ref="diggs:DesignTension" minOccurs="1" maxOccurs="1"/>
+        </sequence>
+    </complexType>
+    <element name="GeosyntheticLayerDesign" type="diggs:GeosyntheticLayerDesignType">
+        <annotation>
+            <documentation>The design of one geosynthetic reinforcement layer within a load
+                transfer platform - product identity, stiffness and strength (each meaningless
+                without the strain level and elapsed time they were taken at), the reduction
+                factors applied to reach a long-term design value, the tension the layer must
+                carry by load path, anchorage, allowable strain, and where the layer sits within
+                the platform.
+
+                GENERIC DESIGN MACHINERY, NOT RI-SPECIFIC, so it lives here rather than in
+                specialty/RigidInclusions.xsd, for the same reason
+                diggs:DesignAction/diggs:DesignVerification/diggs:LoadTransferRelation/
+                diggs:GeoUnitDesignQuantity do: geosynthetic-reinforced load transfer platforms are
+                standard column-supported-embankment practice generally (stone columns, driven
+                piles, not only rigid inclusions), not something RI design invented. The as-built
+                counterpart, diggs:GeosyntheticType, stays in specialty/RigidInclusions.xsd
+                unmoved - it predates this task and this task only extends it (see
+                specialty/RigidInclusions.xsd for the new as-built fields) - so design and as-built
+                for this one concept deliberately live in different files; nothing else in this
+                object graph does that, and it is called out here so it is not mistaken for an
+                oversight.
+
+                ROW 63/64 ARE THE CLEAREST "SCALAR IS A LIE" CASE IN THE DESIGN ANALYSIS: tensile
+                stiffness (J) is an isochronous secant modulus, defined only once a strain level and
+                elapsed time are also stated, and long-term design strength depends on design life
+                and the reduction-factor chain the same way. Both are also direction-dependent -
+                machine vs. cross-machine differ substantially in most geogrids. Hence
+                atStrain/atTime and atDesignLife alongside the two stiffness/strength elements,
+                and direction as its own field rather than folded into either.
+
+                REPEATING THIS OBJECT IS ROW 62 (layer count), AND ITS PRESENCE IS ROW 61
+                (whether basal reinforcement is used) - per this project's standing rule against
+                encoding presence or cardinality as a separate value (F8), neither row gets its own
+                element.</documentation>
+        </annotation>
+    </element>
+    <complexType name="GeosyntheticLayerDesignType">
+        <annotation>
+            <documentation>Complex type: GeosyntheticLayerDesignType. Extends
+                diggs:AbstractComponentObjectBaseType, the same lightweight base
+                diggs:LoadTransferRelationType/diggs:GeoUnitDesignQuantityType use.</documentation>
+        </annotation>
+        <complexContent>
+            <extension base="diggs:AbstractComponentObjectBaseType">
+                <sequence>
+                    <element minOccurs="0" name="manufacturer" type="string">
+                        <annotation>
+                            <documentation>The geosynthetic product's manufacturer or
+                                brand.</documentation>
+                        </annotation>
+                    </element>
+                    <element minOccurs="0" name="productName" type="string">
+                        <annotation>
+                            <documentation>The manufacturer's product name or designation.</documentation>
+                        </annotation>
+                    </element>
+                    <element minOccurs="0" name="polymerType" type="gml:CodeType">
+                        <annotation>
+                            <documentation>The polymer the geosynthetic is manufactured from - HDPE,
+                                PET, PP, PVA, and so on.</documentation>
+                        </annotation>
+                    </element>
+                    <element minOccurs="0" name="reinforcementType" type="gml:CodeType">
+                        <annotation>
+                            <documentation>The product form - geogrid uniaxial, geogrid biaxial,
+                                geogrid triaxial, geotextile woven, and so on.</documentation>
+                        </annotation>
+                    </element>
+                    <element minOccurs="0" name="direction" type="gml:CodeType">
+                        <annotation>
+                            <documentation>machine / cross-machine / isotropic - the direction the
+                                stiffness, strength and design tension values below apply in.
+                                diggs:GeosyntheticType (as-built, specialty/RigidInclusions.xsd)
+                                carries the matching field, named direction there too, so the
+                                installed layer's stated orientation can be compared against
+                                whichever direction this design value governs.</documentation>
+                        </annotation>
+                    </element>
+                    <element minOccurs="0" name="tensileStiffness"
+                        type="diggs:ForcePerLengthMeasureType">
+                        <annotation>
+                            <documentation>J (J_k): the isochronous secant tensile stiffness at
+                                atStrain and atTime below. Row 63.</documentation>
+                        </annotation>
+                    </element>
+                    <element minOccurs="0" name="atStrain" type="diggs:DimensionlessMeasureType">
+                        <annotation>
+                            <documentation>The strain level tensileStiffness was taken
+                                at.</documentation>
+                        </annotation>
+                    </element>
+                    <element minOccurs="0" name="atTime" type="diggs:TimeMeasureType">
+                        <annotation>
+                            <documentation>The elapsed time tensileStiffness was taken at - an
+                                isochronous modulus is only defined together with this
+                                value.</documentation>
+                        </annotation>
+                    </element>
+                    <element minOccurs="0" name="longTermDesignStrength"
+                        type="diggs:ForcePerLengthMeasureType">
+                        <annotation>
+                            <documentation>T_D (R_B,d): the factored long-term tensile strength, at
+                                atDesignLife below. Row 64.</documentation>
+                        </annotation>
+                    </element>
+                    <element minOccurs="0" name="atDesignLife" type="diggs:TimeMeasureType">
+                        <annotation>
+                            <documentation>The design life longTermDesignStrength is factored
+                                for.</documentation>
+                        </annotation>
+                    </element>
+                    <element minOccurs="0" maxOccurs="unbounded" name="reductionFactor"
+                        type="diggs:DesignFactorPropertyType">
+                        <annotation>
+                            <documentation>The creep, installation-damage, weathering, chemical-
+                                degradation and joint/seam reduction factors (A1-A5) and the
+                                material partial factor (f_m) applied to reach
+                                longTermDesignStrength from the geosynthetic's characteristic
+                                strength. Row 65. diggs:DesignFactor (S13), the same object row 11's
+                                partial/global safety factor set uses - row 65 is explicitly "the
+                                same shape" per the Design Parameter Analysis, and reuses it rather
+                                than a second bespoke factor type.</documentation>
+                        </annotation>
+                    </element>
+                    <element minOccurs="0" maxOccurs="unbounded" name="designTension"
+                        type="diggs:DesignTensionPropertyType">
+                        <annotation>
+                            <documentation>The tensile force this layer must carry, split by load
+                                path. Row 66, and absorbs row 85 - see diggs:DesignTensionType's own
+                                documentation.</documentation>
+                        </annotation>
+                    </element>
+                    <element minOccurs="0" name="anchorageLength" type="diggs:LengthMeasureType">
+                        <annotation>
+                            <documentation>L_e, L_b (L_A): the embedment length beyond the outer row
+                                of columns. Row 67.</documentation>
+                        </annotation>
+                    </element>
+                    <element minOccurs="0" name="allowableStrain"
+                        type="diggs:DimensionlessMeasureType">
+                        <annotation>
+                            <documentation>The permitted tensile strain. Row 68.</documentation>
+                        </annotation>
+                    </element>
+                    <element minOccurs="0" name="creepStrainLimit"
+                        type="diggs:DimensionlessMeasureType">
+                        <annotation>
+                            <documentation>The additional creep strain allowed over the design life,
+                                beyond allowableStrain. Row 69. The 15% minimum-load-fraction floor
+                                (row 70) is a criterion, not a design value, and is not carried
+                                here - see F3/diggs:AbstractAcceptanceCriterionType.</documentation>
+                        </annotation>
+                    </element>
+                    <element minOccurs="0" name="midSpanDeflection"
+                        type="diggs:LengthMeasureType">
+                        <annotation>
+                            <documentation>y: the sag of this reinforcement layer between column
+                                heads. Row 92 (S20) - added once this object existed to host
+                                it.</documentation>
+                        </annotation>
+                    </element>
+                    <element minOccurs="0" name="elevation" type="diggs:PointLocationPropertyType">
+                        <annotation>
+                            <documentation>The elevation of this layer within the platform. Same
+                                type as diggs:GeosyntheticType/elevation (as-built) for direct
+                                comparison.</documentation>
+                        </annotation>
+                    </element>
+                    <element minOccurs="0" name="extent" type="diggs:PlanarSurfacePropertyType">
+                        <annotation>
+                            <documentation>The lateral extent of this layer within the platform, if
+                                it does not extend across the whole platform. Same type as
+                                diggs:GeosyntheticType/extent (as-built) for direct
+                                comparison.</documentation>
+                        </annotation>
+                    </element>
+                </sequence>
+            </extension>
+        </complexContent>
+    </complexType>
+    <complexType name="GeosyntheticLayerDesignArrayPropertyType">
+        <annotation>
+            <documentation>Property type for arrays of GeosyntheticLayerDesign objects, matching
+                diggs:DesignActionArrayPropertyType's shape - one wrapper element containing zero
+                or more GeosyntheticLayerDesign children. Repeating this object is row 62 (layer
+                count) - see the element's own documentation.</documentation>
+        </annotation>
+        <sequence minOccurs="0" maxOccurs="unbounded">
+            <element ref="diggs:GeosyntheticLayerDesign"/>
+        </sequence>
+    </complexType>
+    <element name="PredictedSettlement" type="diggs:PredictedSettlementType">
+        <annotation>
+            <documentation>One component of a predicted settlement - immediate, primary
+                consolidation, secondary/creep, total, or a further breakdown (LTP compression,
+                elastic shortening of the column with downdrag, settlement of the bearing stratum
+                below the toe) - together with which component it is.
+
+                GENERIC DESIGN-OUTPUT MACHINERY, NOT RI-SPECIFIC, for the same reason
+                diggs:DesignAction/diggs:DesignVerification/diggs:GeoUnitDesignQuantity live here:
+                settlement prediction and its component breakdown is standard ground-improvement
+                and deep-foundation practice generally. Minimum viable per the Design Parameter
+                Analysis's row 89 note: "LengthMeasureType plus a settlementComponent code,
+                repeating." Also what makes a file comparable against Post-installation row 31
+                ("measured vs. predicted") meaningful - a bare total settlement number has nothing
+                for a monitoring result to be checked against component by component.
+
+                BOTH FIELDS MANDATORY, matching diggs:LoadTransferRelation's and
+                diggs:DesignTension's reasoning: a settlement value with no stated component cannot
+                be compared against the right monitoring result, and a component with no value
+                carries no information.</documentation>
+        </annotation>
+    </element>
+    <complexType name="PredictedSettlementType">
+        <annotation>
+            <documentation>Complex type: PredictedSettlementType. Extends
+                diggs:AbstractComponentObjectBaseType, the same lightweight base
+                diggs:DesignTensionType/diggs:GeoUnitDesignQuantityType use.</documentation>
+        </annotation>
+        <complexContent>
+            <extension base="diggs:AbstractComponentObjectBaseType">
+                <sequence>
+                    <element name="settlementValue" type="diggs:LengthMeasureType">
+                        <annotation>
+                            <documentation>The predicted magnitude of this settlement
+                                component.</documentation>
+                        </annotation>
+                    </element>
+                    <element name="settlementComponent" type="gml:CodeType">
+                        <annotation>
+                            <documentation>Which component this value is - immediate, primary
+                                consolidation, secondary/creep, total, or (per the DFI paper's
+                                further decomposition) LTP compression, RI elastic shortening, or
+                                bearing-stratum settlement.</documentation>
+                        </annotation>
+                    </element>
+                </sequence>
+            </extension>
+        </complexContent>
+    </complexType>
+    <complexType name="PredictedSettlementPropertyType">
+        <annotation>
+            <documentation>Property type for containing a single PredictedSettlement object.
+                Repeating settlement breakdowns use a repeated wrapper element of this type, one
+                component per element, matching diggs:DesignFactorPropertyType's/
+                diggs:DesignTensionPropertyType's convention.</documentation>
+        </annotation>
+        <sequence>
+            <element ref="diggs:PredictedSettlement" minOccurs="1" maxOccurs="1"/>
+        </sequence>
+    </complexType>
     <element abstract="false" name="Qualifier" type="diggs:ParameterType">
         <annotation>
             <documentation>An enumeration of various parameters upon which the property result may
