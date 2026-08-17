@@ -2806,6 +2806,142 @@
             <element ref="diggs:DesignVerification"/>
         </sequence>
     </complexType>
+    <element name="LoadTransferRelation" type="diggs:LoadTransferRelationType">
+        <annotation>
+            <documentation>A shaft (t-z) or tip (q-z) load-transfer relation for one geotechnical
+                unit - the mobilisation stiffness and limiting resistance a column's shaft friction
+                or tip bearing develops against that unit, together with which unit it applies to
+                and, optionally, the discretised curve behind the stated modulus.
+
+                GENERIC DESIGN MACHINERY, NOT RI-SPECIFIC, so it lives here rather than in
+                specialty/RigidInclusions.xsd, for the same reason diggs:DesignAction and
+                diggs:DesignVerification do - t-z/q-z load-transfer analysis is standard deep-
+                foundation practice (driven piles, drilled shafts, micropiles), not something RI
+                design invented. Motivated by the Design Parameter Analysis's Group D (rows 37-38,
+                "not really scalars, and this is the subtlest finding in the report"): k_tau and
+                k_q are commonly read as bare moduli, but they are actually "the initial slopes of
+                load-transfer curves... In ASIRI practice these come from the Frank and Zhao
+                formulation, which is trilinear, not linear: an initial slope, a break, a reduced
+                slope, and a plateau at the limiting value. Carrying only the initial modulus
+                discards the shape of the curve, which is exactly what governs computed
+                settlement."
+
+                PER-LAYER geoUnitRef IS NON-NEGOTIABLE, per the plan's own emphasis: "a single
+                site-wide k_tau is meaningless." Both verificationType's counterpart here -
+                relationType - and geoUnitRef are therefore mandatory, a deliberate departure from
+                this project's usual one-mandatory-field pattern (contrast diggs:DesignAction,
+                diggs:DesignVerification, diggs:ArchingCoefficients, diggs:Reinforcement, each with
+                exactly one required element): a load-transfer relation stating a shaft/tip
+                classification with no layer to apply it to, or a layer with no statement of which
+                mechanism (shaft or tip) it governs, is equally uninterpretable either
+                way.
+
+                MIND THE SIGN CONVENTION when this object is used for row 39 (q_s, the negative
+                skin friction limit): q_s above the neutral plane is the DOWNDRAG limit, the
+                opposite sense from R_s below it (Group E's positive shaft resistance, S19's
+                concern). Same physical interface, opposite sense - state which regime a given
+                LoadTransferRelation describes in remark or in the referenced geoUnitObservation's
+                own documentation, since limitValue alone does not disambiguate
+                it.</documentation>
+        </annotation>
+    </element>
+    <complexType name="LoadTransferRelationType">
+        <annotation>
+            <documentation>Complex type: LoadTransferRelationType. Extends
+                diggs:AbstractComponentObjectBaseType, the same lightweight base
+                diggs:DesignActionType/diggs:DesignVerificationType use.</documentation>
+        </annotation>
+        <complexContent>
+            <extension base="diggs:AbstractComponentObjectBaseType">
+                <sequence>
+                    <element name="relationType" type="gml:CodeType">
+                        <annotation>
+                            <documentation>Which mechanism this relation governs - shaft (t-z) or
+                                tip (q-z). Mandatory - see this element's own top-level
+                                documentation for why both this and geoUnitRef are required rather
+                                than following the project's usual single-mandatory-field
+                                pattern.</documentation>
+                        </annotation>
+                    </element>
+                    <element name="geoUnitRef" type="diggs:FeatureReferenceType">
+                        <annotation>
+                            <appinfo source="urn:x-gml:targetElement">diggs:GeoUnitObservation</appinfo>
+                            <documentation>The geotechnical unit this relation applies to.
+                                Mandatory and per-layer: see this element's own top-level
+                                documentation. References diggs:GeoUnitObservation directly - the
+                                per-unit object in the ground model (S10 relaxed
+                                diggs:AbstractObservationSystemType's anchoring choice, but did not
+                                touch how individual units are cited, which was never the
+                                gap).</documentation>
+                        </annotation>
+                    </element>
+                    <element minOccurs="0" name="formulation" type="gml:CodeType">
+                        <annotation>
+                            <documentation>The load-transfer curve shape adopted - Frank-Zhao,
+                                linear-elastic-perfectly-plastic, user-defined, API (for offshore
+                                piles' t-z/q-z formulations), and so on. The dictionary Definition
+                                for each value is where the exact curve shape is documented; this
+                                element states which one governs.</documentation>
+                        </annotation>
+                    </element>
+                    <element minOccurs="0" name="initialModulus"
+                        type="diggs:ForcePerVolumeMeasureType">
+                        <annotation>
+                            <documentation>k_tau (shaft) or k_q (tip): the initial slope of the
+                                load-transfer curve - the mobilisation stiffness at small
+                                displacement, before the curve's first break.</documentation>
+                        </annotation>
+                    </element>
+                    <element minOccurs="0" name="limitValue" type="diggs:PressureMeasureType">
+                        <annotation>
+                            <documentation>q_s (shaft) or q_p (tip): the limiting unit resistance
+                                the curve plateaus to at large displacement. See this element's own
+                                top-level documentation for the sign-convention caution where this
+                                object is used for row 39's negative skin friction
+                                limit.</documentation>
+                        </annotation>
+                    </element>
+                    <element minOccurs="0" name="curve" type="diggs:ResultsPropertyType">
+                        <annotation>
+                            <documentation>The discretised (displacement, stress) series behind
+                                initialModulus/limitValue, where the full curve shape matters and
+                                not just its initial slope and plateau - "carrying only the initial
+                                modulus discards the shape of the curve, which is exactly what
+                                governs computed settlement."
+
+                                REUSES diggs:ResultsPropertyType (diggs:ResultSet's parameters +
+                                dataValues columnar array) RATHER THAN diggs:TestResultType/
+                                diggs:TestResultBaseType, deliberately: those types pair results
+                                with a mandatory spatial diggs:location domain, and a t-z/q-z curve's
+                                domain is displacement, not geometry - forcing a location would
+                                misstate what varies. diggs:ResultsPropertyType alone, without the
+                                coverage wrapper that mandates a spatial domain, is exactly "DIGGS's
+                                array/data-value machinery" the Design Parameter Analysis's own row
+                                37-38 note points to: declare a displacement diggs:Property and a
+                                stress diggs:Property under diggs:parameters, and the paired series
+                                under diggs:dataValues. Distinct from, and considerably smaller
+                                than, the general PropertyFunction-plus-coverage mechanism
+                                architecture §6.3.1 proposes for properties that vary within a
+                                GeoUnitObservation generally - that proposal remains unbuilt and
+                                unscoped; this element solves only the self-contained case this
+                                object needs, with no spatial domain to
+                                declare.</documentation>
+                        </annotation>
+                    </element>
+                </sequence>
+            </extension>
+        </complexContent>
+    </complexType>
+    <complexType name="LoadTransferRelationArrayPropertyType">
+        <annotation>
+            <documentation>Property type for arrays of LoadTransferRelation objects, matching
+                diggs:DesignActionArrayPropertyType's shape - one wrapper element containing zero
+                or more LoadTransferRelation children.</documentation>
+        </annotation>
+        <sequence minOccurs="0" maxOccurs="unbounded">
+            <element ref="diggs:LoadTransferRelation"/>
+        </sequence>
+    </complexType>
     <element abstract="false" name="Qualifier" type="diggs:ParameterType">
         <annotation>
             <documentation>An enumeration of various parameters upon which the property result may
