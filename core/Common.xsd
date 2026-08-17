@@ -2942,6 +2942,164 @@
             <element ref="diggs:LoadTransferRelation"/>
         </sequence>
     </complexType>
+    <element name="GeoUnitDesignQuantity" type="diggs:GeoUnitDesignQuantityType">
+        <annotation>
+            <documentation>The design-side numbers a deep-foundation axial analysis produces for
+                one geotechnical unit - negative skin friction limit, neutral-plane depth and peak
+                axial force, toe and shaft resistance, limit unit tip resistance, the adopted
+                bearing-stratum level, and subgrade reaction modulus - each keyed to the unit
+                through geoUnitRef, the way diggs:LoadTransferRelation (S16) is.
+
+                GENERIC DESIGN MACHINERY, NOT RI-SPECIFIC, for the same reason
+                diggs:LoadTransferRelation lives here rather than in specialty/RigidInclusions.xsd:
+                neutral-plane analysis, end bearing and shaft resistance are standard deep-
+                foundation practice, not something RI design invented.
+
+                ONE OBJECT, EVERY FIELD OPTIONAL EXCEPT geoUnitRef, AND THAT IS DELIBERATE. The
+                Design Parameter Analysis's own field list groups eight rows under "per-soil-layer
+                design quantities" (Group D rows 39-41, Group E rows 42-44 and 46, and row 74 from
+                Group F/I), but they do not all vary layer-by-layer in the same sense: q_s and R_s
+                (rows 39, 44) are genuinely stated once per layer the shaft passes through;
+                R_b/limit tip resistance/bearing-stratum level (rows 43, 46, 42) apply only to
+                whichever ONE unit is the bearing stratum; h_c/Q_max (rows 40, 41) describe a
+                single neutral plane that by construction falls within exactly one unit; k_s
+                (row 74) applies per soft-soil layer under an LTP. Rather than four narrower types
+                for four narrower keying patterns, one type with every field optional lets a
+                consumer state exactly the subset that applies to a given unit's role in the
+                analysis - a shaft-friction layer states negativeSkinFrictionLimit/
+                shaftResistance and leaves the bearing-stratum fields absent; the bearing stratum's
+                own instance states toeResistance/limitUnitTipResistance/bearingStratumLevel and
+                leaves the shaft fields absent. geoUnitRef alone is mandatory because every one of
+                these numbers is meaningless without stating which unit it was computed
+                against - the same reasoning diggs:LoadTransferRelation's own documentation gives
+                for the identical field.
+
+                geoUnitRef ALSO CARRIES ROW 42'S REFERENCE HALF. Row 42 splits into "the *observed*
+                stratum top belongs to GeoUnitObservation (REF)" and "the *design* bearing level
+                adopted by the designer" (ELEM, bearingStratumLevel below) - the object's own
+                mandatory geoUnitRef already supplies the REF half when a given instance IS the
+                bearing-stratum instance, so no second reference field restates it.
+
+                CARRIES A limitState CODE (SLS/ULS): h_c and Q_max are serviceability-limit-state
+                quantities specifically - "the DFI paper is emphatic that negative skin friction
+                should not be subtracted from geotechnical resistance when computing the
+                geotechnical factor of safety, and that as FS -> 1 the neutral plane migrates to
+                the top of the element" - and a file reporting them without the limit state is
+                ambiguous. Declared once per object rather than once per field since a single
+                GeoUnitDesignQuantity instance is normally computed under one limit
+                state.</documentation>
+        </annotation>
+    </element>
+    <complexType name="GeoUnitDesignQuantityType">
+        <annotation>
+            <documentation>Complex type: GeoUnitDesignQuantityType. Extends
+                diggs:AbstractComponentObjectBaseType, the same lightweight base
+                diggs:LoadTransferRelationType/diggs:DesignVerificationType use.</documentation>
+        </annotation>
+        <complexContent>
+            <extension base="diggs:AbstractComponentObjectBaseType">
+                <sequence>
+                    <element name="geoUnitRef" type="diggs:FeatureReferenceType">
+                        <annotation>
+                            <appinfo source="urn:x-gml:targetElement">diggs:GeoUnitObservation</appinfo>
+                            <documentation>The geotechnical unit these quantities were computed
+                                against. Mandatory - see this element's own top-level
+                                documentation.</documentation>
+                        </annotation>
+                    </element>
+                    <element minOccurs="0" name="limitState" type="gml:CodeType">
+                        <annotation>
+                            <documentation>SLS or ULS. Governs neutralPlaneDepth/
+                                maxAxialForceAtNeutralPlane in particular - see this type's own
+                                top-level documentation - but stated once for the instance since a
+                                single analysis run is normally computed under one limit
+                                state.</documentation>
+                        </annotation>
+                    </element>
+                    <element minOccurs="0" name="negativeSkinFrictionLimit"
+                        type="diggs:PressureMeasureType">
+                        <annotation>
+                            <documentation>q_s: the limiting downdrag shear stress above the
+                                neutral plane. MIND THE SIGN CONVENTION: this is the opposite sense
+                                from shaftResistance below, which is positive shaft resistance
+                                BELOW the neutral plane - same physical interface, opposite sense,
+                                per the same caution diggs:LoadTransferRelationType's documentation
+                                gives for the identical trap.</documentation>
+                        </annotation>
+                    </element>
+                    <element minOccurs="0" name="neutralPlaneDepth"
+                        type="diggs:PointLocationPropertyType">
+                        <annotation>
+                            <documentation>h_c (z_n): the depth at which relative soil/column
+                                movement reverses. A POSITION IN THE RI'S OWN LINEAR REFERENCING
+                                SYSTEM, not a bare length - diggs:PointLocationPropertyType, matching
+                                diggs:RIEventType/riDepth's precedent for exactly this kind of
+                                depth, rather than a diggs:LengthMeasureType that would leave the
+                                depth uninterpretable without restating the datum it was measured
+                                from.</documentation>
+                        </annotation>
+                    </element>
+                    <element minOccurs="0" name="maxAxialForceAtNeutralPlane"
+                        type="diggs:ForceMeasureType">
+                        <annotation>
+                            <documentation>Q_max: the peak axial force in the column, including
+                                downdrag, occurring at the neutral plane.</documentation>
+                        </annotation>
+                    </element>
+                    <element minOccurs="0" name="bearingStratumLevel" type="diggs:ElevationType">
+                        <annotation>
+                            <documentation>The design-adopted elevation of the top of the bearing
+                                stratum - distinct from the geoUnitRef-referenced unit's own
+                                observed contact, which may be a variable surface the designer has
+                                idealised to this single level. See this type's own top-level
+                                documentation for why no separate reference element restates the
+                                REF half of row 42.</documentation>
+                        </annotation>
+                    </element>
+                    <element minOccurs="0" name="toeResistance" type="diggs:ForceMeasureType">
+                        <annotation>
+                            <documentation>R_b: the ultimate end-bearing resistance at the
+                                toe.</documentation>
+                        </annotation>
+                    </element>
+                    <element minOccurs="0" name="shaftResistance" type="diggs:ForceMeasureType">
+                        <annotation>
+                            <documentation>R_s: the ultimate positive skin friction resistance
+                                below the neutral plane. See negativeSkinFrictionLimit for the sign-
+                                convention caution.</documentation>
+                        </annotation>
+                    </element>
+                    <element minOccurs="0" name="limitUnitTipResistance"
+                        type="diggs:PressureMeasureType">
+                        <annotation>
+                            <documentation>q_p / p_l: the unit (per-area) tip resistance or
+                                pressuremeter limit pressure - distinct from toeResistance, which is
+                                the resulting total force over the toe area.</documentation>
+                        </annotation>
+                    </element>
+                    <element minOccurs="0" name="subgradeReactionModulus"
+                        type="diggs:ForcePerVolumeMeasureType">
+                        <annotation>
+                            <documentation>k_s: the Winkler elastic support stiffness of the soft
+                                soil. NOT A SOIL CONSTANT - the value depends on the loaded area, so
+                                a stated value is only comparable against another computed for a
+                                similarly sized loaded area.</documentation>
+                        </annotation>
+                    </element>
+                </sequence>
+            </extension>
+        </complexContent>
+    </complexType>
+    <complexType name="GeoUnitDesignQuantityArrayPropertyType">
+        <annotation>
+            <documentation>Property type for arrays of GeoUnitDesignQuantity objects, matching
+                diggs:DesignActionArrayPropertyType's shape - one wrapper element containing zero
+                or more GeoUnitDesignQuantity children.</documentation>
+        </annotation>
+        <sequence minOccurs="0" maxOccurs="unbounded">
+            <element ref="diggs:GeoUnitDesignQuantity"/>
+        </sequence>
+    </complexType>
     <element abstract="false" name="Qualifier" type="diggs:ParameterType">
         <annotation>
             <documentation>An enumeration of various parameters upon which the property result may
