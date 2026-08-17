@@ -254,6 +254,102 @@
             <element ref="diggs:Geosynthetic"/>
         </sequence>
     </complexType>
+    <element name="Reinforcement" type="diggs:ReinforcementType">
+        <annotation>
+            <documentation>Steel reinforcement occupying one interval of a rigid inclusion column -
+                a cage over the top few metres at an edge column, or full length where bending
+                governs. Reinforcement in RIs is the exception rather than the rule; where present
+                it is zoned, which is why this object carries the interval it occupies rather than
+                a bare length.
+
+                ONE OBJECT, BOTH SIDES OF THE PLAN/REALIZED BOUNDARY, per the Installation
+                analysis's G5: the design states what cage is required, the as-built states what
+                cage went in, and they are the same shape seen from two ends. diggs:RIColumnDesignType
+                carries this as the required reinforcement; diggs:RigidInclusionType carries it as
+                the installed reinforcement. Repeatable on either host, for a column with more than
+                one reinforced zone.
+
+                intervalLocation is modelled on specialty/DeepFoundation.xsd's TaperType -
+                the in-schema precedent for a depth-interval-scoped property on a linear
+                installation.</documentation>
+        </annotation>
+    </element>
+    <complexType name="ReinforcementType">
+        <complexContent>
+            <extension base="diggs:AbstractComponentObjectBaseType">
+                <sequence>
+                    <element name="intervalLocation" type="diggs:LinearExtentPropertyType">
+                        <annotation>
+                            <documentation>The interval of the column this reinforcement occupies -
+                                from head, from toe, or full length - as a two-point linear extent
+                                along the column, matching diggs:TaperType/intervalLocation.
+                                Mandatory: a reinforcement zone reported without its extent is not
+                                interpretable.</documentation>
+                        </annotation>
+                    </element>
+                    <element minOccurs="0" name="reinforcementType" type="gml:CodeType">
+                        <annotation>
+                            <documentation>The configuration of the reinforcement - rebar cage,
+                                single central bar, structural steel section, and so on.
+                                Distinct from steelGrade and barSize below, which describe the
+                                material and the individual bars rather than the
+                                arrangement.</documentation>
+                        </annotation>
+                    </element>
+                    <element minOccurs="0" name="reinforcementPurpose" type="gml:CodeType">
+                        <annotation>
+                            <documentation>Why reinforcement is present over this interval - tension
+                                zone, bending, seismic, ASIRI Domain 1, and so on. The Design
+                                analysis singles this out as what a reviewer actually checks, ahead
+                                of the ratios and areas below.</documentation>
+                        </annotation>
+                    </element>
+                    <element minOccurs="0" name="steelRatio" type="diggs:AreaPerAreaMeasureType">
+                        <annotation>
+                            <documentation>Rho_s: the ratio of steel cross-sectional area to gross
+                                column cross-sectional area over this interval.
+                                diggs:AreaPerAreaMeasureType, not DimensionlessMeasureType, for the
+                                same reason as diggs:RIColumnDesignType/areaReplacementRatio - an
+                                area-per-area quantity class forces an explicit uom that keeps a
+                                fraction from being misread as a percentage or vice
+                                versa.</documentation>
+                        </annotation>
+                    </element>
+                    <element minOccurs="0" name="steelArea" type="diggs:AreaMeasureType">
+                        <annotation>
+                            <documentation>A_s: the total cross-sectional area of steel over this
+                                interval.</documentation>
+                        </annotation>
+                    </element>
+                    <element minOccurs="0" name="barSize" type="gml:CodeType">
+                        <annotation>
+                            <documentation>The bar designation (for example US #8, or metric 25M).
+                                A coded designation rather than a bare diameter, since bar-numbering
+                                conventions differ by standard and a diameter alone loses which
+                                convention produced it.</documentation>
+                        </annotation>
+                    </element>
+                    <element minOccurs="0" name="barCount" type="positiveInteger">
+                        <annotation>
+                            <documentation>The number of bars in the cage over this
+                                interval.</documentation>
+                        </annotation>
+                    </element>
+                    <element minOccurs="0" name="steelGrade" type="gml:CodeType">
+                        <annotation>
+                            <documentation>The steel grade or strength class (for example Grade 60,
+                                B500B).</documentation>
+                        </annotation>
+                    </element>
+                </sequence>
+            </extension>
+        </complexContent>
+    </complexType>
+    <complexType name="ReinforcementArrayPropertyType">
+        <sequence minOccurs="0" maxOccurs="unbounded">
+            <element ref="diggs:Reinforcement"/>
+        </sequence>
+    </complexType>
     <!-- CMCSubmittedDesign was declared here, typed CMCArrayType. Both are retired (C4). The
          array scope form they served - a coverage whose range carried a planned-identifier column
          plus per-column properties - was retracted because a coverage row has no gml:id and so
@@ -365,6 +461,17 @@
                         <annotation>
                             <documentation>Information on when ground water is struck during
                                 drilling of the hole.</documentation>
+                        </annotation>
+                    </element>
+                    <element maxOccurs="1" minOccurs="0" name="reinforcement"
+                        type="diggs:ReinforcementArrayPropertyType">
+                        <annotation>
+                            <documentation>The steel reinforcement actually installed in this
+                                column, by zone. Named to match
+                                diggs:RIColumnDesignType/reinforcement, the design counterpart, per
+                                the same naming convention as columnDiameter and columnLength.
+                                Absent where the column is unreinforced, the common
+                                case.</documentation>
                         </annotation>
                     </element>
                 </sequence>
@@ -887,6 +994,16 @@
                                 of the work, not a generalization of it, so inheritance is the wrong
                                 relation, and one mix is normally shared across
                                 zones.</documentation>
+                        </annotation>
+                    </element>
+                    <element maxOccurs="1" minOccurs="0" name="reinforcement"
+                        type="diggs:ReinforcementArrayPropertyType">
+                        <annotation>
+                            <documentation>The steel reinforcement required in this design, by
+                                zone. Named to match diggs:RigidInclusionType/reinforcement, the
+                                as-built counterpart. Absent where the design is unreinforced, the
+                                common case - see diggs:ReinforcementType's own
+                                documentation.</documentation>
                         </annotation>
                     </element>
                     <element minOccurs="0" maxOccurs="unbounded" name="otherProperty"
