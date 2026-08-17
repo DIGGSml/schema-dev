@@ -2641,6 +2641,171 @@
             <element ref="diggs:DesignAction"/>
         </sequence>
     </complexType>
+    <element name="DesignVerification" type="diggs:DesignVerificationType">
+        <annotation>
+            <documentation>A design check with an outcome - buckling, shear, global/slope
+                stability, lateral spreading, seismic/liquefaction, punching, structural axial, and
+                so on - distinguished from a design input or a design output because its meaning
+                is not a value but a verdict against a demand and a capacity.
+
+                GENERIC DESIGN-VERIFICATION MACHINERY, NOT RI-SPECIFIC, so it lives here rather
+                than in specialty/RigidInclusions.xsd, for the same reason diggs:DesignAction does
+                - any foundation or ground-improvement design runs checks of this shape. Motivated
+                by the Design Parameter Analysis's F6 ("Inputs, outputs and verifications are
+                conflated"): rows 32 (buckling), 33 (shear), 84 (global stability), 86 (lateral
+                spreading) and 88 (seismic/liquefaction) are each "not a scalar. Need a small
+                object" - a value alone cannot carry a pass/fail verdict, and forcing one into an
+                ELEM either drops the verdict or silently repurposes the element as a boolean,
+                which loses the demand/capacity reasoning a reviewer needs to check the verdict
+                itself.
+
+                REPEATABLE, AND THAT IS LOAD-BEARING FOR ROW 84 SPECIFICALLY: a global stability
+                analysis produces one factor of safety per cross-section, per failure surface, per
+                static-or-seismic condition, per short-or-long-term condition - "row 84 as a single
+                FS scalar cannot carry that." This type does not itself add section or surface
+                discriminators - the plan's field list does not call for them - so where several
+                DesignVerification repetitions differ only by section or surface, distinguish them
+                by gml:name or remark; a typed sectionRef/surfaceRef pair is later work if that
+                proves insufficient in practice.
+
+                DISTINCT FROM diggs:AbstractAcceptanceCriterionType (B5/F3): a criterion states a
+                LIMIT a design must satisfy, declared on the specification side and checked against
+                a realized feature after construction. DesignVerification states the OUTCOME of a
+                pre-construction analysis run against that limit, declared on the design side. The
+                two are complementary, not alternatives - a buckling criterion (limit) and a
+                buckling verification (this design's checked outcome against it) can both exist for
+                the same design.</documentation>
+        </annotation>
+    </element>
+    <complexType name="DesignVerificationType">
+        <annotation>
+            <documentation>Complex type: DesignVerificationType. Extends
+                diggs:AbstractComponentObjectBaseType, the same lightweight base
+                diggs:DesignActionType and diggs:ReinforcementType use.</documentation>
+        </annotation>
+        <complexContent>
+            <extension base="diggs:AbstractComponentObjectBaseType">
+                <sequence>
+                    <element name="verificationType" type="gml:CodeType">
+                        <annotation>
+                            <documentation>The kind of check - buckling, shear, global stability,
+                                lateral spreading, seismic, liquefaction, punching, structural axial.
+                                Mandatory: a verification reported without stating what kind of
+                                check it is, is not interpretable.</documentation>
+                        </annotation>
+                    </element>
+                    <element minOccurs="0" name="method" type="gml:CodeType">
+                        <annotation>
+                            <documentation>The analysis method used, where the field is method-
+                                dependent - for global stability, Column-Wall Method (CWM),
+                                Equivalent Strength Method (ESM), Stress Reduction Method (SRM),
+                                Pile Support Method (PSM), or numerical analysis with the actual RI
+                                layout. Not a neutral label for stability in particular: RIs fail in
+                                bending, not shear, so a 2D analysis run with a "composite shear
+                                strength" is not defensible, and stating the method here makes that
+                                reviewable.</documentation>
+                        </annotation>
+                    </element>
+                    <element minOccurs="0" name="demand" type="diggs:ParameterPropertyType">
+                        <annotation>
+                            <documentation>The demand value the check compares against capacity -
+                                for example the applied shear stress in a shear check, or the
+                                applied axial force in a buckling check. diggs:ParameterPropertyType
+                                rather than a fixed measure type, because the quantity class is set
+                                by verificationType and varies across checks (a stress for shear, a
+                                force for buckling, commonly nothing typed at all for a
+                                stability/spreading/seismic check that is already fully expressed by
+                                utilisationRatio or factorOfSafety below) - the same reasoning
+                                diggs:RIColumnDesignType/otherProperty's documentation gives for
+                                using the dictionary escape hatch rather than a named element per
+                                quantity.</documentation>
+                        </annotation>
+                    </element>
+                    <element minOccurs="0" name="capacity" type="diggs:ParameterPropertyType">
+                        <annotation>
+                            <documentation>The capacity or resistance value the check compares
+                                demand against. See demand for why this is
+                                diggs:ParameterPropertyType rather than a fixed measure
+                                type.</documentation>
+                        </annotation>
+                    </element>
+                    <element minOccurs="0" name="utilisationRatio"
+                        type="diggs:DimensionlessMeasureType">
+                        <annotation>
+                            <documentation>Demand divided by capacity. Always dimensionless
+                                regardless of verificationType, unlike demand and capacity
+                                themselves, so this is a fixed measure type rather than a
+                                Parameter.</documentation>
+                        </annotation>
+                    </element>
+                    <element minOccurs="0" name="factorOfSafety"
+                        type="diggs:DimensionlessMeasureType">
+                        <annotation>
+                            <documentation>Capacity divided by demand, where the check is
+                                conventionally expressed that way round rather than as a
+                                utilisation ratio (global stability, lateral spreading). The two
+                                are reciprocal framings of the same comparison; state whichever the
+                                analysis was run to produce, or both.</documentation>
+                        </annotation>
+                    </element>
+                    <element minOccurs="0" name="outcome" type="gml:CodeType">
+                        <annotation>
+                            <documentation>The verdict - satisfied, not satisfied, or not required
+                                (a check that does not apply to this design, stated rather than
+                                omitted so its inapplicability is a recorded decision and not
+                                mistakable for an unperformed check). Optional in XSD terms, matching
+                                this project's general convention that every property is optional;
+                                a DesignVerification stating only verificationType and method, with
+                                outcome pending, is still a meaningful record of a check in
+                                progress.</documentation>
+                        </annotation>
+                    </element>
+                    <element minOccurs="0" maxOccurs="unbounded" name="analysisCaseRef"
+                        type="diggs:FeatureReferenceType">
+                        <annotation>
+                            <appinfo source="urn:x-gml:targetElement">diggs:DesignAction</appinfo>
+                            <documentation>The load case this verification was run against, as the
+                                set of diggs:DesignAction objects whose combination defines that
+                                case - for example the permanent and seismic actions active in a
+                                seismic buckling check, as opposed to the permanent and variable
+                                actions active in a static one. Reuses diggs:DesignAction rather
+                                than a bespoke case object or an inline code, for the same reason
+                                diggs:DesignAction/appliesToZoneRef reuses diggs:AbstractProgramDesign
+                                for zones: DIGGS already has one mechanism for stating a load
+                                combination's members, and a second, parallel one would leave
+                                nothing correlating them. Repeatable because a case is normally more
+                                than one action; empty where the design has not yet built a
+                                DesignAction for every action the case needs, or where the
+                                verification predates S14's DesignAction and only remark carries the
+                                case description.</documentation>
+                        </annotation>
+                    </element>
+                    <element name="remark" type="diggs:RemarkPropertyType" minOccurs="0"
+                        maxOccurs="unbounded">
+                        <annotation>
+                            <documentation>Free-text notes on the verification - for example why a
+                                buckling check was triggered (the DFI paper: buckling matters
+                                specifically where confinement is reduced or lost - karst
+                                solutioning, scour, liquefaction, long-term creep of organics/MSW),
+                                or whether an outcome is predicted versus verified by post-
+                                installation testing. diggs:RemarkPropertyType, matching the
+                                house-wide remark convention, rather than a bare string.</documentation>
+                        </annotation>
+                    </element>
+                </sequence>
+            </extension>
+        </complexContent>
+    </complexType>
+    <complexType name="DesignVerificationArrayPropertyType">
+        <annotation>
+            <documentation>Property type for arrays of DesignVerification objects, matching
+                diggs:DesignActionArrayPropertyType's shape - one wrapper element containing zero
+                or more DesignVerification children.</documentation>
+        </annotation>
+        <sequence minOccurs="0" maxOccurs="unbounded">
+            <element ref="diggs:DesignVerification"/>
+        </sequence>
+    </complexType>
     <element abstract="false" name="Qualifier" type="diggs:ParameterType">
         <annotation>
             <documentation>An enumeration of various parameters upon which the property result may
