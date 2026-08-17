@@ -889,9 +889,108 @@
                                 zones.</documentation>
                         </annotation>
                     </element>
+                    <element minOccurs="0" maxOccurs="unbounded" name="otherProperty"
+                        type="diggs:ParameterPropertyType">
+                        <annotation>
+                            <documentation>The dictionary escape hatch, matching the pattern of the
+                                same name on diggs:AbstractTargetObjectType: a design-level quantity
+                                that has no named element on this type, carried as a
+                                diggs:AuthorizedParameter bound to a definition in
+                                ri_design_properties.xml.
+
+                                CARRIES ROWS 18, 31 AND THE GEOMETRY-ENVELOPE PART OF ROW 13 OF THE
+                                DESIGN ANALYSIS: the equivalent/tributary diameter, the column axial
+                                utilization ratio, and the dimensionless geometry ratios
+                                (h/(s-d), d/s, sx/sy) that gate whether an arching method's unit-cell
+                                idealisation applies to this layout. None of these needed a typed
+                                element of its own - each is either a derived diagnostic ratio or a
+                                quantity that varies by which arching method produced it - but unlike
+                                the coefficients in diggs:ArchingCoefficients, none of them is tied to
+                                one specific arching model, which is why they sit here rather than
+                                there. The stiffness gate itself (ks,T/ks and its pass/fail threshold)
+                                is NOT here: it is a method-applicability check with an outcome, and
+                                belongs on a diggs:DesignConformanceCriterion once that machinery
+                                exists for it, not as a bare value.</documentation>
+                        </annotation>
+                    </element>
                 </sequence>
             </extension>
         </complexContent>
+    </complexType>
+    <element name="ArchingCoefficients" type="diggs:ArchingCoefficientsType">
+        <annotation>
+            <documentation>The coefficients an arching (load-transfer) calculation produced under
+                one named model, together with the model itself.
+
+                ONE OBJECT PER MODEL, GENERIC ACROSS ALL OF THEM. BS 8006-1's Marston coefficient
+                and cap-stress ratio, the Hewlett-Randolph dome-arching efficiencies and passive
+                coefficient, EBGEO's Zaeske critical stress ratio, the adapted-Terzaghi lateral
+                earth-pressure coefficient and ASIRI's Prandtl punching factor are all intermediate
+                quantities that exist only inside one arching model, that hard-coding as named
+                elements would have baked four competing national methods into the DIGGS namespace,
+                and that a fifth method (van Eekelen's concentric arches, CUR226) would then have
+                required a schema change to add. Route DICT is correct for the coefficients
+                themselves; this object is what gives each coefficient somewhere to live and gives
+                the dictionary's Occurrence mechanism a local element to condition on.
+
+                ARCHINGMODEL IS REPEATED HERE RATHER THAN READ FROM A BASIS OBJECT, and that is a
+                structural necessity rather than a preference: a dictionary Definition's
+                conditionalElementXpath is evaluated with the ancestor:: axis, which can only see
+                containment, not a basisRef cross-reference. So each coefficient's Occurrence
+                condition reads ancestor::diggs:ArchingCoefficients/diggs:archingModel, which is
+                only resolvable if the model is stated locally, in the same containment tree as the
+                coefficient. Once S9 provides a concrete program basis, a design's basis-level
+                archingModel remains the authoritative statement of which model the design was
+                prepared under; the two should agree, and repeating the code costs one element
+                against having the validation mechanism work at all.
+
+                Repeatable on the design that holds it, for the uncommon case of a design that
+                reports coefficients under more than one model for comparison; normally
+                one.</documentation>
+        </annotation>
+    </element>
+    <complexType name="ArchingCoefficientsType">
+        <annotation>
+            <documentation>Type for diggs:ArchingCoefficients. See the element's documentation for
+                why this exists as one generic object rather than named elements per
+                coefficient.</documentation>
+        </annotation>
+        <complexContent>
+            <extension base="diggs:AbstractComponentObjectBaseType">
+                <sequence>
+                    <element minOccurs="1" name="archingModel" type="gml:CodeType">
+                        <annotation>
+                            <documentation>The arching (load-transfer) model these coefficients were
+                                computed under - Marston, Hewlett-Randolph, Zaeske, adapted-Terzaghi,
+                                Prandtl and so on. Mandatory: a coefficient reported without its model
+                                is not interpretable, and this is the element every coefficient's
+                                dictionary Occurrence condition keys on. Vocabulary in
+                                archingModel.xml.</documentation>
+                        </annotation>
+                    </element>
+                    <element minOccurs="0" name="coefficient" type="diggs:ParameterArrayPropertyType">
+                        <annotation>
+                            <documentation>One or more named coefficients belonging to the model
+                                stated above, each a diggs:AuthorizedParameter whose parameterName
+                                codeSpace resolves into ri_design_properties.xml. Use
+                                AuthorizedParameter in preference to plain diggs:Parameter throughout,
+                                per B2 - the whole point of this object is that a consumer can type
+                                and validate each coefficient against its dictionary definition rather
+                                than infer it from a bare name-value pair.</documentation>
+                        </annotation>
+                    </element>
+                </sequence>
+            </extension>
+        </complexContent>
+    </complexType>
+    <complexType name="ArchingCoefficientsPropertyType">
+        <annotation>
+            <documentation>Property type for containing a single diggs:ArchingCoefficients
+                object.</documentation>
+        </annotation>
+        <sequence>
+            <element ref="diggs:ArchingCoefficients" minOccurs="1" maxOccurs="1"/>
+        </sequence>
     </complexType>
     <element name="RILTPDesign" type="diggs:RILTPDesignType"
         substitutionGroup="diggs:AbstractProgramDesign">
@@ -941,8 +1040,15 @@
                                 practice has this quantity, which is why it is a typed element here
                                 rather than a dictionary entry; but what it evaluates to depends
                                 entirely on which arching model was used, so the number is not
-                                interpretable without that model. State the model on the design
-                                basis this design cites through basisRef, and read the two together.
+                                interpretable without that model. State the model on a sibling
+                                diggs:archingCoefficients/archingModel on this same design - present
+                                whether or not that object carries any coefficients - and read the
+                                two together; that is also the element every coefficient's own
+                                dictionary Occurrence condition keys on, so it is guaranteed to be
+                                locally resolvable in a way a basisRef target is not. Once S9
+                                provides a concrete program basis, the model may additionally be
+                                stated there as the program-level record of record; the two should
+                                agree.
 
                                 Placed on the platform design rather than the column design although
                                 the source parameter analysis groups it with layout: it is an output
@@ -1005,6 +1111,40 @@
                             <documentation>The designed residual vertical stress reaching the
                                 compressible soil between the column heads. The other half of the
                                 arching outcome; see stressOnElementHead.</documentation>
+                        </annotation>
+                    </element>
+                    <element minOccurs="0" maxOccurs="unbounded" name="archingCoefficients"
+                        type="diggs:ArchingCoefficientsPropertyType">
+                        <annotation>
+                            <documentation>The coefficients the arching calculation produced, together
+                                with the model that produced them. See diggs:ArchingCoefficients for
+                                why this is one generic object rather than a named element per
+                                coefficient, and criticalHeight above for why archingModel is stated
+                                here rather than solely on a program basis.
+
+                                Repeatable for the uncommon case of a design comparing coefficients
+                                under more than one model; state one archingModel with no coefficient
+                                array at minimum wherever criticalHeight or either stress element is
+                                reported, so those values remain interpretable even when no individual
+                                coefficient is being carried.</documentation>
+                        </annotation>
+                    </element>
+                    <element minOccurs="0" maxOccurs="unbounded" name="otherProperty"
+                        type="diggs:ParameterPropertyType">
+                        <annotation>
+                            <documentation>The dictionary escape hatch, matching
+                                diggs:RIColumnDesignType/otherProperty and the same-named pattern on
+                                diggs:AbstractTargetObjectType: a platform-design quantity that has no
+                                named element on this type, carried as a diggs:AuthorizedParameter
+                                bound to a definition in ri_design_properties.xml.
+
+                                CARRIES THE ACTIVE EARTH-PRESSURE COEFFICIENT (ROW 82, Ka), which
+                                governs lateral thrust from the embankment fill above the platform.
+                                Deliberately not in diggs:ArchingCoefficients alongside the other
+                                Group F/I coefficients: Ka is a property of the FILL, used across
+                                whichever arching model governs the vertical load transfer, not an
+                                output specific to one of them - forcing it under one archingModel
+                                would misstate what it depends on.</documentation>
                         </annotation>
                     </element>
                 </sequence>
