@@ -939,10 +939,11 @@
                 containment, not a basisRef cross-reference. So each coefficient's Occurrence
                 condition reads ancestor::diggs:ArchingCoefficients/diggs:archingModel, which is
                 only resolvable if the model is stated locally, in the same containment tree as the
-                coefficient. Once S9 provides a concrete program basis, a design's basis-level
-                archingModel remains the authoritative statement of which model the design was
-                prepared under; the two should agree, and repeating the code costs one element
-                against having the validation mechanism work at all.
+                coefficient. A diggs:RISystemBasis cited through basisRef (S9) may additionally
+                carry its own archingModel as the program-level record of record, but this local
+                statement remains the authoritative one for the dictionary Occurrence mechanism to
+                key on; the two should agree, and repeating the code costs one element against
+                having the validation mechanism work at all.
 
                 Repeatable on the design that holds it, for the uncommon case of a design that
                 reports coefficients under more than one model for comparison; normally
@@ -1045,9 +1046,9 @@
                                 whether or not that object carries any coefficients - and read the
                                 two together; that is also the element every coefficient's own
                                 dictionary Occurrence condition keys on, so it is guaranteed to be
-                                locally resolvable in a way a basisRef target is not. Once S9
-                                provides a concrete program basis, the model may additionally be
-                                stated there as the program-level record of record; the two should
+                                locally resolvable in a way a basisRef target is not. The model may
+                                additionally be stated on a diggs:RISystemBasis cited through
+                                basisRef (S9), as the program-level record of record; the two should
                                 agree.
 
                                 Placed on the platform design rather than the column design although
@@ -1313,6 +1314,162 @@
                                 The other half of the band; see
                                 aggregateGradationCurveCoarseLimit for why a curve pair rather than
                                 an acceptance criterion.</documentation>
+                        </annotation>
+                    </element>
+                </sequence>
+            </extension>
+        </complexContent>
+    </complexType>
+    <!-- ============================================================ -->
+    <!-- C2.1 — RI PROGRAM BASIS (S9)                                  -->
+    <!-- ============================================================ -->
+    <!-- The third module kind alongside C2's designs and specifications - the evidence and
+         governing method a design was prepared from, as distinct from what is intended (design)
+         or what is required (specification). diggs:AbstractProgramBasis (core/AbstractTypes.xsd)
+         has carried zero concrete members since it was declared; this is the first.
+
+         ONE TYPE, NOT A GroundModelBasis / LoadingBasis / RequirementsBasis split. An earlier
+         architecture sketch (RI_Program_Architecture.md §6) proposed three basis subtypes keyed by
+         kind of evidence. What Design Parameter Analysis Group A (rows 2-13) actually calls for is
+         narrower and does not split cleanly along that boundary - riTechniqueType and archingModel
+         are method statements, not loading or ground-model evidence, and would sit awkwardly in
+         any of the three baskets. A single RISystemBasis, parallel to RISystemDesign, carries
+         every Group A field this pass builds; splitting further is deferred until a second
+         concrete basis type actually needs to disagree with this one on scope, which would be the
+         reason to separate them.
+
+         GOVERNING STANDARD REUSES diggs:Specification, NOT A NEW TYPE. RI_Design_Parameter_
+         Analysis.md row 2 confirms diggs:SpecificationPropertyType (core/Common.xsd) already
+         carries everything a citation needs (standardReferenceNumber, standardTitle,
+         standardVersion, standardPart, standardClause, accredtingBody, shortMethodName) -
+         unbounded here so a multi-standard project (ASIRI + EC7 + a project spec) is expressible
+         with one clause each.
+
+         ROW 11 (the partial/global factor set) IS NOT HERE. It needs S13's DesignFactor object,
+         which does not exist yet; the coded fields land first per the plan's own dependency note.
+         Additive once S13 is built - a new optional element, no restructuring.
+
+         ROW 12 (parameter provenance) and the geometric-ratio half of ROW 13 ARE ALSO NOT HERE -
+         both already have a home: row 12 is diggs:ProvenancedParameter (F2, B4), and row 13's
+         ratios are RIColumnDesignType/otherProperty (S5). ROW 6 (delivery/contracting method) is
+         out of scope - a Contract-level gap noted in the analysis, not RI-specific.
+
+         archingModel AND riTechniqueType DELIBERATELY REUSE ELEMENT NAMES ALREADY IN USE ELSEWHERE
+         (diggs:ArchingCoefficients/archingModel, S5; diggs:RigidInclusionType/columnType and
+         diggs:RIColumnSpecificationType/columnType, S6) SO THE SAME DICTIONARY GOVERNS BOTH. Both
+         remain optional here: the design-side, locally-resolvable statements
+         (archingCoefficients/archingModel; columnType on the specification or as-built) are what a
+         consumer can actually resolve without following basisRef, and this object is the
+         program-level record of record the two should agree with, not the sole source. -->
+    <element name="RISystemBasis" type="diggs:RISystemBasisType"
+        substitutionGroup="diggs:AbstractProgramBasis">
+        <annotation>
+            <documentation>The site-wide basis a rigid inclusion program's designs were prepared
+                from: the governing standards, design method, supported structure type, technique
+                family, arching model, safety format, working life and consequence class that make
+                every other design value in the program interpretable. Cited by a design through
+                basisRef, parallel to how diggs:RISystemDesign is cited through
+                basedOnRef.</documentation>
+        </annotation>
+    </element>
+    <complexType name="RISystemBasisType">
+        <annotation>
+            <documentation>Type for the site-wide rigid inclusion program basis. Inherits scope and
+                basedOnRef from diggs:AbstractProgramModuleType by way of
+                diggs:AbstractProgramBasisType, which adds nothing of its own.</documentation>
+        </annotation>
+        <complexContent>
+            <extension base="diggs:AbstractProgramBasisType">
+                <sequence>
+                    <element minOccurs="0" maxOccurs="unbounded" name="governingStandard"
+                        type="diggs:SpecificationPropertyType">
+                        <annotation>
+                            <documentation>A standard or recommendation the design was prepared
+                                under - ASIRI, EC7, BS 8006-1, EBGEO, a project specification.
+                                Repeatable: a multi-national or hybrid-method project may cite
+                                several, each with its own edition and clause via the referenced
+                                diggs:Specification's standardVersion and standardClause. No new
+                                type - diggs:SpecificationPropertyType already carries everything a
+                                citation needs (RI_Design_Parameter_Analysis.md Group A row
+                                2).</documentation>
+                        </annotation>
+                    </element>
+                    <element minOccurs="0" name="designMethod" type="gml:CodeType">
+                        <annotation>
+                            <documentation>The analytical approach the design was calculated by -
+                                unit-cell method, arching (limit-equilibrium or numerical), finite
+                                element analysis, load-displacement-compatibility method, or
+                                other.</documentation>
+                        </annotation>
+                    </element>
+                    <element minOccurs="1" name="supportedStructureType" type="gml:CodeType">
+                        <annotation>
+                            <documentation>What the rigid inclusions support - footing, mat, slab,
+                                embankment, wall, tank, culvert, bridge. MANDATORY: this is the
+                                master conditional a large part of the Design and Post-installation
+                                groups key on - side slope, embankment height, critical height,
+                                lateral spreading and most of the embankment-specific group are
+                                meaningful only where this names an embankment or wall, while slab
+                                stress concentration is meaningful only where it names a slab or
+                                mat. A consumer needs this value to know which other elements should
+                                even be present.</documentation>
+                        </annotation>
+                    </element>
+                    <element minOccurs="0" name="riTechniqueType" type="gml:CodeType">
+                        <annotation>
+                            <documentation>The rigid inclusion technique family the program's
+                                designs assume - the same vocabulary and dictionary as
+                                diggs:RigidInclusionType/columnType and
+                                diggs:RIColumnSpecificationType/columnType (S6), so a technique
+                                family stated at the program level and one stated per column or per
+                                specification agree by construction rather than by convention. State
+                                the more specific element (columnType, on the specification or
+                                as-built) where it may vary; this one is the program-wide
+                                default.</documentation>
+                        </annotation>
+                    </element>
+                    <element minOccurs="0" name="archingModel" type="gml:CodeType">
+                        <annotation>
+                            <documentation>The load-transfer (arching) model the program's designs
+                                assume, drawn from the same dictionary as
+                                diggs:ArchingCoefficients/archingModel (S5). That sibling element on
+                                the design itself, not this one, is what every arching coefficient's
+                                own dictionary Occurrence condition keys on, since a
+                                conditionalElementXpath cannot reach across basisRef - see
+                                RILTPDesignType/criticalHeight and /archingCoefficients for why.
+                                This element is the program-level record of record the design-level
+                                statement should agree with.</documentation>
+                        </annotation>
+                    </element>
+                    <element minOccurs="0" name="safetyFormat" type="gml:CodeType">
+                        <annotation>
+                            <documentation>The design approach and partial-factor framework applied
+                                - Eurocode 7 Design Approach 2 or 3, BS limit state design, DIN load
+                                cases, or an allowable-stress method with a global factor of safety.
+                                Governs how the values reported elsewhere in the design are meant to
+                                be checked.</documentation>
+                        </annotation>
+                    </element>
+                    <element minOccurs="0" name="designWorkingLife" type="diggs:TimeMeasureType">
+                        <annotation>
+                            <documentation>The service life the design assumes - governs the
+                                consequence class, durability provisions and, where the safety
+                                format is Eurocode-based, which partial factors
+                                apply.</documentation>
+                        </annotation>
+                    </element>
+                    <element minOccurs="0" name="consequenceClass" type="gml:CodeType">
+                        <annotation>
+                            <documentation>The consequence or reliability class governing the
+                                design - for example a Eurocode consequence class (EN 1990
+                                CC1-CC3) or an equivalent national scheme. RI_Design_Parameter_
+                                Analysis.md Group A row 10 flags that several national schemes
+                                (ASIRI's domain classification, EBGEO's load case) use this same
+                                slot for concepts that are not directly interchangeable with each
+                                other or with the Eurocode classes; the dictionary vocabulary for
+                                those is intentionally left for SME confirmation rather than
+                                guessed at, so this element's published vocabulary is EC7/EN
+                                1990-sourced only as of this build.</documentation>
                         </annotation>
                     </element>
                 </sequence>
