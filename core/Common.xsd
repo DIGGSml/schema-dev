@@ -2516,6 +2516,131 @@
             <element ref="diggs:DesignFactor" minOccurs="1" maxOccurs="1"/>
         </sequence>
     </complexType>
+    <element name="DesignAction" type="diggs:DesignActionType">
+        <annotation>
+            <documentation>An applied load a design must resist - embankment self-weight, traffic
+                or other live load, a structure/slab load, a tank, a footing, a surcharge, a
+                seismic or wind action - together with the classification a limit-state check needs
+                to use it correctly: what kind of action it is, whether it is permanent, variable,
+                accidental or seismic, and whether the stated magnitude is a characteristic,
+                factored/design or quasi-permanent value.
+
+                GENERIC DESIGN-ACTION MACHINERY, NOT RI-SPECIFIC, so it lives here rather than in
+                specialty/RigidInclusions.xsd - any ground-improvement or foundation design that
+                states an applied load and needs it correctly classified has the identical problem.
+                Motivated by the Design Parameter Analysis's Group H (rows 78-79, "surcharge/live
+                load" and "structure/slab load", which are one concept - a distributed load in kPa -
+                differing only in origin, and should not be two elements): "actionNature +
+                representativeValue are essential and absent from the workbook: under EC7/BS
+                limit-state design, whether a stated load is characteristic or factored, permanent
+                or variable, changes everything downstream. A file reporting 'q = 20 kPa' without
+                them is not usable for checking."
+
+                ALSO ABSORBS, WITHOUT DIRECTLY REPLACING, TWO OTHER GAPS THE SAME ANALYSIS FLAGS.
+                Row 47 (the axial load required at one column head) needs exactly this shape -
+                "allow repetition keyed by load case (shares the DesignAction shape from Group H)" -
+                but is carried today as the single acknowledged-simplification scalar
+                diggs:RIColumnDesignType/designAxialLoad; that element's own documentation names
+                this type by description ("generic design-action machinery... is not yet built") as
+                what a fuller expression would need, and is left as future work rather than migrated
+                here, since retiring an existing element is a larger, separate decision. Row 35
+                (lateral/bending demand, M and H_lat, which "vary by column position and load case")
+                has the same repeating-keyed-by-load-case need; DesignAction does not itself carry a
+                moment or lateral-force element - PressureMeasureType/ForceMeasureType are the wrong
+                quantity classes for a bending moment - so row 35 remains open for a later task to
+                either extend this type or build its own, reusing the pattern established
+                here.</documentation>
+        </annotation>
+    </element>
+    <complexType name="DesignActionType">
+        <annotation>
+            <documentation>Complex type: DesignActionType. Extends
+                diggs:AbstractComponentObjectBaseType, the same lightweight base
+                diggs:ArchingCoefficientsType and diggs:ReinforcementType use - optional gml:id
+                only, no name/description overhead this object doesn't need.</documentation>
+        </annotation>
+        <complexContent>
+            <extension base="diggs:AbstractComponentObjectBaseType">
+                <sequence>
+                    <element name="actionType" type="gml:CodeType">
+                        <annotation>
+                            <documentation>The kind of action - embankment self-weight, traffic/live
+                                load, structure/slab load, tank, footing, surcharge, seismic, wind.
+                                Mandatory: an action reported without stating what kind it is, is
+                                not interpretable.</documentation>
+                        </annotation>
+                    </element>
+                    <element minOccurs="0" name="actionNature" type="gml:CodeType">
+                        <annotation>
+                            <documentation>Permanent, variable, accidental or seismic - the EC7/BS
+                                limit-state action classification. Optional in XSD terms, matching
+                                this project's general convention that every property is optional
+                                and resolution runs per property; but stating it is the entire
+                                reason this type exists rather than a bare magnitude, per the
+                                element's own top-level documentation.</documentation>
+                        </annotation>
+                    </element>
+                    <element minOccurs="0" name="representativeValue" type="gml:CodeType">
+                        <annotation>
+                            <documentation>Whether the stated magnitude is a characteristic,
+                                factored/design, or quasi-permanent value. See
+                                actionNature.</documentation>
+                        </annotation>
+                    </element>
+                    <choice minOccurs="0">
+                        <element name="magnitudePressure" type="diggs:PressureMeasureType">
+                            <annotation>
+                                <documentation>The action's magnitude as a distributed load - the
+                                    normal case for a surcharge, embankment self-weight, or slab
+                                    load expressed per unit area.</documentation>
+                            </annotation>
+                        </element>
+                        <element name="magnitudeForce" type="diggs:ForceMeasureType">
+                            <annotation>
+                                <documentation>The action's magnitude as a concentrated (point or
+                                    line) load - a footing or tank load stated as a force rather
+                                    than a distributed pressure. A quantity class and a distributed
+                                    pressure are different data, not two units of one quantity,
+                                    which is why this is a separate choice branch rather than a
+                                    permissive uom on magnitudePressure - the same reasoning
+                                    diggs:RILTPDesignType/sideSlopeRatio's documentation gives for
+                                    its own choice.</documentation>
+                            </annotation>
+                        </element>
+                    </choice>
+                    <element minOccurs="0" maxOccurs="unbounded" name="appliesToZoneRef"
+                        type="diggs:FeatureReferenceType">
+                        <annotation>
+                            <appinfo source="urn:x-gml:targetElement">diggs:AbstractProgramDesign</appinfo>
+                            <documentation>Where this action applies, for a host design whose own
+                                scope covers more than one zone with different loading - for
+                                example an RISystemDesign on which several DesignAction entries each
+                                govern a different part of the site. References the zone-scoped
+                                AbstractProgramDesign (typically an RIColumnDesign or RILTPDesign)
+                                whose own ProgramScope/zoneExtent already defines that zone's
+                                extent, rather than restating a boundary here: DIGGS already has one
+                                mechanism for stating a zone's extent, and this reuses it instead of
+                                building a second. Omit where the host design's own scope already
+                                identifies the population this action governs - the common
+                                case.</documentation>
+                        </annotation>
+                    </element>
+                </sequence>
+            </extension>
+        </complexContent>
+    </complexType>
+    <complexType name="DesignActionArrayPropertyType">
+        <annotation>
+            <documentation>Property type for arrays of DesignAction objects, matching
+                diggs:GeosyntheticArrayPropertyType/diggs:ReinforcementArrayPropertyType's shape -
+                one wrapper element containing zero or more DesignAction children - since an action
+                array's host particle is single-occurrence
+                (maxOccurs="1").</documentation>
+        </annotation>
+        <sequence minOccurs="0" maxOccurs="unbounded">
+            <element ref="diggs:DesignAction"/>
+        </sequence>
+    </complexType>
     <element abstract="false" name="Qualifier" type="diggs:ParameterType">
         <annotation>
             <documentation>An enumeration of various parameters upon which the property result may
