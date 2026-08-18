@@ -11,13 +11,13 @@
     <import namespace="http://www.opengis.net/gml/3.2" schemaLocation="gml3.2Profile_diggs.xsd"/>
     <import namespace="http://www.w3.org/1999/xlink" schemaLocation="xlinks.xsd"/>
 
-    <element name="RIFoundationSystem" type="diggs:RIFoundationSystemType"
+    <element name="RigidInclusionSystem" type="diggs:RigidInclusionSystemType"
         substitutionGroup="diggs:AbstractPlanarSamplingFeature">
         <annotation>
             <documentation>A top-level, complex sampling feature describing the components of a rigid inclusion foundation system. It consists of child sampling features describing the load transfer platforms and individual rigid inclusion columns constructed within the soil below the LTP. Each of these sampling features can be individually referenced by observations, measurements and construction activities.</documentation>
         </annotation>
     </element>
-    <complexType name="RIFoundationSystemType">
+    <complexType name="RigidInclusionSystemType">
         <complexContent>
             <extension base="diggs:AbstractPlanarSamplingFeatureType">
                 <sequence>
@@ -46,7 +46,7 @@
                                 in A6 for that reason: "Level" implied a statistic.
 
                                 PRECEDENCE HAS TWO BRANCHES here, and which applies depends on the
-                                RIFoundationSystem's featureExtent. Where that extent is expressed
+                                RigidInclusionSystem's featureExtent. Where that extent is expressed
                                 in a 3-D or compound CRS it already carries this elevation, and THE
                                 GEOMETRY PREVAILS - this property is then a convenience for
                                 consumers that do not want to walk the geometry. Where the extent is
@@ -75,7 +75,7 @@
                                 practice where a platform proceeds to use while under its required
                                 capacity, so design intent and as-built outcome do not diverge here
                                 the way they do for column diameter or toe elevation, and this single
-                                value on the as-built RIFoundationSystem is sufficient; no parallel
+                                value on the as-built RigidInclusionSystem is sufficient; no parallel
                                 design-side element is modeled.
 
                                 IF THAT EVER CHANGES - a platform is used despite a test result below
@@ -174,7 +174,7 @@
                                 position, not an averaged level.
 
                                 PRECEDENCE HAS TWO BRANCHES, as for
-                                RIFoundationSystemType/workingPlatformElevation. Where this
+                                RigidInclusionSystemType/workingPlatformElevation. Where this
                                 platform's featureExtent is 3-D or compound the geometry prevails;
                                 where it is 2-D the geometry carries no elevation and THIS PROPERTY
                                 IS THE PREVAILING VALUE. In practice LTP extents are commonly
@@ -187,7 +187,7 @@
                             <documentation>The thickness of the load transfer platform, inferred from the LTP top and workding platform elevations.
 
                                 Optional, matching its two source elevations: elevationTopLTP on this
-                                type and workingPlatformElevation on RIFoundationSystemType are both
+                                type and workingPlatformElevation on RigidInclusionSystemType are both
                                 [0..1], so a value inferred from them cannot itself be mandatory. Left
                                 mandatory through C1, which fixed the equivalent problem for
                                 loadTransferPlatforms/rigidInclusions containment but did not revisit
@@ -302,7 +302,7 @@
                 ONE OBJECT, BOTH SIDES OF THE PLAN/REALIZED BOUNDARY, per the Installation
                 analysis's G5: the design states what cage is required, the as-built states what
                 cage went in, and they are the same shape seen from two ends. diggs:RIColumnDesignType
-                carries this as the required reinforcement; diggs:RigidInclusionType carries it as
+                carries this as the required reinforcement; diggs:RIColumnType carries it as
                 the installed reinforcement. Repeatable on either host, for a column with more than
                 one reinforced zone.
 
@@ -393,19 +393,19 @@
          cannot be referenced by a ProgressEvent, an AcceptanceCriterion or a TargetSample. The
          concept is now RIColumnDesign plus, where columns vary arbitrarily, one
          TargetSamplingFeature per column. -->
-    <element name="RigidInclusion" type="diggs:RigidInclusionType"
+    <element name="RIColumn" type="diggs:RIColumnType"
         substitutionGroup="diggs:AbstractLinearSamplingFeature">
         <annotation>
             <documentation>A sampling feature describing the location and properties of a single rigid inclusion element (CMC).</documentation>
         </annotation>
     </element>
-    <complexType name="RigidInclusionType">
+    <complexType name="RIColumnType">
         <complexContent>
             <extension base="diggs:AbstractLinearSamplingFeatureType">
                 <sequence>
                     <element ref="diggs:samplingFeatureRef" minOccurs="0">
                         <annotation>
-                            <appinfo source="urn:x-gml:targetElement">diggs:RIFoundationSystem</appinfo>
+                            <appinfo source="urn:x-gml:targetElement">diggs:RigidInclusionSystem</appinfo>
                             <documentation>The rigid inclusion foundation system this column forms part of.
                                 Omit for a trial or test column constructed independently of any foundation
                                 system. Absence is meaningful: it is the declared way to identify a trial
@@ -523,7 +523,7 @@
         <annotation>
             <documentation>The construction-method SUMMARY carried on the feature - one or more
                 intervals or discrete method changes over the depth or time of construction,
-                referenced from diggs:RigidInclusionType/constructionMethod.
+                referenced from diggs:RIColumnType/constructionMethod.
 
                 THIS STAYS THE SUMMARY. THE REAL-TIME RECORD LIVES ON THE ACTIVITY. C3 added
                 diggs:RIConstructionActivity, whose installationRecord property carries the
@@ -653,7 +653,7 @@
 
          RETIRED here, deliberately, and not to be reinstated:
            CMCArrayType, CMCArrayPropertyType, and the children columnIds, columnTopLocations,
-             columnLengths - the array scope form; see the note above RigidInclusion.
+             columnLengths - the array scope form; see the note above RIColumn.
            RISystemDesignPropertyType - modules now hang off the program's generic design slot.
            CMCConstructionActivity / CMCConstructionActivityType - the RI construction activity is
              built properly in C3, with its measurement-while-drilling coverage. The sketch carried
@@ -993,7 +993,7 @@
                     <element minOccurs="0" name="columnDiameter" type="diggs:LengthMeasureType">
                         <annotation>
                             <documentation>The nominal designed shaft diameter of the columns. Named
-                                to match diggs:RigidInclusionType/columnDiameter, the as-built
+                                to match diggs:RIColumnType/columnDiameter, the as-built
                                 counterpart, so that the design value and the constructed value
                                 carry one name across the plan/realized boundary and a conformance
                                 check has an unambiguous pair to compare.</documentation>
@@ -1002,7 +1002,7 @@
                     <element minOccurs="0" name="columnLength" type="diggs:LengthMeasureType">
                         <annotation>
                             <documentation>The designed column length, measured cut-off to toe.
-                                Named to match diggs:RigidInclusionType/columnLength.
+                                Named to match diggs:RIColumnType/columnLength.
 
                                 A LENGTH AND A TOE ELEVATION ARE DIFFERENT DATA, not two ways of
                                 writing one number, which is why toeElevation below is a separate
@@ -1023,7 +1023,7 @@
                                 point on a feature, a level belongs to an area. This is a design
                                 level adopted across whatever population the scope declares -
                                 thousands of columns share it - so it has no definite point to be
-                                the position of. Contrast diggs:RigidInclusionType/cutoffElevation
+                                the position of. Contrast diggs:RIColumnType/cutoffElevation
                                 on the as-built side, which is a position because it belongs to one
                                 built column and is extractable from that column's
                                 centerLine.
@@ -1135,7 +1135,7 @@
                         type="diggs:ReinforcementArrayPropertyType">
                         <annotation>
                             <documentation>The steel reinforcement required in this design, by
-                                zone. Named to match diggs:RigidInclusionType/reinforcement, the
+                                zone. Named to match diggs:RIColumnType/reinforcement, the
                                 as-built counterpart. Absent where the design is unreinforced, the
                                 common case - see diggs:ReinforcementType's own
                                 documentation.</documentation>
@@ -1501,7 +1501,7 @@
 
                 What remains on this object is the non-limit content: what technique is permitted
                 and what material specification governs. Its other job is to be a single stable
-                reference target - a diggs:RigidInclusion cites it through
+                reference target - a diggs:RIColumn cites it through
                 programSpecificationRef, a design cites it through programSpecificationRef, and
                 each individual criterion cites it through basedOnRef, which is a within-head
                 chain and therefore legal.</documentation>
@@ -1524,7 +1524,7 @@
                                 continuous flight auger, vibrated concrete columns, driven precast
                                 and so on.
 
-                                Named to match diggs:RigidInclusionType/columnType, the as-built
+                                Named to match diggs:RIColumnType/columnType, the as-built
                                 counterpart, and typed the same way. gml:CodeType with a dictionary
                                 vocabulary rather than an enumeration: technique families proliferate
                                 under proprietary names and the list cannot be
@@ -1686,7 +1686,7 @@
          out of scope - a Contract-level gap noted in the analysis, not RI-specific.
 
          archingModel AND riTechniqueType DELIBERATELY REUSE ELEMENT NAMES ALREADY IN USE ELSEWHERE
-         (diggs:ArchingCoefficients/archingModel, S5; diggs:RigidInclusionType/columnType and
+         (diggs:ArchingCoefficients/archingModel, S5; diggs:RIColumnType/columnType and
          diggs:RIColumnSpecificationType/columnType, S6) SO THE SAME DICTIONARY GOVERNS BOTH. Both
          remain optional here: the design-side, locally-resolvable statements
          (archingCoefficients/archingModel; columnType on the specification or as-built) are what a
@@ -1750,7 +1750,7 @@
                         <annotation>
                             <documentation>The rigid inclusion technique family the program's
                                 designs assume - the same vocabulary and dictionary as
-                                diggs:RigidInclusionType/columnType and
+                                diggs:RIColumnType/columnType and
                                 diggs:RIColumnSpecificationType/columnType (S6), so a technique
                                 family stated at the program level and one stated per column or per
                                 specification agree by construction rather than by convention. State
@@ -1932,7 +1932,7 @@
         <annotation>
             <documentation>The act of constructing one rigid inclusion column: drilling, and, where
                 the method grouts through the auger stem, grouting. Carries the real-time telemetry
-                record; diggs:RIConstructionMethodType on the diggs:RigidInclusion feature carries
+                record; diggs:RIConstructionMethodType on the diggs:RIColumn feature carries
                 the summary derived from it. Where the two disagree, THIS RECORD GOVERNS.
 
                 Scoped to column construction only. Load transfer platform construction is
@@ -1951,7 +1951,7 @@
                 otherConstructionActivityProperty and activityDateTime from
                 diggs:AbstractConstructionActivityType.
 
-                THE INHERITED samplingFeatureRef MUST TARGET A diggs:RigidInclusion FOR THIS TYPE,
+                THE INHERITED samplingFeatureRef MUST TARGET A diggs:RIColumn FOR THIS TYPE,
                 AND XSD CANNOT SAY SO LOCALLY. Its global element already carries a broad appinfo
                 (widened to diggs:AbstractSamplingFeature in C1 item 5) and the particle is declared
                 on the ABSTRACT base type, not here - extension can only ADD particles after an
@@ -1998,7 +1998,7 @@
                             <documentation>As-built embedment of the column toe into the competent
                                 (bearing) stratum (Installation Parameter Analysis row 41, S21).
                                 In principle derivable by crossing the installationRecord coverage's
-                                depth column, or diggs:RigidInclusion/centerLine, against a ground
+                                depth column, or diggs:RIColumn/centerLine, against a ground
                                 model - but only where a ground model is present in the same file,
                                 which an ITP recording this value at the rig cannot assume. Pairs
                                 with the design-side minimum required embedment, a B5 acceptance
@@ -2012,7 +2012,7 @@
                                 drilled-displacement, or pre-drill/spoil-removed (Installation
                                 Parameter Analysis row 7, S22, decision D5).
 
-                                DISTINCT FROM diggs:RigidInclusionType/columnType, and deliberately
+                                DISTINCT FROM diggs:RIColumnType/columnType, and deliberately
                                 its own element rather than a reuse. columnType names the RIG/
                                 TECHNIQUE FAMILY (bored, driven, vibro-driven, soil mixing, jet
                                 grouting, ...) - see columnType.xml's eleven entries. installationMethod
