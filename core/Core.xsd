@@ -6589,21 +6589,98 @@
         substitutionGroup="diggs:AbstractTargetObject">
         <annotation>
             <documentation>A planned counterpart of a realized diggs:Sample - covers the whole
-                diggs:AbstractSample head (currently one concrete member,
-                Sample).</documentation>
+                diggs:AbstractSample head (currently one concrete member, Sample).
+
+                MIRRORS diggs:AbstractSamplingActivityType, NOT diggs:AbstractSampleType (Dan,
+                2026-08-18, correcting an earlier draft of this type). A sample cannot be designed
+                beyond designing the activity that creates it:
+                diggs:AbstractSampleType/samplingActivityRef carries no minOccurs/maxOccurs and so
+                defaults to [1..1] - every realized Sample has exactly one SamplingActivity, and a
+                sample's content (recovery, condition, matrix as observed) is downstream of that
+                activity by construction. What is genuinely plannable is the activity's procedure
+                and intent, the same distinction every other Target in this family draws between
+                what precedes a result and the result itself. The element keeps the name
+                TargetSample, not TargetSamplingActivity, because the planning purpose stated by
+                its host design is still "produce a sample" - only the field content mirrors the
+                activity that produces it.</documentation>
         </annotation>
     </element>
     <complexType name="TargetSampleType">
         <annotation>
-            <documentation>Base type for planned samples. Deliberately thin: what varies between
-                planned samples belongs in otherProperty (inherited) rather than as named elements,
-                since a sample's plannable content is almost entirely what its collection activity
-                and material determine, neither of which the target references (no
-                plan-to-realized links).</documentation>
+            <documentation>Base type for planned samples. Mirrors
+                diggs:AbstractSamplingActivityType's plannable content (procedure and intent) field
+                for field, deliberately excluding everything on that type which is a
+                recovered-material result (lengthLongestPortion, rockQualityDesignationLength,
+                samplingActivityRQD, solidCoreRecoveryLength, totalSampleRecoveryLength,
+                totalSampleRecovery, sampleProduced, samplingEnvironment) or program-module
+                provenance (carried instead through the inherited
+                scope/basedOnRef/programSpecificationRef/basisRef, by way of
+                diggs:AbstractProgramDesignType and diggs:AbstractTargetObjectType). One deliberate
+                exception to the mirroring rule: sampleMatrix, below.</documentation>
         </annotation>
         <complexContent>
             <extension base="diggs:AbstractTargetObjectType">
                 <sequence>
+                    <element name="activityType" type="diggs:PlannedActivityTypeEnumType">
+                        <annotation>
+                            <documentation>What kind of sampling activity is planned - collect,
+                                aggregate, subsample, or test. Mandatory: the identity field every
+                                other Target in this family has exactly one of (targetSFType,
+                                relationType, actionType, ...), and a planned sample reported
+                                without it is not interpretable - a subsample plan and a collection
+                                plan need different supporting fields, most obviously
+                                sourceTargetSampleRef. Placed first, ahead of the fields that mirror
+                                diggs:AbstractSamplingActivityType's own field order, for the same
+                                identity-field-first reason. Restricted from
+                                diggs:ActivityTypeEnumType (diggs:PlannedActivityTypeEnumType,
+                                declared below): the realized enumeration's "none" ("the activity
+                                failed to produce any physical sample") and "unknown" ("legacy data
+                                where only sample name exists") describe outcomes, not
+                                plans.</documentation>
+                        </annotation>
+                    </element>
+                    <element minOccurs="0" name="targetConstructionActivityRef"
+                        type="diggs:FeatureReferenceType">
+                        <annotation>
+                            <appinfo source="urn:x-gml:targetElement">diggs:TargetConstructionActivity</appinfo>
+                            <documentation>A reference to the planned construction activity this
+                                sample is to be taken during or from - the planned counterpart of
+                                diggs:constructionActivityRef (AbstractSamplingActivityType). For
+                                example, cylinder or cube sampling planned against a specific column
+                                or batch installation. Plan-to-plan: cites a
+                                TargetConstructionActivity, an antecedent within the plan graph,
+                                never a realized construction activity.</documentation>
+                        </annotation>
+                    </element>
+                    <element minOccurs="0" maxOccurs="unbounded" name="targetSFRef"
+                        type="diggs:FeatureReferenceType">
+                        <annotation>
+                            <appinfo source="urn:x-gml:targetElement">diggs:TargetSamplingFeature</appinfo>
+                            <documentation>A reference to the planned sampling feature this sample
+                                is to be collected from - the planned counterpart of the mandatory
+                                diggs:samplingFeatureRef/diggs:samplingLocation choice
+                                (AbstractSamplingActivityType), and typed the same way as
+                                diggs:TargetMeasurement/targetSFRef and
+                                diggs:TargetConstructionActivity/targetSFRef. Widened to [0..*],
+                                matching those two: a population-scope sampling plan (scope,
+                                inherited) governs many features without naming one. Plan-to-plan:
+                                cites a TargetSamplingFeature (or one of its specializations,
+                                diggs:TargetBorehole / diggs:TargetInstallation), an antecedent
+                                within the plan graph, never a realized sampling
+                                feature.</documentation>
+                        </annotation>
+                    </element>
+                    <element minOccurs="0" name="samplingLocation" type="diggs:LocationPropertyType">
+                        <annotation>
+                            <documentation>The planned location of the sample - most often a
+                                diggs:LinearExtent marking the planned depth interval within
+                                targetSFRef's linear referencing system. Matches
+                                diggs:AbstractSamplingActivityType/samplingLocation in name and type
+                                (diggs:LocationPropertyType). The single most important fact about a
+                                planned sample, and the reason this element exists rather than
+                                leaving planned depth to otherProperty.</documentation>
+                        </annotation>
+                    </element>
                     <element minOccurs="0" maxOccurs="unbounded" name="sourceTargetSampleRef"
                         type="diggs:FractionalReferenceType">
                         <annotation>
@@ -6614,14 +6691,125 @@
                                 same way (diggs:FractionalReferenceType) so a planned subsample can
                                 state what percentage of the source it will take. Plan-to-plan: this
                                 cites another TargetSample, an antecedent within the plan graph,
-                                never a realized Sample.</documentation>
+                                never a realized Sample. Meaningful only where activityType is
+                                "aggregate" or "subsample"; XSD cannot enforce that
+                                correlation.</documentation>
+                        </annotation>
+                    </element>
+                    <element minOccurs="0" name="purpose" type="string">
+                        <annotation>
+                            <documentation>Purpose of taking this sample - an uncontrolled string
+                                describing the test or tests intended to be run on the sample(s)
+                                generated from this activity. Matches
+                                diggs:AbstractSamplingActivityType/purpose in name, type and
+                                meaning.</documentation>
+                        </annotation>
+                    </element>
+                    <element minOccurs="0" name="sampleMatrix" type="gml:CodeType">
+                        <annotation>
+                            <documentation>The planned material class of the sample - for example
+                                soil, rock, grout, water. Named and typed to match
+                                diggs:SampleType/sampleMatrix, the as-built counterpart, rather than
+                                diggs:SampleType/type, whose own documentation describes it as "a
+                                shorthand for information provided by other sample or associated
+                                sampling activity properties" - a lossier duplicate of what
+                                activityType, samplingMethod and targetSFRef already state between
+                                them.
+
+                                THE ONE DELIBERATE EXCEPTION TO MIRRORING
+                                diggs:AbstractSamplingActivityType RATHER THAN
+                                diggs:AbstractSampleType (Dan, 2026-08-18). Everything else on this
+                                type is procedure or intent, but a designer planning a sample from a
+                                not-yet-drilled location often cannot state with certainty whether
+                                the recovered material will be soil or rock - the targeted sampling
+                                feature's own stratigraphy may not be known at the planned depth.
+                                State the expected or required matrix where it is known; the
+                                dictionary this element binds to carries coarse classes (soil, rock)
+                                alongside finer material terms for exactly this reason, so a plan
+                                can be as specific or as provisional as the design stage
+                                allows.</documentation>
+                        </annotation>
+                    </element>
+                    <element minOccurs="0" name="samplerInsertionMethod" type="gml:CodeType">
+                        <annotation>
+                            <documentation>For planned sampling of soil or rock, the means by which
+                                the sampler is planned to be inserted into the ground - for example
+                                pushed, driven. Matches
+                                diggs:AbstractSamplingActivityType/samplerInsertionMethod in name,
+                                type and dictionary.</documentation>
+                        </annotation>
+                    </element>
+                    <element minOccurs="0" maxOccurs="unbounded" name="samplingEquipment"
+                        type="diggs:EquipmentPropertyType">
+                        <annotation>
+                            <documentation>The equipment planned for sampling, held inline or by
+                                reference. Matches
+                                diggs:AbstractSamplingActivityType/samplingEquipment in name and
+                                type; diggs:EquipmentPropertyType is already [0..1]
+                                association-capable, so this element needs no rework if a future
+                                planned-equipment object is built.</documentation>
+                        </annotation>
+                    </element>
+                    <element minOccurs="0" maxOccurs="unbounded" name="samplingMethod"
+                        type="diggs:SamplingMethodPropertyType">
+                        <annotation>
+                            <documentation>The method(s) this sample is planned to be collected by,
+                                held inline or by reference. Matches
+                                diggs:AbstractSamplingActivityType/samplingMethod in name and
+                                type.</documentation>
+                        </annotation>
+                    </element>
+                    <element minOccurs="0" name="mixingTime" type="diggs:TimeMeasureType">
+                        <annotation>
+                            <documentation>For planned aggregate activities that involve blending
+                                samples (such as soil-cement mixtures), the planned time duration to
+                                mix the sample together. Matches
+                                diggs:AbstractSamplingActivityType/mixingTime in name and
+                                type.</documentation>
                         </annotation>
                     </element>
                 </sequence>
             </extension>
         </complexContent>
     </complexType>
-    
+    <simpleType name="PlannedActivityTypeEnumType">
+        <annotation>
+            <documentation>Restriction of diggs:ActivityTypeEnumType to the four values that
+                describe a plan rather than an outcome - excludes "none" ("the activity failed to
+                produce any physical sample") and "unknown" ("legacy data where only sample name
+                exists"), neither of which can be planned for. Used for
+                diggs:TargetSampleType/activityType.</documentation>
+        </annotation>
+        <restriction base="string">
+            <enumeration value="collect">
+                <annotation>
+                    <documentation>collect - activity will create a sample or samples by collection
+                        from a sampling feature.</documentation>
+                </annotation>
+            </enumeration>
+            <enumeration value="aggregate">
+                <annotation>
+                    <documentation>aggregate - activity will create a sample or samples by
+                        aggregating existing samples; the associated TargetSample(s) should have
+                        more than one sourceTargetSampleRef.</documentation>
+                </annotation>
+            </enumeration>
+            <enumeration value="subsample">
+                <annotation>
+                    <documentation>subsample - activity will create a sample or samples by
+                        subsampling an existing sample; only one sourceTargetSampleRef should be
+                        specified for the related TargetSample(s).</documentation>
+                </annotation>
+            </enumeration>
+            <enumeration value="test">
+                <annotation>
+                    <documentation>test - activity will produce a test, standard or blank sample
+                        that does not relate to any field sample or sampling feature.</documentation>
+                </annotation>
+            </enumeration>
+        </restriction>
+    </simpleType>
+
     <complexType name="MeasurementMethodPropertyType">
         <annotation>
             <documentation>Property type for containing or referencing the diggs:Specification a
