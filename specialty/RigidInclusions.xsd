@@ -899,6 +899,52 @@
                                 See differentialSettlement.</documentation>
                         </annotation>
                     </element>
+                    <element minOccurs="0" maxOccurs="unbounded" name="methodApplicabilityRatio"
+                        type="diggs:AuthorizedParameterPropertyType">
+                        <annotation>
+                            <documentation>A dimensionless geometry or stiffness ratio that gates
+                                whether an arching method's unit-cell idealisation is valid for this
+                                zone's layout - h/(s-d), d/s, sx/sy and the EBGEO stiffness ratio
+                                ks,T/ks today (Design Parameter Analysis row 13's "method-applicability
+                                gate and geometry envelope"), open to whatever a future method's own
+                                applicability check needs, dictionary-bound rather than a fixed set of
+                                named elements for exactly that reason. Each repetition is a
+                                diggs:AuthorizedParameter or diggs:ProvenancedParameter bound to a
+                                definition in ri_design_properties.xml - diggs:AuthorizedParameterPropertyType,
+                                not diggs:ParameterPropertyType, so the schema itself enforces a
+                                dictionary-bound, mandatory-codeSpace name rather than merely
+                                documenting the expectation.
+
+                                PLACED HERE, NOT ON diggs:RIColumnDesignType OR
+                                diggs:RILTPDesignType, FOR THE SAME REASON diggs:RISystemDesignType/
+                                verification IS: THIS IS A WHOLE-SYSTEM JUDGMENT, NOT A PROPERTY OF
+                                ONE COMPONENT DESIGN. "Does this method's assumption hold for this
+                                zone's layout" is the same kind of check as "is this zone globally
+                                stable" - evaluated at the zone/system level even though its
+                                ingredients (spacing, diameter on RIColumnDesignType;
+                                embankmentHeight on RILTPDesignType) come from component designs.
+                                h/(s-d) specifically needs both: it has no single home on either
+                                component design, which is what forced the question this element
+                                answers.
+
+                                A SPECIFICALLY NAMED CONTAINER, NOT diggs:otherProperty, DELIBERATELY.
+                                A property varying too freely to justify a fixed schema element still
+                                benefits from a self-documenting slot rather than the generic escape
+                                hatch: the dictionary's Occurrence sourceElementXpath/
+                                conditionalElementXpath can then scope an entry to exactly this
+                                element (ancestor::diggs:methodApplicabilityRatio) rather than to any
+                                otherProperty on any design type, which both documents intent to a
+                                schema browser and makes a source-system mapping unambiguous about
+                                where a computed ratio belongs.
+
+                                THE STIFFNESS GATE'S THRESHOLD IS NOT HERE. ks,T/ks itself (the
+                                ratio) belongs in this element; the pass/fail requirement it must
+                                clear is a method-applicability verdict, not a value, and belongs on a
+                                diggs:DesignConformanceCriterion naming this property once that
+                                machinery is extended to cover it - unbuilt, not addressed
+                                here.</documentation>
+                        </annotation>
+                    </element>
                 </sequence>
             </extension>
         </complexContent>
@@ -1014,6 +1060,25 @@
                             <documentation>Centre-to-centre spacing of the columns along the second
                                 grid axis, for a rectangular pattern where it differs from spacingX.
                                 Omit for square and triangular patterns. See spacingX.</documentation>
+                        </annotation>
+                    </element>
+                    <element minOccurs="0" name="equivalentDiameter" type="diggs:LengthMeasureType">
+                        <annotation>
+                            <documentation>d_Ers (EBGEO) / D_e (FHWA): the diameter of the circular
+                                unit cell of equal area to the tributary area one inclusion supports,
+                                derived from spacingX/spacingY and gridPattern. Reported explicitly
+                                because the unit-cell radius, not the raw centre-to-centre spacing, is
+                                what enters most arching and settlement formulations.
+
+                                A TYPED CONVENIENCE ELEMENT, NOT A DICTIONARY PARAMETER, matching
+                                totalArea/cutoffElevation elsewhere in this schema: it is
+                                method-agnostic (used across arching AND settlement formulations
+                                generically, not owned by one method) and computed entirely from
+                                fields already on this type, so it earns the same typed-convenience
+                                treatment rather than the dictionary escape hatch. Where this value
+                                and a recomputation from spacingX/spacingY/gridPattern disagree, the
+                                recomputation governs, per the general precedence rule (geometry/
+                                detailed inputs over a stated convenience summary).</documentation>
                         </annotation>
                     </element>
                     <element minOccurs="0" name="pileGroupLateralExtent"
@@ -1217,23 +1282,34 @@
                         <annotation>
                             <documentation>The dictionary escape hatch, matching the pattern of the
                                 same name on diggs:AbstractTargetObjectType: a design-level quantity
-                                that has no named element on this type, carried as a
-                                diggs:AuthorizedParameter bound to a definition in
-                                ri_design_properties.xml.
+                                that has no named element on this type and no more specific
+                                dictionary-bound container, carried as a diggs:AuthorizedParameter
+                                bound to a definition in ri_design_properties.xml.
 
-                                CARRIES ROWS 18, 31 AND THE GEOMETRY-ENVELOPE PART OF ROW 13 OF THE
-                                DESIGN ANALYSIS: the equivalent/tributary diameter, the column axial
-                                utilization ratio, and the dimensionless geometry ratios
-                                (h/(s-d), d/s, sx/sy) that gate whether an arching method's unit-cell
-                                idealisation applies to this layout. None of these needed a typed
-                                element of its own - each is either a derived diagnostic ratio or a
-                                quantity that varies by which arching method produced it - but unlike
-                                the coefficients in diggs:ArchingCoefficients, none of them is tied to
-                                one specific arching model, which is why they sit here rather than
-                                there. The stiffness gate itself (ks,T/ks and its pass/fail threshold)
-                                is NOT here: it is a method-applicability check with an outcome, and
-                                belongs on a diggs:DesignConformanceCriterion once that machinery
-                                exists for it, not as a bare value.</documentation>
+                                FORMERLY CARRIED ROWS 18, 31 AND THE GEOMETRY-ENVELOPE PART OF ROW 13
+                                OF THE DESIGN ANALYSIS; RELOCATED ON REVIEW. The equivalent/tributary
+                                diameter is now the typed equivalentDiameter element above (it is
+                                method-agnostic and computed entirely from fields already on this
+                                type, so it earns the same typed-convenience treatment as totalArea/
+                                cutoffElevation elsewhere in this schema, rather than the dictionary
+                                escape hatch). The column axial utilization ratio was retired outright
+                                - diggs:DesignVerificationType/utilisationRatio (S15), reachable
+                                through this type's own verification array with
+                                verificationType=structural_axial, already states exactly this
+                                quantity (demand divided by capacity), and the dictionary entry was a
+                                second, unreconciled way to say the same thing. The dimensionless
+                                geometry and stiffness ratios that gate arching-method applicability
+                                (h/(s-d), d/s, sx/sy, ks,T/ks) moved to
+                                diggs:RISystemDesignType/methodApplicabilityRatio: unlike the
+                                equivalent diameter, none of them is a per-column property at all -
+                                each is a judgment about whether a chosen method's assumptions hold
+                                for a given zone's whole layout, the same kind of whole-system
+                                judgment diggs:RISystemDesignType/verification already houses for
+                                global stability, lateral spreading and seismic/liquefaction, even
+                                though computed from fields that live on this type and
+                                diggs:RILTPDesignType both. See that element's own documentation for
+                                the fuller reasoning, including why a specifically-named container
+                                rather than bare otherProperty.</documentation>
                         </annotation>
                     </element>
                 </sequence>
@@ -1292,15 +1368,19 @@
                                 archingModel.xml.</documentation>
                         </annotation>
                     </element>
-                    <element minOccurs="0" name="coefficient" type="diggs:ParameterArrayPropertyType">
+                    <element minOccurs="0" name="coefficient" type="diggs:AuthorizedParameterArrayPropertyType">
                         <annotation>
                             <documentation>One or more named coefficients belonging to the model
-                                stated above, each a diggs:AuthorizedParameter whose parameterName
-                                codeSpace resolves into ri_design_properties.xml. Use
-                                AuthorizedParameter in preference to plain diggs:Parameter throughout,
-                                per B2 - the whole point of this object is that a consumer can type
-                                and validate each coefficient against its dictionary definition rather
-                                than infer it from a bare name-value pair.</documentation>
+                                stated above, each an AuthorizedParameter or ProvenancedParameter
+                                whose parameterName codeSpace resolves into ri_design_properties.xml.
+                                diggs:AuthorizedParameterArrayPropertyType, not
+                                diggs:ParameterArrayPropertyType - schema-enforced, not merely
+                                documented (an earlier draft relied on this element's own
+                                documentation alone, per B2): the whole point of this object is that a
+                                consumer can type and validate each coefficient against its dictionary
+                                definition rather than infer it from a bare name-value pair, which a
+                                plain diggs:Parameter's uncontrolled name would allow to go
+                                unchecked.</documentation>
                         </annotation>
                     </element>
                 </sequence>
@@ -1496,22 +1576,46 @@
                                 counterpart.</documentation>
                         </annotation>
                     </element>
+                    <element minOccurs="0" name="activeEarthPressureCoefficient"
+                        type="diggs:PressurePerPressureMeasureType">
+                        <annotation>
+                            <documentation>Ka = tan^2(45deg - phi'/2): the active earth pressure
+                                coefficient of the embankment fill (BS 8006-1:2010+A1:2016),
+                                governing lateral thrust and lateral spreading checks (Design
+                                Parameter Analysis row 82).
+
+                                A TYPED ELEMENT, NOT DICTIONARY-BOUND, ON FURTHER REVIEW - briefly a
+                                diggs:ParameterPropertyType slot named specifically for this quantity
+                                (relocated off diggs:otherProperty on the same review pass that
+                                produced diggs:RISystemDesignType/methodApplicabilityRatio), then
+                                reconsidered: a single, always-the-same-formula quantity does not
+                                need the dictionary machinery at all, the same reasoning that already
+                                promoted equivalentDiameter above. The dictionary route earns its
+                                keep for a genuinely open vocabulary (methodApplicabilityRatio, where
+                                a future arching method may add its own applicability check) or a
+                                fixed, closed set of per-model values (diggs:ArchingCoefficients'
+                                coefficient); Ka is neither - it is one formula, cited once, the same
+                                category as columnDiameter or spacingX.
+
+                                DELIBERATELY NOT IN diggs:ArchingCoefficients alongside the other
+                                Group F/I coefficients, and not in methodApplicabilityRatio either:
+                                Ka is a property of the FILL, used across whichever arching model
+                                governs the vertical load transfer - not an output specific to one
+                                model, and not a method-applicability judgment
+                                either.</documentation>
+                        </annotation>
+                    </element>
                     <element minOccurs="0" maxOccurs="unbounded" name="otherProperty"
                         type="diggs:ParameterPropertyType">
                         <annotation>
                             <documentation>The dictionary escape hatch, matching
                                 diggs:RIColumnDesignType/otherProperty and the same-named pattern on
                                 diggs:AbstractTargetObjectType: a platform-design quantity that has no
-                                named element on this type, carried as a diggs:AuthorizedParameter
-                                bound to a definition in ri_design_properties.xml.
-
-                                CARRIES THE ACTIVE EARTH-PRESSURE COEFFICIENT (ROW 82, Ka), which
-                                governs lateral thrust from the embankment fill above the platform.
-                                Deliberately not in diggs:ArchingCoefficients alongside the other
-                                Group F/I coefficients: Ka is a property of the FILL, used across
-                                whichever arching model governs the vertical load transfer, not an
-                                output specific to one of them - forcing it under one archingModel
-                                would misstate what it depends on.</documentation>
+                                named element on this type and no more specific dictionary-bound
+                                container, carried as a diggs:AuthorizedParameter bound to a
+                                definition in ri_design_properties.xml. Formerly carried the active
+                                earth-pressure coefficient (row 82); see activeEarthPressureCoefficient
+                                above, relocated on review.</documentation>
                         </annotation>
                     </element>
                 </sequence>
