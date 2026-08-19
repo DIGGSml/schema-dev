@@ -1871,11 +1871,11 @@
     </element>
     <complexType abstract="true" name="AbstractTargetObjectType">
         <annotation>
-            <documentation>Base type for the Target pattern. Carries a progress track and a
-                dictionary escape hatch; everything else a target needs comes from
-                diggs:AbstractProgramDesignType (programSpecificationRef, basisRef) and, through it,
-                diggs:AbstractProgramModuleType (scope, basedOnRef) - nothing is redeclared
-                here.</documentation>
+            <documentation>Base type for the Target pattern. Carries a progress track, a planned-
+                equipment slot and a dictionary escape hatch; everything else a target needs comes
+                from diggs:AbstractProgramDesignType (programSpecificationRef, basisRef) and,
+                through it, diggs:AbstractProgramModuleType (scope, basedOnRef) - nothing is
+                redeclared here.</documentation>
         </annotation>
         <complexContent>
             <extension base="diggs:AbstractProgramDesignType">
@@ -1888,6 +1888,41 @@
                                 without any reference from the plan to its realization: a target
                                 with no progress recorded, or whose latest progressState has not
                                 reached completion, is not yet fulfilled.</documentation>
+                        </annotation>
+                    </element>
+                    <element minOccurs="0" maxOccurs="unbounded" name="plannedEquipment"
+                        type="diggs:EquipmentPropertyType">
+                        <annotation>
+                            <documentation>Equipment planned to be used in realizing this target,
+                                held inline or by reference - a piezometer a monitoring plan intends
+                                to install, a sampler a collection plan intends to use, a rig a
+                                construction plan intends to bring. GENERIC ACROSS THE WHOLE TARGET
+                                FAMILY (D2, decided 2026-08-16, built 2026-08-19): placed here rather
+                                than as a per-type named field so it is "referenceable from any other
+                                target," per D2's own framing, rather than requiring a parallel
+                                bespoke field on each Target specialization that happens to need one.
+                                Named for what it is (equipment), not for which Target subtype hosts
+                                it - diggs:TargetMeasurement uses this for a planned instrument the
+                                same way diggs:TargetSample uses it for planned sampling equipment;
+                                neither gets its own differently-named copy.
+
+                                THE PROPERTY DIGGS ALREADY HAD NO HOME FOR. Before this element,
+                                ri_properties.xml#instrument_type stated a planned instrument's kind
+                                as a bare parameter, explicitly because "there is no equipment
+                                reference on diggs:TargetMeasurementType for it to become instead."
+                                That entry is now retired: state the instrument as an inline or
+                                referenced diggs:Sensor/diggs:Equipment here, with its kind carried
+                                on the equipment's own diggs:class (equipmentClass.xml already binds
+                                to //diggs:Sensor/diggs:class and //diggs:Equipment/diggs:class
+                                unconditionally, so no dictionary change was needed to make this
+                                element's content dictionary-checkable).
+
+                                SUPERSEDES diggs:TargetSampleType's own former samplingEquipment
+                                field (built one day earlier, same session arc, as part of the
+                                TargetSample rework) - that field was the first instance of exactly
+                                this need, built before D2's generic answer existed. Retired in favour
+                                of this element; diggs:TargetSample now carries planned sampling
+                                equipment here like every other Target.</documentation>
                         </annotation>
                     </element>
                     <element minOccurs="0" maxOccurs="unbounded" name="otherProperty"

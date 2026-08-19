@@ -438,13 +438,33 @@
         <complexContent>
             <extension base="diggs:AbstractLinearSamplingFeatureType">
                 <sequence>
+                    <element name="elementClass" type="gml:CodeWithAuthorityType">
+                        <annotation>
+                            <documentation>The role this column plays in the works, as distinct from
+                                what it is made of or how it is built - trial, test, production, or
+                                sacrificial (elementClass.xml). Mandatory, and codeSpace is mandatory
+                                on it (inherited from gml:CodeWithAuthorityType): the distinction
+                                governs which acceptance criteria apply and how a test result may be
+                                extrapolated, so it must be stated rather than left to be inferred.
+
+                                THE AUTHORITATIVE SIGNAL, SUPERSEDING samplingFeatureRef's ABSENCE
+                                (below). Before this element, a trial column was identified only by
+                                omitting samplingFeatureRef - a real but indirect signal, easy to
+                                mistake for an oversight rather than a deliberate statement. Every
+                                RIColumn now states its role explicitly here; samplingFeatureRef's
+                                own documentation records the mandatory but now-secondary
+                                relationship.</documentation>
+                        </annotation>
+                    </element>
                     <element ref="diggs:samplingFeatureRef" minOccurs="0">
                         <annotation>
                             <appinfo source="urn:x-gml:targetElement">diggs:RigidInclusionSystem</appinfo>
                             <documentation>The rigid inclusion foundation system this column forms part of.
-                                Omit for a trial or test column constructed independently of any foundation
-                                system. Absence is meaningful: it is the declared way to identify a trial
-                                column, and must not be inferred from document position.</documentation>
+                                Irrelevant, not merely omitted, where elementClass=trial: a trial
+                                element is constructed independently of any foundation system by
+                                definition, so there is no parent for this reference to cite. For
+                                every other elementClass value this reference behaves as an ordinary
+                                optional association.</documentation>
                         </annotation>
                     </element>
                     <element minOccurs="0" name="columnType" type="gml:CodeType"/>
@@ -544,6 +564,45 @@
                                 the same naming convention as columnDiameter and columnLength.
                                 Absent where the column is unreinforced, the common
                                 case.</documentation>
+                        </annotation>
+                    </element>
+                </sequence>
+            </extension>
+        </complexContent>
+    </complexType>
+    <element name="TargetRIColumn" type="diggs:TargetRIColumnType"
+        substitutionGroup="diggs:AbstractTargetObject">
+        <annotation>
+            <documentation>A specialization of diggs:TargetSamplingFeature for a planned rigid
+                inclusion column, carrying the one property an RI column plan needs beyond the
+                base: its role in the works (EC1, 2026-08-19). Where a planned column needs
+                nothing beyond diggs:TargetSamplingFeatureType's own fields, plain
+                diggs:TargetSamplingFeature is still used directly, per that type's own
+                documentation - diggs:RIColumn is one of the realized heads it already names.
+                TargetRIColumn exists for the case a plan must also commit to the column's role
+                (trial, test, production, sacrificial) ahead of construction, the same reason
+                diggs:TargetBorehole and diggs:TargetInstallation (core/Core.xsd) exist for their
+                own feature kinds. Substitutes diggs:AbstractTargetObject directly rather than
+                diggs:TargetSamplingFeature - concrete DIGGS elements are never substitution-group
+                heads - but its type extends diggs:TargetSamplingFeatureType, the same pattern
+                diggs:TargetBoreholeType uses.</documentation>
+        </annotation>
+    </element>
+    <complexType name="TargetRIColumnType">
+        <complexContent>
+            <extension base="diggs:TargetSamplingFeatureType">
+                <sequence>
+                    <element name="elementClass" type="gml:CodeWithAuthorityType">
+                        <annotation>
+                            <documentation>Matches diggs:RIColumnType/elementClass in name, type,
+                                dictionary (elementClass.xml) and mandatory cardinality - the
+                                planned counterpart of the realized column's own role statement,
+                                committed to at design time rather than left to be inferred once
+                                the column exists. A planned trial column states elementClass=trial
+                                here for the same reason its eventual as-built diggs:RIColumn does;
+                                nothing about the trial/test/production/sacrificial distinction is
+                                specific to either side of the plan/realized
+                                boundary.</documentation>
                         </annotation>
                     </element>
                 </sequence>
