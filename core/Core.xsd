@@ -6404,7 +6404,7 @@
                 dictionary-bound so that the quantity is unambiguous.</documentation>
         </annotation>
     </element>
-    
+
     <complexType name="PerformanceCriterionType">
         <complexContent>
             <extension base="diggs:AbstractAcceptanceCriterionType">
@@ -6425,7 +6425,7 @@
             </extension>
         </complexContent>
     </complexType>
-    
+
     <element name="DesignConformanceCriterion" type="diggs:DesignConformanceCriterionType"
         substitutionGroup="diggs:AbstractAcceptanceCriterion">
         <annotation>
@@ -6532,7 +6532,7 @@
             </extension>
         </complexContent>
     </complexType>
-    
+
     <element name="TargetBorehole" type="diggs:TargetBoreholeType"
         substitutionGroup="diggs:AbstractTargetObject">
         <annotation>
@@ -6565,7 +6565,7 @@
             </extension>
         </complexContent>
     </complexType>
-    
+
     <element name="TargetInstallation" type="diggs:TargetInstallationType"
         substitutionGroup="diggs:AbstractTargetObject">
         <annotation>
@@ -6584,7 +6584,7 @@
             <extension base="diggs:TargetSamplingFeatureType"/>
         </complexContent>
     </complexType>
-    
+
     <element name="TargetSample" type="diggs:TargetSampleType"
         substitutionGroup="diggs:AbstractTargetObject">
         <annotation>
@@ -6827,7 +6827,7 @@
         <attributeGroup ref="gml:AssociationAttributeGroup"/>
         <attributeGroup ref="gml:OwnershipAttributeGroup"/>
     </complexType>
-    
+
     <element name="TargetMeasurement" type="diggs:TargetMeasurementType"
         substitutionGroup="diggs:AbstractTargetObject">
         <annotation>
@@ -6898,7 +6898,8 @@
                                 reason.</documentation>
                         </annotation>
                     </element>
-                    <element minOccurs="0" name="readingFrequency" type="diggs:ReciprocalTimeMeasureType">
+                    <element minOccurs="0" name="readingFrequency"
+                        type="diggs:ReciprocalTimeMeasureType">
                         <annotation>
                             <documentation>How often this measurement is planned to be taken.
                                 
@@ -6936,38 +6937,124 @@
                                 elapsed span, not a position in time.</documentation>
                         </annotation>
                     </element>
-                    <element minOccurs="0" name="testingDensity" type="diggs:AuthorizedParameterPropertyType">
+                    <choice minOccurs="0">
                         <annotation>
-                            <documentation>How densely this measurement is planned to be taken across
-                                a population or an area, where the provision is stated as a spatial
-                                or count-based density rather than a rate in time - one test per
-                                footing, one per linear foot of wall, one per unit area of slab
-                                (Post-installation Parameter Analysis V2 row 22: LTP special-
-                                inspection frequency/regime).
+                            <documentation>TESTING DENSITY (TF2, 2026-08-19, retyped from a single
+                                diggs:AuthorizedParameterPropertyType element): how densely this
+                                measurement is planned to be taken across a population or an area,
+                                where the provision is stated as a spatial or count-based density
+                                rather than a rate in time - one test per footing, one per linear foot
+                                of wall, one per unit area of slab (Post-installation Parameter
+                                Analysis V2 row 22: LTP special-inspection frequency/regime).
 
-                                DISTINCT FROM readingFrequency, WHICH IS TIME-BASED ONLY.
-                                diggs:ReciprocalTimeMeasureType cannot state "per linear foot" or
-                                "per unit area" - there is no reciprocal-length or reciprocal-area
-                                measure type in DIGGS today. diggs:AuthorizedParameterPropertyType
-                                rather than a fixed measure type for the same reason
-                                diggs:DesignVerificationType/demand is one: the quantity class this
-                                states varies by what is being inspected (a count per length, a count
-                                per area, or a bare count per discrete element), so a dictionary-bound
-                                parameter carries it where no single named element could -
-                                schema-enforced to AuthorizedParameter/ProvenancedParameter rather than
-                                the open diggs:ParameterPropertyType choice, since this is a named,
-                                specific home DIGGS has defined a dictionary entry for, not a
-                                not-yet-considered escape hatch. See ri_properties.xml#testing_density
-                                and,
-                                for the related but distinct population-fraction concept,
-                                ri_properties.xml#tested_fraction - that answers "how many of them",
-                                this answers "how closely spaced".
+                                A CHOICE OF THREE, NOT ONE ELEMENT WITH A VARYING QUANTITY CLASS.
+                                Earlier documentation on this particle argued for a dictionary-bound
+                                parameter because "there is no reciprocal-length or reciprocal-area
+                                measure type in DIGGS today" - that premise was wrong: both
+                                diggs:ReciprocalLengthMeasureType and diggs:ReciprocalAreaMeasureType
+                                already exist (core/MeasureTypes.xsd). Once that is corrected, the
+                                three shapes a testing density can take are a CLOSED, PHYSICALLY FIXED
+                                SET - per linear length, per area, or per discrete element/count -
+                                unlike diggs:DesignVerificationType/demand and /capacity, whose
+                                quantity class genuinely is open-ended across verification types, or
+                                testedFraction below, which is always dimensionless. A dictionary
+                                carries no advantage for a fixed three-member set, so the dictionary-
+                                bound-parameter mechanism (still the right tool for demand/capacity,
+                                per docs/build/X2-analysis/NOTES.md in the RI project's working
+                                notes) is not needed here. Superseded
+                                ri_properties.xml#testing_density, retired with this change.
+
+                                DISTINCT FROM readingFrequency, WHICH IS TIME-BASED ONLY -
+                                diggs:ReciprocalTimeMeasureType cannot state "per linear foot" or "per
+                                unit area". DISTINCT FROM testedFraction below (what share of a
+                                population is tested, always dimensionless) - this states how closely
+                                spaced testing is in space or by count, testedFraction states what
+                                fraction of the population it covers.
+
+                                EXACTLY ONE BRANCH, NEVER MORE THAN ONE: a choice, not three
+                                independent optional elements, since a single planned measurement has
+                                one testing-density shape, not several stated simultaneously.
 
                                 Continuous, 100%-coverage inspection (this row's other half -
                                 "continuous visual inspection") is not a density at all and is not
-                                what this element states; record it through measurementKind/remark
+                                what this choice states; record it through measurementKind/remark
                                 instead, the same way a Test with no readingFrequency is understood to
                                 be a single planned event.</documentation>
+                        </annotation>
+                        <element name="testingDensityPerLength"
+                            type="diggs:ReciprocalLengthMeasureType">
+                            <annotation>
+                                <documentation>Testing density expressed per unit length - one test
+                                    per linear foot of wall, one inspection per 10 m of trench.
+                                    Typical uom values: 1/m, 1/ft.</documentation>
+                            </annotation>
+                        </element>
+                        <element name="testingDensityPerArea" type="diggs:ReciprocalAreaMeasureType">
+                            <annotation>
+                                <documentation>Testing density expressed per unit area - one
+                                    compaction test per unit area of slab or platform. Typical uom
+                                    values: 1/m2, 1/ft2.</documentation>
+                            </annotation>
+                        </element>
+                        <element name="testingDensityPerElement"
+                            type="diggs:DimensionlessMeasureType">
+                            <annotation>
+                                <documentation>Testing density expressed per discrete element - one
+                                    test per footing, one test per every N columns. A bare count or
+                                    ratio rather than a spatial rate; typical uom values: Euc (a plain
+                                    count/ratio) or %.</documentation>
+                            </annotation>
+                        </element>
+                    </choice>
+                    <element minOccurs="0" name="testedFraction"
+                        type="diggs:DimensionlessMeasureType">
+                        <annotation>
+                            <documentation>The proportion of a planned population of elements that is
+                                to be tested, where a testing provision is scoped to a population
+                                rather than to named elements - "5 percent of production rigid
+                                inclusions". Typically stated uom="%" (diggs:DimensionlessUomEnumType
+                                permits percent, fraction or Euclid; see
+                                diggs:DesignVerificationType/utilisationRatio and /factorOfSafety for
+                                the precedent of using this measure type for a plain dimensionless
+                                ratio rather than a dictionary-bound parameter).
+
+                                A FRACTION OF A POPULATION, NOT A RATE IN TIME: it answers "how many
+                                of them" and not "how often", and is deliberately distinct from the
+                                temporal reading frequency carried by readingFrequency above, and from
+                                the spatial/count-based density carried by the testingDensityPerLength/
+                                PerArea/PerElement choice above - three related but independent
+                                provisions, retained as separate elements rather than folded into one
+                                another (TF1, 2026-08-19, retiring the former
+                                ri_properties.xml#tested_fraction, which stated this as an
+                                undictionaried parameter before this element existed).
+
+                                diggs:ProgramScopeType (inherited via the Target spine) states WHICH
+                                features a provision governs, by geometry, layout or feature type, and
+                                has no fraction concept by design; this element states what share of
+                                that scoped population is sampled. The two are complementary and both
+                                are normally needed.</documentation>
+                        </annotation>
+                    </element>
+                    <element minOccurs="0" name="testLoadPercentDesignLoad"
+                        type="diggs:DimensionlessMeasureType">
+                        <annotation>
+                            <documentation>The maximum load a planned load test is to reach, expressed
+                                as a percentage of the design working load of the element being
+                                tested. Typically stated uom="%".
+
+                                Stated as a ratio rather than as a force because the test requirement
+                                is written that way in practice and because the absolute value differs
+                                per element while the ratio does not, which is what lets one
+                                population-scoped test provision govern a whole zone. Where the
+                                provision is adopted from a standard or a published recommendation
+                                rather than derived for the project, state that in a remark - this
+                                element itself carries only the value, not its derivation (TF1,
+                                2026-08-19, retiring the former
+                                ri_properties.xml#test_load_pct_design_load, whose own documentation
+                                suggested a diggs:ProvenancedParameter for exactly this
+                                provenance-tracking case; a fixed measure type has no equivalent
+                                mechanism, so cite the source in remark
+                                instead).</documentation>
                         </annotation>
                     </element>
                 </sequence>
@@ -6995,7 +7082,7 @@
         <attributeGroup ref="gml:AssociationAttributeGroup"/>
         <attributeGroup ref="gml:OwnershipAttributeGroup"/>
     </complexType>
-    
+
     <element name="TargetConstructionActivity" type="diggs:TargetConstructionActivityType"
         substitutionGroup="diggs:AbstractTargetObject">
         <annotation>
@@ -7051,7 +7138,7 @@
             </extension>
         </complexContent>
     </complexType>
-    
+
     <!-- ================================================================================== -->
     <!-- EQUIPMENT ELEMENTS                                                                 -->
     <!-- ================================================================================== -->
