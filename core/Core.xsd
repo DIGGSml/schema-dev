@@ -6196,20 +6196,99 @@
     <element name="SamplingFeatureGroup" substitutionGroup="diggs:AbstractGroup"
         type="diggs:SamplingFeatureGroupType">
         <annotation>
+            <appinfo>DEPRECATED 8/26. Use a concrete group substituting
+                diggs:AbstractSamplingFeatureGroup, whose members cite the group through
+                diggs:samplingFeatureGroupRef, instead of enumerating members here.</appinfo>
             <documentation>A top-level Diggs feature that references associated sampling features
-                within a group</documentation>
+                within a group. DEPRECATED 8/26.
+
+                REFERENCES THE WRONG WAY. This element holds an array of references pointing DOWN at
+                its members, which inverts the DIGGS antecedent rule that a child cites its parent,
+                and which means the group element must be rewritten every time a member is added -
+                unworkable for append or streaming workflows where members arrive one at a time over
+                the course of construction. The replacement generation reverses the direction: see
+                diggs:AbstractSamplingFeatureGroup, and diggs:BoreholeCPTPair below for the first
+                concrete member of it.
+
+                Retained live rather than removed, so that any existing instance continues to
+                validate. Do not use it in new documents.</documentation>
         </annotation>
     </element>
     <complexType name="SamplingFeatureGroupType">
         <annotation>
+            <appinfo>DEPRECATED 8/26. Use a type deriving from
+                diggs:AbstractSamplingFeatureGroupType.</appinfo>
             <documentation>Extended type based on AbstractGroupType. Adds elements for sampling
-                feature group type definition.</documentation>
+                feature group type definition. DEPRECATED 8/26 - see
+                diggs:SamplingFeatureGroup.</documentation>
         </annotation>
         <complexContent>
             <extension base="diggs:AbstractGroupType">
                 <choice>
                     <element maxOccurs="unbounded" ref="diggs:samplingFeatureRef" minOccurs="1"/>
                 </choice>
+            </extension>
+        </complexContent>
+    </complexType>
+    <element name="BoreholeCPTPair" substitutionGroup="diggs:AbstractSamplingFeatureGroup"
+        type="diggs:BoreholeCPTPairType">
+        <annotation>
+            <documentation>A borehole paired with a cone penetration test sounding, sited close
+                enough together that their logs are interpreted as one record of a single ground
+                profile.
+
+                THE CANONICAL GROUP, AND THE TEST OF WHAT A GROUP IS FOR. The two features are
+                physically distinct and independently identified - each keeps its own location,
+                its own construction record and its own results - but neither is interpreted alone:
+                the CPT supplies continuous stratigraphic resolution the borehole cannot, and the
+                borehole supplies the samples and index tests that calibrate the CPT. Treating them
+                as one dataset rests on an assumption, namely that they are near enough that the
+                same soil profile underlies both. THIS FEATURE IS WHERE THAT ASSUMPTION IS RECORDED,
+                which is what makes the pair a group rather than a label: the group's content is the
+                warrant for interpreting its members jointly.
+
+                MEMBERSHIP IS DECLARED BY THE MEMBERS. The borehole and the sounding each carry a
+                diggs:samplingFeatureGroupRef pointing at this feature; this feature holds no
+                references to them. Neither the member types nor the count of two are enforceable in
+                XSD under reverse referencing - both are context-validation concerns - so a document
+                stating a pair with one member, or with three, is schema-valid and must be caught by
+                validation, not here.
+
+                Substitutes diggs:AbstractSamplingFeatureGroup and lives in the Core profile, where
+                the borehole and sounding it groups already live.</documentation>
+        </annotation>
+    </element>
+    <complexType name="BoreholeCPTPairType">
+        <annotation>
+            <documentation>Type for a paired borehole and CPT sounding. Adds the separation on which
+                the pairing rests.</documentation>
+        </annotation>
+        <complexContent>
+            <extension base="diggs:AbstractSamplingFeatureGroupType">
+                <sequence>
+                    <element minOccurs="0" name="separationDistance"
+                        type="diggs:LengthMeasureType">
+                        <annotation>
+                            <documentation>The horizontal distance between the two members - the
+                                quantity the proximity assumption is judged on.
+
+                                Optional, and informational: a consumer can compute it from the two
+                                members' own locations, and where the computed value disagrees with
+                                this one THE MEMBER GEOMETRY PREVAILS, per the established DIGGS
+                                convention for a convenience scalar stated alongside the geometry it
+                                summarizes. It is stated here because the pairing decision was made
+                                against a distance, and recording that distance is how the
+                                assumption becomes reviewable rather than implicit - a reader should
+                                not have to resolve two xlinks and project two coordinates to learn
+                                whether the pairing was defensible.
+
+                                Where the pair is not spatially justified at all - two features
+                                paired because they penetrate the same known stratum rather than
+                                because they are close - omit this and state the reason in remark
+                                (inherited from diggs:AbstractFeatureType).</documentation>
+                        </annotation>
+                    </element>
+                </sequence>
             </extension>
         </complexContent>
     </complexType>

@@ -6,13 +6,18 @@
 
     <element name="GroupGroup" substitutionGroup="diggs:AbstractGroup" type="diggs:GroupGroupType">
         <annotation>
-            <documentation>A Diggs feature containing references to a group of
-                groups.</documentation>
+            <appinfo>DEPRECATED 8/26. Nest groups by having the member group carry
+                diggs:groupGroupRef, declared on diggs:AbstractProjectScopedGroupType.</appinfo>
+            <documentation>A Diggs feature containing references to a group of groups. DEPRECATED
+                8/26 - references its members downward; see diggs:AbstractProjectScopedGroup for why
+                that direction is being retired. Retained live so existing instances continue to
+                validate; do not use in new documents.</documentation>
         </annotation>
     </element>
     <complexType name="GroupGroupType">
         <annotation>
-            <documentation>Extended type based on AbstractGroupType. Adds elements for group group type definition.</documentation>
+            <appinfo>DEPRECATED 8/26. See diggs:GroupGroup.</appinfo>
+            <documentation>Extended type based on AbstractGroupType. Adds elements for group group type definition. DEPRECATED 8/26.</documentation>
         </annotation>
         <complexContent>
             <extension base="diggs:AbstractGroupType">
@@ -24,13 +29,20 @@
     </complexType>
     <element name="ProjectGroup" substitutionGroup="diggs:AbstractGroup" type="diggs:ProjectGroupType">
         <annotation>
-            <documentation>A top level Diggs feature defining a related group of
-                projects.</documentation>
+            <appinfo>DEPRECATED 8/26. Use a concrete group substituting
+                diggs:AbstractProjectGroup, whose member projects cite it through
+                diggs:projectGroupRef.</appinfo>
+            <documentation>A top level Diggs feature defining a related group of projects.
+                DEPRECATED 8/26 - references its members downward; see
+                diggs:AbstractProjectScopedGroup. Retained live so existing instances continue to
+                validate; do not use in new documents.</documentation>
         </annotation>
     </element>
     <complexType name="ProjectGroupType">
         <annotation>
-            <documentation>Extended type based on AbstractGroupType. Adds elements for project group type definition.</documentation>
+            <appinfo>DEPRECATED 8/26. Use a type deriving from
+                diggs:AbstractProjectGroupType.</appinfo>
+            <documentation>Extended type based on AbstractGroupType. Adds elements for project group type definition. DEPRECATED 8/26 - see diggs:ProjectGroup.</documentation>
         </annotation>
         <complexContent>
             <extension base="diggs:AbstractGroupType">
@@ -43,20 +55,49 @@
     <element name="groupRef" type="diggs:FeatureReferenceType">
         <annotation>
             <appinfo source="urn:x-gml:targetElement">diggs:AbstractGroup</appinfo>
-            <documentation>A reference to a group that is associated with this feature. </documentation>
+            <appinfo>DEPRECATED 8/26. Use diggs:groupGroupRef, which states the same relationship in
+                the opposite - and correct - direction: the member group cites its parent.</appinfo>
+            <documentation>A reference to a group that is associated with this feature. DEPRECATED
+                8/26.
+
+                DIRECTION MATTERS AND IS THE REASON FOR THE DEPRECATION. This element is held by
+                diggs:GroupGroupType, so it points DOWN from a group at its member groups.
+                diggs:groupGroupRef is NOT a renaming of it - it points the other way, from a member
+                group up at the group containing it. The two names must not be treated as
+                interchangeable. Retained live because diggs:GroupGroupType still references
+                it.</documentation>
             <documentation>A property element that supports a value by reference only. The target
                 value is indicated in the appinfo element.</documentation>
         </annotation>
     </element>
     <element name="MeasurementGroup" substitutionGroup="diggs:AbstractGroup" type="diggs:SampleGroupType">
         <annotation>
+            <appinfo>DEPRECATED 8/26. Use a concrete group substituting
+                diggs:AbstractMeasurementGroup, whose member measurements cite it through
+                diggs:measurementGroupRef.</appinfo>
             <documentation>A top level Diggs feature that reference related samples as part of a
-                group.</documentation>
+                group. DEPRECATED 8/26.
+
+                MISWIRED AS WELL AS MISDIRECTED, which is why the replacement is a clean generation
+                rather than a repair. This element is typed diggs:SampleGroupType - almost certainly
+                a copy-paste error - and diggs:SampleGroupType holds measurementRef, so the element
+                does by accident hold measurement references, under a documentation string that
+                describes samples. Retained live so existing instances continue to validate; do not
+                use in new documents.</documentation>
         </annotation>
     </element>
     <complexType name="MeasurementGroupType">
         <annotation>
-            <documentation>Extended type based on AbstractGroupType. Adds elements for measurement group type definition.</documentation>
+            <appinfo>DEPRECATED 8/26. Never reachable - no element is typed with it. Use a type
+                deriving from diggs:AbstractSampleGroupType to group samples.</appinfo>
+            <documentation>Extended type based on AbstractGroupType. Adds elements for measurement group type definition. DEPRECATED 8/26.
+
+                DEAD CODE SINCE 3.0.0, AND THE REASON DIGGS HAS HAD NO WAY TO GROUP SAMPLES. Despite
+                its name this type holds sampleRef, so it is the only released type that would group
+                samples - but no element is declared with it, so it has never been usable. The
+                element that should have used it, diggs:MeasurementGroup, is typed
+                diggs:SampleGroupType instead. diggs:AbstractSampleGroup is the
+                replacement.</documentation>
         </annotation>
         <complexContent>
             <extension base="diggs:AbstractGroupType">
@@ -68,13 +109,23 @@
     </complexType>
     <element name="SampleGroup" substitutionGroup="diggs:AbstractGroup" type="diggs:SampleGroupType">
         <annotation>
+            <appinfo>DEPRECATED 8/26. Use a concrete group substituting diggs:AbstractSampleGroup,
+                whose member samples cite it through diggs:sampleGroupRef.</appinfo>
             <documentation>A top level Diggs feature that reference related samples as part of a
-                group.</documentation>
+                group. DEPRECATED 8/26.
+
+                CANNOT ACTUALLY HOLD SAMPLES. Its type, diggs:SampleGroupType, holds measurementRef
+                rather than sampleRef, so this element has never done what its name and documentation
+                say. Retained live so existing instances continue to validate; do not use in new
+                documents.</documentation>
         </annotation>
     </element>
     <complexType name="SampleGroupType">
         <annotation>
-            <documentation>Extended type based on AbstractGroupType. Adds elements for sample group type definition.</documentation>
+            <appinfo>DEPRECATED 8/26. Holds measurementRef despite its name. Use a type deriving from
+                diggs:AbstractSampleGroupType or diggs:AbstractMeasurementGroupType as
+                appropriate.</appinfo>
+            <documentation>Extended type based on AbstractGroupType. Adds elements for sample group type definition. DEPRECATED 8/26 - see diggs:SampleGroup and diggs:MeasurementGroup, both of which are typed with it.</documentation>
         </annotation>
         <complexContent>
             <extension base="diggs:AbstractGroupType">

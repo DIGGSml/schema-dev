@@ -12,14 +12,33 @@
     <import namespace="http://www.w3.org/1999/xlink" schemaLocation="xlinks.xsd"/>
 
     <element name="RigidInclusionSystem" type="diggs:RigidInclusionSystemType"
-        substitutionGroup="diggs:AbstractPlanarSamplingFeature">
+        substitutionGroup="diggs:AbstractSamplingFeatureGroup">
         <annotation>
-            <documentation>A top-level, complex sampling feature describing the components of a rigid inclusion foundation system. It consists of child sampling features describing the load transfer platforms and individual rigid inclusion columns constructed within the soil below the LTP. Each of these sampling features can be individually referenced by observations, measurements and construction activities.</documentation>
+            <documentation>A rigid inclusion ground improvement system: the collection of load
+                transfer platforms and rigid inclusion columns whose information content is jointly
+                interpretable because they share one working platform and one treated area.
+
+                A GROUP, NOT A SAMPLING FEATURE (GR1, 2026-08-22, group-redesign). Reclassified from
+                diggs:AbstractPlanarSamplingFeature - the strongest evidence for the reclassification
+                is that diggs:AbstractSamplingFeatureType MANDATES referencePoint, and a rigid
+                inclusion system has none: it has an extent, not a position, which is exactly what
+                diggs:AbstractSamplingFeatureGroupType's own optional extent (SurfacePropertyType) is
+                for. Per diggs:AbstractProjectScopedGroup's own definition, a group's content is the
+                warrant for interpreting its members jointly - this system's working platform and
+                treated area ARE that warrant for the columns and platforms built within them.
+
+                MEMBERSHIP IS DECLARED BY THE MEMBERS, not enumerated here. diggs:LoadTransferPlatform
+                and diggs:RIColumn each cite this feature through the inherited
+                diggs:samplingFeatureGroupRef; this feature holds no references to them. Before GR1,
+                diggs:RIColumn carried an optional diggs:samplingFeatureRef for the same purpose,
+                which conflated MEMBERSHIP with the CONTAINMENT sense that same element name carries
+                on an installation - see diggs:samplingFeatureGroupRef's own documentation
+                (core/Common.xsd) for the full distinction.</documentation>
         </annotation>
     </element>
     <complexType name="RigidInclusionSystemType">
         <complexContent>
-            <extension base="diggs:AbstractPlanarSamplingFeatureType">
+            <extension base="diggs:AbstractSamplingFeatureGroupType">
                 <sequence>
                     <element minOccurs="0" name="whenConstructed"
                         type="diggs:TimeIntervalPropertyType">
@@ -30,7 +49,17 @@
                     <element minOccurs="0" name="purpose" type="string"/>
                     <element minOccurs="0" name="totalArea" type="diggs:AreaMeasureType">
                         <annotation>
-                            <documentation>The total area of the site occupying the RI Foundation System. This should correspont to the area of the featureExten property.</documentation>
+                            <documentation>The total area of the site occupying the rigid inclusion
+                                system.
+
+                                OVERLAPS THE INHERITED extent (diggs:AbstractSamplingFeatureGroupType,
+                                a SurfacePropertyType) - both describe the same area, one as a scalar
+                                and one as a geometry. Where they disagree THE GEOMETRY PREVAILS, the
+                                established DIGGS convention for a convenience scalar stated alongside
+                                the geometry it summarizes (diggs:RIColumnType/cutoffElevation,
+                                diggs:TargetSamplingFeatureType/diameter). Kept alongside extent rather
+                                than retired, since a consumer wanting only the area should not have to
+                                resolve and measure a geometry to get it.</documentation>
                         </annotation>
                     </element>
                     <element minOccurs="0" name="workingPlatformElevation"
@@ -129,8 +158,10 @@
                     </element>
                     <!-- The loadTransferPlatforms containment array was removed here. Load transfer
                          platforms are now top-level sampling features that cite this system through
-                         their own mandatory samplingFeatureRef; see LoadTransferPlatformType below.
-                         Containment made a foundation system undeliverable until at least one
+                         the inherited, optional samplingFeatureGroupRef (GR1/GR2, 2026-08-22,
+                         group-redesign - originally a mandatory samplingFeatureRef, retired with
+                         this system's reclassification as a group); see LoadTransferPlatformType
+                         below. Containment made a foundation system undeliverable until at least one
                          platform existed, which is backwards from construction order - the columns
                          are installed before the platform is built over them. -->
                 </sequence>
@@ -138,20 +169,32 @@
         </complexContent>
     </complexType>
     <element name="LoadTransferPlatform" type="diggs:LoadTransferPlatformType"
-        substitutionGroup="diggs:AbstractPlanarInstallation">
+        substitutionGroup="diggs:AbstractPlanarSamplingFeature">
         <annotation>
             <documentation>A load transfer platform: the compacted granular layer, usually
                 reinforced with geosynthetics, constructed over a field of rigid inclusions to
-                distribute structural loads onto the column heads. It is a planar installation
-                within a rigid inclusion foundation system, and cites that system through the
-                mandatory samplingFeatureRef inherited from AbstractPlanarInstallationType. The
-                rigid inclusions beneath a platform are not enumerated here: a column's membership
-                is determined by testing its position against this platform's featureExtent.</documentation>
+                distribute structural loads onto the column heads.
+
+                A PLAIN PLANAR SAMPLING FEATURE, NOT AN INSTALLATION (GR1, 2026-08-22,
+                group-redesign). Demoted from diggs:AbstractPlanarInstallation, which mandated
+                samplingFeatureRef in the CONTAINMENT sense - "built within the referenced feature" -
+                a sense that never fit an LTP well, since a platform is not constructed inside the
+                rigid inclusion system, it is constructed over the columns as a distinct layer. It
+                cites the system it belongs to through the inherited, optional
+                diggs:samplingFeatureGroupRef instead - MEMBERSHIP, not containment. The
+                installation-only properties the demotion drops
+                (installationConstructionEvent, installationEquipment) were verified unused across
+                the entire corpus; constructionMethod and constructionEquipment, declared below,
+                already cover what installationEquipment would have.
+
+                The rigid inclusions beneath a platform are not enumerated here: a column's
+                membership is determined by testing its position against this platform's
+                featureExtent.</documentation>
         </annotation>
     </element>
     <complexType name="LoadTransferPlatformType">
         <complexContent>
-            <extension base="diggs:AbstractPlanarInstallationType">
+            <extension base="diggs:AbstractPlanarSamplingFeatureType">
                 <sequence>
                     <element minOccurs="0" name="whenConstructed"
                         type="diggs:TimeIntervalPropertyType">
@@ -447,24 +490,19 @@
                                 governs which acceptance criteria apply and how a test result may be
                                 extrapolated, so it must be stated rather than left to be inferred.
 
-                                THE AUTHORITATIVE SIGNAL, SUPERSEDING samplingFeatureRef's ABSENCE
-                                (below). Before this element, a trial column was identified only by
-                                omitting samplingFeatureRef - a real but indirect signal, easy to
-                                mistake for an oversight rather than a deliberate statement. Every
-                                RIColumn now states its role explicitly here; samplingFeatureRef's
-                                own documentation records the mandatory but now-secondary
-                                relationship.</documentation>
-                        </annotation>
-                    </element>
-                    <element ref="diggs:samplingFeatureRef" minOccurs="0">
-                        <annotation>
-                            <appinfo source="urn:x-gml:targetElement">diggs:RigidInclusionSystem</appinfo>
-                            <documentation>The rigid inclusion foundation system this column forms part of.
-                                Irrelevant, not merely omitted, where elementClass=trial: a trial
-                                element is constructed independently of any foundation system by
-                                definition, so there is no parent for this reference to cite. For
-                                every other elementClass value this reference behaves as an ordinary
-                                optional association.</documentation>
+                                THE AUTHORITATIVE SIGNAL, SUPERSEDING samplingFeatureGroupRef's
+                                ABSENCE (inherited from diggs:AbstractSamplingFeatureType; GR1,
+                                2026-08-22, group-redesign). Before EC1 (2026-08-19), a trial column
+                                was identified only by omitting the element then named
+                                samplingFeatureRef - a real but indirect signal, easy to mistake for
+                                an oversight rather than a deliberate statement. GR1 removed that
+                                element outright: what was optional samplingFeatureRef on RIColumn is
+                                now the inherited, equally optional samplingFeatureGroupRef, and
+                                identification remains exclusively via THIS element regardless. A
+                                trial column may still be left out of any group, or may be included
+                                in one where its data informs other columns' interpretation - either
+                                is a legitimate use of the group reference and neither reopens the
+                                old absence-based convention this element replaced.</documentation>
                         </annotation>
                     </element>
                     <element minOccurs="0" name="columnType" type="gml:CodeType"/>

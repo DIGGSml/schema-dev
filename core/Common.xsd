@@ -259,6 +259,38 @@
                 Interleaved)</documentation>
         </annotation>
     </element>
+    <element name="groupGroupRef" type="diggs:FeatureReferenceType">
+        <annotation>
+            <appinfo source="urn:x-gml:targetElement">diggs:AbstractProjectScopedGroup</appinfo>
+            <documentation>A reference from a project-scoped group to another project-scoped group it
+                is itself a member of - group nesting, stated in the member-cites-group direction.
+
+                NAMED FOR ITS CLASS, like every other member of this family. The rule is that a
+                feature class's base type carries a reference named for that class:
+                diggs:samplingFeatureGroupRef on diggs:AbstractSamplingFeatureType,
+                diggs:sampleGroupRef on diggs:AbstractSampleType, diggs:measurementGroupRef on
+                diggs:AbstractMeasurementType, diggs:observationGroupRef on
+                diggs:AbstractObservationSystemType, diggs:projectGroupRef on
+                diggs:AbstractProjectType - and so this one on the group base type itself. An earlier
+                draft named it parentGroupRef, for the relationship rather than the class; that broke
+                the pattern the family depends on and was corrected before release.
+
+                TARGETS diggs:AbstractProjectScopedGroup, NOT a separate AbstractGroupGroup head, and
+                that is a deliberate exception to the otherwise mechanical
+                &lt;x&gt;GroupRef -&gt; Abstract&lt;X&gt;Group derivation. For the other five families the
+                group is a different kind of thing from its members - a group of samples is not a
+                sample - so each needs its own head. A group of groups IS a group, so the head
+                already exists and a further one would add a level without adding a distinction.
+
+                NOT diggs:groupRef, which is a released element (extended/ExtGroup.xsd) meaning the
+                REVERSE: a group pointing down at its member groups, held by diggs:GroupGroupType.
+                The two are not interchangeable and must not be treated as a rename of one another.
+                Targeting diggs:AbstractProjectScopedGroup rather than diggs:AbstractGroup also means
+                a group of this generation can never nest inside a deprecated one.</documentation>
+            <documentation>A property element that supports a value by reference only. The target
+                value is indicated in the appinfo element.</documentation>
+        </annotation>
+    </element>
     <element name="internalIdentifier" type="gml:CodeWithAuthorityType">
         <annotation>
             <documentation>The value of this property is the identifier originally created by the
@@ -287,11 +319,42 @@
                 feature or object.</documentation>
         </annotation>
     </element>
+    <element name="measurementGroupRef" type="diggs:FeatureReferenceType">
+        <annotation>
+            <appinfo source="urn:x-gml:targetElement">diggs:AbstractMeasurementGroup</appinfo>
+            <documentation>A reference from a measurement to a measurement group it is a member of.
+                The member cites the group; see diggs:AbstractProjectScopedGroup for why this
+                generation of groups references upward.</documentation>
+            <documentation>A property element that supports a value by reference only. The target
+                value is indicated in the appinfo element.</documentation>
+        </annotation>
+    </element>
     <element name="measurementRef" type="diggs:FeatureReferenceType">
         <annotation>
             <appinfo source="urn:x-gml:targetElement">diggs:Measurement</appinfo>
             <documentation>A reference to a Measurement feature that is associated with this
                 feature. </documentation>
+            <documentation>A property element that supports a value by reference only. The target
+                value is indicated in the appinfo element.</documentation>
+        </annotation>
+    </element>
+    <element name="observationGroupRef" type="diggs:FeatureReferenceType">
+        <annotation>
+            <appinfo source="urn:x-gml:targetElement">diggs:AbstractObservationGroup</appinfo>
+            <documentation>A reference from an observation system to an observation group it is a
+                member of - for example a set of ground models or logs interpreted together. The
+                member cites the group; see diggs:AbstractProjectScopedGroup.
+
+                PARALLELS diggs:measurementGroupRef. An observation system and a measurement are the
+                two feature classes that produce interpretable results about the ground, and both
+                have the same reason to be grouped: several of them may only be meaningful read
+                together.
+
+                Note the name follows the document slot (diggs:Diggs/observation) rather than the
+                abstract head (diggs:AbstractObservationSystem), which is the one place in DIGGS
+                where those two differ. The head this targets, diggs:AbstractObservationGroup, is
+                named to match this element so that the group contract remains derivable from the
+                reference name by pattern.</documentation>
             <documentation>A property element that supports a value by reference only. The target
                 value is indicated in the appinfo element.</documentation>
         </annotation>
@@ -333,6 +396,15 @@
                 program feature that is relevant for this activity</documentation>
         </annotation>
     </element>
+    <element name="projectGroupRef" type="diggs:FeatureReferenceType">
+        <annotation>
+            <appinfo source="urn:x-gml:targetElement">diggs:AbstractProjectGroup</appinfo>
+            <documentation>A reference from a project to a project group it is a member of. The
+                member cites the group; see diggs:AbstractProjectScopedGroup.</documentation>
+            <documentation>A property element that supports a value by reference only. The target
+                value is indicated in the appinfo element.</documentation>
+        </annotation>
+    </element>
     <element name="projectRef" type="diggs:FeatureReferenceType">
         <annotation>
             <appinfo source="urn:x-gml:targetElement">diggs:Project</appinfo>
@@ -361,6 +433,15 @@
             <documentation>A property that holds a ResultSet object</documentation>
         </annotation>
     </element>
+    <element name="sampleGroupRef" type="diggs:FeatureReferenceType">
+        <annotation>
+            <appinfo source="urn:x-gml:targetElement">diggs:AbstractSampleGroup</appinfo>
+            <documentation>A reference from a sample to a sample group it is a member of. The member
+                cites the group; see diggs:AbstractProjectScopedGroup.</documentation>
+            <documentation>A property element that supports a value by reference only. The target
+                value is indicated in the appinfo element.</documentation>
+        </annotation>
+    </element>
     <element name="sampleProducedRef" type="gml:ReferenceType">
         <annotation>
             <documentation>A link to the gml:id of the SampleProduced object contained within the
@@ -383,6 +464,25 @@
         <annotation>
             <appinfo source="urn:x-gml:targetElement">diggs:SamplingActivity</appinfo>
             <documentation>A reference to a sampling activity that is associated with this feature. </documentation>
+            <documentation>A property element that supports a value by reference only. The target
+                value is indicated in the appinfo element.</documentation>
+        </annotation>
+    </element>
+    <element name="samplingFeatureGroupRef" type="diggs:FeatureReferenceType">
+        <annotation>
+            <appinfo source="urn:x-gml:targetElement">diggs:AbstractSamplingFeatureGroup</appinfo>
+            <documentation>A reference from a sampling feature to a sampling feature group it is a
+                member of.
+
+                MEMBERSHIP, NEVER CONTAINMENT - and that is the whole reason this element is separate
+                from diggs:samplingFeatureRef rather than another sense layered onto it.
+                samplingFeatureRef carries containment on installations, where it is mandatory and
+                means "I am constructed within the referenced feature", and provenance on
+                observations and activities. This element means only "I am interpreted jointly with
+                the other members of the referenced group", is always optional, and places no
+                spatial or structural obligation on either end.
+
+                The member cites the group; see diggs:AbstractProjectScopedGroup.</documentation>
             <documentation>A property element that supports a value by reference only. The target
                 value is indicated in the appinfo element.</documentation>
         </annotation>

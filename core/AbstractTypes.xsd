@@ -518,6 +518,254 @@
             </extension>
         </complexContent>
     </complexType>
+    <element name="AbstractProjectScopedGroup" type="diggs:AbstractProjectScopedGroupType"
+        substitutionGroup="diggs:AbstractGroup" abstract="true">
+        <annotation>
+            <documentation>Head of the substitution group for project-scoped groups - the generation
+                of DIGGS groups whose MEMBERS CITE THE GROUP rather than the group enumerating its
+                members.
+
+                REFERENCE DIRECTION IS THE DEFINING DIFFERENCE between this generation and the
+                concrete groups that substitute diggs:AbstractGroup directly
+                (diggs:SamplingFeatureGroup, diggs:GroupGroup, diggs:ProjectGroup,
+                diggs:MeasurementGroup, diggs:SampleGroup - all DEPRECATED 8/26). Those hold arrays
+                of references pointing down at their members, which inverts the DIGGS antecedent
+                rule that a child cites its parent, and which means the group element must be
+                rewritten every time a member is added - unworkable for append or streaming
+                workflows at construction scale, where members arrive one at a time over months. A
+                member of a group deriving from this type instead carries its own reference upward:
+                diggs:samplingFeatureGroupRef, diggs:sampleGroupRef, diggs:measurementGroupRef,
+                diggs:observationGroupRef or diggs:projectGroupRef, each declared on the
+                corresponding family base type, and diggs:groupGroupRef for a nested group.
+
+                WHAT A GROUP IS: a collection of related features whose information content can be
+                evaluated and compared together as part of a coherent analysis - equivalently, A
+                GROUP IS A FEATURE WHOSE CONTENT IS THE WARRANT FOR INTERPRETING ITS MEMBERS
+                JOINTLY. A borehole and a CPT sounding treated as one dataset under a proximity
+                assumption form a group because the group carries that assumption
+                (diggs:BoreholeCPTPair); two boreholes that merely happen to sit on the same site do
+                not. This is what makes Group a real classification rather than a label, and it is
+                the test to apply before adding a concrete group type.
+
+                MEMBER TYPE AND MEMBER COUNT ARE NOT SCHEMA-ENFORCEABLE under reverse referencing.
+                XSD cannot constrain the type of a referenced element - not through xlink:href, not
+                through keyref - so which feature kinds a given concrete group admits, and how many
+                of each, is a context-validation concern driven from a dictionary rather than
+                something this hierarchy can express. Only containment gives schema-enforced target
+                typing, and containment is exactly what reverse referencing gives up in order to be
+                append-safe. The typed heads below narrow the intent as far as XSD allows: they
+                state which FAMILY a group belongs to, and each family's *GroupRef element is
+                declared only on that family's own base type.</documentation>
+        </annotation>
+    </element>
+    <complexType name="AbstractProjectScopedGroupType" abstract="true">
+        <annotation>
+            <documentation>Base type for project-scoped groups. Adds the project association that
+                diggs:AbstractGroupType cannot supply, plus optional program-module references and a
+                group-nesting reference.
+
+                WHY THIS TYPE EXISTS RATHER THAN A CHANGE TO diggs:AbstractGroupType.
+                diggs:AbstractFeatureType carries no projectRef, and diggs:AbstractGroupType extends
+                it with an empty sequence, so A GROUP CANNOT STATE WHICH PROJECT IT BELONGS TO. That
+                becomes blocking the moment a feature which today inherits mandatory projectRef from
+                diggs:AbstractSamplingFeatureType is reclassified as a group - diggs:
+                RigidInclusionSystem is the first such case. The obligation is added here, on a new
+                type, rather than to diggs:AbstractGroupType, so that instances of the released
+                concrete groups are unaffected BY CONSTRUCTION: the backward-compatibility question
+                disappears rather than being managed.</documentation>
+        </annotation>
+        <complexContent>
+            <extension base="diggs:AbstractGroupType">
+                <sequence>
+                    <element ref="diggs:projectRef" maxOccurs="unbounded">
+                        <annotation>
+                            <documentation>The project or projects this group belongs to. Mandatory,
+                                with the same [1..*] cardinality diggs:AbstractSamplingFeatureType
+                                states for its own projectRef - so a feature reclassified from a
+                                sampling feature to a group neither gains nor loses the obligation to
+                                name its project.</documentation>
+                        </annotation>
+                    </element>
+                    <element minOccurs="0" maxOccurs="unbounded" ref="diggs:programDesignRef">
+                        <annotation>
+                            <documentation>Zero or more references to program design objects this
+                                group was realized to satisfy - for example the system design that
+                                planned the treated area a realized group of columns now occupies.
+                                Declared once here rather than per family, because every
+                                project-scoped group plausibly wants it.</documentation>
+                        </annotation>
+                    </element>
+                    <element minOccurs="0" maxOccurs="unbounded" ref="diggs:programSpecificationRef">
+                        <annotation>
+                            <documentation>Zero or more references to program specification objects
+                                this group must satisfy.</documentation>
+                        </annotation>
+                    </element>
+                    <element minOccurs="0" maxOccurs="unbounded" ref="diggs:groupGroupRef">
+                        <annotation>
+                            <documentation>Zero or more references to project-scoped groups this
+                                group is itself a member of - group nesting, stated in the same
+                                member-cites-group direction as every other reference in this
+                                generation, and named for its class on the same rule as every other
+                                reference in this family.
+
+                                NOT diggs:groupRef, which is an existing released element meaning the
+                                REVERSE: a group pointing down at its member groups, held by
+                                diggs:GroupGroupType. Reusing that name here would invert the
+                                meaning of a released element, which is the precise defect this
+                                generation exists to remove.</documentation>
+                        </annotation>
+                    </element>
+                </sequence>
+            </extension>
+        </complexContent>
+    </complexType>
+    <element name="AbstractSamplingFeatureGroup" type="diggs:AbstractSamplingFeatureGroupType"
+        substitutionGroup="diggs:AbstractProjectScopedGroup" abstract="true">
+        <annotation>
+            <documentation>Head of the substitution group for groups whose members are sampling
+                features. Members join by carrying diggs:samplingFeatureGroupRef, declared on
+                diggs:AbstractSamplingFeatureType.</documentation>
+        </annotation>
+    </element>
+    <complexType name="AbstractSamplingFeatureGroupType" abstract="true">
+        <annotation>
+            <documentation>Base type for groups of sampling features. Adds the group's spatial
+                extent.</documentation>
+        </annotation>
+        <complexContent>
+            <extension base="diggs:AbstractProjectScopedGroupType">
+                <sequence>
+                    <element minOccurs="0" name="extent" type="diggs:SurfacePropertyType">
+                        <annotation>
+                            <documentation>The area over which this group acts, or within which its
+                                members lie.
+
+                                AN EXTENT, NOT A REFERENCE POINT - and that distinction is why the
+                                group classification exists at all. diggs:AbstractSamplingFeatureType
+                                MANDATES referencePoint, because a borehole, a pile or a sounding has
+                                a definite position. A treated area, a monitoring network or a paired
+                                investigation has no meaningful single position; being forced to
+                                invent one is the schema saying the feature was classified wrongly.
+                                Groups state where they are by extent instead.
+
+                                Optional, because a group need not be spatially delimited at all - a
+                                borehole/CPT pair is defined by the proximity of its two members
+                                rather than by a polygon drawn around them.
+
+                                Two-dimensional. Elevation is not meaningful for a group extent;
+                                where a member-level or system-level elevation matters it is carried
+                                by the member, or by an explicit elevation property on the concrete
+                                group type.
+
+                                WHERE A CONCRETE GROUP ALSO CARRIES A SCALAR AREA, THE GEOMETRY
+                                PREVAILS - the established DIGGS convention for a convenience scalar
+                                sitting alongside the geometry it summarizes.</documentation>
+                        </annotation>
+                    </element>
+                </sequence>
+            </extension>
+        </complexContent>
+    </complexType>
+    <element name="AbstractSampleGroup" type="diggs:AbstractSampleGroupType"
+        substitutionGroup="diggs:AbstractProjectScopedGroup" abstract="true">
+        <annotation>
+            <documentation>Head of the substitution group for groups whose members are samples.
+                Members join by carrying diggs:sampleGroupRef, declared on diggs:AbstractSampleType.
+
+                NOTE THIS HEAD RESTORES A CAPABILITY 3.0.0 DID NOT ACTUALLY HAVE. The released
+                diggs:SampleGroup is typed diggs:SampleGroupType, which holds measurementRef rather
+                than sampleRef; the only type that would have grouped samples,
+                diggs:MeasurementGroupType, is referenced by no element at all. There has therefore
+                been no way to group samples in DIGGS since 3.0.0. No concrete type substitutes this
+                head yet - add one when a real use appears.</documentation>
+        </annotation>
+    </element>
+    <complexType name="AbstractSampleGroupType" abstract="true">
+        <annotation>
+            <documentation>Base type for groups of samples. Adds nothing beyond
+                diggs:AbstractProjectScopedGroupType; it exists to give diggs:sampleGroupRef a family
+                to target.</documentation>
+        </annotation>
+        <complexContent>
+            <extension base="diggs:AbstractProjectScopedGroupType"/>
+        </complexContent>
+    </complexType>
+    <element name="AbstractMeasurementGroup" type="diggs:AbstractMeasurementGroupType"
+        substitutionGroup="diggs:AbstractProjectScopedGroup" abstract="true">
+        <annotation>
+            <documentation>Head of the substitution group for groups whose members are measurements -
+                tests, material tests and monitors. Members join by carrying
+                diggs:measurementGroupRef, declared on diggs:AbstractMeasurementType. No concrete
+                type substitutes this head yet.</documentation>
+        </annotation>
+    </element>
+    <complexType name="AbstractMeasurementGroupType" abstract="true">
+        <annotation>
+            <documentation>Base type for groups of measurements. Adds nothing beyond
+                diggs:AbstractProjectScopedGroupType; it exists to give diggs:measurementGroupRef a
+                family to target.</documentation>
+        </annotation>
+        <complexContent>
+            <extension base="diggs:AbstractProjectScopedGroupType"/>
+        </complexContent>
+    </complexType>
+    <element name="AbstractObservationGroup" type="diggs:AbstractObservationGroupType"
+        substitutionGroup="diggs:AbstractProjectScopedGroup" abstract="true">
+        <annotation>
+            <documentation>Head of the substitution group for groups whose members are observation
+                systems - ground models, logs and other interpreted characterizations. Members join
+                by carrying diggs:observationGroupRef, declared on
+                diggs:AbstractObservationSystemType. No concrete type substitutes this head yet.
+
+                PARALLELS diggs:AbstractMeasurementGroup, and exists for the same reason. An
+                observation system and a measurement are the two feature classes that produce
+                interpretable statements about the ground, and several of either may only be
+                meaningful read together - two ground models of the same site built on different
+                assumptions, or a set of logs forming one cross-section.
+
+                Named to match diggs:observationGroupRef rather than the abstract feature head
+                diggs:AbstractObservationSystem, so that a group's contract stays derivable from the
+                referencing element's name by pattern. DIGGS names this class inconsistently already:
+                the document slot is diggs:Diggs/observation while the head is
+                diggs:AbstractObservationSystem, the one feature class where the two differ. The
+                reference and the group head here both follow the slot.</documentation>
+        </annotation>
+    </element>
+    <complexType name="AbstractObservationGroupType" abstract="true">
+        <annotation>
+            <documentation>Base type for groups of observation systems. Adds nothing beyond
+                diggs:AbstractProjectScopedGroupType; it exists to give diggs:observationGroupRef a
+                family to target.</documentation>
+        </annotation>
+        <complexContent>
+            <extension base="diggs:AbstractProjectScopedGroupType"/>
+        </complexContent>
+    </complexType>
+    <element name="AbstractProjectGroup" type="diggs:AbstractProjectGroupType"
+        substitutionGroup="diggs:AbstractProjectScopedGroup" abstract="true">
+        <annotation>
+            <documentation>Head of the substitution group for groups whose members are projects.
+                Members join by carrying diggs:projectGroupRef, declared on diggs:AbstractProjectType.
+                No concrete type substitutes this head yet.
+
+                THE NAME IS NOT A SYNONYM FOR diggs:AbstractProjectScopedGroup. This is a group OF
+                projects; that is any group belonging TO a project. A group of projects still carries
+                the mandatory projectRef it inherits - naming the project under whose business the
+                grouping is asserted - which is a different statement from the membership its
+                diggs:projectGroupRef-carrying members make.</documentation>
+        </annotation>
+    </element>
+    <complexType name="AbstractProjectGroupType" abstract="true">
+        <annotation>
+            <documentation>Base type for groups of projects. Adds nothing beyond
+                diggs:AbstractProjectScopedGroupType; it exists to give diggs:projectGroupRef a family
+                to target.</documentation>
+        </annotation>
+        <complexContent>
+            <extension base="diggs:AbstractProjectScopedGroupType"/>
+        </complexContent>
+    </complexType>
     <element name="AbstractInsituTestProcedure" type="diggs:AbstractInsituTestProcedureType"
         substitutionGroup="diggs:AbstractTestProcedure" abstract="true">
         <annotation>
@@ -777,6 +1025,14 @@
                                 object.</documentation>
                         </annotation>
                     </element>
+                    <element minOccurs="0" maxOccurs="unbounded" ref="diggs:measurementGroupRef">
+                        <annotation>
+                            <documentation>Zero or more references to measurement groups this
+                                measurement is a member of - for example a set of tests interpreted
+                                together as one monitoring campaign. The member cites the group; see
+                                diggs:AbstractProjectScopedGroup.</documentation>
+                        </annotation>
+                    </element>
                 </sequence>
             </extension>
         </complexContent>
@@ -1000,6 +1256,21 @@
                                 individual observations, use appropriate properties and attributes
                                 within the various observation objects to describe the approach
                                 used.</documentation>
+                        </annotation>
+                    </element>
+                    <element minOccurs="0" maxOccurs="unbounded" ref="diggs:observationGroupRef">
+                        <annotation>
+                            <documentation>Zero or more references to observation groups this
+                                observation system is a member of - for example a set of ground
+                                models or logs interpreted together. The member cites the group; see
+                                diggs:AbstractProjectScopedGroup.
+
+                                DISTINCT FROM THE samplingFeatureRef/sampleRef CHOICE ABOVE, which is
+                                provenance - the features this system was interpreted FROM. This
+                                element is membership: the other observation systems this one is read
+                                ALONGSIDE. A ground model built from fourteen borings states that
+                                through the choice; a ground model that is one of three competing
+                                interpretations of the same site states that here.</documentation>
                         </annotation>
                     </element>
                 </sequence>
@@ -1332,6 +1603,13 @@
                                 schema.</documentation>
                         </annotation>
                     </element>
+                    <element minOccurs="0" maxOccurs="unbounded" ref="diggs:projectGroupRef">
+                        <annotation>
+                            <documentation>Zero or more references to project groups this project is a
+                                member of. The member cites the group; see
+                                diggs:AbstractProjectScopedGroup.</documentation>
+                        </annotation>
+                    </element>
                 </sequence>
             </extension>
         </complexContent>
@@ -1388,6 +1666,19 @@
                     <element ref="diggs:sampleProducedRef">
                         <annotation>
                             <documentation/>
+                        </annotation>
+                    </element>
+                    <element minOccurs="0" maxOccurs="unbounded" ref="diggs:sampleGroupRef">
+                        <annotation>
+                            <documentation>Zero or more references to sample groups this sample is a
+                                member of. The member cites the group; see
+                                diggs:AbstractProjectScopedGroup.
+
+                                This is the first working way to group samples in DIGGS. The released
+                                diggs:SampleGroup is typed diggs:SampleGroupType, which holds
+                                measurementRef rather than sampleRef, and diggs:MeasurementGroupType -
+                                the only type that holds sampleRef - is referenced by no element at
+                                all.</documentation>
                         </annotation>
                     </element>
                 </sequence>
@@ -1725,6 +2016,32 @@
                             <documentation>A reference to a LocalCoordinate object that holds the
                                 values of local coordinates for the reference point of the
                                 associated feature. </documentation>
+                        </annotation>
+                    </element>
+                    <element minOccurs="0" maxOccurs="unbounded" ref="diggs:samplingFeatureGroupRef">
+                        <annotation>
+                            <documentation>Zero or more references to sampling feature groups this
+                                feature is a member of.
+
+                                THE MEMBER CITES THE GROUP, never the reverse. A group is not edited
+                                to admit a member, which is what makes membership expressible in
+                                append and streaming workflows - the case that matters when members
+                                are constructed one at a time over months. See
+                                diggs:AbstractProjectScopedGroup for the full rationale and for why
+                                the released group types that reference downward are deprecated.
+
+                                NOT TO BE CONFUSED WITH samplingFeatureRef, which on an installation
+                                means CONTAINMENT ("I am constructed within the referenced feature")
+                                and is mandatory there. This element means MEMBERSHIP ("I am
+                                interpreted jointly with the other members of the referenced
+                                group"), is always optional, and never implies containment. The two
+                                were previously conflated on a single element name whose meaning
+                                depended on which type declared it; separating them is the point of
+                                this element.
+
+                                A feature may belong to more than one group - groups are not a
+                                partition, and a borehole may be simultaneously a member of a
+                                borehole/CPT pair and of a wider investigation-phase group.</documentation>
                         </annotation>
                     </element>
                 </sequence>
