@@ -116,7 +116,8 @@
                                 against.</documentation>
                         </annotation>
                     </element>
-                    <element minOccurs="0" name="averageExistingGL" type="diggs:ElevationType">
+                    <element minOccurs="0" name="averageExistingGL"
+                        type="diggs:PointLocationPropertyType">
                         <annotation>
                             <documentation>The average elevation of the existing ground level below
                                 the working platform.
@@ -129,7 +130,7 @@
                         </annotation>
                     </element>
                     <element maxOccurs="1" minOccurs="0" name="averageWTLevel"
-                        type="diggs:ElevationType">
+                        type="diggs:PointLocationPropertyType">
                         <annotation>
                             <documentation>The average elevation of the water table beneath the
                                 site. Stays a scalar diggs:ElevationType for the same reason as
@@ -294,9 +295,9 @@
         <complexContent>
             <extension base="diggs:AbstractObjectType">
                 <sequence>
-                    <element minOccurs="0" name="type" type="gml:CodeType">
+                    <element minOccurs="0" name="reinforcementType" type="gml:CodeType">
                         <annotation>
-                            <documentation>Identifies the type of geosynthetic used, for example, "geotextile", "geogrid", "geomembrane", etc. Intended to come from a controlled list of terms.</documentation>
+                            <documentation>Identifies the type of geosynthetic reinforcement used. Intended to come from a controlled list of terms and parallels diggs:GeosyntheticLayerDesignType/diggs:reinforcementType</documentation>
                         </annotation>
                     </element>
                     <element maxOccurs="1" minOccurs="0" name="heightAboveWorkingPlatform"
@@ -311,11 +312,7 @@
 
                                 An elevation is a position, not a length. Use srsName on the
                                 PointLocation to state the vertical CRS, and populate uomLabels so
-                                the unit is readable without resolving it. The datumReference
-                                attribute that this property's documentation previously directed
-                                authors to no longer exists: a vertical CRS already carries its
-                                datum, and the referent concept belongs to linear referencing
-                                (diggs:Referent), not to an elevation.</documentation>
+                                the unit is readable without resolving it. This is a convenience property, only necessary where extent is not reported in a 3D CRS.</documentation>
                         </annotation>
                     </element>
                     <element minOccurs="0" name="extent" type="diggs:PlanarSurfacePropertyType">
@@ -505,7 +502,11 @@
                                 old absence-based convention this element replaced.</documentation>
                         </annotation>
                     </element>
-                    <element minOccurs="0" name="columnType" type="gml:CodeType"/>
+                    <element minOccurs="0" name="columnType" type="gml:CodeType">
+                        <annotation>
+                            <documentation>A description of the type of column, intended to come from a controlled list of terms, often associated with the construction method or type of equipment used to construct the column.</documentation>
+                        </annotation>
+                    </element>
                     <element maxOccurs="1" minOccurs="0" name="whenConstructed"
                         type="diggs:TimeIntervalPropertyType">
                         <annotation>
@@ -563,7 +564,7 @@
                         type="diggs:PointLocationPropertyType">
                         <annotation>
                             <documentation>Elevation of the column cutoff - the top of the finished
-                                column.
+                                column. T
 
                                 An elevation is a position, not a length; see
                                 groundSurfaceElevation for the frame options and the uomLabels
@@ -1279,8 +1280,7 @@
                                 building codes.</documentation>
                         </annotation>
                     </element>
-                    <element minOccurs="0" name="columnAxialCapacity"
-                        type="diggs:ForceMeasureType">
+                    <element minOccurs="0" name="columnAxialCapacity" type="diggs:ForceMeasureType">
                         <annotation>
                             <documentation>The structural axial resistance of one column - the
                                 capacity of the column as a structural member, governed by its
@@ -1465,7 +1465,8 @@
                                 archingModel.xml.</documentation>
                         </annotation>
                     </element>
-                    <element minOccurs="0" name="coefficient" type="diggs:AuthorizedParameterArrayPropertyType">
+                    <element minOccurs="0" name="coefficient"
+                        type="diggs:AuthorizedParameterArrayPropertyType">
                         <annotation>
                             <documentation>One or more named coefficients belonging to the model
                                 stated above, each an AuthorizedParameter or ProvenancedParameter
@@ -1614,8 +1615,7 @@
                                 here.</documentation>
                         </annotation>
                     </element>
-                    <element minOccurs="0" name="stressOnSoftSoil"
-                        type="diggs:PressureMeasureType">
+                    <element minOccurs="0" name="stressOnSoftSoil" type="diggs:PressureMeasureType">
                         <annotation>
                             <documentation>The designed residual vertical stress reaching the
                                 compressible soil between the column heads. The other half of the
@@ -1767,8 +1767,7 @@
                                 closed.</documentation>
                         </annotation>
                     </element>
-                    <element minOccurs="0" maxOccurs="unbounded"
-                        ref="diggs:groutSpecificationRef">
+                    <element minOccurs="0" maxOccurs="unbounded" ref="diggs:groutSpecificationRef">
                         <annotation>
                             <appinfo source="urn:x-gml:targetElement">diggs:GroutSpecification</appinfo>
                             <documentation>The grout or concrete specification governing the column
@@ -2250,6 +2249,19 @@
                                 criterion (Design Parameter Analysis row 45).</documentation>
                         </annotation>
                     </element>
+                    <choice minOccurs="0">
+                        <element name="embedmentLayer" type="string">
+                            <annotation>
+                                <documentation>The name of the ground model layer that the column terminates in. This element is to be used, instead of embedmentLayerRef, where a GeoUnitSystem used to represent the ground model is not reachable from this instance, or where a formal ground model was not developed.</documentation>
+                            </annotation>
+                        </element>
+                        <element name="embedmentLayerRef" type="diggs:FeatureReferenceType">
+                            <annotation>
+                                <appinfo source="urn:x-gml:Targetelement">diggs:GeoUnitObservation</appinfo>
+                                <documentation>An xlink:href pointer to the GeoUnitObservation layer from the ground model where termination occurred. Use of this element assumes that the GeoUnitSystem that represents the ground model for this site is reachable from this instance.</documentation>
+                            </annotation>
+                        </element>
+                    </choice>
                     <element minOccurs="0" name="installationMethod" type="gml:CodeType">
                         <annotation>
                             <documentation>The soil-displacement classification of the installation

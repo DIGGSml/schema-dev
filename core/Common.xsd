@@ -277,7 +277,7 @@
 
                 TARGETS diggs:AbstractProjectScopedGroup, NOT a separate AbstractGroupGroup head, and
                 that is a deliberate exception to the otherwise mechanical
-                &lt;x&gt;GroupRef -&gt; Abstract&lt;X&gt;Group derivation. For the other five families the
+                &lt;x>GroupRef -> Abstract&lt;X>Group derivation. For the other five families the
                 group is a different kind of thing from its members - a group of samples is not a
                 sample - so each needs its own head. A group of groups IS a group, so the head
                 already exists and a further one would add a level without adding a distinction.
@@ -365,7 +365,7 @@
             <documentation>A property element that supports a value by reference only. The target
                 value is indicated in the appinfo element.</documentation>
             <documentation>A reference to the project that first established this feature. This
-                property is informative only - the original project reference should be included as
+                property is DEPRECATED and informative only - the original project reference should be included as
                 one of the projectRef properties. </documentation>
         </annotation>
     </element>
@@ -513,7 +513,7 @@
                 value is indicated in the appinfo element.</documentation>
         </annotation>
     </element>
-    
+
     <element name="specimenRef" type="diggs:FeatureReferenceType">
         <annotation>
             <appinfo source="urn:x-gml:targetElement">diggs:AbstractSpecimen</appinfo>
@@ -829,7 +829,8 @@
             <element ref="diggs:AuthorizedParameter"/>
             <element ref="diggs:ProvenancedParameter"/>
         </choice>
-    </complexType>    <complexType name="PlannedPositionsPropertyType">
+    </complexType>
+    <complexType name="PlannedPositionsPropertyType">
         <annotation>
             <documentation>Property type for containing the planned layout of a designed population
                 as a grid geometry. Restricted to grid geometries deliberately: a grid declares an
@@ -975,7 +976,7 @@
             <element ref="diggs:ProvenancedParameter" minOccurs="1" maxOccurs="unbounded"/>
         </sequence>
     </complexType>
-    
+
     <complexType name="QualifierPropertyType">
         <annotation>
             <documentation> Property type for containing a Qualifier object. </documentation>
@@ -2071,7 +2072,7 @@
             <pattern value="Other: [a-z\-\+\.]+/[a-z0-9\-\+\.]+"/>
         </restriction>
     </simpleType>
-    
+
     <!-- diggs:ParameterType is the uncontrolled form: the name may be free text and the
          value is soft-typed, which is correct for the otherProperty bags this type mostly
          serves. Where the parameter has a dictionary definition, use
@@ -2247,61 +2248,65 @@
                 provision applies, not which realized features fulfil it. A realized feature asserts
                 its own membership through programDesignRef / programSpecificationRef.</documentation>
         </annotation>
-        <sequence>
-            <element minOccurs="0" name="appliesToFeatureType" type="gml:CodeType">
-                <annotation>
-                    <documentation>The kind of feature this provision governs, eg. "RIColumn",
+        <complexContent>
+            <extension base="diggs:AbstractComponentObjectBaseType">
+                <sequence>
+                    <element minOccurs="0" name="appliesToFeatureType" type="gml:CodeType">
+                        <annotation>
+                            <documentation>The kind of feature this provision governs, eg. "RIColumn",
                         "LoadTransferPlatform". From a controlled list. May accompany any of the
                         branches below, or stand alone for a provision that applies to every feature
                         of that kind in the program.</documentation>
-                </annotation>
-            </element>
-            <choice minOccurs="0">
-                <sequence>
-                    <element name="zoneExtent" type="diggs:SurfacePropertyType">
-                        <annotation>
-                            <documentation>A surface (polygon) within which this provision applies.
+                        </annotation>
+                    </element>
+                    <choice minOccurs="0">
+                        <sequence>
+                            <element name="zoneExtent" type="diggs:SurfacePropertyType">
+                                <annotation>
+                                    <documentation>A surface (polygon) within which this provision applies.
                                 Bounds applicability; states no layout. This is the only form
                                 available to a provision that does not know the layout - which is
                                 the normal case for a specification or an acceptance criterion.
                                 Where plannedPositions also appears, the planned population is the
                                 grid's lattice INTERSECTED WITH this surface; a node on the boundary
                                 is included.</documentation>
-                        </annotation>
-                    </element>
-                    <element minOccurs="0" name="plannedPositions"
-                        type="diggs:PlannedPositionsPropertyType">
-                        <annotation>
-                            <documentation>The planned layout within the zone. The grid registers
+                                </annotation>
+                            </element>
+                            <element minOccurs="0" name="plannedPositions"
+                                type="diggs:PlannedPositionsPropertyType">
+                                <annotation>
+                                    <documentation>The planned layout within the zone. The grid registers
                                 where the lattice sits, and its limits need only COVER the zone - it
                                 does not enumerate the features, and index positions falling outside
                                 zoneExtent are not part of the population. Optional: a design that
                                 states no layout inherits one through basedOnRef.</documentation>
-                        </annotation>
-                    </element>
-                </sequence>
-                <element name="plannedPositions" type="diggs:PlannedPositionsPropertyType">
-                    <annotation>
-                        <documentation>The planned layout, where the layout itself delimits the
+                                </annotation>
+                            </element>
+                        </sequence>
+                        <element name="plannedPositions" type="diggs:PlannedPositionsPropertyType">
+                            <annotation>
+                                <documentation>The planned layout, where the layout itself delimits the
                             population and no separate zone boundary is drawn. This is the one case
                             in which the grid's limits ARE the population, there being nothing to
                             intersect with - appropriate for a test panel or any layout whose extent
                             genuinely is the lattice.</documentation>
-                    </annotation>
-                </element>
-                <element maxOccurs="unbounded" name="appliesToFeatureRef"
-                    type="diggs:FeatureReferenceType">
-                    <annotation>
-                        <appinfo source="urn:x-gml:targetElement">diggs:AbstractSamplingFeature</appinfo>
-                        <documentation>An explicit set of existing features this provision applies
+                            </annotation>
+                        </element>
+                        <element maxOccurs="unbounded" name="appliesToFeatureRef"
+                            type="diggs:FeatureReferenceType">
+                            <annotation>
+                                <appinfo source="urn:x-gml:targetElement">diggs:AbstractSamplingFeature</appinfo>
+                                <documentation>An explicit set of existing features this provision applies
                             to. Valid only where those features PRECEDE the design - remedial or
                             retrofit work. For prospective design use zoneExtent or
                             plannedPositions; a design must not reference features it has not yet
                             caused to exist.</documentation>
-                    </annotation>
-                </element>
-            </choice>
-        </sequence>
+                            </annotation>
+                        </element>
+                    </choice>
+                </sequence>
+            </extension>
+        </complexContent>
     </complexType>
     <element name="ProjectEvent" type="diggs:ProjectEventType">
         <annotation>
@@ -3452,8 +3457,7 @@
                                 here - see F3/diggs:AbstractAcceptanceCriterionType.</documentation>
                         </annotation>
                     </element>
-                    <element minOccurs="0" name="midSpanDeflection"
-                        type="diggs:LengthMeasureType">
+                    <element minOccurs="0" name="midSpanDeflection" type="diggs:LengthMeasureType">
                         <annotation>
                             <documentation>y: the sag of this reinforcement layer between column
                                 heads. Row 92 (S20) - added once this object existed to host
