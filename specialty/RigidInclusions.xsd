@@ -122,20 +122,20 @@
                             <documentation>The average elevation of the existing ground level below
                                 the working platform.
 
-                                Stays a scalar diggs:ElevationType, unlike the other elevations in
-                                this file. An average over an area has no definite position and so
-                                no domain, which is what diggs:PointLocationPropertyType is for. The
-                                test is not "is it spread over an area?" but "does it have a
-                                definite position, or is it a statistic?"</documentation>
+                                A diggs:PointLocationPropertyType, populated the same way as this
+                                file's other elevations (workingPlatformElevation,
+                                groundSurfaceElevation, cutoffElevation): as a one-dimensional
+                                position in a vertical CRS or as a full three-dimensional position,
+                                with uomLabels populated so the unit is readable without resolving
+                                the CRS.</documentation>
                         </annotation>
                     </element>
                     <element maxOccurs="1" minOccurs="0" name="averageWTLevel"
                         type="diggs:PointLocationPropertyType">
                         <annotation>
                             <documentation>The average elevation of the water table beneath the
-                                site. Stays a scalar diggs:ElevationType for the same reason as
-                                averageExistingGL: a mean water table is a statistic, not a
-                                position.</documentation>
+                                site. A diggs:PointLocationPropertyType, for the same reason as
+                                averageExistingGL.</documentation>
                         </annotation>
                     </element>
                     <element minOccurs="0" name="seismicSiteClass" type="gml:CodeType">
@@ -287,6 +287,50 @@
                          would point forward and would require delivered column records to be
                          edited once the platform was built. -->
                 </sequence>
+            </extension>
+        </complexContent>
+    </complexType>
+    <element name="RITreatedArea" type="diggs:RITreatedAreaType"
+        substitutionGroup="diggs:AbstractPlanarSamplingFeature">
+        <annotation>
+            <documentation>The area of the site treated by a rigid inclusion system - the ground
+                improvement footprint as a whole, independent of any individual column or platform
+                within it.
+
+                EXISTS TO GIVE THE SYSTEM'S EXTENT A SAMPLING FEATURE TO ATTACH TO (group-redesign
+                follow-on, 2026-08-24). Since GR2 reclassified diggs:RigidInclusionSystem as a group
+                (diggs:AbstractSamplingFeatureGroup), it is no longer a sampling feature itself, and
+                diggs:AbstractObservationSystemType's samplingFeatureRef/sampleRef choice - the
+                mechanism a diggs:GeoUnitSystem (or any other ground-model observation system) uses
+                to state what it characterizes - can only target an actual sampling feature. There
+                was consequently no way to say "this ground model characterizes the treated area of
+                this RI system" at all: the group itself cannot be that target, and no existing
+                feature stood for the site as a whole. RITreatedArea is that feature.
+
+                A MEMBER OF THE SYSTEM'S GROUP, LIKE diggs:RIColumn AND diggs:LoadTransferPlatform.
+                It joins diggs:RigidInclusionSystem the same way they do, through the inherited
+                diggs:samplingFeatureGroupRef (diggs:AbstractSamplingFeatureType) - membership, not
+                containment, and not a fourth special case. Nothing distinguishes it from a generic
+                diggs:PlanarSamplingFeature except this documented role: an author who does not need
+                this association can continue using diggs:PlanarSamplingFeature directly, exactly as
+                diggs:TargetSamplingFeature's own documentation already establishes that pattern for
+                a planned feature needing nothing beyond its base type.
+
+                CURRENTLY NO PROPERTIES OF ITS OWN. The inherited, mandatory featureExtent IS the
+                payload - the site footprint a ground model, or anything else needing to reference
+                "the whole treated area," resolves against. Properties may be added here later if a
+                site-wide as-built quantity emerges that belongs to the area as a whole rather than
+                to any one column or platform within it.</documentation>
+        </annotation>
+    </element>
+    <complexType name="RITreatedAreaType">
+        <annotation>
+            <documentation>Concrete type extending AbstractPlanarSamplingFeatureType. Adds nothing of
+                its own - see diggs:RITreatedArea for why the type exists despite that.</documentation>
+        </annotation>
+        <complexContent>
+            <extension base="diggs:AbstractPlanarSamplingFeatureType">
+                <sequence/>
             </extension>
         </complexContent>
     </complexType>
@@ -564,7 +608,7 @@
                         type="diggs:PointLocationPropertyType">
                         <annotation>
                             <documentation>Elevation of the column cutoff - the top of the finished
-                                column. T
+                                column.
 
                                 An elevation is a position, not a length; see
                                 groundSurfaceElevation for the frame options and the uomLabels
@@ -2257,7 +2301,7 @@
                         </element>
                         <element name="embedmentLayerRef" type="diggs:FeatureReferenceType">
                             <annotation>
-                                <appinfo source="urn:x-gml:Targetelement">diggs:GeoUnitObservation</appinfo>
+                                <appinfo source="urn:x-gml:targetElement">diggs:GeoUnitObservation</appinfo>
                                 <documentation>An xlink:href pointer to the GeoUnitObservation layer from the ground model where termination occurred. Use of this element assumes that the GeoUnitSystem that represents the ground model for this site is reachable from this instance.</documentation>
                             </annotation>
                         </element>
