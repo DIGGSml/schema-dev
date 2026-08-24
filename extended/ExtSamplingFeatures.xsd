@@ -176,11 +176,53 @@
                     <element name="featureExtent" type="diggs:SurfacePropertyType" maxOccurs="1"
                         minOccurs="1">
                         <annotation>
-                            <documentation> This element defines the extent of the surface feature
-                                using a spatial CRS. This element can be used for visual
-                                representations using typical/simple mapping software. Either this
-                                element, or relativeFeatureExtent is required, and can be optionally
-                                added if relativeFeatureExtent is used. </documentation>
+                            <documentation> This element defines the extent of the surface feature.
+                                It can be used for visual representations using typical/simple
+                                mapping software.
+
+                                MANDATORY, AND THE ONLY EXTENT PROPERTY NEEDED. An earlier version
+                                of this documentation read "Either this element, or
+                                relativeFeatureExtent is required, and can be optionally added if
+                                relativeFeatureExtent is used." That was wrong three times over and
+                                is corrected here. This element is minOccurs="1", so it is required
+                                outright rather than as one of an alternative pair.
+                                relativeFeatureExtent is not a sibling of this type at all - it
+                                belongs to diggs:AbstractVolumeSamplingFeatureType, and the planar
+                                counterpart is relativeFeatureBoundary. And relativeFeatureBoundary
+                                itself, along with referenceEdge and planarReferencing, is
+                                DEPRECATED as of 1/26 and must not be used in new instances.
+
+                                EXPRESS RELATIVE COORDINATES BY CHOOSING THE CRS, NOT BY CHOOSING A
+                                DIFFERENT PROPERTY. One extent property now suffices because the
+                                surface's own srsName may name either a spatial CRS or a
+                                diggs:LocalCartesianCRS declared in DocumentInformation/crs. A
+                                feature described in local coordinates therefore populates THIS
+                                element and points its srsName at that local CRS. That is what the
+                                3.0 addition of diggs:LocalCartesianCRS superseded, and why the
+                                relative twins were deprecated rather than maintained: the choice of
+                                reference frame is a property of the geometry, not a reason for a
+                                parallel geometry slot.
+
+                                MAY BE STATED INLINE OR BY REFERENCE. diggs:SurfacePropertyType
+                                follows the standard GML property-type pattern: its content model is
+                                optional and it carries gml:AssociationAttributeGroup, so the surface
+                                may either be given inline or cited with xlink:href on this element,
+                                pointing at a surface declared elsewhere in the document. Both forms
+                                are equally valid. The reference form exists so that one polygon need
+                                not be restated everywhere it applies - a real concern here, since a
+                                site boundary carrying interior rings can run to dozens of
+                                coordinates.
+
+                                THE REFERENCE FORM ASSERTS IDENTITY, which is what makes it
+                                informative rather than merely economical. Citing a surface says this
+                                feature's extent IS that surface - not that it approximates it, or
+                                was derived from it. Where two extents genuinely differ, however
+                                slightly, each states its own geometry and no reference is used. The
+                                common case: an as-built feature whose extent matched the design zone
+                                it realizes cites that zone's diggs:ProgramScope/zoneExtent surface,
+                                while one that departed from it carries its own. See zoneExtent's
+                                documentation (core/Common.xsd) for which copy should be the
+                                authoritative one and why. </documentation>
                         </annotation>
                     </element>
                     <element ref="diggs:relativeFeatureBoundary" maxOccurs="1" minOccurs="0"/>
@@ -361,9 +403,29 @@
                     <element maxOccurs="1" minOccurs="1" name="featureExtent"
                         type="diggs:VolumePropertyType">
                         <annotation>
-                            <documentation> This element defines the extent of the solid feature
-                                using a absolute CRS. This element can be used for visual
-                                representations using typical/simple mapping software
+                            <documentation> This element defines the extent of the solid feature. It
+                                can be used for visual representations using typical/simple mapping
+                                software.
+
+                                MANDATORY, AND THE ONLY EXTENT PROPERTY NEEDED. An earlier version
+                                of this documentation said the extent was defined "using a absolute
+                                CRS", implying that a feature in local coordinates belonged in the
+                                sibling relativeFeatureExtent instead. It does not: this element is
+                                minOccurs="1" and the volume's own srsName may name either a spatial
+                                CRS or a diggs:LocalCartesianCRS declared in
+                                DocumentInformation/crs. relativeFeatureExtent and volumeReferencing
+                                are DEPRECATED as of 1/26 and must not be used in new instances. See
+                                the planar featureExtent on
+                                diggs:AbstractPlanarSamplingFeatureType, which carries the fuller
+                                statement of why one extent property now suffices; the reasoning is
+                                identical in three dimensions.
+
+                                MAY BE STATED INLINE OR BY REFERENCE, exactly as the planar
+                                featureExtent on diggs:AbstractPlanarSamplingFeatureType may:
+                                diggs:VolumePropertyType has the same optional content model and the
+                                same gml:AssociationAttributeGroup, so a volume may be cited with
+                                xlink:href instead of given inline. See that element's documentation
+                                for the convention, which applies here unchanged.
                             </documentation>
                         </annotation>
                     </element>
@@ -662,21 +724,35 @@
 
     <element name="volumeReferencing" type="diggs:LocalReferencingPropertyType">
         <annotation>
-            <appinfo>DEPRECATED 1/26. Instead, a LocalCartesionCRS should be defined in the crs property of DocumentInformation</appinfo>
-            <documentation>This property is deprecated and should not be used. Instead, a
-                LocalCartesionCRS should be defined in the crs property of
-                DocumentInformation</documentation>
+            <appinfo>DEPRECATED 1/26. Instead, a LocalCartesianCRS should be defined in the crs property of DocumentInformation</appinfo>
+            <documentation>A property that holds the local coordinate reference system for a
+                volumetric sampling feature, where relative rather than spatial coordinates are used
+                to define the feature and its properties.
+
+                DEPRECATED as of version 3.0 and must not be used in new instances. Instead, define
+                a diggs:LocalCartesianCRS in the crs property of DocumentInformation and name it in
+                the srsName of the geometry held by featureExtent. This is the volumetric
+                counterpart of planarReferencing above, deprecated for the same reason.</documentation>
         </annotation>
     </element>
 
     <complexType name="LocalReferencingPropertyType">
         <annotation>
-            <appinfo>DEPRECATED 1/26.</appinfo>
+            <appinfo>DEPRECATED 1/26. Whole property type, not only its vector-based branch.</appinfo>
             <documentation> Property type for associating a planar (2D) or volume (3D) engineering
                 coordinate reference system with a feature. This allows the feature to use local 2D
                 or 3D coordinates. Supports both vector-based linear reference systems and local
-                Cartesian coordinate systems. As of version 3.0, the vector-based system is
-                deprecated. </documentation>
+                Cartesian coordinate systems.
+
+                DEPRECATED IN ITS ENTIRETY as of version 3.0, not merely in its vector-based branch.
+                An earlier version of this documentation deprecated only
+                diggs:VectorLinearSpatialReferenceSystem, leaving the impression that the
+                diggs:LocalCartesianCRS branch of the choice below remained the recommended way to
+                give a feature local coordinates. It is not. A diggs:LocalCartesianCRS belongs in
+                the crs property of DocumentInformation, named from the srsName of the geometry that
+                uses it; carrying one here attaches the reference frame to a single feature, which
+                is precisely the coupling the 3.0 design removed. Both properties typed on this -
+                planarReferencing and volumeReferencing - are themselves deprecated. </documentation>
         </annotation>
         <sequence minOccurs="0">
             <choice>
@@ -699,36 +775,57 @@
 
     <element name="referenceEdge" type="diggs:LinearExtentPropertyType">
         <annotation>
-            <appinfo>DEPRECATED 1/26.Only necessary with deprecated VectorLinearReferenceSystem. Instead, this element is replaced by
-                the x-axis definition of a LocalCartesianCRS where relative coordinates are used to
-                define the feature or observations/samples within it. </appinfo>
-            <documentation>A line, whose vertices are described in the same absolute CRS as the line
-                that defines one edge (usually either the top or bottom edge) of the sampling
-                feature’s surface. Where appropriate, this unit is used to represent the
-                intersection of a 2D surface with the ground, DEPRECTED. Only necessary with deprecated VectorLinearReferenceSystem. Instead, this element is replaced by
-                the x-axis definition of a LocalCartesianCRS where relative coordinates are used to
-                define the feature or observations/samples within it. </documentation>
+            <appinfo>DEPRECATED 1/26. Only necessary with the deprecated VectorLinearSpatialReferenceSystem. Replaced by the x-axis definition of a LocalCartesianCRS where relative coordinates are used to define the feature or the observations/samples within it.</appinfo>
+            <documentation>A line, whose vertices are described in the same absolute CRS, that
+                defines one edge (usually either the top or bottom edge) of the sampling feature's
+                surface. Where appropriate, this is used to represent the intersection of a 2D
+                surface with the ground.
+
+                DEPRECATED as of version 3.0 and must not be used in new instances. It was only ever
+                necessary in company with diggs:VectorLinearSpatialReferenceSystem, itself
+                deprecated. Where relative coordinates are used to define the feature or the
+                observations and samples within it, the x-axis definition of a
+                diggs:LocalCartesianCRS replaces this element.</documentation>
         </annotation>
     </element>
 
     <element name="relativeFeatureBoundary" type="diggs:SurfacePropertyType">
         <annotation>
-            <appinfo>DEPRECATED 1/26. This element no longer necessary as featureExtent may be defined in either a spatial or Local CRS</appinfo>
-            <documentation> This element defines the extent of the surface feature using a relative
-                planar referencing system (must define a LocalcCartesanCRS object. DEPRECATED. This
-                element no longer necessary as featureExtent may be defined in either a spatial or
-                local CRS</documentation>
+            <appinfo>DEPRECATED 1/26. No longer necessary, as featureExtent may be defined in either a spatial or a local CRS.</appinfo>
+            <documentation> This element defines the extent of a planar surface feature using a
+                relative planar referencing system.
+
+                DEPRECATED as of version 3.0 and must not be used in new instances. It is no longer
+                necessary, because featureExtent may itself be defined in either a spatial CRS or a
+                diggs:LocalCartesianCRS declared in DocumentInformation/crs - the reference frame is
+                chosen through the geometry's srsName rather than by selecting a second, parallel
+                extent property. Put the geometry in featureExtent instead. Note this is the PLANAR
+                relative extent; the volumetric counterpart is relativeFeatureExtent
+                below.</documentation>
         </annotation>
     </element>
 
     <element name="relativeFeatureExtent" type="diggs:VolumePropertyType">
         <annotation>
-            <appinfo>deprecated 1/26. This property should not be used. featureExtent can hold a 2D or 3D object expressed in spatiol or local coordinate systems</appinfo>
-            <documentation> This element defines the polygon extent of the planar
-                feature using a relative planar referencing system (must use
-                planarReferencing property contents). This element should be used
-                for software that can handle planar referencing (e.g.
-                VectorLinearSpatialReferenceSystem in GML 3.3) </documentation>
+            <appinfo>DEPRECATED 1/26. This property should not be used. featureExtent can hold a 2D or 3D object expressed in a spatial or a local coordinate system.</appinfo>
+            <documentation> This element defines the extent of a volumetric feature using a relative
+                referencing system.
+
+                DEPRECATED as of version 3.0 and must not be used in new instances. Put the geometry
+                in featureExtent instead, which can hold a 2D or 3D object expressed in either a
+                spatial CRS or a diggs:LocalCartesianCRS declared in DocumentInformation/crs.
+
+                THE PRECEDING DESCRIPTION IS RETAINED ONLY TO IDENTIFY THE ELEMENT; the guidance an
+                earlier version of it carried is withdrawn. That text described this as the extent
+                of a PLANAR feature, said it "must use planarReferencing property contents", and
+                recommended it "for software that can handle planar referencing (e.g.
+                VectorLinearSpatialReferenceSystem in GML 3.3)". All three statements are now wrong
+                or actively misleading: this element is typed diggs:VolumePropertyType and belongs
+                to diggs:AbstractVolumeSamplingFeatureType, so it is the volumetric member of the
+                pair - relativeFeatureBoundary above is the planar one; planarReferencing is not a
+                sibling of this type and is itself deprecated; and
+                diggs:VectorLinearSpatialReferenceSystem is deprecated, so recommending software
+                built around it inverts the intended migration. </documentation>
         </annotation>
     </element>
     <!-- ================================================================================= -->
