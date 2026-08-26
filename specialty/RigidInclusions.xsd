@@ -130,7 +130,6 @@
 </documentation>
                         </annotation>
                     </element>
-                    <element minOccurs="0" name="materialType" type="diggs:LithologyPropertyType"/>
                     <element minOccurs="0" name="platformType" type="gml:CodeType">
                         <annotation>
                             <documentation>The construction type of the load transfer platform, as
@@ -180,6 +179,11 @@
                                 this element - found and corrected in review, 2026-08-16.</documentation>
                         </annotation>
                     </element>
+                    <element minOccurs="1" name="layers" type="diggs:LTPLayerArrayPropertyType">
+                        <annotation>
+                            <documentation>An array of LTPLayer objects. Each layer represents a discrete entity layed down to form the LTP (a lift), with a known material type and thickness. A LoadTransferPlatform consists of at least one LTPLayer.wpElevation + heightAboveWorkingPlatform cannot exceed elevationTopLTP.</documentation>
+                        </annotation>
+                    </element>
                     <element maxOccurs="1" minOccurs="0" name="geosynthetics"
                         type="diggs:GeosyntheticArrayPropertyType">
                         <annotation>
@@ -196,6 +200,36 @@
                 </sequence>
             </extension>
         </complexContent>
+    </complexType>
+    <element name="LTPLayer" type="diggs:LTPLayerType"/>
+    <complexType name="LTPLayerType">
+        <complexContent>
+            <extension base="diggs:AbstractObjectType">
+                <sequence>
+                    <element minOccurs="0" name="materialType" type="diggs:LithologyPropertyType">
+                        <annotation>
+                            <documentation>The material used to construct this layer or lift.</documentation>
+                        </annotation>
+                    </element>
+                    <element minOccurs="1" name="heightAboveWorkingPlatform"
+                        type="diggs:LengthMeasureType">
+                        <annotation>
+                            <documentation>The distance between the working platform surface and the top of the layer. Elevation of the layer top can therefore be computed by wpElevation + heightAboveWorkingPlatform.</documentation>
+                        </annotation>
+                    </element>
+                    <element name="layerThickness" type="diggs:LengthMeasureType">
+                        <annotation>
+                            <documentation>The vertical distance between the top and base of the layer.</documentation>
+                        </annotation>
+                    </element>
+                </sequence>
+            </extension>
+        </complexContent>
+    </complexType>
+    <complexType name="LTPLayerArrayPropertyType">
+        <sequence maxOccurs="unbounded">
+            <element ref="diggs:LTPLayer"/>
+        </sequence>
     </complexType>
     <element name="RITreatedArea" type="diggs:RITreatedAreaType"
         substitutionGroup="diggs:AbstractPlanarSamplingFeature">
@@ -1320,19 +1354,21 @@
                                 or both.</documentation>
                         </annotation>
                     </element>
-                    <element minOccurs="0" name="toeElevation" type="diggs:ElevationType">
+                    <element minOccurs="0" name="toeElevation"
+                        type="diggs:PointLocationPropertyType">
                         <annotation>
                             <documentation>The designed elevation of the column toe.
 
-                                A SCALAR diggs:ElevationType, NOT a position, and the distinction is
-                                the one A6 drew across the whole schema: a position belongs to a
-                                point on a feature, a level belongs to an area. This is a design
-                                level adopted across whatever population the scope declares -
-                                thousands of columns share it - so it has no definite point to be
-                                the position of. Contrast diggs:RIColumnType/cutoffElevation
-                                on the as-built side, which is a position because it belongs to one
-                                built column and is extractable from that column's
-                                centerLine.
+                                diggs:PointLocationPropertyType, for consistency with how every
+                                other elevation in DIGGS is carried; a level stated in a vertical
+                                CRS is expressed as a one-dimensional position. AN EARLIER DRAFT
+                                typed this a scalar diggs:ElevationType, on the A6 argument that a
+                                position belongs to a point on a feature while a level belongs to an
+                                area, and that a design level shared by thousands of columns has no
+                                definite point to be the position of. That argument is RETRACTED,
+                                and diggs:ElevationType has been removed from the schema; the
+                                as-built counterpart diggs:RIColumnType/cutoffElevation was already
+                                a position, and the two now agree.
 
                                 The natural companion to the design bearing-stratum level: the toe
                                 elevation is normally set by required penetration into that stratum,
