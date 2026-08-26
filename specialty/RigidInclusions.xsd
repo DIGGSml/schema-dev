@@ -43,101 +43,10 @@
                     <element minOccurs="0" name="whenConstructed"
                         type="diggs:TimeIntervalPropertyType">
                         <annotation>
-                            <documentation>The date range spanning construction of the foundation system (MC's and LTP's.</documentation>
+                            <documentation>The date range spanning the exploration, design, construction and post-installation construction of the rigid inclustion system's columns and loat transfer platforms.</documentation>
                         </annotation>
                     </element>
                     <element minOccurs="0" name="purpose" type="string"/>
-                    <element minOccurs="0" name="totalArea" type="diggs:AreaMeasureType">
-                        <annotation>
-                            <documentation>The total area of the site occupying the rigid inclusion
-                                system.
-
-                                OVERLAPS THE INHERITED extent (diggs:AbstractSamplingFeatureGroupType,
-                                a SurfacePropertyType) - both describe the same area, one as a scalar
-                                and one as a geometry. Where they disagree THE GEOMETRY PREVAILS, the
-                                established DIGGS convention for a convenience scalar stated alongside
-                                the geometry it summarizes (diggs:RIColumnType/cutoffElevation,
-                                diggs:TargetSamplingFeatureType/diameter). Kept alongside extent rather
-                                than retired, since a consumer wanting only the area should not have to
-                                resolve and measure a geometry to get it.</documentation>
-                        </annotation>
-                    </element>
-                    <element minOccurs="0" name="workingPlatformElevation"
-                        type="diggs:PointLocationPropertyType">
-                        <annotation>
-                            <documentation>The elevation of the temporary, heavy-duty layer of
-                                compacted granular material installed across the site before ground
-                                improvement begins.
-
-                                A working platform is constructed horizontal, so it has no
-                                variability and one definite elevation - which makes this a
-                                position, not an averaged level. Renamed from workingPlatformLevel
-                                in A6 for that reason: "Level" implied a statistic.
-
-                                PRECEDENCE HAS TWO BRANCHES here, and which applies depends on the
-                                RigidInclusionSystem's featureExtent. Where that extent is expressed
-                                in a 3-D or compound CRS it already carries this elevation, and THE
-                                GEOMETRY PREVAILS - this property is then a convenience for
-                                consumers that do not want to walk the geometry. Where the extent is
-                                2-D it carries no elevation at all, and THIS PROPERTY IS THE
-                                PREVAILING VALUE. A consumer cannot tell which branch applies
-                                without inspecting the extent's srsDimension.
-
-                                The value may be given as a one-dimensional position in a vertical
-                                CRS or as a full three-dimensional position; populate uomLabels so
-                                the unit is readable without resolving the CRS.</documentation>
-                        </annotation>
-                    </element>
-                    <element minOccurs="0" name="workingPlatformBearingCapacity"
-                        type="diggs:PressureMeasureType">
-                        <annotation>
-                            <documentation>The bearing capacity the working platform was verified to
-                                provide before rigid inclusion installation began - sufficient to
-                                carry the maximum ground pressure exerted by the drill rigs, grout
-                                pumps and support equipment used to install the columns.
-
-                                A THRESHOLD VERIFIED ONCE, NOT A DESIGN VALUE TRACKED AGAINST AN
-                                AS-BUILT OUTCOME. Working platform adequacy is a go/no-go check made
-                                before RI work starts: if the existing ground cannot carry the rig,
-                                the site is modified - typically a granular platform layer, often
-                                geosynthetic-reinforced - until it can. There is no case in current
-                                practice where a platform proceeds to use while under its required
-                                capacity, so design intent and as-built outcome do not diverge here
-                                the way they do for column diameter or toe elevation, and this single
-                                value on the as-built RigidInclusionSystem is sufficient; no parallel
-                                design-side element is modeled.
-
-                                IF THAT EVER CHANGES - a platform is used despite a test result below
-                                target, under a documented waiver - this element cannot express the
-                                distinction. That case would need the same treatment as every other
-                                RI requirement: a diggs:PerformanceCriterion or
-                                diggs:DesignConformanceCriterion stating the required value, with this
-                                element (or a cited test) as what it is evaluated
-                                against.</documentation>
-                        </annotation>
-                    </element>
-                    <element minOccurs="0" name="averageExistingGL"
-                        type="diggs:PointLocationPropertyType">
-                        <annotation>
-                            <documentation>The average elevation of the existing ground level below
-                                the working platform.
-
-                                A diggs:PointLocationPropertyType, populated the same way as this
-                                file's other elevations (workingPlatformElevation,
-                                groundSurfaceElevation, cutoffElevation): as a one-dimensional
-                                position in a vertical CRS or as a full three-dimensional position,
-                                with uomLabels populated so the unit is readable without resolving
-                                the CRS.</documentation>
-                        </annotation>
-                    </element>
-                    <element maxOccurs="1" minOccurs="0" name="averageWTLevel"
-                        type="diggs:PointLocationPropertyType">
-                        <annotation>
-                            <documentation>The average elevation of the water table beneath the
-                                site. A diggs:PointLocationPropertyType, for the same reason as
-                                averageExistingGL.</documentation>
-                        </annotation>
-                    </element>
                     <element minOccurs="0" name="seismicSiteClass" type="gml:CodeType">
                         <annotation>
                             <documentation>The seismic site classification (IBC/ASCE 7 Site Class
@@ -294,45 +203,85 @@
         substitutionGroup="diggs:AbstractPlanarSamplingFeature">
         <annotation>
             <documentation>The area of the site treated by a rigid inclusion system - the ground
-                improvement footprint as a whole, independent of any individual column or platform
-                within it.
-
-                EXISTS TO GIVE THE SYSTEM'S EXTENT A SAMPLING FEATURE TO ATTACH TO (group-redesign
-                follow-on, 2026-08-24). Since GR2 reclassified diggs:RigidInclusionSystem as a group
-                (diggs:AbstractSamplingFeatureGroup), it is no longer a sampling feature itself, and
-                diggs:AbstractObservationSystemType's samplingFeatureRef/sampleRef choice - the
-                mechanism a diggs:GeoUnitSystem (or any other ground-model observation system) uses
-                to state what it characterizes - can only target an actual sampling feature. There
-                was consequently no way to say "this ground model characterizes the treated area of
-                this RI system" at all: the group itself cannot be that target, and no existing
-                feature stood for the site as a whole. RITreatedArea is that feature.
-
-                A MEMBER OF THE SYSTEM'S GROUP, LIKE diggs:RIColumn AND diggs:LoadTransferPlatform.
-                It joins diggs:RigidInclusionSystem the same way they do, through the inherited
-                diggs:samplingFeatureGroupRef (diggs:AbstractSamplingFeatureType) - membership, not
-                containment, and not a fourth special case. Nothing distinguishes it from a generic
-                diggs:PlanarSamplingFeature except this documented role: an author who does not need
-                this association can continue using diggs:PlanarSamplingFeature directly, exactly as
-                diggs:TargetSamplingFeature's own documentation already establishes that pattern for
-                a planned feature needing nothing beyond its base type.
-
-                CURRENTLY NO PROPERTIES OF ITS OWN. The inherited, mandatory featureExtent IS the
-                payload - the site footprint a ground model, or anything else needing to reference
-                "the whole treated area," resolves against. Properties may be added here later if a
-                site-wide as-built quantity emerges that belongs to the area as a whole rather than
-                to any one column or platform within it.</documentation>
+                improvement footprint that includes the rigid columns and may extend beyond any associated foundation or embankment. Although its featureExtent inherits from AbstractPlanarSamplingFeature, and therefore may include any concrete surface geometry, it is typickally expressed as a PlanarSurface in a 2D CRS, since the footprint's elevation is of no relevance.</documentation>
         </annotation>
     </element>
     <complexType name="RITreatedAreaType">
         <annotation>
-            <documentation>Concrete type extending AbstractPlanarSamplingFeatureType. Adds nothing of
-                its own - see diggs:RITreatedArea for why the type exists despite that.</documentation>
+            <documentation>Concrete type extending AbstractPlanarSamplingFeatureType.</documentation>
         </annotation>
         <complexContent>
             <extension base="diggs:AbstractPlanarSamplingFeatureType">
-                <sequence/>
+                <sequence>
+                    <element minOccurs="0" name="totalArea" type="diggs:AreaMeasureType">
+                        <annotation>
+                            <documentation>The total area of the treated area - the area encompassing the installation of rigid inclusion columns</documentation>
+                        </annotation>
+                    </element>
+                    <element maxOccurs="unbounded" minOccurs="1" name="workingPlatform"
+                        type="diggs:WorkingPlatformPropertyType"/>
+                </sequence>
             </extension>
         </complexContent>
+    </complexType>
+    <element name="WorkingPlatform" type="diggs:WorkingPlatformType">
+        <annotation>
+            <documentation>A surface prepared within the treated area before ground improvement begins that is designed to carry the load of equipment used in constructing the rigid inclusion columns and load transfer platform(s). The platform is prepared to be horizontal and, depending on site conditions, may be underlain by granular fill depostied over the natural ground surface in order to provide sufficient supportive bearing capacity. If only one working platform exists within the treated area, ite wpExtent property may be omitted and its extent is assumed to be the same as RITreatedArea. Its wpElevation property is mandatory and overrides any elevation expressed in wpExtent in the event that wpExtent is expressed in a 3D CRS.</documentation>
+        </annotation>
+    </element>
+    <complexType name="WorkingPlatformType">
+        <complexContent>
+            <extension base="diggs:AbstractObjectType">
+                <sequence>
+                    <element minOccurs="0" name="wpExtent" type="diggs:PlanarSurfacePropertyType">
+                        <annotation>
+                            <documentation>The surface extent of the working platform. If mitted, there can be only one WorkingPlatform and the extent is assumed to be the same as RITreatedArea. Typically expressed in a 2D CRS because the platform's elevation must be expressed in the mandatory wpElevation property, which overrides any elevation reported in wpExtent.</documentation>
+                        </annotation>
+                    </element>
+                    <element minOccurs="1" name="wpPlatformElevation"
+                        type="diggs:PointLocationPropertyType">
+                        <annotation>
+                            <documentation>The elevation of the working platform. As the platform is required to be horizontal, this value is a
+                                position, not an averaged level, that should be expressed as a one-dimensional position in a vertical CRS. This property is mandatory - its value overrides any elevation that may be expressed in the working platform's wpExtent or in the RITreatmentArea's featureExtent.</documentation>
+                        </annotation>
+                    </element>
+                    <element minOccurs="0" name="wpBearingCapacity" type="diggs:PressureMeasureType">
+                        <annotation>
+                            <documentation>The bearing capacity the working platform was verified to
+                                provide before rigid inclusion installation began - sufficient to
+                                carry the maximum ground pressure exerted by the drill rigs, grout
+                                pumps and support equipment used to install the columns.
+
+                                A THRESHOLD VERIFIED ONCE, NOT A DESIGN VALUE TRACKED AGAINST AN
+                                AS-BUILT OUTCOME. Working platform adequacy is a go/no-go check made
+                                before RI work starts: if the existing ground cannot carry the required equipment,
+                                the site is modified, typically with a granular platform layer, often
+                                geosynthetic-reinforced, until it can.</documentation>
+                        </annotation>
+                    </element>
+                    <element minOccurs="0" name="avgFillThickness"
+                        type="diggs:PointLocationPropertyType">
+                        <annotation>
+                            <documentation>The average thickness of fill placed over the existing ground level below
+                                the working platform surface. If not present, this value is assumed to be zero. The average natural ground surface elevation below the working platform may be computed from wpElevation - avgFillThickness.
+</documentation>
+                        </annotation>
+                    </element>
+                    <element maxOccurs="1" minOccurs="0" name="avgWTLevel"
+                        type="diggs:PointLocationPropertyType">
+                        <annotation>
+                            <documentation>The average elevation of the water table beneath the
+                                working platform. A position, and therefore expressed as a 1D PointLocation defined by a vertical CRS.</documentation>
+                        </annotation>
+                    </element>
+                </sequence>
+            </extension>
+        </complexContent>
+    </complexType>
+    <complexType name="WorkingPlatformPropertyType">
+        <sequence minOccurs="1" maxOccurs="1">
+            <element ref="diggs:WorkingPlatform"/>
+        </sequence>
     </complexType>
     <element name="Geosynthetic" type="diggs:GeosyntheticType"/>
     <complexType name="GeosyntheticType">
@@ -638,7 +587,7 @@
                                 drilling of the hole.</documentation>
                         </annotation>
                     </element>
-                    <element maxOccurs="1" minOccurs="0" name="reinforcement"
+                    <element maxOccurs="unbounded" minOccurs="0" name="reinforcement"
                         type="diggs:ReinforcementArrayPropertyType">
                         <annotation>
                             <documentation>The steel reinforcement actually installed in this
@@ -788,7 +737,7 @@
         <complexContent>
             <extension base="diggs:AbstractEventType">
                 <sequence>
-                    <element minOccurs="0" name="riDepth" type="diggs:PointLocationPropertyType">
+                    <element minOccurs="0" name="riBottom" type="diggs:PointLocationPropertyType">
                         <annotation>
                             <documentation>Measured Depth to the base of the rigid inclusion at this event time,
                                 reported in the RI's linear referencing system.</documentation>
