@@ -16,7 +16,7 @@
         <annotation>
             <documentation>A rigid inclusion ground improvement system: the collection of load
                 transfer platforms and rigid inclusion columns whose information content is jointly
-                interpretable because they share one working platform and one treated area.
+                interpretable because they were built within one treated area.
 
                 A GROUP, NOT A SAMPLING FEATURE (GR1, 2026-08-22, group-redesign). Reclassified from
                 diggs:AbstractPlanarSamplingFeature - the strongest evidence for the reclassification
@@ -24,8 +24,25 @@
                 inclusion system has none: it has an extent, not a position, which is exactly what
                 diggs:AbstractSamplingFeatureGroupType's own optional extent (SurfacePropertyType) is
                 for. Per diggs:AbstractProjectScopedGroup's own definition, a group's content is the
-                warrant for interpreting its members jointly - this system's working platform and
-                treated area ARE that warrant for the columns and platforms built within them.
+                warrant for interpreting its members jointly - the diggs:RITreatedArea they were
+                built within IS that warrant for the columns and platforms.
+
+                THE TREATED AREA AND THE WORKING PLATFORM(S) LIVE ON diggs:RITreatedArea, NOT HERE.
+                An earlier version of this documentation said the members "share one working platform
+                and one treated area" and that both were properties of this group. They are not, and
+                the singular was wrong on the platform: diggs:RITreatedAreaType carries a mandatory,
+                REPEATABLE workingPlatform, so one treated area may have been prepared in several
+                stages or at several levels. What was flat on this type - totalArea,
+                workingPlatformElevation, workingPlatformBearingCapacity, averageExistingGL,
+                averageWTLevel - moved to diggs:RITreatedArea and diggs:WorkingPlatform, where each
+                belongs to the thing it actually describes.
+
+                THIS GROUP'S OWN extent IS NOT THE TREATED FOOTPRINT, and the two should not be
+                assumed equal. Per the base type, extent is "the area over which this group acts, or
+                within which its members lie" - and a system's members routinely include exploratory
+                boreholes drilled outside the ground-improvement footprint to characterize it. The
+                treated footprint is diggs:RITreatedArea's featureExtent; this extent encloses
+                everything the group contains, and is normally the larger of the two.
 
                 MEMBERSHIP IS DECLARED BY THE MEMBERS, not enumerated here. diggs:LoadTransferPlatform
                 and diggs:RIColumn each cite this feature through the inherited
@@ -43,29 +60,10 @@
                     <element minOccurs="0" name="whenConstructed"
                         type="diggs:TimeIntervalPropertyType">
                         <annotation>
-                            <documentation>The date range spanning the exploration, design, construction and post-installation construction of the rigid inclustion system's columns and loat transfer platforms.</documentation>
+                            <documentation>The date range spanning the exploration, design, construction and post-installation construction of the rigid inclusion system's columns and load transfer platforms.</documentation>
                         </annotation>
                     </element>
                     <element minOccurs="0" name="purpose" type="string"/>
-                    <element minOccurs="0" name="seismicSiteClass" type="gml:CodeType">
-                        <annotation>
-                            <documentation>The seismic site classification (IBC/ASCE 7 Site Class
-                                A-F) of the site after ground improvement, based on the composite
-                                properties of the treated ground mass (V2 Post-installation row 31).
-
-                                A CLASSIFICATION, NOT THE MEASUREMENT IT IS DERIVED FROM. The
-                                composite shear-wave velocity a Site Class determination is based on
-                                is a genuinely separate fact, already expressible today - a measured
-                                outcome via diggs:LabVelocityTest or diggs:GeophysicalFieldSurvey, or
-                                stated as a diggs:PerformanceCriterion where a minimum Vs is a design
-                                requirement (see specialty/Grouting.xsd's Vs criterion precedent).
-                                This element carries only the interpreted code that measurement
-                                supports, kept distinct per row 31's own split verdict - conflating a
-                                measured quantity with a derived classification under one value is
-                                the same trap Design row 2 (governing standard vs. design method) was
-                                corrected out of.</documentation>
-                        </annotation>
-                    </element>
                     <!-- The loadTransferPlatforms containment array was removed here. Load transfer
                          platforms are now top-level sampling features that cite this system through
                          the inherited, optional samplingFeatureGroupRef (GR1/GR2, 2026-08-22,
@@ -203,7 +201,7 @@
         substitutionGroup="diggs:AbstractPlanarSamplingFeature">
         <annotation>
             <documentation>The area of the site treated by a rigid inclusion system - the ground
-                improvement footprint that includes the rigid columns and may extend beyond any associated foundation or embankment. Although its featureExtent inherits from AbstractPlanarSamplingFeature, and therefore may include any concrete surface geometry, it is typickally expressed as a PlanarSurface in a 2D CRS, since the footprint's elevation is of no relevance.</documentation>
+                improvement footprint that includes the rigid columns and may extend beyond any associated foundation or embankment. Although its featureExtent inherits from AbstractPlanarSamplingFeature, and therefore may include any concrete surface geometry, it is typically expressed as a PlanarSurface in a 2D CRS, since the footprint's elevation is of no relevance.</documentation>
         </annotation>
     </element>
     <complexType name="RITreatedAreaType">
@@ -220,13 +218,53 @@
                     </element>
                     <element maxOccurs="unbounded" minOccurs="1" name="workingPlatform"
                         type="diggs:WorkingPlatformPropertyType"/>
+                    <element minOccurs="0" name="seismicSiteClass" type="gml:CodeType">
+                        <annotation>
+                            <documentation>The seismic site classification (IBC/ASCE 7 Site Class
+                                A-F) of the site after ground improvement, based on the composite
+                                properties of the treated ground mass (V2 Post-installation row 31).
+
+                                MOVED HERE FROM diggs:RigidInclusionSystemType (2026-08-26). A site
+                                class is a property of the treated ground, and the system is a
+                                GROUP - a bundling construct whose membership may include
+                                exploratory features lying outside the treated area entirely, so a
+                                ground property stated there had no well-defined subject. This is
+                                the treated area, so this is where it belongs.
+
+                                A CLASSIFICATION, NOT THE MEASUREMENT IT IS DERIVED FROM. The
+                                composite shear-wave velocity a Site Class determination is based on
+                                is a genuinely separate fact, already expressible today - a measured
+                                outcome via diggs:LabVelocityTest or diggs:GeophysicalFieldSurvey, or
+                                stated as a diggs:PerformanceCriterion where a minimum Vs is a design
+                                requirement (see specialty/Grouting.xsd's Vs criterion precedent).
+                                This element carries only the interpreted code that measurement
+                                supports, kept distinct per row 31's own split verdict - conflating a
+                                measured quantity with a derived classification under one value is
+                                the same trap Design row 2 (governing standard vs. design method) was
+                                corrected out of.
+
+                                THE ACHIEVED CLASS, NOT THE INTENDED ONE. Its design-side
+                                counterpart is diggs:RITreatedAreaDesignType/seismicSiteClass, which
+                                carries the class the design PREDICTS; where the two differ, that
+                                divergence is the finding, and neither value should be edited to
+                                match the other.</documentation>
+                        </annotation>
+                    </element>
                 </sequence>
             </extension>
         </complexContent>
     </complexType>
     <element name="WorkingPlatform" type="diggs:WorkingPlatformType">
         <annotation>
-            <documentation>A surface prepared within the treated area before ground improvement begins that is designed to carry the load of equipment used in constructing the rigid inclusion columns and load transfer platform(s). The platform is prepared to be horizontal and, depending on site conditions, may be underlain by granular fill depostied over the natural ground surface in order to provide sufficient supportive bearing capacity. If only one working platform exists within the treated area, ite wpExtent property may be omitted and its extent is assumed to be the same as RITreatedArea. Its wpElevation property is mandatory and overrides any elevation expressed in wpExtent in the event that wpExtent is expressed in a 3D CRS.</documentation>
+            <documentation>A surface prepared within the treated area before ground improvement begins that is designed to carry the load of equipment used in constructing the rigid inclusion columns and load transfer platform(s). The platform is prepared to be horizontal and, depending on site conditions, may be underlain by granular fill deposited over the natural ground surface in order to provide sufficient supportive bearing capacity. If only one working platform exists within the treated area, its wpExtent property may be omitted and its extent is assumed to be the same as RITreatedArea. Its wpElevation property is mandatory and overrides any elevation expressed in wpExtent in the event that wpExtent is expressed in a 3D CRS.
+
+                A COMPONENT OBJECT, NOT A SAMPLING FEATURE. It extends diggs:AbstractObjectType and
+                is reachable only through diggs:RITreatedAreaType/workingPlatform, because a working
+                platform bounds the work rather than being a thing the work is performed on: nothing
+                is sampled from it, no observation targets it, and it has no identity outside the
+                treated area it was prepared within. This is the same call made for
+                diggs:Geosynthetic, which is likewise a component of the
+                diggs:LoadTransferPlatform that contains it.</documentation>
         </annotation>
     </element>
     <complexType name="WorkingPlatformType">
@@ -235,14 +273,61 @@
                 <sequence>
                     <element minOccurs="0" name="wpExtent" type="diggs:PlanarSurfacePropertyType">
                         <annotation>
-                            <documentation>The surface extent of the working platform. If mitted, there can be only one WorkingPlatform and the extent is assumed to be the same as RITreatedArea. Typically expressed in a 2D CRS because the platform's elevation must be expressed in the mandatory wpElevation property, which overrides any elevation reported in wpExtent.</documentation>
+                            <documentation>The surface extent of the working platform. If omitted, there can be only one WorkingPlatform and the extent is assumed to be the same as RITreatedArea. Typically expressed in a 2D CRS because the platform's elevation must be expressed in the mandatory wpElevation property, which overrides any elevation reported in wpExtent.
+
+                                MAY BE STATED INLINE OR BY REFERENCE. diggs:PlanarSurfacePropertyType
+                                carries gml:AssociationAttributeGroup and an optional content model,
+                                so where a platform's extent is genuinely the same polygon as
+                                something already declared - one of several platforms coinciding with
+                                a diggs:LoadTransferPlatform's featureExtent, say - this may cite that
+                                surface by xlink:href rather than restate it. Note the single-platform
+                                case needs no reference at all: omit this property entirely and the
+                                extent is the RITreatedArea's.</documentation>
                         </annotation>
                     </element>
-                    <element minOccurs="1" name="wpPlatformElevation"
-                        type="diggs:PointLocationPropertyType">
+                    <element minOccurs="0" name="totalArea" type="diggs:AreaMeasureType">
+                        <annotation>
+                            <documentation>The total area of the working platform. This is a convenience property designed so that consumers do not need to compute total area from wpExtent. If there is disagreement between totalArea and the area computed from wpExtent, the geometry prevails.</documentation>
+                        </annotation>
+                    </element>
+                    <element minOccurs="1" name="wpElevation" type="diggs:PointLocationPropertyType">
                         <annotation>
                             <documentation>The elevation of the working platform. As the platform is required to be horizontal, this value is a
-                                position, not an averaged level, that should be expressed as a one-dimensional position in a vertical CRS. This property is mandatory - its value overrides any elevation that may be expressed in the working platform's wpExtent or in the RITreatmentArea's featureExtent.</documentation>
+                                position, not an averaged level, that should be expressed as a one-dimensional position in a vertical CRS. This property is mandatory - its value overrides any elevation that may be expressed in the working platform's wpExtent or in the RITreatedArea's featureExtent.</documentation>
+                        </annotation>
+                    </element>
+                    <element minOccurs="0" name="wpMaterial" type="diggs:LithologyPropertyType">
+                        <annotation>
+                            <documentation>The material of the fill placed beneath the working
+                                platform - typically a well-graded compacted granular fill.
+
+                                DESCRIBES THE FILL, NOT THE PLATFORM, WHICH IS WHY IT IS OPTIONAL.
+                                The working platform is a SURFACE, not a layer, so it has no
+                                material of its own. Fill beneath it exists only where it is needed
+                                to reach the bearing capacity the installation equipment requires;
+                                where the natural ground already provides that, no fill is placed
+                                and this property is simply absent.
+
+                                PAIRS WITH avgFillThickness, and the two are absent together. That
+                                property is the same fill's thickness, "assumed to be zero" when
+                                omitted - the same no-fill case this property's absence records.
+                                Between them they answer what was placed and how much of it; there
+                                is no separate platform-thickness property, because a surface has
+                                no thickness.
+
+                                NOT THE SAME THING AS diggs:LoadTransferPlatformType/materialType,
+                                though both are diggs:LithologyPropertyType and the two are easily
+                                confused - this is F1's conflation in the V2 workbook, resolved.
+                                A working platform is temporary construction access, prepared
+                                BEFORE the columns are installed and characterized by the rig load
+                                it must carry; this property describes the fill under it. A load
+                                transfer platform is permanent structure, built AFTER the columns
+                                over their finished heads, and characterized by how it distributes
+                                load onto them; its materialType describes the platform itself,
+                                which genuinely is a layer with a thickness. Where a site's LTP
+                                happens to be founded on the former working platform, that is a
+                                construction-sequence fact about two distinct features, not one
+                                feature named twice.</documentation>
                         </annotation>
                     </element>
                     <element minOccurs="0" name="wpBearingCapacity" type="diggs:PressureMeasureType">
@@ -259,12 +344,18 @@
                                 geosynthetic-reinforced, until it can.</documentation>
                         </annotation>
                     </element>
-                    <element minOccurs="0" name="avgFillThickness"
-                        type="diggs:PointLocationPropertyType">
+                    <element minOccurs="0" name="avgFillThickness" type="diggs:LengthMeasureType">
                         <annotation>
                             <documentation>The average thickness of fill placed over the existing ground level below
                                 the working platform surface. If not present, this value is assumed to be zero. The average natural ground surface elevation below the working platform may be computed from wpElevation - avgFillThickness.
-</documentation>
+
+                                A LENGTH, NOT A POSITION - the one property in this object that is
+                                not an elevation. A thickness has magnitude but no location, it must
+                                be able to take the value zero (which the documentation above relies
+                                on), and it is subtracted FROM an elevation to yield one. Contrast
+                                wpElevation and avgWTLevel beside it, which are both
+                                diggs:PointLocationPropertyType because each names a definite place
+                                in a vertical CRS.</documentation>
                         </annotation>
                     </element>
                     <element maxOccurs="1" minOccurs="0" name="avgWTLevel"
@@ -780,7 +871,7 @@
          RETIRED here, deliberately, and not to be reinstated:
            CMCArrayType, CMCArrayPropertyType, and the children columnIds, columnTopLocations,
              columnLengths - the array scope form; see the note above RIColumn.
-           RISystemDesignPropertyType - modules now hang off the program's generic design slot.
+           RITreatedAreaDesignPropertyType - modules now hang off the program's generic design slot.
            CMCConstructionActivity / CMCConstructionActivityType - the RI construction activity is
              built properly in C3, with its measurement-while-drilling coverage. The sketch carried
              torqueApplied, penetrationPerRevolution, penetrationRate, withdrawalRate,
@@ -790,10 +881,10 @@
            RigidInclusionProgramType/explorationPhaseDesign, riPerformanceSpec, riFeasibility,
              riConcept, riDesignSpec - each named a KIND of module. The kind is now carried by the
              module object's own type, not by the slot it sits in.
-           RISystemDesignType/columnDesign, ltpDesign - these become RIColumnDesign and RILTPDesign
-             (C2), declared as siblings under the program and citing RISystemDesign through
+           RITreatedAreaDesignType/columnDesign, ltpDesign - these become RIColumnDesign and RILTPDesign
+             (C2), declared as siblings under the program and citing RITreatedAreaDesign through
              basedOnRef rather than being contained by it.
-           RISystemDesignType/predictedPerformance, globalStability - untyped sketches of design
+           RITreatedAreaDesignType/predictedPerformance, globalStability - untyped sketches of design
              outputs. Retired rather than guessed at; if they return they need real types. -->
     <element name="RigidInclusionProgram" type="diggs:RigidInclusionProgramType"
         substitutionGroup="diggs:AbstractProgram">
@@ -830,7 +921,7 @@
                         <annotation>
                             <documentation>A design this program issues - what is intended to be
                                 built. Holds any member of the diggs:AbstractProgramDesign
-                                substitution group, so an RI program may carry an RISystemDesign, an
+                                substitution group, so an RI program may carry an RITreatedAreaDesign, an
                                 RIColumnDesign and a DesignGroutMix declared in Grouting.xsd
                                 alongside one another.</documentation>
                         </annotation>
@@ -857,7 +948,7 @@
             </extension>
         </complexContent>
     </complexType>
-    <element name="RISystemDesign" type="diggs:RISystemDesignType"
+    <element name="RITreatedAreaDesign" type="diggs:RITreatedAreaDesignType"
         substitutionGroup="diggs:AbstractProgramDesign">
         <annotation>
             <documentation>The site-wide design for a rigid inclusion foundation system: the design
@@ -875,7 +966,7 @@
                 duplicated.</documentation>
         </annotation>
     </element>
-    <complexType name="RISystemDesignType">
+    <complexType name="RITreatedAreaDesignType">
         <annotation>
             <documentation>Type for the site-wide rigid inclusion system design. Inherits scope,
                 basedOnRef, programSpecificationRef and basisRef from
@@ -913,7 +1004,7 @@
                                 because a single site-wide design is exactly where
                                 diggs:DesignAction's own appliesToZoneRef earns its place: each
                                 repetition can govern a different part of the site under one
-                                RISystemDesign, the same way groutDesignRef above may repeat for
+                                RITreatedAreaDesign, the same way groutDesignRef above may repeat for
                                 different mixes used across zones.</documentation>
                         </annotation>
                     </element>
@@ -954,7 +1045,7 @@
                                 component (Design Parameter Analysis row 89). Repeats per
                                 component - see diggs:PredictedSettlement's own documentation. One
                                 repeated wrapper element per component, matching
-                                diggs:RISystemBasisType/factor's convention rather than an array
+                                diggs:RIProgramBasisType/factor's convention rather than an array
                                 wrapper.</documentation>
                         </annotation>
                     </element>
@@ -1007,7 +1098,7 @@
                                 documenting the expectation.
 
                                 PLACED HERE, NOT ON diggs:RIColumnDesignType OR
-                                diggs:RILTPDesignType, FOR THE SAME REASON diggs:RISystemDesignType/
+                                diggs:RILTPDesignType, FOR THE SAME REASON diggs:RITreatedAreaDesignType/
                                 verification IS: THIS IS A WHOLE-SYSTEM JUDGMENT, NOT A PROPERTY OF
                                 ONE COMPONENT DESIGN. "Does this method's assumption hold for this
                                 zone's layout" is the same kind of check as "is this zone globally
@@ -1036,6 +1127,30 @@
                                 here.</documentation>
                         </annotation>
                     </element>
+                    <element minOccurs="0" name="seismicSiteClass" type="gml:CodeType">
+                        <annotation>
+                            <documentation>The seismic site classification (IBC/ASCE 7 Site Class
+                                A-F) the design PREDICTS for the treated ground after improvement.
+
+                                A PREDICTED OUTPUT, WHICH IS WHY IT SITS BESIDE predictedSettlement
+                                RATHER THAN IN A CRITERION. A design states what it expects the
+                                improved ground to achieve; that is a design output of the same kind
+                                as a predicted settlement, and it belongs on the design object. A
+                                REQUIRED minimum site class is a different statement entirely - a
+                                constraint the work is judged against - and belongs on a
+                                diggs:PerformanceCriterion, following the precedent
+                                specialty/Grouting.xsd already sets for a minimum shear-wave
+                                velocity. Do not use this element to state a requirement: a
+                                prediction that is missed is a finding, whereas a requirement that
+                                is missed is a non-conformance, and collapsing the two loses exactly
+                                that distinction.
+
+                                ITS AS-BUILT COUNTERPART IS diggs:RITreatedAreaType/seismicSiteClass,
+                                which carries the class actually achieved. The pair is intended to be
+                                comparable: same vocabulary, same subject, one predicted and one
+                                verified.</documentation>
+                        </annotation>
+                    </element>
                 </sequence>
             </extension>
         </complexContent>
@@ -1046,7 +1161,7 @@
     <!-- Four modules: two designs (what is intended to be built) and two
          specifications (what the work is judged against). All four are SIBLINGS under
          RigidInclusionProgramType's generic design/specification slots, never contained
-         in one another - see RISystemDesignType above for why containment was rejected.
+         in one another - see RITreatedAreaDesignType above for why containment was rejected.
 
          ONE TYPE PER THING DESIGNED, NOT ONE TYPE PER SCOPE FORM. RIColumnDesign covers
          the site-wide, zone and single-element cases alike, because the scope is carried
@@ -1309,13 +1424,13 @@
                             <appinfo source="urn:x-gml:targetElement">diggs:DesignGroutMix</appinfo>
                             <documentation>The grout or concrete mix design adopted for these
                                 columns. Overrides the site-wide groutDesignRef on any
-                                diggs:RISystemDesign this design is based on; per basedOnRef
+                                diggs:RITreatedAreaDesign this design is based on; per basedOnRef
                                 resolution the most specific value wins, and a design that states
                                 none inherits the system's.
 
                                 A reference rather than a contained object, and a plain reference
                                 rather than basedOnRef, for the reason given on
-                                diggs:RISystemDesignType/groutDesignRef: a mix design is a COMPONENT
+                                diggs:RITreatedAreaDesignType/groutDesignRef: a mix design is a COMPONENT
                                 of the work, not a generalization of it, so inheritance is the wrong
                                 relation, and one mix is normally shared across
                                 zones.</documentation>
@@ -1336,7 +1451,7 @@
                         <annotation>
                             <documentation>Column-level structural checks - buckling, shear
                                 (Design Parameter Analysis rows 32, 33). Contrast
-                                diggs:RISystemDesignType/verification, which carries the site-wide
+                                diggs:RITreatedAreaDesignType/verification, which carries the site-wide
                                 stability checks from the same analysis's Group I.</documentation>
                         </annotation>
                     </element>
@@ -1390,11 +1505,11 @@
                                 second, unreconciled way to say the same thing. The dimensionless
                                 geometry and stiffness ratios that gate arching-method applicability
                                 (h/(s-d), d/s, sx/sy, ks,T/ks) moved to
-                                diggs:RISystemDesignType/methodApplicabilityRatio: unlike the
+                                diggs:RITreatedAreaDesignType/methodApplicabilityRatio: unlike the
                                 equivalent diameter, none of them is a per-column property at all -
                                 each is a judgment about whether a chosen method's assumptions hold
                                 for a given zone's whole layout, the same kind of whole-system
-                                judgment diggs:RISystemDesignType/verification already houses for
+                                judgment diggs:RITreatedAreaDesignType/verification already houses for
                                 global stability, lateral spreading and seismic/liquefaction, even
                                 though computed from fields that live on this type and
                                 diggs:RILTPDesignType both. See that element's own documentation for
@@ -1428,7 +1543,7 @@
                 containment, not a basisRef cross-reference. So each coefficient's Occurrence
                 condition reads ancestor::diggs:ArchingCoefficients/diggs:archingModel, which is
                 only resolvable if the model is stated locally, in the same containment tree as the
-                coefficient. A diggs:RISystemBasis cited through basisRef (S9) may additionally
+                coefficient. A diggs:RIProgramBasis cited through basisRef (S9) may additionally
                 carry its own archingModel as the program-level record of record, but this local
                 statement remains the authoritative one for the dictionary Occurrence mechanism to
                 key on; the two should agree, and repeating the code costs one element against
@@ -1541,7 +1656,7 @@
                                 two together; that is also the element every coefficient's own
                                 dictionary Occurrence condition keys on, so it is guaranteed to be
                                 locally resolvable in a way a basisRef target is not. The model may
-                                additionally be stated on a diggs:RISystemBasis cited through
+                                additionally be stated on a diggs:RIProgramBasis cited through
                                 basisRef (S9), as the program-level record of record; the two should
                                 agree.
 
@@ -1619,13 +1734,13 @@
                         <annotation>
                             <documentation>E: the fraction of total load carried by the inclusions.
                                 Row 80 (S20). Placed here, with the arching outcome, rather than on
-                                RISystemDesignType: "load efficacy" is defined at least three
+                                RITreatedAreaDesignType: "load efficacy" is defined at least three
                                 different ways in the literature - load on column / total load,
                                 stress on column / average stress, complement of the soil-borne
                                 fraction - and each definition is computed from exactly the
                                 stressOnElementHead/stressOnSoftSoil pair above, not from a
                                 system-wide quantity. Contrast settlementEfficacy on
-                                RISystemDesignType, a genuinely site-wide serviceability
+                                RITreatedAreaDesignType, a genuinely site-wide serviceability
                                 metric.</documentation>
                         </annotation>
                     </element>
@@ -1677,7 +1792,7 @@
                                 A TYPED ELEMENT, NOT DICTIONARY-BOUND, ON FURTHER REVIEW - briefly a
                                 diggs:ParameterPropertyType slot named specifically for this quantity
                                 (relocated off diggs:otherProperty on the same review pass that
-                                produced diggs:RISystemDesignType/methodApplicabilityRatio), then
+                                produced diggs:RITreatedAreaDesignType/methodApplicabilityRatio), then
                                 reconsidered: a single, always-the-same-formula quantity does not
                                 need the dictionary machinery at all, the same reasoning that already
                                 promoted equivalentDiameter above. The dictionary route earns its
@@ -1901,7 +2016,7 @@
          kind of evidence. What Design Parameter Analysis Group A (rows 2-13) actually calls for is
          narrower and does not split cleanly along that boundary - riTechniqueType and archingModel
          are method statements, not loading or ground-model evidence, and would sit awkwardly in
-         any of the three baskets. A single RISystemBasis, parallel to RISystemDesign, carries
+         any of the three baskets. A single RIProgramBasis, parallel to RITreatedAreaDesign, carries
          every Group A field this pass builds; splitting further is deferred until a second
          concrete basis type actually needs to disagree with this one on scope, which would be the
          reason to separate them.
@@ -1929,18 +2044,18 @@
          (archingCoefficients/archingModel; columnType on the specification or as-built) are what a
          consumer can actually resolve without following basisRef, and this object is the
          program-level record of record the two should agree with, not the sole source. -->
-    <element name="RISystemBasis" type="diggs:RISystemBasisType"
+    <element name="RIProgramBasis" type="diggs:RIProgramBasisType"
         substitutionGroup="diggs:AbstractProgramBasis">
         <annotation>
             <documentation>The site-wide basis a rigid inclusion program's designs were prepared
                 from: the governing standards, design method, supported structure type, technique
                 family, arching model, safety format, working life and consequence class that make
                 every other design value in the program interpretable. Cited by a design through
-                basisRef, parallel to how diggs:RISystemDesign is cited through
+                basisRef, parallel to how diggs:RITreatedAreaDesign is cited through
                 basedOnRef.</documentation>
         </annotation>
     </element>
-    <complexType name="RISystemBasisType">
+    <complexType name="RIProgramBasisType">
         <annotation>
             <documentation>Type for the site-wide rigid inclusion program basis. Inherits scope and
                 basedOnRef from diggs:AbstractProgramModuleType by way of
