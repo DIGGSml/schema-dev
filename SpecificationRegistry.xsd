@@ -8,8 +8,8 @@
         <documentation>Schema for DIGGS Specification Registries.
 
             A specification registry is a standalone, authority-controlled document holding one
-            canonical diggs:Specification object per published standard - an ASTM or AASHTO method,
-            a national or European standard, an agency special provision - so that a data provider
+            canonical diggs:Specification per published standard - an ASTM or AASHTO method, a
+            national or European standard, an agency special provision - so that a data provider
             cites a standard by reference rather than retyping its bibliographic details into every
             instance document. It is an authority artifact of the same kind as a code list
             dictionary, NOT project data: registries are published and versioned by DIGGS (or
@@ -22,37 +22,63 @@
             and the same standard was described a dozen different ways. That variation is what a
             registry removes.
 
+            THE CENTRAL DESIGN CONSTRAINT: A REFERENCE RETURNS EXACTLY WHAT AN INLINE VALUE WOULD.
+            Almost every xlink:href in DIGGS resolves to the same object a consumer would have found
+            inline - most urn:x-gml:targetElement declarations name a CONCRETE element
+            (diggs:Project, diggs:Sample, diggs:Equipment, and diggs:Specification itself), not an
+            abstract head. A receiving application that resolves diggs:governingStandard has always
+            found a diggs:Specification there, and must continue to.
+
+            So the registry does NOT extend or subtype diggs:Specification, and does not introduce
+            any new element that could appear where a Specification is expected. It holds PLAIN
+            diggs:Specification objects, unchanged and unwrapped, exactly as an instance document
+            would carry them. An earlier draft of this schema defined a RegisteredSpecification
+            substituting diggs:Specification; that was withdrawn precisely because it would have
+            handed consumers an object of a type they had never seen at that position.
+
+            The registry metadata therefore lives on a SEPARATE object -
+            diggs:SpecificationRegistryEntry - which contains the Specification it registers. This
+            is also the more honest modelling: registryStatus, authority and occurrences are facts
+            about the REGISTRATION, not about the standard. Whether ASTM has withdrawn a method is a
+            property of the standard's lifecycle as DIGGS catalogues it; it is not one of the
+            bibliographic properties that identify the document.
+
             HOW A CITATION IS VALIDATED. Every property typed diggs:SpecificationPropertyType
             carries gml:AssociationAttributeGroup, so an instance may write
 
             &lt;governingStandard xlink:href="https://diggsml.org/def/registry/DIGGS/0/rigidInclusions.xml#astm_d1143"/&gt;
 
-            with no schema change of any kind. Validation of that reference has two layers, and both
-            reuse machinery that already exists:
+            with no schema change of any kind, and the href resolves to a plain diggs:Specification.
+            Validation of that reference has two layers, and both reuse machinery that already
+            exists:
 
             1. TARGET CLASS - the citing element carries
             &lt;appinfo source="urn:x-gml:targetElement"&gt;, the established DIGGS convention (46 uses
             across the schema; diggs:AbstractAcceptanceCriterionType/sourceSpecRef already names
-            diggs:Specification this way). diggs:RegisteredSpecification substitutes
-            diggs:Specification, so a reference into a registry satisfies that declaration by
-            substitution - exactly as references to abstract heads such as
-            diggs:AbstractProgramModule already do.
+            diggs:Specification this way). Because a registry holds plain Specifications, that
+            declaration is satisfied directly - no substitution reasoning required of the consumer
+            or the validator.
 
             2. TARGET APPLICABILITY - the question "is this citing element allowed to cite THIS
-            standard?" is answered by the diggs:occurrences property on the registry entry itself,
-            reusing diggs:OccurrenceArrayPropertyType from Dictionary_diggs.xsd unchanged. An entry
-            declares the XPath(s) at which it may legitimately be cited, so a lab-sample preparation
-            standard cannot be cited as a rigid inclusion design basis. This is the identical
-            mechanism, in the identical shape, that dictionary-validation.xsl already applies to a
-            code list Definition - the constraint travels with the registered term, so the
-            validator stays generic and never needs per-domain knowledge or a lookup table.
+            standard?" is answered by the diggs:occurrences property on the registry ENTRY, reusing
+            diggs:OccurrenceArrayPropertyType from Dictionary_diggs.xsd unchanged. Having resolved
+            an href to a diggs:Specification inside a registry, a validator reaches the governing
+            declarations by one deterministic step up:
 
-            The parallel with Dictionary_diggs.xsd is deliberate and exact. There, diggs:Definition
-            extends a GML base and adds authority, reference and occurrences; here,
-            diggs:RegisteredSpecification extends diggs:SpecificationType and adds the same three
-            plus registry lifecycle. A dictionary controls the VALUE of a coded property; a registry
-            controls the IDENTITY of a referenced object. Same problem, same solution shape,
-            different kind of target.
+            ancestor::diggs:SpecificationRegistryEntry/diggs:occurrences
+
+            An entry declares the XPath(s) at which its Specification may legitimately be cited, so
+            a laboratory sample preparation standard cannot be cited as a rigid inclusion design
+            basis. This is the identical mechanism, in the identical shape, that
+            dictionary-validation.xsl already applies to a code list Definition - the constraint
+            travels with the registered term, so the validator stays generic and never needs
+            per-domain knowledge or a lookup table.
+
+            The one asymmetry with a code list is deliberate: a dictionary carries occurrences ON
+            the object the codeSpace resolves to, whereas a registry carries them one level above
+            the object the href resolves to. That single extra step is internal to the validator and
+            costs nothing; keeping the href's return type stable is worth far more, because it
+            affects every receiving application rather than one XSL module.
 
             SCOPE. One registry per domain, mirroring how def's dictionaries are already organized
             by domain (gp_, pil_, mwd_, cpt_, gr_inj_, ri_design_). Rigid inclusions is the first;
@@ -78,7 +104,11 @@
                 Scope one registry to one domain and say so in gml:description. A registry that
                 tries to hold every standard in geotechnics becomes unreviewable, and the per-entry
                 diggs:occurrences declarations are what actually enforce domain boundaries
-                anyway.</documentation>
+                anyway.
+
+                ORDER ENTRIES SO THAT A REFERENCE FOLLOWS ITS ANTECEDENT. Where one entry's
+                supersededByRef points at another, the superseding entry must appear first, as
+                DIGGS forbids forward references throughout.</documentation>
         </annotation>
     </element>
 
@@ -93,10 +123,10 @@
             <extension base="gml:AbstractGMLType">
                 <sequence>
                     <element maxOccurs="unbounded" minOccurs="0" name="registryEntry"
-                        type="diggs:RegisteredSpecificationPropertyType">
+                        type="diggs:SpecificationRegistryEntryPropertyType">
                         <annotation>
                             <documentation>One entry of the registry, containing exactly one
-                                diggs:RegisteredSpecification. Repeatable; a registry with no
+                                diggs:SpecificationRegistryEntry. Repeatable; a registry with no
                                 entries is permitted so that a domain registry can be published
                                 before it is populated.</documentation>
                         </annotation>
@@ -106,9 +136,9 @@
         </complexContent>
     </complexType>
 
-    <complexType name="RegisteredSpecificationPropertyType">
+    <complexType name="SpecificationRegistryEntryPropertyType">
         <annotation>
-            <documentation>Property type containing one diggs:RegisteredSpecification.
+            <documentation>Property type containing one diggs:SpecificationRegistryEntry.
 
                 Deliberately carries NO gml:AssociationAttributeGroup. A registry OWNS its entries -
                 they are held by value, never by reference - and permitting an xlink:href here would
@@ -117,69 +147,76 @@
                 expressible, association is not.</documentation>
         </annotation>
         <sequence>
-            <element ref="diggs:RegisteredSpecification"/>
+            <element ref="diggs:SpecificationRegistryEntry"/>
         </sequence>
         <attributeGroup ref="gml:OwnershipAttributeGroup"/>
     </complexType>
 
     <!-- ==================== Registry entry ==================== -->
 
-    <element name="RegisteredSpecification" type="diggs:RegisteredSpecificationType"
-        substitutionGroup="diggs:Specification">
+    <element name="SpecificationRegistryEntry" type="diggs:SpecificationRegistryEntryType">
         <annotation>
-            <documentation>A diggs:Specification as published in a registry: the canonical citation
-                of one standard, or of one named part, clause or procedure of a standard, plus the
-                registry metadata that makes it citable and checkable.
+            <documentation>One registration in a specification registry: the canonical
+                diggs:Specification for a standard - or for a named part, clause or procedure of a
+                standard - together with the metadata that governs how it may be cited.
 
-                SUBSTITUTES diggs:Specification, which is what makes the whole design work with no
-                change to any existing DIGGS content model. Every one of the fifteen properties
-                typed diggs:SpecificationPropertyType therefore accepts a reference to a registry
-                entry, and any consumer or validator that understands diggs:Specification
-                understands this too. The bibliographic properties are inherited unchanged from
-                diggs:SpecificationType; nothing about how a standard is described is altered by
-                registering it.
+                This object exists so that the registered diggs:Specification can stay exactly what
+                it always was. It substitutes nothing and appears nowhere except inside a registry,
+                so no consuming application ever meets it where it expected a Specification. A
+                reference into a registry resolves to the contained Specification, not to this
+                entry.
 
-                CHOOSING gml:id. The gml:id is the citation token - it is what appears after the '#'
-                in every xlink:href - so it should track the standard's own identifier as closely as
-                XML permits. gml:id is an XML ID and therefore an NCName: it may not begin with a
-                digit and may not contain a space, a slash or a colon. So "ASTM D1143" becomes
-                astm_d1143 and "BS 8006-1:2010" becomes bs_8006_1_2010. Use lower snake case
-                throughout, and keep the token stable forever once published - a registry whose
-                identifiers churn is worse than no registry, because existing citations silently
-                break.
+                CHOOSING gml:id ON THE CONTAINED SPECIFICATION. The Specification's gml:id is the
+                citation token - it is what appears after the '#' in every xlink:href - so it should
+                track the standard's own identifier as closely as XML permits. gml:id is an XML ID
+                and therefore an NCName: it may not begin with a digit and may not contain a space,
+                a slash or a colon. So "ASTM D1143" becomes astm_d1143 and "BS 8006-1:2010" becomes
+                bs_8006_1_2010. Use lower snake case throughout, and keep the token stable forever
+                once published - a registry whose identifiers churn is worse than no registry,
+                because existing citations silently break.
 
-                SUBMETHODS. A named procedure within a standard is a separate entry, not a variant
-                of one: ASTM D1143 Procedure A is its own diggs:RegisteredSpecification. Give it its
-                own gml:id (astm_d1143_proc_a), repeat the parent's standardReferenceNumber, and
-                distinguish it by standardClause, standardPart or shortMethodName. Because those are
-                structured properties rather than free text, a consumer can group every entry
-                sharing a standardReferenceNumber under its parent standard mechanically. That
-                grouping is the only reason to prefer registering a submethod over inventing an
-                ad hoc code for it.</documentation>
+                SUBMETHODS. A named procedure within a standard is its own entry, not a variant of
+                one: ASTM D1143 Procedure A gets its own SpecificationRegistryEntry whose
+                Specification carries its own gml:id (astm_d1143_proc_a), repeats the parent's
+                standardReferenceNumber, and is distinguished by standardClause, standardPart or
+                shortMethodName. Because those are structured properties rather than free text, a
+                consumer can group every Specification sharing a standardReferenceNumber under its
+                parent standard mechanically. That grouping is the only reason to prefer registering
+                a submethod over inventing an ad hoc code for it.</documentation>
         </annotation>
     </element>
 
-    <complexType name="RegisteredSpecificationType">
+    <complexType name="SpecificationRegistryEntryType">
         <annotation>
-            <documentation>Extended type based on diggs:SpecificationType. Adds the registry
-                metadata - controlling authority, source URL, lifecycle status and the occurrence
-                declarations that bound where the entry may be cited.
+            <documentation>Type for one registration. Extends diggs:AbstractObjectType, the standard
+                base for DIGGS component objects, since an entry has no independent existence
+                outside the registry that contains it.
 
-                Every added property is optional, so a diggs:RegisteredSpecification is a valid
-                diggs:Specification in every context the latter is allowed. That is intentional: it
-                means an instance may inline a registry entry verbatim where a reference is
-                impractical - an air-gapped exchange, an archival snapshot - without inventing a
-                second representation of the same standard.</documentation>
+                Holds the registered diggs:Specification by value, followed by the registration
+                metadata. Every metadata property is optional except the Specification itself: an
+                entry that registers nothing is meaningless, but an entry that declares no
+                lifecycle, authority or scope is merely unrestricted.</documentation>
         </annotation>
         <complexContent>
-            <extension base="diggs:SpecificationType">
+            <extension base="diggs:AbstractObjectType">
                 <sequence>
+                    <element maxOccurs="1" minOccurs="1" name="specification"
+                        type="diggs:RegisteredSpecificationPropertyType">
+                        <annotation>
+                            <documentation>The registered standard, as a plain diggs:Specification.
+                                This is the object an xlink:href into the registry resolves to, and
+                                it is bit-for-bit the same kind of object an instance document would
+                                otherwise have carried inline - which is the whole point of holding
+                                it here rather than subtyping it.</documentation>
+                        </annotation>
+                    </element>
                     <element minOccurs="0" name="authority" type="string">
                         <annotation>
                             <documentation>Name of the organization that controls the registry entry
-                                - normally DIGGS. Distinct from the inherited accreditingBody, which
-                                names the body that publishes the STANDARD (ASTM International,
-                                BSI, CEN). Mirrors diggs:DefinitionType/authority.</documentation>
+                                - normally DIGGS. Distinct from the Specification's own
+                                accreditingBody, which names the body that publishes the STANDARD
+                                (ASTM International, BSI, CEN). Mirrors
+                                diggs:DefinitionType/authority.</documentation>
                         </annotation>
                     </element>
                     <element minOccurs="0" name="reference" type="anyURI">
@@ -187,19 +224,19 @@
                             <documentation>A URI for the standard itself - the publisher's landing
                                 page or DOI - so a reader can reach the source document. Mirrors
                                 diggs:DefinitionType/reference. This is where the standard LIVES,
-                                not where the registry entry lives; the latter is the entry's own
-                                gml:identifier.</documentation>
+                                not where the entry lives; the latter is the registry's own
+                                gml:identifier plus the Specification's gml:id.</documentation>
                         </annotation>
                     </element>
                     <element minOccurs="0" name="registryStatus"
                         type="diggs:RegistryStatusEnumType">
                         <annotation>
                             <documentation>Lifecycle state of the registered standard. A registry
-                                must be able to say that a standard has been withdrawn or
-                                superseded WITHOUT deleting its entry, because instances published
-                                while it was current still cite it and those citations must keep
-                                resolving. ASTM D1194 is the worked example: withdrawn, but present
-                                in the historical record of plate load testing.
+                                must be able to say that a standard has been withdrawn or superseded
+                                WITHOUT deleting its entry, because instances published while it was
+                                current still cite it and those citations must keep resolving. ASTM
+                                D1194 is the worked example: withdrawn, but present in the
+                                historical record of plate load testing.
 
                                 Absent means active; state it explicitly for anything that is
                                 not.</documentation>
@@ -210,32 +247,43 @@
                         <annotation>
                             <appinfo source="urn:x-gml:targetElement">diggs:Specification</appinfo>
                             <documentation>For an entry whose registryStatus is superseded or
-                                withdrawn, a reference to the entry that replaces it - normally
-                                another diggs:RegisteredSpecification in the same registry. Lets a
+                                withdrawn, a reference to the Specification that replaces it -
+                                normally one registered elsewhere in the same registry. Lets a
                                 consumer follow a historical citation forward to the current
-                                standard.</documentation>
+                                standard.
+
+                                Points at the replacement diggs:Specification, not at its
+                                SpecificationRegistryEntry, so that following this reference yields
+                                the same kind of object as following a governingStandard. The
+                                superseding entry must appear EARLIER in the registry than the entry
+                                that cites it; DIGGS forbids forward references.</documentation>
                         </annotation>
                     </element>
                     <element maxOccurs="1" minOccurs="0" name="occurrences"
                         type="diggs:OccurrenceArrayPropertyType">
                         <annotation>
-                            <documentation>One or more diggs:Occurrence objects declaring where this
-                                entry may legitimately be cited: sourceElementXpath gives the
-                                element that may hold a reference to it, and the optional
-                                conditionalElementXpath gives an element (and optionally a value)
-                                that must be present for the citation to be valid.
+                            <documentation>One or more diggs:Occurrence objects declaring where the
+                                registered Specification may legitimately be cited:
+                                sourceElementXpath gives the element that may hold a reference to
+                                it, and the optional conditionalElementXpath gives an element (and
+                                optionally a value) that must be present for the citation to be
+                                valid.
 
                                 THIS IS THE DOMAIN CHECK. Resolving an xlink:href proves only that
                                 the target exists and is a diggs:Specification; it cannot tell a
                                 rigid inclusion design basis from a laboratory sample preparation
                                 method, since both are Specifications. These declarations are what
                                 make the distinction machine-checkable, and they are read from the
-                                target rather than configured into the validator - so the validator
-                                stays generic and vocabulary-independent, exactly as
+                                target's entry rather than configured into the validator - so the
+                                validator stays generic and vocabulary-independent, exactly as
                                 dictionary-validation.xsl already is for code lists.
 
-                                An entry with no occurrences declares no restriction and may be
-                                cited anywhere a diggs:Specification is permitted. Prefer stating
+                                A validator that has resolved an href to a Specification inside a
+                                registry reaches these by one step up:
+                                ancestor::diggs:SpecificationRegistryEntry/diggs:occurrences.
+
+                                An entry with no occurrences declares no restriction, and its
+                                Specification may be cited anywhere one is permitted. Prefer stating
                                 them: an unbounded entry is the registry equivalent of an
                                 unconditioned dictionary Occurrence, and those have been a recurring
                                 source of misuse.
@@ -250,6 +298,27 @@
                 </sequence>
             </extension>
         </complexContent>
+    </complexType>
+
+    <complexType name="RegisteredSpecificationPropertyType">
+        <annotation>
+            <documentation>Property type containing one plain diggs:Specification, as held by a
+                registry entry.
+
+                Deliberately carries NO gml:AssociationAttributeGroup, for the same reason
+                diggs:SpecificationRegistryEntryPropertyType does not: a registry holds its
+                Specifications by value. If this permitted xlink:href, a registry could register a
+                standard it does not itself contain, and the canonical copy would stop being
+                canonical.
+
+                Distinct from diggs:SpecificationPropertyType (core/Common.xsd), which DOES carry
+                the association group - that is what lets an instance document cite a registry entry
+                by reference in the first place.</documentation>
+        </annotation>
+        <sequence>
+            <element ref="diggs:Specification"/>
+        </sequence>
+        <attributeGroup ref="gml:OwnershipAttributeGroup"/>
     </complexType>
 
     <!-- ==================== Enumerations ==================== -->
