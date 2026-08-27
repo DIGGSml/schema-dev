@@ -718,6 +718,38 @@
                             <documentation>A description of the type of column, intended to come from a controlled list of terms, often associated with the construction method or type of equipment used to construct the column.</documentation>
                         </annotation>
                     </element>
+                    <element minOccurs="0" name="riInstallationMethod" type="gml:CodeType">
+                        <annotation>
+                            <documentation>How the ground was handled as this column was formed:
+                                full displacement, partial displacement, or replacement. Values come
+                                from riInstallationMethod.xml.
+
+                                THE PRIMARY CLASSIFIER, and the reason it is a coded element rather
+                                than something a reader infers. The two families produce different
+                                as-built records - a displacement technique generates no spoil and
+                                densifies the surrounding ground, a replacement technique removes
+                                soil - so the quality-control data a rig can produce, and the
+                                acceptance evidence that can be asked for, both follow from it.
+
+                                ORTHOGONAL TO columnType, and constrained against it. columnType
+                                names the technique; this names what that technique does to the
+                                ground. They are not independent - a continuous flight auger column
+                                cannot be full displacement - so each columnType.xml entry declares
+                                the families it is compatible with, through a conditionalElementXpath
+                                on its Occurrence. That check is performed by
+                                dictionary-validation.xsl, NOT by this schema: XSD cannot express a
+                                correlation between two sibling values. A consequence worth knowing
+                                is that stating columnType without this element fails dictionary
+                                validation, because the declared condition can then match nothing -
+                                so in practice the two travel together even though both are
+                                optional here.
+
+                                Named with the ri prefix deliberately. Installation method is a
+                                concept other DIGGS domains will want under their own vocabularies;
+                                this element is bound to the rigid inclusion list and should not be
+                                mistaken for a general one.</documentation>
+                        </annotation>
+                    </element>
                     <element maxOccurs="1" minOccurs="0" name="whenConstructed"
                         type="diggs:TimeIntervalPropertyType">
                         <annotation>
@@ -2004,6 +2036,27 @@
                                 closed.</documentation>
                         </annotation>
                     </element>
+                    <element minOccurs="0" name="riInstallationMethod" type="gml:CodeType">
+                        <annotation>
+                            <documentation>How the ground is to be handled as the columns this
+                                specification governs are formed: full displacement, partial
+                                displacement, or replacement. Values come from
+                                riInstallationMethod.xml.
+
+                                The design-side counterpart of
+                                diggs:RIColumnType/riInstallationMethod, named and typed to match, so
+                                that what is specified and what is recorded share one vocabulary
+                                rather than drifting into two - the same reason columnType appears on
+                                both sides. Read that element's documentation for why the family is
+                                the primary classifier and how it is constrained against columnType.
+
+                                This is a specification concern, not a basis one. It states what the
+                                contractor is required to do, which is an output of the design rather
+                                than a premise the design rests on. RIProgramBasisType deliberately
+                                carries no technique or family element for that reason - see the note
+                                on its own documentation.</documentation>
+                        </annotation>
+                    </element>
                     <element minOccurs="0" maxOccurs="unbounded" ref="diggs:groutSpecificationRef">
                         <annotation>
                             <appinfo source="urn:x-gml:targetElement">diggs:GroutSpecification</appinfo>
@@ -2143,7 +2196,7 @@
          ONE TYPE, NOT A GroundModelBasis / LoadingBasis / RequirementsBasis split. An earlier
          architecture sketch (RI_Program_Architecture.md §6) proposed three basis subtypes keyed by
          kind of evidence. What Design Parameter Analysis Group A (rows 2-13) actually calls for is
-         narrower and does not split cleanly along that boundary - riTechniqueType and archingModel
+         narrower and does not split cleanly along that boundary - designMethod and archingModel
          are method statements, not loading or ground-model evidence, and would sit awkwardly in
          any of the three baskets. A single RIProgramBasis, parallel to RITreatedAreaDesign, carries
          every Group A field this pass builds; splitting further is deferred until a second
@@ -2166,20 +2219,37 @@
          ratios are RIColumnDesignType/otherProperty (S5). ROW 6 (delivery/contracting method) is
          out of scope - a Contract-level gap noted in the analysis, not RI-specific.
 
-         archingModel AND riTechniqueType DELIBERATELY REUSE ELEMENT NAMES ALREADY IN USE ELSEWHERE
-         (diggs:ArchingCoefficients/archingModel, S5; diggs:RIColumnType/columnType and
-         diggs:RIColumnSpecificationType/columnType, S6) SO THE SAME DICTIONARY GOVERNS BOTH. Both
-         remain optional here: the design-side, locally-resolvable statements
-         (archingCoefficients/archingModel; columnType on the specification or as-built) are what a
-         consumer can actually resolve without following basisRef, and this object is the
-         program-level record of record the two should agree with, not the sole source. -->
+         archingModel DELIBERATELY REUSES AN ELEMENT NAME ALREADY IN USE ELSEWHERE
+         (diggs:ArchingCoefficients/archingModel, S5) SO THE SAME DICTIONARY GOVERNS BOTH. It
+         remains optional here: the design-side, locally-resolvable statement
+         (archingCoefficients/archingModel) is what a consumer can actually resolve without
+         following basisRef, and this object is the program-level record of record the two should
+         agree with, not the sole source.
+
+         riTechniqueType WAS REMOVED AT R4 (2026-08-27), AND THE REASONING GENERALISES. It carried
+         the technique family as a "program-wide default", duplicating
+         diggs:RIColumnSpecificationType/columnType. Dan's objection: a basis is the JUSTIFICATION a
+         design rests on, and restating the technique justifies nothing. Every other field here is
+         something the design effort ADOPTS and is judged against - the governing standard, the
+         design method, the safety format, the working life, the consequence class, the factors,
+         the supported structure type. The technique family is not adopted; it is SPECIFIED TO THE
+         CONTRACTOR. It is an output of the design, not a premise of it, and it already has a home
+         on the specification where it can legitimately vary by scope. The apparent counter - that
+         the arching model depends on the technique, so the design does assume one - is answered by
+         the design being prepared against a specification that names it; the basis restating it
+         only adds a second place to disagree.
+
+         APPLY THE SAME TEST BEFORE ADDING ANYTHING HERE: is this something the design effort was
+         prepared FROM, or something it produced? Only the former belongs on a basis. That is also
+         why the installation-method family, added at R4, sits on the specification and the column
+         rather than here. -->
     <element name="RIProgramBasis" type="diggs:RIProgramBasisType"
         substitutionGroup="diggs:AbstractProgramBasis">
         <annotation>
             <documentation>The site-wide basis a rigid inclusion program's designs were prepared
-                from: the governing standards, design method, supported structure type, technique
-                family, arching model, safety format, working life and consequence class that make
-                every other design value in the program interpretable. Cited by a design through
+                from: the governing standards, design method, supported structure type, arching
+                model, safety format, working life and consequence class that make every other
+                design value in the program interpretable. Cited by a design through
                 basisRef, parallel to how diggs:RITreatedAreaDesign is cited through
                 basedOnRef.</documentation>
         </annotation>
@@ -2225,19 +2295,6 @@
                                 stress concentration is meaningful only where it names a slab or
                                 mat. A consumer needs this value to know which other elements should
                                 even be present.</documentation>
-                        </annotation>
-                    </element>
-                    <element minOccurs="0" name="riTechniqueType" type="gml:CodeType">
-                        <annotation>
-                            <documentation>The rigid inclusion technique family the program's
-                                designs assume - the same vocabulary and dictionary as
-                                diggs:RIColumnType/columnType and
-                                diggs:RIColumnSpecificationType/columnType (S6), so a technique
-                                family stated at the program level and one stated per column or per
-                                specification agree by construction rather than by convention. State
-                                the more specific element (columnType, on the specification or
-                                as-built) where it may vary; this one is the program-wide
-                                default.</documentation>
                         </annotation>
                     </element>
                     <element minOccurs="0" name="archingModel" type="gml:CodeType">
@@ -2499,25 +2556,37 @@
                             </annotation>
                         </element>
                     </choice>
-                    <element minOccurs="0" name="installationMethod" type="gml:CodeType">
+                    <element minOccurs="0" name="riInstallationMethod" type="gml:CodeType">
                         <annotation>
-                            <documentation>The soil-displacement classification of the installation
-                                method actually used - full-displacement auger, partial-displacement,
-                                drilled-displacement, or pre-drill/spoil-removed (Installation
-                                Parameter Analysis row 7, S22, decision D5).
+                            <documentation>How the ground was handled during this installation
+                                activity: full displacement, partial displacement, or replacement.
+                                Values come from riInstallationMethod.xml (Installation Parameter
+                                Analysis row 7, S22, decision D5; narrowed to the family and renamed
+                                at R4, 2026-08-27).
 
-                                DISTINCT FROM diggs:RIColumnType/columnType, and deliberately
-                                its own element rather than a reuse. columnType names the RIG/
-                                TECHNIQUE FAMILY (bored, driven, vibro-driven, soil mixing, jet
-                                grouting, ...) - see columnType.xml's eleven entries. installationMethod
-                                names the DISPLACEMENT BEHAVIOUR of that technique - whether it
-                                pushes soil aside, removes it, or something between - a property
-                                that matters independently of technique family (a full-displacement
-                                auger and a partial-displacement auger are both "auger" columnTypes
-                                but change the surrounding ground very differently) and is not
-                                derivable from columnType alone. D5 (RI_Build_Plan_2.md) confirmed a
-                                distinct coded element rather than treating columnType as
-                                sufficient.</documentation>
+                                DISTINCT FROM diggs:RIColumnType/columnType, and deliberately its own
+                                element rather than a reuse. columnType names the TECHNIQUE - bored,
+                                driven, vibro-driven, drilled displacement and so on. This names the
+                                DISPLACEMENT BEHAVIOUR of that technique: whether it pushes soil
+                                aside, removes it, or something between. That behaviour is what
+                                governs the spoil, the ground disturbance and the quality-control
+                                data the rig produces, which is why the technical report calls it the
+                                primary classifier.
+
+                                NARROWED TO THE FAMILY AT R4. This element previously carried
+                                tool-specific values (full-displacement auger, drilled displacement,
+                                vibratory displacement) alongside the family. Those describe the
+                                column and the tool, not the ground behaviour, so they moved to
+                                columnType.xml where they do not duplicate an existing entry, and the
+                                three families are all that remain here. The effect is that each of
+                                the two axes now carries exactly one kind of statement.
+
+                                THE FAMILY IS ALSO STATED ON THE COLUMN ITSELF, on
+                                diggs:RIColumnType and diggs:RIColumnSpecificationType. That is where
+                                it is constrained against columnType by
+                                conditionalElementXpath; this element records the same fact from the
+                                activity's point of view, for the case where the installation is
+                                logged as an activity rather than read off the column.</documentation>
                         </annotation>
                     </element>
                     <element minOccurs="0" name="groutLevelCorrectiveAction" type="gml:CodeType">
