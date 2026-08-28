@@ -172,16 +172,16 @@
                     <element minOccurs="0" name="impliedLTPThickness" type="diggs:LengthMeasureType">
                         <annotation>
                             <documentation>The thickness of the load transfer platform as a whole -
-                                every layer together - inferred from the LTP top and working platform
+                                every lift together - inferred from the LTP top and working platform
                                 elevations: elevationTopLTP - wpElevation.
 
-                                THIS IS THE WHOLE PLATFORM, NOT A LAYER. It is deliberately NOT
+                                THIS IS THE WHOLE PLATFORM, NOT A LIFT. It is deliberately NOT
                                 derived away when a platform happens to have a single lift: placing a
-                                layer needs heightAboveWorkingPlatform and layerThickness, while
+                                lift needs heightAboveWorkingPlatform and liftThickness, while
                                 describing the platform needs elevationTopLTP and this total, and a
-                                one-layer platform is not special-cased into using one pair for both.
-                                For any platform the total equals the topmost layer's
-                                heightAboveWorkingPlatform, and equals the sum of every layerThickness
+                                one-lift platform is not special-cased into using one pair for both.
+                                For any platform the total equals the topmost lift's
+                                heightAboveWorkingPlatform, and equals the sum of every liftThickness
                                 when the lifts are contiguous.
 
                                 Optional, matching its two source elevations: elevationTopLTP on this
@@ -197,21 +197,21 @@
                     </element>
                     <element minOccurs="1" name="lifts" type="diggs:LTPLiftArrayPropertyType">
                         <annotation>
-                            <documentation>An array of LTPLayer objects. Each layer represents a
-                                discrete entity laid down to form the LTP (a lift), with a known
+                            <documentation>An array of LTPLift objects. Each lift represents a
+                                discrete entity laid down to form the LTP, with a known
                                 material type and thickness. A LoadTransferPlatform consists of at
-                                least one LTPLayer, hence minOccurs="1": a platform with no lift is
+                                least one LTPLift, hence minOccurs="1": a platform with no lift is
                                 not a platform.
 
-                                THE VERTICAL INVARIANT. For every layer,
+                                THE VERTICAL INVARIANT. For every lift,
                                 wpElevation + heightAboveWorkingPlatform must not exceed
-                                elevationTopLTP; for the TOPMOST layer the two are EQUAL, since that
-                                layer's top is the top of the platform. The equality is the checkable
+                                elevationTopLTP; for the TOPMOST lift the two are EQUAL, since that
+                                lift's top is the top of the platform. The equality is the checkable
                                 form of the rule - the inequality is only its weaker consequence for
                                 the lifts beneath.
 
                                 AN LTP ALWAYS HAS THICKNESS: elevationTopLTP is strictly greater than
-                                wpElevation, so no layer may be of zero thickness and no platform may
+                                wpElevation, so no lift may be of zero thickness and no platform may
                                 sum to zero. A zone with no load transfer platform is recorded by
                                 omitting the LoadTransferPlatform feature, NOT by declaring one of
                                 zero thickness. Contrast diggs:WorkingPlatform, where zero IS
@@ -255,27 +255,36 @@
             <documentation>One lift of a load transfer platform: a discrete body of material laid
                 down in a single construction operation, with its own material and its own thickness.
 
-                A LAYER IS DEFINED BY THICKNESS, NOT BY ELEVATION, and that is why this object
+                A LIFT IS DEFINED BY THICKNESS, NOT BY ELEVATION, and that is why this object
                 carries no elevation and no extent. The platform's plan extent is the LTP feature's
-                own featureExtent and every lift shares it, so a layer has no geometry of its own in
+                own featureExtent and every lift shares it, so a lift has no geometry of its own in
                 which an elevation could be carried. Contrast diggs:Geosynthetic, which DOES have an
                 extent: a geosynthetic is a sheet at a level, so it states its position in its extent
                 geometry first, in its own elevation property second, and through
                 heightAboveWorkingPlatform only indirectly. For a lift the governing quantity is how
-                thick it is, so layerThickness and heightAboveWorkingPlatform are both mandatory and
+                thick it is, so liftThickness and heightAboveWorkingPlatform are both mandatory and
                 between them fix the lift completely - its thickness directly and its elevation
                 indirectly, as wpElevation + heightAboveWorkingPlatform.
 
-                Reached only through diggs:LoadTransferPlatformType/layers; see that property for the
-                vertical invariant and for how the working platform this layer is measured from is
+                Reached only through diggs:LoadTransferPlatformType/lifts; see that property for the
+                vertical invariant and for how the working platform this lift is measured from is
                 identified.</documentation>
         </annotation>
         <complexContent>
             <extension base="diggs:AbstractObjectType">
                 <sequence>
+                    <element minOccurs="0" ref="diggs:sampleRef">
+                        <annotation>
+                            <documentation>If a sample was taken of the aggregate used for the lift,
+                                and potentially tested, this element may point to it by reference.
+                                This allows lab test results on the aggregate sample (eg. density or
+                                compaction testing) to be cross-referenced to the lifts where the
+                                aggregate is used.</documentation>
+                        </annotation>
+                    </element>
                     <element minOccurs="0" name="materialType" type="diggs:LithologyPropertyType">
                         <annotation>
-                            <documentation>The material used to construct this layer or lift.
+                            <documentation>The material used to construct this lift.
 
                                 NOT TO BE CONFUSED WITH diggs:WorkingPlatform/wpMaterial. A working
                                 platform is temporary construction access built BEFORE the columns; a
@@ -289,26 +298,26 @@
                         type="diggs:LengthMeasureType">
                         <annotation>
                             <documentation>The distance between the working platform surface and the
-                                TOP of this layer. The elevation of the layer top is therefore
+                                TOP of this lift. The elevation of the lift top is therefore
                                 wpElevation + heightAboveWorkingPlatform.
 
                                 CUMULATIVE, NOT PER-LIFT - it is measured from the working platform
                                 every time, not from the lift below, so in a platform of contiguous
-                                lifts these values increase with each layer while layerThickness does
-                                not. The topmost layer's value is the whole platform's thickness and
+                                lifts these values increase with each lift while liftThickness does
+                                not. The topmost lift's value is the whole platform's thickness and
                                 equals impliedLTPThickness.
 
                                 Same name, type and datum as
                                 diggs:GeosyntheticType/heightAboveWorkingPlatform, deliberately: both
                                 objects contained by a load transfer platform are measured the same
-                                way. Mandatory here, unlike on the geosynthetic, because a layer has
+                                way. Mandatory here, unlike on the geosynthetic, because a lift has
                                 no extent geometry to carry its position instead.</documentation>
                         </annotation>
                     </element>
                     <element minOccurs="1" name="liftThickness" type="diggs:LengthMeasureType">
                         <annotation>
                             <documentation>The vertical distance between the top and base of this
-                                layer - the thickness of this lift alone, not of the platform.
+                                lift - the thickness of this lift alone, not of the platform.
 
                                 Strictly greater than zero: a lift of no thickness was not placed.
                                 For the platform as a whole see
