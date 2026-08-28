@@ -664,6 +664,37 @@
                                 B500B).</documentation>
                         </annotation>
                     </element>
+                    <element minOccurs="0" name="cover" type="diggs:LengthMeasureType">
+                        <annotation>
+                            <documentation>The concrete cover over this reinforcement - the minimum
+                                distance from the bar or cage surface to the column's outer concrete
+                                surface, governing the reinforcement's protection against chloride/
+                                sulfate ingress and carbonation (R10; Design Parameter Analysis
+                                workbook row 136, deconflated from the original row 93). Required
+                                cover is typically set by the exposure classification a
+                                diggs:RIProgramBasis states (exposureClassification) together with the
+                                governing durability standard, but is stated here as a plain length
+                                rather than derived, since the design record should carry what was
+                                actually specified.</documentation>
+                        </annotation>
+                    </element>
+                    <element minOccurs="0" name="corrosionProtection" type="gml:CodeType">
+                        <annotation>
+                            <documentation>Corrosion protection measures specified for this
+                                reinforcement, beyond cover alone - for example galvanizing, an epoxy
+                                coating, or cathodic protection (R10; Design Parameter Analysis
+                                workbook row 139, deconflated from the original row 93).
+
+                                NO PUBLISHED VOCABULARY BUILT YET, DELIBERATELY: the source report
+                                names this gap but never cites a specific protection measure or a
+                                classification scheme to build a dictionary from, so
+                                corrosionProtection.xml is not yet built rather than guessed at - the
+                                same discipline diggs:RIProgramBasisType/exposureClassification
+                                documents for the identical situation. gml:CodeType's open codeSpace
+                                still allows an uncontrolled value or free text meanwhile; use remark
+                                for anything a code cannot yet capture.</documentation>
+                        </annotation>
+                    </element>
                 </sequence>
             </extension>
         </complexContent>
@@ -2276,12 +2307,50 @@
                                 2).</documentation>
                         </annotation>
                     </element>
+                    <element minOccurs="0" name="analysisApproach" type="gml:CodeType">
+                        <annotation>
+                            <documentation>The class of calculation the design was arrived at by -
+                                a published analytical method, numerical (finite-element or
+                                finite-difference) analysis, engineering judgment/precedent, or
+                                pre-production/proof load testing (R9; analysisApproach.xml).
+
+                                DISTINCT FROM designMethod, DELIBERATELY, PER THE SOURCE REPORT'S OWN
+                                TWO SURVEY QUESTIONS: "design approach" (this element's source) asks
+                                which CLASS of calculation was used; "analytical design method" (a
+                                separate question, designMethod's source) asks WHICH published method,
+                                and only applies when this element is analytical_method - numerical
+                                analysis, personal experience and load testing each select no named
+                                method at all. State this first; designMethod is meaningful only
+                                given analytical_method here.
+
+                                NOT NAMED designApproach, DESPITE THAT BEING THE SOURCE REPORT'S OWN
+                                PHRASE, TO AVOID A REAL COLLISION: diggs:RIProgramBasisType/
+                                safetyFormat's own vocabulary (safetyFormat.xml) already uses "design
+                                approach" for Eurocode 7's DA2/DA3 partial-factor combinations, a
+                                completely different concept (which factors to apply, not how the
+                                calculation was performed). Reusing the phrase as an element name
+                                would put two unrelated "design approach" concepts on the same
+                                type.</documentation>
+                        </annotation>
+                    </element>
                     <element minOccurs="0" name="designMethod" type="gml:CodeType">
                         <annotation>
-                            <documentation>The analytical approach the design was calculated by -
-                                unit-cell method, arching (limit-equilibrium or numerical), finite
-                                element analysis, load-displacement-compatibility method, or
-                                other.</documentation>
+                            <documentation>The specific published method the design was calculated
+                                by, where analysisApproach above is analytical_method - FHWA beam,
+                                FHWA strain-compatibility, BS 8006-1, EBGEO, CUR226, Nordic, or other.
+                                Not meaningful, and left absent, where analysisApproach names
+                                numerical analysis, personal experience or load testing instead - none
+                                of those select a method from this list.
+
+                                RETAINS ITS EARLIER, BROADER VOCABULARY TOO (unit-cell method, arching,
+                                finite element analysis, load-displacement-compatibility method) from
+                                designMethod.xml's original build, predating analysisApproach - a
+                                mechanism-family reading rather than a named-method reading. The report
+                                review flags this as worth reconciling (RI_Technical_Report_Review.md
+                                §1.2: "designMethod.xml names mechanism classes, not the methods
+                                practitioners select") but that reconciliation is not part of this
+                                task and is left for a future dictionary pass, not
+                                guessed at here.</documentation>
                         </annotation>
                     </element>
                     <element minOccurs="1" name="supportedStructureType" type="gml:CodeType">
@@ -2339,6 +2408,31 @@
                                 those is intentionally left for SME confirmation rather than
                                 guessed at, so this element's published vocabulary is EC7/EN
                                 1990-sourced only as of this build.</documentation>
+                        </annotation>
+                    </element>
+                    <element minOccurs="0" name="exposureClassification" type="gml:CodeType">
+                        <annotation>
+                            <documentation>The ground aggressivity or exposure classification
+                                governing the durability provisions the design specifies for the
+                                concrete or grout, and for any embedded steel reinforcement - derived
+                                from the sulfate, chloride and pH results a LabChemicalTest reports
+                                (R10; Design Parameter Analysis Group G / workbook row 135). Something
+                                the design was prepared FROM, per R4's basis test - an environmental
+                                condition established before design, not a design output - so it sits
+                                here alongside designWorkingLife/consequenceClass, the other
+                                durability-governing basis inputs, rather than on
+                                diggs:RITreatedAreaDesignType.
+
+                                NO PUBLISHED VOCABULARY BUILT YET, DELIBERATELY, UNLIKE
+                                consequenceClass ABOVE. The source report cites only one concrete
+                                instance ("a very severe exposure", a Middle East sabkha case study)
+                                and never names a formal scheme (EN 206 XA classes, ACI 318 exposure
+                                categories, BS 8500 ACEC classes, or ASIRI's own durability class
+                                table) to build a dictionary from - inventing a severity ladder from
+                                one data point would be guessing, the same trap this project declined
+                                for the ORTD/DDP trade-name acronyms (R7) and the source category
+                                rollup (R11). Confirm which scheme(s) to encode before building
+                                exposureClassification.xml.</documentation>
                         </annotation>
                     </element>
                     <element minOccurs="0" maxOccurs="unbounded" name="factor"
