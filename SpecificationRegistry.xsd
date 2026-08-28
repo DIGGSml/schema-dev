@@ -46,7 +46,7 @@
             HOW A CITATION IS VALIDATED. Every property typed diggs:SpecificationPropertyType
             carries gml:AssociationAttributeGroup, so an instance may write
 
-            &lt;governingStandard xlink:href="https://diggsml.org/def/registry/DIGGS/0/rigidInclusions.xml#astm_d1143"/&gt;
+            &lt;governingStandard xlink:href="https://diggsml.org/def/registry/DIGGS/0/specifications.xml#astm_d1143"/&gt;
 
             with no schema change of any kind, and the href resolves to a plain diggs:Specification.
             Validation of that reference has two layers, and both reuse machinery that already
@@ -80,9 +80,18 @@
             costs nothing; keeping the href's return type stable is worth far more, because it
             affects every receiving application rather than one XSL module.
 
-            SCOPE. One registry per domain, mirroring how def's dictionaries are already organized
-            by domain (gp_, pil_, mwd_, cpt_, gr_inj_, ri_design_). Rigid inclusions is the first;
-            laboratory testing, in situ testing, sampling and construction follow.</documentation>
+            SCOPE. ONE UNIFIED REGISTRY, NOT ONE PER DOMAIN. An earlier draft of this schema scoped
+            each registry document to a single domain, mirroring how def's dictionaries are already
+            organized by domain prefix (gp_, pil_, mwd_, cpt_, gr_inj_, ri_design_). That was
+            withdrawn: a standard is routinely cited by more than one domain (ISO 22476-4 by both
+            rigid inclusion design and in-situ testing; EN 12699/EN 14679 by both rigid inclusion
+            design and construction execution), and per-domain files would have forced a choice
+            between registering the same real-world standard twice under two different gml:ids - the
+            exact ambiguity a registry exists to remove - or an arbitrary, undiscoverable "home" file
+            for a cross-cutting standard. diggs:SpecificationRegistryEntry/diggs:domain
+            (below) carries the classification instead: one registry, one entry per standard, one or
+            more domain codes per entry. A rendering stylesheet filters by domain for browsability;
+            the schema itself does not partition by it.</documentation>
     </annotation>
 
     <import namespace="http://www.opengis.net/gml/3.2" schemaLocation="core/gml3.2Profile_diggs.xsd"/>
@@ -101,10 +110,12 @@
                 document. It is NOT reachable from diggs:Diggs and must never be embedded in a
                 project instance: a registry is published by an authority, and a project cites it.
 
-                Scope one registry to one domain and say so in gml:description. A registry that
-                tries to hold every standard in geotechnics becomes unreviewable, and the per-entry
-                diggs:occurrences declarations are what actually enforce domain boundaries
-                anyway.
+                ONE UNIFIED REGISTRY IS THE INTENDED SHAPE, NOT ONE PER DOMAIN - see this schema's
+                own top-level SCOPE note for why a per-domain split was tried and withdrawn. Say what
+                the registry as a whole covers in gml:description; say what one ENTRY covers with its
+                own diggs:domain classification (one or more codes) plus its diggs:occurrences
+                declarations, which are what actually enforce where a given standard may be
+                cited.
 
                 ORDER ENTRIES SO THAT A REFERENCE FOLLOWS ITS ANTECEDENT. Where one entry's
                 supersededByRef points at another, the superseding entry must appear first, as
@@ -193,9 +204,11 @@
                 outside the registry that contains it.
 
                 Holds the registered diggs:Specification by value, followed by the registration
-                metadata. Every metadata property is optional except the Specification itself: an
-                entry that registers nothing is meaningless, but an entry that declares no
-                lifecycle, authority or scope is merely unrestricted.</documentation>
+                metadata. Every metadata property is optional except the Specification itself and
+                its domain classification: an entry that registers nothing is meaningless, an entry
+                with no declared domain cannot be found by a domain-scoped consumer and defeats the
+                reason domain exists, but an entry that declares no lifecycle, authority or scope
+                beyond that is merely unrestricted.</documentation>
         </annotation>
         <complexContent>
             <extension base="diggs:AbstractObjectType">
@@ -208,6 +221,28 @@
                                 it is bit-for-bit the same kind of object an instance document would
                                 otherwise have carried inline - which is the whole point of holding
                                 it here rather than subtyping it.</documentation>
+                        </annotation>
+                    </element>
+                    <element maxOccurs="unbounded" minOccurs="1" name="domain" type="gml:CodeType">
+                        <annotation>
+                            <documentation>One or more classifications of which domain(s) of
+                                practice cite this standard - rigid inclusions, laboratory testing,
+                                in-situ testing, sampling, construction, and so on. Coded against
+                                def/docs/codes/DIGGS/0.1/specificationDomain.xml.
+
+                                THIS IS WHY ONE REGISTRY CAN SERVE EVERY DOMAIN. A standard cited by
+                                more than one domain - ISO 22476-4, say, cited by both rigid
+                                inclusion design and in-situ testing - carries one domain element per
+                                domain rather than being registered a second time under a different
+                                gml:id: the registry holds exactly one canonical entry per real-world
+                                standard, never two ids for the same document. domain is what a
+                                consumer or a rendering stylesheet filters and browses by, so a
+                                registry spanning every domain stays as easy to search as a
+                                single-domain one would have been.
+
+                                Mandatory, unlike every other metadata property on this type: an
+                                entry with no declared domain cannot be found by a domain-scoped
+                                consumer, which defeats the reason domain exists.</documentation>
                         </annotation>
                     </element>
                     <element minOccurs="0" name="authority" type="string">
