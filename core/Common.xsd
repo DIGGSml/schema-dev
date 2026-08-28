@@ -3435,6 +3435,53 @@
                                 than a second bespoke factor type.</documentation>
                         </annotation>
                     </element>
+                    <element minOccurs="0" name="membraneFactor"
+                        type="diggs:DimensionlessMeasureType">
+                        <annotation>
+                            <documentation>Ω: the membrane factor the beam method (FHWA GEC-13 Eq.
+                                3-26, tabulated against strain in Table 6-2, Young et al. 2003)
+                                multiplies this layer's carried load and half the design span by to
+                                obtain designTension, where the more general parabolic method (Eq.
+                                3-25) instead solves for tension from tensileStiffness/atStrain
+                                directly. A method-specific input to that same output, not a further
+                                breakdown of it - hence placed immediately before designTension
+                                rather than among the stiffness/strength fields above, which an index
+                                test produces independent of which tension method is used.
+
+                                CHECKED AGAINST ALL FOUR METHODS THE PROJECT'S SOURCE REPORT REVIEWS
+                                IN DEPTH (R6): BS 8006-1 (Eq 3-16) and EBGEO (Eq 3-20) both obtain
+                                tension as tensileStiffness times strain directly, with no analogous
+                                separate multiplier; ASIRI's unit-cell method does not compute
+                                geosynthetic membrane tension at all. Ω is FHWA-beam-specific, not a
+                                differently-named instance of a cross-standard concept.
+
+                                A PLAIN MEASURE TYPE, NOT diggs:AuthorizedParameterPropertyType,
+                                REVERSING THIS ELEMENT'S OWN FIRST DRAFT (R6, 2026-08-27): an earlier
+                                version routed this through AuthorizedParameter on the reasoning that
+                                Ω is a dictionary-defined, table-sourced quantity, the same reasoning
+                                diggs:ArchingCoefficientsType/coefficient and
+                                diggs:RITreatedAreaDesignType/methodApplicabilityRatio were built on.
+                                That reasoning does not actually apply here: AuthorizedParameter earns
+                                its keep on a GENERIC slot that could hold any of several
+                                differently-named quantities, where only parameterName disambiguates
+                                which one - true of coefficient (up to five arching models' worth of
+                                distinct quantities in one wrapper) and methodApplicabilityRatio, not
+                                true of a uniquely-named element like this one, whose name alone is
+                                already the full disambiguation. Matches
+                                diggs:RILTPDesignType/activeEarthPressureCoefficient's own precedent
+                                (AR1), reversed for the identical reason.
+
+                                NO SCHEMA-ENFORCED LINK TO WHICH METHOD PRODUCED THIS VALUE, and that
+                                is a known, accepted gap rather than an oversight: nothing here
+                                prevents this element being populated alongside a design that
+                                otherwise used BS 8006-1 or EBGEO. diggs:RILTPDesignType/
+                                criticalHeight documents the identical situation for the arching
+                                model and resolves it the same way - by convention, not validation:
+                                state which method produced this value in remark or on the design's
+                                designMethod (diggs:RIProgramBasisType, via basisRef) rather than
+                                relying on a schema check that does not exist.</documentation>
+                        </annotation>
+                    </element>
                     <element minOccurs="0" maxOccurs="unbounded" name="designTension"
                         type="diggs:DesignTensionPropertyType">
                         <annotation>
