@@ -1187,6 +1187,99 @@
             </extension>
         </complexContent>
     </complexType>
+    <element name="LowStrainIntegrityTest" type="diggs:LowStrainIntegrityTestType" abstract="false"
+        substitutionGroup="diggs:AbstractInsituTestProcedure">
+        <annotation>
+            <documentation>A low-strain impact integrity test on a completed deep foundation element,
+                per ASTM D5882 or the French national pair NF P94-160-2 (reflection/sonic-echo
+                method) and NF P94-160-4 (impedance method). Post-installation row 7 - the one
+                post-installation test typically applied to a POPULATION of production elements
+                (commonly around 5% in US DOT practice) rather than to selected elements, which
+                diggs:TargetMeasurement/testedFraction already expresses on the plan side (built at
+                TF1).
+
+                SUBSTITUTES diggs:AbstractInsituTestProcedure DIRECTLY, NOT
+                diggs:AbstractLoadTestProcedure (S27). A low-strain impact test applies no sustained
+                load and has no reaction system or load-increment schedule - S27's head would be
+                entirely inapplicable content, the same reasoning diggs:ThermalIntegrityProfiling
+                (S31) follows.
+
+                ONE ASTM STANDARD, TWO FRENCH STANDARDS FOR THE SAME SCOPE. ASTM D5882 names two
+                methods within a single document: the Pulse Echo Method (time-domain, "sonic echo")
+                and the Transient Response Method (frequency-domain, "impedance" or "impulse
+                response") - see testMethod below. French practice, which ASIRI-governed rigid
+                inclusion projects are at least as likely to cite as ASTM, splits the same two
+                methods into two SEPARATE standards rather than one standard with an internal choice:
+                NF P94-160-2 (reflection method) and NF P94-160-4 (impedance method). Cite whichever
+                is the governing document for a given instance through the inherited
+                testProcedureMethod; testMethod records which of the two physical methods was
+                actually used, independent of which standard governs it.
+
+                ASTM D5882 WAS WITHDRAWN BY ASTM IN 2025 WITH NO REPLACEMENT NAMED (a reinstatement
+                effort, ASTM work item WK93548, is in progress as of this writing) - flagged in the
+                specification registry (registryStatus=withdrawn, no supersededByRef, since none
+                exists). It remains the standard this element, and the Essential Parameters
+                workbook's own row 7, are written against, and is registered and usable for exactly
+                the same reason ASTM D1194 (S28) is: instances citing it, before or after its
+                withdrawal, must keep resolving.
+
+                EN 12699 (already registered, S27) is the execution standard that requires integrity
+                testing of displacement piles as a QA measure; it does not itself define a test
+                method, so - matching diggs:AbstractPlateBearingTestProcedure's BS 8006-1 precedent
+                (S28) - it is expected to be cited through diggs:RIProgramBasis/governingStandard
+                rather than through this procedure's own testProcedureMethod.
+
+                EQUIPMENT, TRANSDUCER LOCATION AND DATA-ACQUISITION SETTINGS ARE DELIBERATELY NOT
+                MODELLED AS NAMED FIELDS. The impact hammer and the motion transducer are both
+                Equipment/Sensor objects carried through the inherited testProcedureEquipment,
+                classified via the new equipmentClass.xml#low_strain_impact_hammer and the
+                pre-existing, unconditioned equipmentClass.xml#accelerometer - no new schema particle
+                needed, the same reasoning diggs:AbstractLoadTestProcedureType gives for declining a
+                named reactionSystem field. Transducer mounting location and instrument filter/gain
+                settings have no precedent anywhere in DIGGS at this level of detail (checked against
+                specialty/DeepFoundation.xsd's diggs:PDARecordType, the schema's other structured
+                dynamic-test record, which does not model them either); the inherited remark or
+                otherProperty carries this where a project wants to record it.
+
+                THE INTERPRETED DEFECT DEPTH IS A RESULT, NOT PROCEDURE CONTENT, per this test
+                family's established split (S27/S28). It goes on Test/outcome's ResultSet via the new
+                properties.xml#defect_depth, conditioned to this element, exactly as
+                properties.xml#critical_creep_load (S27) and #modulus_of_subgrade_reaction (S28)
+                are.</documentation>
+        </annotation>
+    </element>
+    <complexType name="LowStrainIntegrityTestType">
+        <annotation>
+            <documentation>Base type for LowStrainIntegrityTest. See the element's own documentation
+                for the full rationale.</documentation>
+        </annotation>
+        <complexContent>
+            <extension base="diggs:AbstractInsituTestProcedureType">
+                <sequence>
+                    <element minOccurs="0" name="testMethod" type="gml:CodeType">
+                        <annotation>
+                            <documentation>The analysis method used - Pulse Echo Method or Transient
+                                Response Method, from lowStrainTestMethod.xml. See this element's own
+                                documentation above for how the vocabulary spans the ASTM and French
+                                traditions.</documentation>
+                        </annotation>
+                    </element>
+                    <element minOccurs="0" name="assumedWaveSpeed"
+                        type="diggs:LengthPerTimeMeasureType">
+                        <annotation>
+                            <documentation>The one-dimensional stress-wave propagation velocity
+                                assumed when converting a reflection's travel time to a depth. The
+                                single most consequential input to the test's own interpretation - an
+                                assumed value taken from a known pile length and its own measured
+                                toe-reflection time where one is available, or from published
+                                literature values for the pile/element material otherwise, not a
+                                measured material property in its own right.</documentation>
+                        </annotation>
+                    </element>
+                </sequence>
+            </extension>
+        </complexContent>
+    </complexType>
     <complexType name="PumpingTestTimeSeriesPropertyType">
         <annotation>
             <documentation>Property type for pumping test time series references. Used to wrap pumping test time series objects or references in properties.</documentation>
