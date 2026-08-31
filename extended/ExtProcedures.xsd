@@ -801,6 +801,228 @@
             </extension>
         </complexContent>
     </complexType>
+    <element name="StaticLoadTest" type="diggs:StaticLoadTestType" abstract="false"
+        substitutionGroup="diggs:AbstractLoadTestProcedure">
+        <annotation>
+            <documentation>A maintained-load or constant-rate-of-penetration axial compressive load
+                test applied directly to a deep foundation element, per ASTM D1143/D1143M or EN ISO
+                22477-1 (or their national equivalents - see loadingProcedure).
+
+                MULTI-STANDARD BY DESIGN. ASTM D1143 names seven loading procedures (Quick Test,
+                Maintained Test, Loading in Excess of Maintained Test, Constant Time Interval,
+                Constant Rate of Penetration, Constant Movement Increment, Cyclic Loading); EN ISO
+                22477-1 covers only the maintained-load family and explicitly excludes the
+                constant-rate-of-penetration and cyclic variants. loadingProcedure's vocabulary
+                (staticLoadTestProcedure.xml) carries all of ASTM's named options; its
+                maintained_load entry is the value both traditions share, and is what an EN ISO
+                22477-1 (or ASIRI-governed) test states regardless of which of ASTM's other six
+                options it has no equivalent for. Cite the governing standard itself through the
+                inherited testProcedureMethod, not through this element - loadingProcedure names the
+                loading METHOD, testProcedureMethod names the STANDARD that specifies
+                it.</documentation>
+        </annotation>
+    </element>
+    <complexType name="StaticLoadTestType">
+        <annotation>
+            <documentation>Base type for StaticLoadTest.</documentation>
+        </annotation>
+        <complexContent>
+            <extension base="diggs:AbstractLoadTestProcedureType">
+                <sequence>
+                    <element minOccurs="0" name="loadingProcedure" type="gml:CodeType">
+                        <annotation>
+                            <documentation>The loading procedure used, from
+                                staticLoadTestProcedure.xml. See this element's own documentation
+                                above for how the vocabulary spans both the ASTM and EN ISO
+                                traditions.</documentation>
+                        </annotation>
+                    </element>
+                </sequence>
+            </extension>
+        </complexContent>
+    </complexType>
+    <element name="RapidLoadTest" type="diggs:RapidLoadTestType" abstract="false"
+        substitutionGroup="diggs:AbstractLoadTestProcedure">
+        <annotation>
+            <documentation>An axial compressive force-pulse (rapid) load test applied directly to a
+                deep foundation element, per ASTM D7383 or EN ISO 22477-10 - a loading duration
+                (tens to a few hundred milliseconds) between the seconds-to-minutes timescale of
+                diggs:StaticLoadTest and the millisecond-or-shorter timescale of
+                diggs:DynamicLoadTest, requiring the inertial/damping correction analysisMethod
+                names rather than the load-settlement reading a static test takes directly.
+
+                MULTI-STANDARD BY DESIGN. EN ISO 22477-10 classifies a rapid test by its purpose -
+                an investigation test (a sacrificial pile loaded to ultimate limit state) or a
+                control test (a working pile loaded to a specified load above serviceability limit
+                state) - a distinction ASTM D7383 does not name; testCategory carries it where it
+                applies and is left absent where it does not. analysisMethod's two named values
+                (the Unloading Point Method and its Modified form) are the interpretation techniques
+                both standards' practitioner communities use to derive an equivalent static
+                capacity from the measured force-pulse data; neither standard body treats them as
+                proprietary to the other.</documentation>
+        </annotation>
+    </element>
+    <complexType name="RapidLoadTestType">
+        <annotation>
+            <documentation>Base type for RapidLoadTest.</documentation>
+        </annotation>
+        <complexContent>
+            <extension base="diggs:AbstractLoadTestProcedureType">
+                <sequence>
+                    <element minOccurs="0" name="testCategory" type="gml:CodeType">
+                        <annotation>
+                            <documentation>Investigation test or control test, from
+                                rapidLoadTestCategory.xml - the EN ISO 22477-10 classification by
+                                test purpose. See this element's own documentation
+                                above.</documentation>
+                        </annotation>
+                    </element>
+                    <element minOccurs="0" name="pulseDuration" type="diggs:TimeMeasureType">
+                        <annotation>
+                            <documentation>Duration of the applied force pulse.</documentation>
+                        </annotation>
+                    </element>
+                    <element minOccurs="0" name="analysisMethod" type="gml:CodeType">
+                        <annotation>
+                            <documentation>The method used to derive an equivalent static
+                                load-displacement response from the measured force-pulse data, from
+                                rapidLoadTestAnalysisMethod.xml (Unloading Point Method / Modified
+                                Unloading Point Method / other).</documentation>
+                        </annotation>
+                    </element>
+                </sequence>
+            </extension>
+        </complexContent>
+    </complexType>
+    <element name="DynamicLoadTest" type="diggs:DynamicLoadTestType" abstract="false"
+        substitutionGroup="diggs:AbstractLoadTestProcedure">
+        <annotation>
+            <documentation>A high-strain dynamic load test applied directly to a deep foundation
+                element by hammer impact, per ASTM D4945 or EN ISO 22477-4.
+
+                MULTI-STANDARD BY DESIGN, AND WIDER UNDER ISO THAN UNDER ASTM. ASTM D4945 is
+                specifically strain-and-acceleration ("PDA") impact testing, almost always paired in
+                US practice with CAPWAP or an equivalent signal-matching analysis (a form of wave
+                equation analysis) to derive static capacity. EN ISO 22477-4 names four distinct
+                methods under one standard - dynamic impact testing (the ASTM D4945 method), driving
+                formulae, wave equation analysis, and multi-blow dynamic testing (deriving capacity
+                from a series of blows at different displacement/velocity levels) - and testMethod's
+                vocabulary (dynamicLoadTestMethod.xml) carries all four plus signal_matching for the
+                CAPWAP-style companion analysis ASTM practice names separately from the base impact
+                method.
+
+                DELIBERATELY NOT WIRED TO diggs:PDARecordType (specialty/DeepFoundation.xsd). That
+                type is a purpose-built structured PDA record, but it hangs off
+                PileDrivingActivityType/pdaRecord - a construction-activity property - not off
+                Test/outcome, which a post-construction verification test on a completed element
+                needs. Reusing it would require widening its reach across a specialty boundary for a
+                generic capability; the generic route (this procedure plus Test/outcome's ResultSet
+                carrying dictionary-bound force/velocity/capacity values, exactly as every other load
+                test on this tab already works) needs no such change and is what is built here. See
+                docs/RI_Post_Installation_Parameter_Analysis.md P5 for the full
+                reasoning.</documentation>
+        </annotation>
+    </element>
+    <complexType name="DynamicLoadTestType">
+        <annotation>
+            <documentation>Base type for DynamicLoadTest.</documentation>
+        </annotation>
+        <complexContent>
+            <extension base="diggs:AbstractLoadTestProcedureType">
+                <sequence>
+                    <element minOccurs="0" name="testMethod" type="gml:CodeType">
+                        <annotation>
+                            <documentation>The method used to derive pile resistance, from
+                                dynamicLoadTestMethod.xml. See this element's own documentation
+                                above for the ASTM/EN ISO correspondence.</documentation>
+                        </annotation>
+                    </element>
+                    <element minOccurs="0" name="hammerEnergy" type="diggs:EnergyMeasureType">
+                        <annotation>
+                            <documentation>The rated or observed energy delivered by the impact
+                                hammer for the blow(s) tested. The hammer itself, where a typed
+                                record is wanted beyond this scalar, is carried through the inherited
+                                testProcedureEquipment.</documentation>
+                        </annotation>
+                    </element>
+                </sequence>
+            </extension>
+        </complexContent>
+    </complexType>
+    <element name="LoadTestIncrement" type="diggs:LoadTestIncrementType" abstract="false"
+        substitutionGroup="diggs:AbstractProcedureTrial">
+        <annotation>
+            <documentation>One load increment applied during a load test - the procedure's planned
+                or as-executed schedule, not the measured readings taken at it (those belong on
+                Test/outcome's ResultSet, per diggs:AbstractLoadTestProcedure's own
+                documentation).
+
+                TWO ALTERNATIVE HOLD-CRITERION FIELDS, BY DESIGN, NOT REDUNDANTLY. holdDuration (a
+                fixed clock time) is how ASTM's Quick Test and Constant Time Interval procedures
+                define when to advance to the next increment; stabilizationCriterion (a rate of
+                movement) is how EN ISO 22477-1's maintained-load method and ASTM's own Maintained
+                Test define it instead. A given increment states whichever criterion its governing
+                procedure actually uses and leaves the other absent - they are not two ways of
+                recording the same fact, they are the two different rules a loading procedure can
+                specify.</documentation>
+        </annotation>
+    </element>
+    <complexType name="LoadTestIncrementType">
+        <annotation>
+            <documentation>Extended type based on AbstractProcedureTrialType. Adds elements for one
+                load-test increment.</documentation>
+        </annotation>
+        <complexContent>
+            <extension base="diggs:AbstractProcedureTrialType">
+                <sequence>
+                    <element minOccurs="0" name="incrementNumber" type="positiveInteger">
+                        <annotation>
+                            <documentation>Sequence number of this increment within the
+                                test.</documentation>
+                        </annotation>
+                    </element>
+                    <element minOccurs="0" name="loadingPhase" type="gml:CodeType">
+                        <annotation>
+                            <documentation>Whether this increment is part of loading, unloading, or
+                                a reload within a cyclic sequence, from
+                                loadTestIncrementPhase.xml.</documentation>
+                        </annotation>
+                    </element>
+                    <element minOccurs="0" name="appliedLoad" type="diggs:ForceMeasureType">
+                        <annotation>
+                            <documentation>The load applied at this increment.</documentation>
+                        </annotation>
+                    </element>
+                    <element minOccurs="0" name="holdDuration" type="diggs:TimeMeasureType">
+                        <annotation>
+                            <documentation>The fixed duration this increment was held for, where the
+                                governing procedure specifies a clock-time hold rather than a
+                                movement-rate stabilization criterion. See this type's own
+                                documentation above.</documentation>
+                        </annotation>
+                    </element>
+                    <element minOccurs="0" name="stabilizationCriterion"
+                        type="diggs:LengthPerTimeMeasureType">
+                        <annotation>
+                            <documentation>The rate-of-movement threshold that had to be reached
+                                before advancing from this increment, where the governing procedure
+                                specifies a stabilization criterion rather than a fixed-duration
+                                hold. See this type's own documentation above.</documentation>
+                        </annotation>
+                    </element>
+                </sequence>
+            </extension>
+        </complexContent>
+    </complexType>
+    <complexType name="LoadTestIncrementPropertyType">
+        <annotation>
+            <documentation>Property for LoadTestIncrement, required parent element that holds the
+                multiple increments.</documentation>
+        </annotation>
+        <sequence>
+            <element maxOccurs="1" minOccurs="1" ref="diggs:LoadTestIncrement"/>
+        </sequence>
+    </complexType>
     <complexType name="PumpingTestTimeSeriesPropertyType">
         <annotation>
             <documentation>Property type for pumping test time series references. Used to wrap pumping test time series objects or references in properties.</documentation>

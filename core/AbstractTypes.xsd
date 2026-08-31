@@ -822,6 +822,107 @@
             </extension>
         </complexContent>
     </complexType>
+    <element name="AbstractLoadTestProcedure" type="diggs:AbstractLoadTestProcedureType"
+        substitutionGroup="diggs:AbstractInsituTestProcedure" abstract="true">
+        <annotation>
+            <documentation>Abstract head for a load test applied directly to a deep foundation
+                element or foundation system - static, rapid or dynamic. Serves the axial
+                compressive load-test family (S27): diggs:StaticLoadTest, diggs:RapidLoadTest and
+                diggs:DynamicLoadTest, all declared in extended/ExtProcedures.xsd.
+
+                NOT RI-SPECIFIC. A static load test on a driven pile, a drilled shaft and a rigid
+                inclusion is the same procedure - this head and its concrete members live in the
+                generic insitu-test-procedure cluster for that reason, the same placement decision
+                already made for diggs:PressuremeterTest and diggs:PumpingTest in this file's
+                neighbourhood.
+
+                THIS HEAD IS DELIBERATELY STANDARD-NEUTRAL, AND THAT IS THE POINT. The same physical
+                test is governed by more than one standard depending on jurisdiction and specialty
+                practice, and DIGGS does not model a separate procedure type per standard - the
+                inherited diggs:AbstractTestProcedureType/testProcedureMethod
+                (diggs:SpecificationPropertyType, [0..*]) is what cites which standard(s) govern a
+                given instance, and it is already repeatable so more than one can be cited at once
+                (e.g. an ASIRI-governed rigid-inclusion test executed to EN ISO 22477-1). For the
+                static case specifically: ASTM D1143/D1143M ("Standard Test Methods for Deep
+                Foundation Elements Under Static Axial Compressive Load") and EN ISO 22477-1
+                ("Testing of piles: static compression load testing") describe the same test with
+                different vocabulary and, in one respect, different scope - ISO 22477-1 covers only
+                the maintained-load method and explicitly excludes the constant-rate-of-penetration
+                and cyclic variants ASTM permits as options. ASIRI (2012), the rigid-inclusion
+                recommendations most RI projects cite, predates EN ISO 22477-1 (2018) and was
+                written against its predecessor, the now-withdrawn NF P94-150-1; current French/
+                European practice has since migrated to EN ISO 22477-1 for the same test. This head
+                and StaticLoadTest's own loadingProcedure vocabulary are built to carry either
+                tradition without forcing a choice between them - see StaticLoadTest's own
+                documentation.
+
+                What every load test shares, and is carried here: the reference system used to
+                measure displacement (referenceSystem), the peak load reached (maxTestLoad), and the
+                load increments actually applied (increment, [0..*] diggs:LoadTestIncrement
+                objects) - loading and hold criteria differ enough between the static, rapid and
+                dynamic cases that increment is expected to be sparsely used, or not used at all, on
+                the latter two; see diggs:RapidLoadTestType/pulseDuration and
+                diggs:DynamicLoadTestType/hammerEnergy for their own single-event characterisation
+                instead.
+
+                THE REACTION SYSTEM DELIBERATELY HAS NO FIELD HERE. def's equipmentClass.xml already
+                carries load_test_reaction_frame and hydraulic_jack, consumed through the inherited
+                diggs:AbstractTestProcedureType/testProcedureEquipment
+                ([0..*] diggs:EquipmentPropertyType) - a coded reactionSystem element on this type
+                would duplicate that existing mechanism rather than fill a gap.
+
+                THE TEST RESULTS ARE NOT CARRIED HERE EITHER. The load-settlement curve, capacity,
+                and any other measured or derived value belong on diggs:Test/outcome's ResultSet,
+                exactly as every other insitu test already reports its results - this head and its
+                members describe how the test was run, not what it measured.</documentation>
+        </annotation>
+    </element>
+    <complexType abstract="true" name="AbstractLoadTestProcedureType">
+        <annotation>
+            <documentation>Base type for diggs:AbstractLoadTestProcedure. See the element's own
+                documentation for the full rationale.</documentation>
+        </annotation>
+        <complexContent>
+            <extension base="diggs:AbstractInsituTestProcedureType">
+                <sequence>
+                    <element minOccurs="0" name="referenceSystem" type="gml:CodeType">
+                        <annotation>
+                            <documentation>How the movement measured during the test was
+                                referenced - e.g. an independent reference beam, optical survey, or
+                                satellite positioning. Both ASTM D1143 and EN ISO 22477-1 require the
+                                reference system to be independent of the reaction system and
+                                unaffected by ground movement caused by the test itself; this element
+                                records which arrangement satisfied that requirement, it does not
+                                assert that it did.</documentation>
+                        </annotation>
+                    </element>
+                    <element minOccurs="0" name="maxTestLoad" type="diggs:ForceMeasureType">
+                        <annotation>
+                            <documentation>The maximum load reached during the test. A summary
+                                value, independent of and not necessarily derived from the individual
+                                increment elements below - a test recorded without a full
+                                increment-by-increment schedule can still state its peak
+                                load.</documentation>
+                        </annotation>
+                    </element>
+                    <element minOccurs="0" maxOccurs="unbounded" name="increment"
+                        type="diggs:LoadTestIncrementPropertyType">
+                        <annotation>
+                            <documentation>The load increments applied during the test, in
+                                sequence. Optional and repeatable: a static test recorded with a full
+                                loading schedule will have several, a rapid or dynamic test - a
+                                single pulse or blow rather than a staged sequence - will typically
+                                have none. See diggs:LoadTestIncrementType (extended/ExtProcedures.xsd)
+                                for what each increment carries, including the two alternative
+                                hold-criterion fields that let one type serve both the fixed-duration
+                                hold ASTM's Quick Test uses and the movement-rate-stabilization hold
+                                EN ISO 22477-1's maintained-load method requires.</documentation>
+                        </annotation>
+                    </element>
+                </sequence>
+            </extension>
+        </complexContent>
+    </complexType>
     <element name="AbstractLaboratoryTestProcedure" type="diggs:AbstractLaboratoryTestProcedureType"
         substitutionGroup="diggs:AbstractTestProcedure" abstract="true">
         <annotation>
