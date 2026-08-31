@@ -1023,6 +1023,170 @@
             <element maxOccurs="1" minOccurs="1" ref="diggs:LoadTestIncrement"/>
         </sequence>
     </complexType>
+    <element name="AbstractPlateBearingTestProcedure" type="diggs:AbstractPlateBearingTestProcedureType"
+        abstract="true" substitutionGroup="diggs:AbstractLoadTestProcedure">
+        <annotation>
+            <documentation>Abstract head for a load test applied through a bearing plate rather than
+                directly to an axially-loaded element - diggs:PlateLoadTest (a single column head)
+                and diggs:ZoneLoadTest (a platform over a group of columns), S28. Shares S27's
+                AbstractLoadTestProcedureType (referenceSystem, maxTestLoad, increment) and adds
+                what both plate-bearing tests need beyond it: the plate itself (plateDiameter,
+                plateStiffness), the load applied before readings start (seatingLoad), the level the
+                plate bears at (bearingLevel), and the load-cycle procedure used
+                (loadingProcedure).
+
+                DISTINCT FROM diggs:StaticLoadTest, NOT A VARIANT OF IT. ASTM D1143/D1143M and EN
+                ISO 22477-1 (S27) measure a pile or column's own axial capacity by loading it
+                directly; D1196/D1195 and DIN 18134 measure the STIFFNESS OF THE GROUND OR PLATFORM
+                SURFACE by loading it through a plate. The RI Post-installation Parameter Analysis
+                confirmed the workbook's "PLT"/"ZLT" abbreviations mean the latter, not a naming
+                variant of the former.
+
+                MULTI-STANDARD BY DESIGN, ACROSS THREE TRADITIONS RATHER THAN TWO.
+                ASTM D1196 ("Nonrepetitive Static Plate Load Tests of Soils and Flexible Pavement
+                Components") is the live US standard; its predecessor ASTM D1194 was withdrawn in
+                2003 but remains in wide practical use and is registered for that reason.
+                ASTM D1195 covers the REPETITIVE variant (used for airport pavement design).
+                DIN 18134, the German static plate load test, is distinct from both: it prescribes
+                exactly two load cycles and reports two named moduli, Ev1 (first loading) and Ev2
+                (second loading, after initial compression) - the ratio Ev2/Ev1 is itself a
+                reported compaction-quality indicator. loadingProcedure's vocabulary
+                (plateBearingTestProcedure.xml) spans all three: nonrepetitive, repetitive, and
+                two_cycle. BS 8006-1, already registered for diggs:ZoneLoadTest, specifies THAT a
+                zone load test is required for reinforced-fill/rigid-inclusion platform
+                verification; it does not itself define a plate-test procedure, which is why a zone
+                load test is typically executed to D1196, D1195 or DIN 18134's methodology at a
+                scale the platform requires, citing BOTH standards through the inherited, repeatable
+                testProcedureMethod - the standard that says the test is required, and the standard
+                that says how to run it, are frequently not the same document.
+
+                THE RESULTING MODULI ARE RESULTS, NOT PROCEDURE CONTENT, per this family's
+                established split. Ev1/Ev2 and the modulus of subgrade reaction go on
+                Test/outcome's ResultSet via properties.xml#deformation_modulus_first_load,
+                #deformation_modulus_second_load and #modulus_of_subgrade_reaction - new dictionary
+                entries, since none of the three existed anywhere in def before this
+                task.</documentation>
+        </annotation>
+    </element>
+    <complexType abstract="true" name="AbstractPlateBearingTestProcedureType">
+        <annotation>
+            <documentation>Base type for diggs:AbstractPlateBearingTestProcedure. See the element's
+                own documentation for the full rationale.</documentation>
+        </annotation>
+        <complexContent>
+            <extension base="diggs:AbstractLoadTestProcedureType">
+                <sequence>
+                    <element minOccurs="0" name="plateDiameter" type="diggs:LengthMeasureType">
+                        <annotation>
+                            <documentation>Diameter of the circular bearing plate
+                                used.</documentation>
+                        </annotation>
+                    </element>
+                    <element minOccurs="0" name="plateStiffness" type="gml:CodeType">
+                        <annotation>
+                            <documentation>Whether the bearing plate behaves as rigid or flexible
+                                under load, from plateBearingTestStiffness.xml.</documentation>
+                        </annotation>
+                    </element>
+                    <element minOccurs="0" name="seatingLoad" type="diggs:ForceMeasureType">
+                        <annotation>
+                            <documentation>The small load applied to seat the plate before load
+                                increments and readings begin.</documentation>
+                        </annotation>
+                    </element>
+                    <element minOccurs="0" name="bearingLevel" type="diggs:PointLocationPropertyType">
+                        <annotation>
+                            <documentation>The level the bearing plate rests at.</documentation>
+                        </annotation>
+                    </element>
+                    <element minOccurs="0" name="loadingProcedure" type="gml:CodeType">
+                        <annotation>
+                            <documentation>The load-cycle procedure used, from
+                                plateBearingTestProcedure.xml (nonrepetitive / repetitive /
+                                two_cycle). See this type's own documentation above for how the
+                                vocabulary spans the ASTM and DIN traditions.</documentation>
+                        </annotation>
+                    </element>
+                </sequence>
+            </extension>
+        </complexContent>
+    </complexType>
+    <element name="PlateLoadTest" type="diggs:PlateLoadTestType" abstract="false"
+        substitutionGroup="diggs:AbstractPlateBearingTestProcedure">
+        <annotation>
+            <documentation>A plate-bearing load test on a single deep foundation element head, per
+                ASTM D1194 (withdrawn 2003, still in practical use), ASTM D1195/D1196, or DIN 18134.
+                Post-installation row 13 ("PLT").
+
+                No fields of its own: the shared diggs:AbstractPlateBearingTestProcedureType carries
+                everything this test needs. Distinguished from diggs:ZoneLoadTest by what
+                Test/samplingFeatureRef cites - a single diggs:RIColumn here, a
+                diggs:LoadTransferPlatform there - not by any schema particle on this
+                type.</documentation>
+        </annotation>
+    </element>
+    <complexType name="PlateLoadTestType">
+        <annotation>
+            <documentation>Base type for PlateLoadTest.</documentation>
+        </annotation>
+        <complexContent>
+            <extension base="diggs:AbstractPlateBearingTestProcedureType">
+                <sequence/>
+            </extension>
+        </complexContent>
+    </complexType>
+    <element name="ZoneLoadTest" type="diggs:ZoneLoadTestType" abstract="false"
+        substitutionGroup="diggs:AbstractPlateBearingTestProcedure">
+        <annotation>
+            <documentation>A large-plate load test on a load transfer platform over a group of rigid
+                inclusion columns, per BS 8006-1 (which requires the test) executed to ASTM
+                D1195/D1196 or DIN 18134's methodology (which define how to run it) - see
+                diggs:AbstractPlateBearingTestProcedure's own documentation for why citing both is
+                the expected case, not a redundancy. Post-installation row 14 ("ZLT").
+
+                Test/samplingFeatureRef ([0..*], inherited, no new mechanism needed) cites the
+                diggs:LoadTransferPlatform the test was performed on. loadedFootprint and
+                testedColumnRef exist because the tested area is routinely a SUBSET of that
+                platform, not the whole of it.</documentation>
+        </annotation>
+    </element>
+    <complexType name="ZoneLoadTestType">
+        <annotation>
+            <documentation>Base type for ZoneLoadTest.</documentation>
+        </annotation>
+        <complexContent>
+            <extension base="diggs:AbstractPlateBearingTestProcedureType">
+                <sequence>
+                    <element minOccurs="0" name="loadedFootprint"
+                        type="diggs:PlanarSurfacePropertyType">
+                        <annotation>
+                            <documentation>The plan-view extent of the loaded area, where it does
+                                not cover the whole of the load transfer platform
+                                cited through Test/samplingFeatureRef.</documentation>
+                        </annotation>
+                    </element>
+                    <element minOccurs="0" maxOccurs="unbounded" name="testedColumnRef"
+                        type="diggs:FeatureReferenceType">
+                        <annotation>
+                            <appinfo source="urn:x-gml:targetElement">diggs:RIColumn</appinfo>
+                            <documentation>Explicit references to the specific diggs:RIColumn
+                                features the loaded footprint bears on, where that is a named subset
+                                of the platform's columns rather than all of them. A property
+                                element that supports a value by reference only. The target value is
+                                indicated in the appinfo element.
+
+                                EXPLICIT RATHER THAN DERIVED, matching the reasoning
+                                diggs:RIColumnType/ltpRef was built on the same day (REF1): the
+                                loaded footprint's geometry could in principle be tested against
+                                each column's position, but an explicit reference is definitive and
+                                does not depend on the footprint geometry being present or
+                                precise.</documentation>
+                        </annotation>
+                    </element>
+                </sequence>
+            </extension>
+        </complexContent>
+    </complexType>
     <complexType name="PumpingTestTimeSeriesPropertyType">
         <annotation>
             <documentation>Property type for pumping test time series references. Used to wrap pumping test time series objects or references in properties.</documentation>
