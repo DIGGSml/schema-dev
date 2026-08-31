@@ -95,9 +95,13 @@
                 the entire corpus; constructionMethod and constructionEquipment, declared below,
                 already cover what installationEquipment would have.
 
-                The rigid inclusions beneath a platform are not enumerated here: a column's
-                membership is determined by testing its position against this platform's
-                featureExtent.</documentation>
+                The rigid inclusions beneath a platform are not enumerated here. Each column
+                cites the platform it belongs to through diggs:RIColumnType/ltpRef instead -
+                membership asserted by the member, in the same direction as
+                samplingFeatureGroupRef above. Where that reference is absent, membership falls
+                back to testing the column's referencePoint against this platform's featureExtent;
+                that fallback was the ONLY mechanism before ltpRef was added (2026-08-31), and it
+                remains an inference rather than a statement.</documentation>
         </annotation>
     </element>
     <complexType name="LoadTransferPlatformType">
@@ -106,7 +110,39 @@
                 <sequence>
                     <element name="wpRef" type="gml:ReferenceType">
                         <annotation>
-                            <documentation>A pointer to the one WorkingPlatform object that is associated with this LTP. Mandatory, so that the wpElevation is accessible wtihout the need to spatially associate the LTP and WorkingPlatform. </documentation>
+                            <appinfo source="urn:x-gml:targetElement">diggs:WorkingPlatform</appinfo>
+                            <documentation>A pointer to the one diggs:WorkingPlatform object that is
+                                associated with this LTP. Mandatory, so that wpElevation is
+                                accessible without the need to spatially associate the LTP and the
+                                working platform.
+
+                                A property element that supports a value by reference only. The
+                                target value is indicated in the appinfo element. Typed
+                                gml:ReferenceType rather than diggs:FeatureReferenceType because
+                                diggs:WorkingPlatform is a component object, not a feature: it has a
+                                gml:id but no gml:identifier, so identifierRef would have nothing to
+                                carry.
+
+                                EXACTLY ONE, HENCE MANDATORY AND NON-REPEATABLE. An LTP overlies
+                                exactly one working platform - two platform levels would make the
+                                LTP's thickness vary across its own extent, which the model does not
+                                allow (see the lifts element below) - so the reference is neither
+                                optional nor an array. The target is one of the diggs:WorkingPlatform
+                                objects held by diggs:RITreatedArea/workingPlatform.
+
+                                SUPERSEDES POSITIONAL INFERENCE (2026-08-31). Until this element was
+                                added, the LTP-to-working-platform association was stated to be BY
+                                POSITION: test this LTP's featureExtent against each platform's
+                                wpExtent. That inference is now redundant, and where the two
+                                disagree THIS REFERENCE GOVERNS. It also removes a real failure mode
+                                the positional rule had no answer for - wpExtent is optional, and
+                                when it is omitted the platform's extent is itself inferred from the
+                                treated area, so a positional test between an LTP and a platform
+                                that states no extent was circular.
+
+                                Points at an antecedent: the working platform is prepared before the
+                                LTP is laid over the columns, so this reference is backward in both
+                                construction time and logical dependency.</documentation>
                         </annotation>
                     </element>
                     <element minOccurs="0" name="whenConstructed"
@@ -226,15 +262,19 @@
                                 WHICH WORKING PLATFORM wpElevation COMES FROM. An LTP overlies
                                 exactly ONE working platform. It cannot overlie more than one,
                                 because two platform levels would make the LTP's thickness vary
-                                across its own extent, which the model does not allow. The
-                                association is BY POSITION - test this platform's featureExtent
-                                against the wpExtent of the diggs:WorkingPlatform objects on
-                                diggs:RITreatedArea - exactly as the set of rigid inclusions
-                                underlying this platform is derived positionally rather than
-                                enumerated (see the note at the end of this type). No reference is
-                                declared in either direction. Each working platform names its own
-                                level, and wpElevation is mandatory there and is the controlling
-                                value.</documentation>
+                                across its own extent, which the model does not allow. That one
+                                platform is named explicitly by wpRef on this type, which is
+                                mandatory and non-repeatable for exactly this reason. Each working
+                                platform names its own level, and wpElevation is mandatory there and
+                                is the controlling value.
+
+                                (Until 2026-08-31 no reference was declared in either direction and
+                                this note instructed readers to derive the association BY POSITION,
+                                testing this platform's featureExtent against the wpExtent of the
+                                diggs:WorkingPlatform objects on diggs:RITreatedArea. wpRef replaces
+                                that inference. The positional rule was not merely inconvenient: it
+                                was circular whenever wpExtent was omitted, since an omitted
+                                wpExtent is itself defined as the treated area's extent.)</documentation>
                         </annotation>
                     </element>
                     <element maxOccurs="1" minOccurs="0" name="geosynthetics"
@@ -243,13 +283,24 @@
                             <documentation>A property that holds the Geosyntheic objects installed within this LTP.</documentation>
                         </annotation>
                     </element>
-                    <!-- The rigidInclusions containment array was removed here. Rigid inclusions
-                         are top-level sampling features; the set underlying this platform is
-                         derived by testing each column's position against this platform's
-                         featureExtent, not enumerated. No RI-to-LTP reference is declared either:
-                         the columns precede the platform in construction time, so such a reference
-                         would point forward and would require delivered column records to be
-                         edited once the platform was built. -->
+                    <!-- The rigidInclusions containment array was removed here, and is not
+                         coming back: rigid inclusions are top-level sampling features, and a
+                         containment array on the platform would have to be edited every time a
+                         column was added. The set underlying this platform is instead read off
+                         diggs:RIColumnType/ltpRef, each column naming its own platform.
+
+                         An earlier form of this comment argued that no RI-to-LTP reference could be
+                         declared AT ALL, because columns precede the platform in construction time
+                         and such a reference would therefore point forward. That argument was
+                         retracted 2026-08-31, when ltpRef was added. It failed on its own premise:
+                         the antecedent rule constrains logical precedence, not the delivery
+                         calendar, and a column is a MEMBER of a platform's field - the same class of
+                         statement as samplingFeatureGroupRef, which points the same way and has
+                         never been read as forward. The real cost the argument had identified -
+                         that a column record delivered before its platform would need editing
+                         afterwards - is answered by making ltpRef OPTIONAL rather than by refusing
+                         the reference: such a column omits it, and the positional fallback still
+                         identifies it. -->
                 </sequence>
             </extension>
         </complexContent>
@@ -736,7 +787,43 @@
                 <sequence>
                     <element minOccurs="0" name="ltpRef" type="diggs:FeatureReferenceType">
                         <annotation>
-                            <documentation>A pointer to the LoadTransferPlatform feature that is associated with this RIColumn. Optional to allow for columns to not be associated with an LTP in the case of trial columns located outside of a platform or sacfificial columns that are not load bearing. Alsthogh a spatial association between RIColumn and its associated LoadTransferPlatform can be made, an explicit association using this propert is definiitive and should be used in favor of relying on a spatial comparison.</documentation>
+                            <appinfo source="urn:x-gml:targetElement">diggs:LoadTransferPlatform</appinfo>
+                            <documentation>A pointer to the diggs:LoadTransferPlatform feature that
+                                is associated with this RIColumn. Optional, to allow for columns that
+                                are not associated with an LTP - trial columns located outside a
+                                platform, or sacrificial columns that are not load bearing. Although
+                                a spatial association between an RIColumn and its LoadTransferPlatform
+                                can be made, an explicit association using this property is
+                                definitive and should be used in preference to relying on a spatial
+                                comparison.
+
+                                A property element that supports a value by reference only. The
+                                target value is indicated in the appinfo element.
+
+                                SUPERSEDES POSITIONAL INFERENCE (2026-08-31), AND WHERE THE TWO
+                                DISAGREE THIS REFERENCE GOVERNS. Until this element was added, the
+                                set of columns underlying a platform was stated to be derived by
+                                testing each column's referencePoint against that platform's
+                                featureExtent. The positional test remains a valid fallback where
+                                this element is absent, but it is only ever an inference: platform
+                                extents may overlap where a specific structure's platform is drawn
+                                over a residual "remaining area" platform without being punched out
+                                of it, and a column head sitting within centimetres of a shared
+                                boundary is decided by rounding rather than by intent.
+
+                                WHY OPTIONAL RATHER THAN MANDATORY - the append-only cost. Columns
+                                are installed before the platform is laid over them, so a column
+                                record may legitimately be delivered before its platform exists.
+                                Making this element mandatory would require those delivered records
+                                to be edited once the platform was built, which is the one thing the
+                                antecedent rule exists to prevent. Optionality is what buys the
+                                exception: a column delivered ahead of its platform simply omits the
+                                element, and the positional fallback above still identifies it.
+                                Note the reference remains an antecedent one in the sense the rule
+                                actually constrains - logical precedence, not the delivery calendar:
+                                a column is a MEMBER of a platform's field, the same class of
+                                statement as the inherited samplingFeatureGroupRef, and membership is
+                                asserted by the member.</documentation>
                         </annotation>
                     </element>
                     <element name="elementClass" type="gml:CodeWithAuthorityType">
