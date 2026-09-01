@@ -743,21 +743,38 @@
                                 actually specified.</documentation>
                         </annotation>
                     </element>
-                    <element minOccurs="0" name="corrosionProtection" type="gml:CodeType">
+                    <element minOccurs="0" maxOccurs="unbounded" name="corrosionProtection"
+                        type="gml:CodeType">
                         <annotation>
                             <documentation>Corrosion protection measures specified for this
                                 reinforcement, beyond cover alone - for example galvanizing, an epoxy
                                 coating, or cathodic protection (R10; Design Parameter Analysis
                                 workbook row 139, deconflated from the original row 93).
 
-                                NO PUBLISHED VOCABULARY BUILT YET, DELIBERATELY: the source report
-                                names this gap but never cites a specific protection measure or a
-                                classification scheme to build a dictionary from, so
-                                corrosionProtection.xml is not yet built rather than guessed at - the
-                                same discipline diggs:RIProgramBasisType/exposureClassification
-                                documents for the identical situation. gml:CodeType's open codeSpace
-                                still allows an uncontrolled value or free text meanwhile; use remark
-                                for anything a code cannot yet capture.</documentation>
+                                VOCABULARY NOW BUILT - corrosionProtection.xml, at R10's completion.
+                                An earlier draft of this documentation said it could not be, because
+                                the source report never cited a specific protection measure. The
+                                project record behind that report does: a real specification for the
+                                same site names a cement type, a pozzolanic admixture, a
+                                water/binder limit, a binder minimum, a chloride limit and a
+                                waterproofing membrane. The dictionary distinguishes measures
+                                evidenced there from ones included as established practice, so a
+                                reviewer can tell the two apart.
+
+                                REPEATABLE, because protection is specified as a COMBINATION and
+                                almost never as a single measure - the project record above states
+                                six simultaneously for one exposure class. A single occurrence would
+                                have forced a choice among measures that are all in force.
+
+                                NOTE THE DIVISION WITH cover ABOVE: increased cover is itself a
+                                protective measure, so it has a code here, but its MAGNITUDE belongs
+                                in cover, which is a length. State the code to say the measure was
+                                adopted and the length to say how much; they are complementary, not
+                                redundant. gml:CodeType rather than gml:CodeWithAuthorityType,
+                                unlike exposureClassification - a protection measure names a
+                                technique and is not ambiguous between authorities the way a
+                                severity word is. Use remark for anything a code cannot
+                                capture.</documentation>
                         </annotation>
                     </element>
                 </sequence>
@@ -2868,7 +2885,8 @@
                                 be checked.</documentation>
                         </annotation>
                     </element>
-                    <element minOccurs="0" name="exposureClassification" type="gml:CodeType">
+                    <element minOccurs="0" maxOccurs="unbounded" name="exposureClassification"
+                        type="gml:CodeWithAuthorityType">
                         <annotation>
                             <documentation>The ground aggressivity or exposure classification
                                 governing the durability provisions the design specifies for the
@@ -2885,16 +2903,33 @@
                                 this one stays RI-side only until the scheme question below is
                                 settled.
 
-                                NO PUBLISHED VOCABULARY BUILT YET, DELIBERATELY, UNLIKE THE INHERITED
-                                consequenceClass. The source report cites only one concrete
-                                instance ("a very severe exposure", a Middle East sabkha case study)
-                                and never names a formal scheme (EN 206 XA classes, ACI 318 exposure
-                                categories, BS 8500 ACEC classes, or ASIRI's own durability class
-                                table) to build a dictionary from - inventing a severity ladder from
-                                one data point would be guessing, the same trap this project declined
-                                for the ORTD/DDP trade-name acronyms (R7) and the source category
-                                rollup (R11). Confirm which scheme(s) to encode before building
-                                exposureClassification.xml.</documentation>
+                                VOCABULARY NOW BUILT - exposureClassification.xml, at R10's
+                                completion. An earlier draft of this documentation said no vocabulary
+                                could be built because the source report cited only one instance ("a
+                                very severe exposure") and named no formal scheme. That was true of
+                                the report; it was NOT true of the underlying project record, which
+                                names its scheme explicitly. The dictionary carries four: EN 206's
+                                XA classes, ACI 318's S and C categories, BS 8500's ACEC classes,
+                                and the client standard the project actually cited.
+
+                                REPEATABLE, AND THAT IS NOT A CONVENIENCE. Ground aggressivity has
+                                two independent axes - chemical attack on the concrete or grout,
+                                graded from sulfate, magnesium, chloride and acidity; and electrical
+                                corrosivity to embedded steel, graded from soil resistivity. A site
+                                routinely carries a rating on each, from different authorities, on
+                                unrelated criteria. A single occurrence would force a choice between
+                                two facts that are both true.
+
+                                gml:CodeWithAuthorityType, SO codeSpace IS MANDATORY, and this is
+                                the element's central constraint rather than a formality. Several of
+                                the encoded schemes use the SAME severity words on completely
+                                different criteria - an ACI 318 S3, a BS 8500 AC-5, a Palmer
+                                resistivity rating and a client-standard class may all read "very
+                                severe" while stating four unrelated things. A bare severity word is
+                                therefore uninterpretable, exactly as diggs:PerformanceCriterion/
+                                propertyClass is typed for the same reason. The codes in
+                                exposureClassification.xml are scoped to their authority for the
+                                same purpose.</documentation>
                         </annotation>
                     </element>
                     <element minOccurs="0" maxOccurs="unbounded" name="factor"
