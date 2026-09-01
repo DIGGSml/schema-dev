@@ -3184,6 +3184,213 @@
         </sequence>
         <attributeGroup ref="gml:AssociationAttributeGroup"/>
     </complexType>
+    <element name="AcceptanceCheck" type="diggs:AcceptanceCheckType">
+        <annotation>
+            <documentation>The VERDICT of evaluating an acceptance criterion against what was
+                actually built, sampled or measured - that a column's verticality was within
+                tolerance, that a grout cube met its strength requirement, that a platform passed
+                its zone load test.
+
+                THE GAP THIS FILLS. A diggs:AbstractAcceptanceCriterion states a requirement and
+                names what it is evaluated against, but has no slot for the result;
+                diggs:DesignVerification records a verdict but is an ANALYSIS on the design side, a
+                demand checked against a capacity, and is reachable only from design objects; and
+                diggs:NonConformance records only the FAIL half, and only once a departure has been
+                formally raised and dispositioned. So before this element there was no way to say
+                that a requirement was MET - a pass was unrecordable. What projects did instead was
+                declare a boolean per property, which cannot say what the tolerance was, what was
+                measured, who checked, or when.
+
+                IT MUST STAND ALONE, AND THAT IS WHAT SHAPES IT. A DIGGS file will routinely carry
+                acceptance results WITHOUT the supporting test data, and sometimes without the
+                specifications themselves. So this object can restate both halves of the comparison
+                it reports - the requirement (checkedProperty, operator, limit) and the evidence
+                (observedValue) - and remains interpretable when criterionRef and evidenceRef both
+                dangle or are absent.
+
+                BUT RESTATE ONLY WHAT IS NOT REFERENCEABLE. Where a criterionRef is present, the
+                referenced criterion is the authority and checkedProperty, operator and limit should
+                be OMITTED rather than copied; where an evidenceRef is present, observedValue should
+                be omitted likewise. The schema cannot enforce this - both forms are permitted
+                because both are needed - but following it removes the possibility of a restatement
+                disagreeing with its source rather than leaving that disagreement to be adjudicated.
+                WHERE THEY DO DISAGREE, THE REFERENCED CRITERION AND THE REFERENCED MEASUREMENT
+                GOVERN; this object's copies are a convenience for transfer, never the authority.
+
+                THE FAIL HALF IS diggs:NonConformance, CITED, NOT DUPLICATED. A failing check names
+                the non-conformance raised against it through nonConformanceRef. The two objects
+                answer different questions - this one whether the requirement was met, that one what
+                was decided about it not being met - and they are separable in both directions: a
+                check may fail before anyone raises a non-conformance, and a non-conformance may be
+                raised from an inspection that was never a formal check.
+
+                GENERIC, NOT RI-SPECIFIC. Any domain that states acceptance criteria evaluates
+                them. Carried by diggs:AbstractSamplingFeatureType and diggs:AbstractSampleType -
+                the same two homes as diggs:NonConformance and for the same reason: the thing
+                checked is a feature or a sample, and every target and activity in DIGGS is directed
+                at one of those two.</documentation>
+        </annotation>
+    </element>
+    <complexType name="AcceptanceCheckType">
+        <annotation>
+            <documentation>Complex type: AcceptanceCheckType. Extends diggs:AbstractObjectType, the
+                same base diggs:NonConformanceType uses and for the same reasons: it supplies
+                gml:name (a check reference where a project numbers them), diggs:status (the review
+                or release state of the check itself, as distinct from its outcome) and remark (the
+                narrative), and it makes gml:id mandatory.
+
+                Note diggs:status and outcome are NOT the same thing and neither substitutes for the
+                other. outcome is the verdict on the WORK - did it meet the requirement. status is
+                the state of this RECORD - draft, reviewed, released.</documentation>
+        </annotation>
+        <complexContent>
+            <extension base="diggs:AbstractObjectType">
+                <sequence>
+                    <element name="outcome" type="gml:CodeType">
+                        <annotation>
+                            <documentation>The verdict - whether the criterion was satisfied.
+                                Intended to come from a controlled list; see
+                                verificationOutcome.xml, shared with diggs:DesignVerification so
+                                that a design-side and an as-built verdict read the same way.
+
+                                MANDATORY, and the only mandatory particle here. Every other field
+                                either restates something referenced elsewhere or is optional
+                                context; the verdict is the reason the object exists, and a check
+                                without one records nothing.</documentation>
+                        </annotation>
+                    </element>
+                    <element minOccurs="0" maxOccurs="unbounded" name="criterionRef"
+                        type="diggs:FeatureReferenceType">
+                        <annotation>
+                            <appinfo source="urn:x-gml:targetElement">diggs:AbstractProgramSpecification</appinfo>
+                            <documentation>The requirement this check evaluated - normally a
+                                diggs:DesignConformanceCriterion or a diggs:PerformanceCriterion.
+                                THE AUTHORITATIVE STATEMENT OF THE REQUIREMENT WHERE PRESENT, in
+                                which case checkedProperty, operator and limit should be omitted.
+
+                                Targets diggs:AbstractProgramSpecification rather than
+                                diggs:AbstractAcceptanceCriterion so that
+                                diggs:CompositeAcceptanceCriterion is reachable - it substitutes the
+                                specification head, having no operator or limit of its own, and a
+                                compound rule is exactly the kind of requirement a single check
+                                reports on.
+
+                                Repeatable, because one check may report a verdict against several
+                                criteria evaluated together. A property element that supports a
+                                value by reference only.</documentation>
+                        </annotation>
+                    </element>
+                    <element minOccurs="0" maxOccurs="unbounded" name="evidenceRef"
+                        type="diggs:FeatureReferenceType">
+                        <annotation>
+                            <appinfo source="urn:x-gml:targetElement">diggs:AbstractMeasurement</appinfo>
+                            <documentation>The test, survey or monitoring record the verdict was
+                                reached from. THE AUTHORITATIVE STATEMENT OF WHAT WAS MEASURED WHERE
+                                PRESENT, in which case observedValue should be omitted.
+
+                                Repeatable, since a verdict may rest on several measurements - a
+                                statistical criterion over a set of cube tests, or a verticality
+                                verdict from surveys at two depths. Absent where the check was made
+                                by inspection, or where the supporting data is simply not
+                                transferred in this file, which is the normal case this object is
+                                designed to survive. A property element that supports a value by
+                                reference only.</documentation>
+                        </annotation>
+                    </element>
+                    <element minOccurs="0" maxOccurs="unbounded" name="nonConformanceRef"
+                        type="diggs:FeatureReferenceType">
+                        <annotation>
+                            <appinfo source="urn:x-gml:targetElement">diggs:NonConformance</appinfo>
+                            <documentation>The non-conformance raised because this check failed.
+                                Cited rather than contained, so that diggs:NonConformance keeps the
+                                two containment homes it was given - the sampling feature and the
+                                sample - and one non-conformance can be cited by every check it
+                                answers.
+
+                                Expected only where outcome is a failure, but not constrained to it:
+                                a check may be re-run and pass after remedial work while still
+                                citing the non-conformance that prompted the work. Referencing a
+                                component object with diggs:FeatureReferenceType follows
+                                diggs:DesignVerificationType/analysisCaseRef, which cites
+                                diggs:DesignAction the same way. A property element that supports a
+                                value by reference only.</documentation>
+                        </annotation>
+                    </element>
+                    <element minOccurs="0" name="checkedProperty" type="gml:CodeWithAuthorityType">
+                        <annotation>
+                            <documentation>What was checked, as a code - verticality, plan position,
+                                length, unconfined compressive strength. RESTATEMENT: populate this
+                                ONLY where no criterionRef is given, since the criterion already
+                                names its own subject through designProperty or propertyClass.
+
+                                gml:CodeWithAuthorityType, so codeSpace is MANDATORY. The value is
+                                drawn from whichever dictionary the corresponding criterion would
+                                have used - designProperty.xml for a design conformance check,
+                                properties.xml for a performance check - and without a required
+                                codeSpace a bare token could not be resolved to either. Deliberately
+                                not bound to a single dictionary for that reason.</documentation>
+                        </annotation>
+                    </element>
+                    <element minOccurs="0" name="operator" type="diggs:CriterionOperatorEnumType">
+                        <annotation>
+                            <documentation>The comparison the requirement applied - the same
+                                enumeration diggs:AbstractAcceptanceCriterionType/operator uses, so
+                                a restated requirement reads identically to the one it restates.
+                                RESTATEMENT: populate ONLY where no criterionRef is
+                                given.</documentation>
+                        </annotation>
+                    </element>
+                    <element minOccurs="0" name="limit" type="diggs:ParameterPropertyType">
+                        <annotation>
+                            <documentation>The limiting value the requirement set, mirroring
+                                diggs:AbstractAcceptanceCriterionType/limit in both name and type so
+                                the restatement is transcribable without reinterpretation.
+                                RESTATEMENT: populate ONLY where no criterionRef is
+                                given.</documentation>
+                        </annotation>
+                    </element>
+                    <element minOccurs="0" name="observedValue" type="diggs:ParameterPropertyType">
+                        <annotation>
+                            <documentation>The value actually observed, against which the limit was
+                                compared. RESTATEMENT: populate ONLY where no evidenceRef is given -
+                                where the measurement travels with the file, it is the authority and
+                                this copy is redundant.
+
+                                A Parameter rather than a fixed measure type because the quantity
+                                class varies with what is being checked - a percentage for
+                                verticality, a length for position, a pressure for strength - which
+                                is the same reason diggs:DesignVerificationType/demand and /capacity
+                                are Parameter-typed.</documentation>
+                        </annotation>
+                    </element>
+                    <element minOccurs="0" name="checkDate" type="gml:TimePositionType">
+                        <annotation>
+                            <documentation>When the check was made. Distinct from the date of the
+                                underlying measurement, which the referenced diggs:AbstractMeasurement
+                                carries - a verdict is often reached some time after the data was
+                                collected.</documentation>
+                        </annotation>
+                    </element>
+                </sequence>
+            </extension>
+        </complexContent>
+    </complexType>
+    <complexType name="AcceptanceCheckPropertyType">
+        <annotation>
+            <documentation>Property type containing one diggs:AcceptanceCheck.
+
+                Containment only - NO gml:AssociationAttributeGroup, deliberately, and the contrast
+                with diggs:NonConformancePropertyType is the point. A non-conformance is cited from
+                outside itself, because the work that resolves one is usually not the work that
+                failed it. A check is not: it is a statement about exactly one feature or sample,
+                made once, and nothing else needs to point at it. Where a check does need to name
+                something, it does the pointing itself, through criterionRef, evidenceRef and
+                nonConformanceRef.</documentation>
+        </annotation>
+        <sequence minOccurs="0">
+            <element ref="diggs:AcceptanceCheck"/>
+        </sequence>
+    </complexType>
     <element name="LoadTransferRelation" type="diggs:LoadTransferRelationType">
         <annotation>
             <documentation>A shaft (t-z) or tip (q-z) load-transfer relation for one geotechnical
