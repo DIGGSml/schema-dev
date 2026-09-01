@@ -387,31 +387,6 @@
                                 whole.</documentation>
                         </annotation>
                     </element>
-                    <element minOccurs="0" name="nonConformance"
-                        type="diggs:NonConformancePropertyType" maxOccurs="unbounded">
-                        <annotation>
-                            <documentation>A departure of this construction activity, or of the
-                                thing it produced, from a stated requirement - together with what
-                                was decided about it. See diggs:NonConformance for what the object
-                                does and does not record.
-
-                                CARRIED BY THE ACTIVITY RATHER THAN BY THE FEATURE, because a
-                                non-conformance is a fact about work performed, not a property of
-                                the ground or of the finished element. The affected element is
-                                already identified by this activity's own mandatory
-                                samplingFeatureRef, so no second reference to it is declared here.
-
-                                A NON-CONFORMANCE FOUND LONG AFTER CONSTRUCTION STILL BELONGS HERE.
-                                Where a post-construction test reveals it - a load test exceeding a
-                                settlement criterion, an integrity test finding a defect - the
-                                record attaches to the construction activity for the affected
-                                element, and NonConformance/detectedByRef points at the measurement
-                                that found it. There is no separate slot for a
-                                discovered-later finding, because the thing that failed to conform
-                                is the work, whenever the failure came to
-                                light.</documentation>
-                        </annotation>
-                    </element>
                 </sequence>
             </extension>
         </complexContent>
@@ -1954,6 +1929,31 @@
                                 all.</documentation>
                         </annotation>
                     </element>
+                    <element minOccurs="0" maxOccurs="unbounded" name="nonConformance"
+                        type="diggs:NonConformancePropertyType">
+                        <annotation>
+                            <documentation>A departure of this sample from a stated requirement,
+                                together with what was decided about it. See diggs:NonConformance
+                                for what the object does and does not record.
+
+                                DECLARED HERE AS WELL AS ON diggs:AbstractSamplingFeatureType
+                                because a sample is the other thing that can fail to perform. The
+                                classic case is material rather than geometry: a grout or concrete
+                                specimen failing its strength requirement is a non-conformance of
+                                the SAMPLE, and no sampling feature is out of specification as a
+                                result - the material that went into the feature is. Recording it
+                                against the feature instead would misattribute it and would lose the
+                                distinction between a defective element and a defective batch.
+
+                                These two are the only homes for this object. Targets and
+                                activities are not carriers: a planned or performed activity is
+                                always directed AT a sampling feature or a sample, so the thing that
+                                failed to conform is always one of those two.
+
+                                Repeatable, since one sample may depart from more than one
+                                requirement.</documentation>
+                        </annotation>
+                    </element>
                 </sequence>
             </extension>
         </complexContent>
@@ -2315,6 +2315,34 @@
                                 A feature may belong to more than one group - groups are not a
                                 partition, and a borehole may be simultaneously a member of a
                                 borehole/CPT pair and of a wider investigation-phase group.</documentation>
+                        </annotation>
+                    </element>
+                    <element minOccurs="0" maxOccurs="unbounded" name="nonConformance"
+                        type="diggs:NonConformancePropertyType">
+                        <annotation>
+                            <documentation>A departure of this sampling feature from a stated
+                                requirement, together with what was decided about it. See
+                                diggs:NonConformance for what the object does and does not record.
+
+                                CARRIED BY THE THING THAT FAILED TO CONFORM. A non-conformance
+                                attaches to the sampling feature itself, not to the activity that
+                                produced it, because it is the feature that is out of specification.
+                                An earlier draft of this element placed it on
+                                diggs:AbstractConstructionActivityType on the reasoning that a
+                                non-conformance is a fact about work performed rather than about the
+                                finished thing. THAT REASONING IS RETRACTED. It fails wherever a
+                                feature has no construction activity object at all - most clearly
+                                for diggs:LoadTransferPlatform, which is built but for which DIGGS
+                                declares no activity type, because nothing is routinely observed
+                                DURING its construction and its results (lift structure, material)
+                                are recorded on the as-built feature instead. A zone load test
+                                failing its acceptance criterion had, under that placement, nowhere
+                                to be recorded except free text. It also reads wrongly even where an
+                                activity does exist: what fails a load test is the column, not the
+                                drilling.
+
+                                Repeatable, since one feature may depart from more than one
+                                requirement, and each departure is disposed of separately.</documentation>
                         </annotation>
                     </element>
                 </sequence>
