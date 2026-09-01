@@ -1057,6 +1057,95 @@
                                 refAzimuth attribute.</documentation>
                         </annotation>
                     </element>
+                    <element minOccurs="0" name="alignmentDeviation"
+                        type="diggs:DimensionlessMeasureType">
+                        <annotation>
+                            <documentation>How far the constructed feature departed from its
+                                INTENDED alignment, as a dimensionless ratio - the horizontal
+                                offset accumulated over the length travelled. Use uom="Euc" for a
+                                ratio (0.02) or uom="%" for a percentage (2), which are the same
+                                quantity expressed two ways; a 1:50 tolerance is 0.02 Euc or 2 %.
+
+                                DEVIATION FROM INTENT, NOT FROM VERTICAL. Where no intended rake is
+                                stated anywhere, vertical is the intent - which is always the case
+                                for rigid inclusion columns, since they are not designed raked. For
+                                a feature that IS intended to be raked, such as a grout hole or a
+                                battered pile, this property carries only the construction error and
+                                NOT the design rake: a pile intended at 1:4 and built almost
+                                perfectly reports a small deviation, not 25 %. The datum is
+                                intendedPlunge where given, otherwise the plunge stated by the
+                                design or target object for this feature, otherwise vertical.
+
+                                WHY THIS IS NOT SIMPLY DERIVED FROM centerLine, WHICH IS THE WHOLE
+                                POINT. Where the centerline is a real survey it already holds the
+                                answer and this property is a convenience restating it. But a
+                                centerline needs two rotational degrees of freedom - a plunge and a
+                                bearing - while many construction techniques yield only one. A
+                                rigid inclusion or jet grout column is never open to survey; what is
+                                observed is the inclination of the MAST or the drill string, with no
+                                azimuth taken. Encoding that as a centerline would require inventing
+                                a bearing, so the trajectory is left nominal and the measurement is
+                                recorded here instead. Deviation is also a COMPARISON, needing the
+                                intended alignment, which plunge alone does not carry.
+
+                                WHICH SOURCE GOVERNS. Where the centerline is genuinely inclined it
+                                is a survey - nothing else could have produced an off-vertical
+                                trajectory - and it governs; this property should then agree with it
+                                and is a derived convenience. Where the centerline is vertical, it
+                                is almost certainly nominal rather than measured, since a surveyed
+                                hole is virtually never exactly vertical, and this property carries
+                                the measurement. Read alignmentDeterminationMethod rather than
+                                inferring from the geometry: coordinate rounding alone can make a
+                                nominal centerline very slightly non-vertical, so the geometry is a
+                                fallback indication and the method code is the
+                                statement.</documentation>
+                        </annotation>
+                    </element>
+                    <element minOccurs="0" name="intendedPlunge" type="diggs:PlungeMeasureType">
+                        <annotation>
+                            <documentation>The plunge the feature was INTENDED to be constructed at,
+                                against which alignmentDeviation is measured. Same angular
+                                convention as the plunge property on this type, so the two are
+                                directly comparable.
+
+                                A RESTATEMENT, TO BE POPULATED ONLY WHERE THE INTENT IS NOT
+                                OTHERWISE RECOVERABLE - that is, where the design or target object
+                                carrying the planned rake is not transferred with this file. Where
+                                it is transferred, that object is the authority and this element
+                                should be omitted rather than copied. The same rule, and the same
+                                reason, as the restatement fields on diggs:AcceptanceCheck: permit
+                                the copy because acceptance data routinely travels without the
+                                design, but avoid making one where the source is present.
+
+                                Omit for a feature intended to be vertical. Rigid inclusion columns
+                                are always intended vertical, so this element does not apply to
+                                them.</documentation>
+                        </annotation>
+                    </element>
+                    <element minOccurs="0" name="alignmentDeterminationMethod" type="gml:CodeType">
+                        <annotation>
+                            <documentation>How the alignment was established - a downhole
+                                inclinometer or pendulum in the open hole, an ultrasonic caliper,
+                                the inclination of the rig mast, or not determined at all. Intended
+                                to come from a controlled list; see
+                                alignmentDeterminationMethod.xml.
+
+                                THIS IS THE PROVENANCE OF THE TRAJECTORY, AND IT IS THE ONLY PLACE
+                                DIGGS CAN STATE IT. A centerline is mandatory on every linear
+                                sampling feature, so a feature whose trajectory was never surveyed
+                                is still obliged to assert one - and a nominal vertical line is
+                                indistinguishable from a surveyed vertical line without this
+                                property. Note that a mast-derived value describes the RIG, not the
+                                finished element, which is a materially weaker claim than a downhole
+                                survey and is why the method matters as much as the value.
+
+                                Absent, together with an exactly vertical centerline and no
+                                alignmentDeviation, means the alignment was simply not determined -
+                                which is the common case for rigid inclusions and should be read as
+                                an absence of information, not as a claim of
+                                verticality.</documentation>
+                        </annotation>
+                    </element>
                 </sequence>
             </extension>
         </complexContent>
