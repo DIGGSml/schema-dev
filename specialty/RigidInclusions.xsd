@@ -664,7 +664,7 @@
     </element>
     <complexType name="ReinforcementType">
         <complexContent>
-            <extension base="diggs:AbstractComponentObjectBaseType">
+            <extension base="diggs:AbstractObjectBaseType">
                 <sequence>
                     <element name="intervalLocation" type="diggs:LinearExtentPropertyType">
                         <annotation>
@@ -764,10 +764,112 @@
             </extension>
         </complexContent>
     </complexType>
-    <complexType name="ReinforcementArrayPropertyType">
-        <sequence minOccurs="0" maxOccurs="unbounded">
+    <complexType name="ReinforcementPropertyType">
+        <annotation>
+            <documentation>Property type for containing OR REFERENCING one diggs:Reinforcement.
+
+                REPLACED ReinforcementArrayPropertyType AT W1, and the change is not cosmetic. The
+                array form held many Reinforcement objects inside one wrapper, which had two
+                consequences: a column that reused an identical cage specification had to restate it
+                in full, and diggs:RIColumnType/reinforcement - widened to maxOccurs="unbounded" at
+                ddc432b - was an unbounded sequence OF unbounded arrays, which states nothing the
+                single form does not.
+
+                Now the repetition lives on the PROPERTY (maxOccurs="unbounded" at each host) and
+                each property carries exactly one object, inline or by xlink:href through
+                gml:AssociationAttributeGroup. One reinforcement zone declared once can be cited by
+                every column that shares it - the same inline-or-reference capability
+                diggs:RIColumnHeadPropertyType has, and for the same reason.</documentation>
+        </annotation>
+        <sequence minOccurs="0">
             <element ref="diggs:Reinforcement"/>
         </sequence>
+        <attributeGroup ref="gml:AssociationAttributeGroup"/>
+    </complexType>
+    <element name="RIColumnHead" type="diggs:RIColumnHeadType">
+        <annotation>
+            <documentation>The enlarged head or cap at the top of a rigid inclusion column - the
+                plan-enlarged element that collects load from the load transfer platform and
+                delivers it to the column shaft.
+
+                ONE OBJECT, BOTH SIDES OF THE PLAN/REALIZED BOUNDARY, exactly as diggs:Reinforcement
+                is: diggs:RIColumnDesignType carries it as the required cap, diggs:RIColumnType as
+                the installed one. Reached through diggs:RIColumnHeadPropertyType, so it may be
+                stated inline or cited by reference - a cap specification is normally identical
+                across hundreds of columns, and restating it per column is exactly the duplication
+                the reference form exists to remove. Declare it inline on first use and cite it
+                thereafter.
+
+                PRESENCE OF THIS OBJECT IS THE ASSERTION THAT A HEAD EXISTS. It replaces the boolean
+                diggs:RIColumnType/columnCapheadPresent, which was removed at W1: carrying both
+                would let an instance assert columnCapheadPresent="false" while also carrying a
+                head, and a boolean cannot state the plan size that
+                diggs:RIColumnDesignType/areaReplacementRatio and the punching-shear provisions
+                actually consume. A column with no head simply omits this property.</documentation>
+        </annotation>
+    </element>
+    <complexType name="RIColumnHeadType">
+        <complexContent>
+            <extension base="diggs:AbstractObjectBaseType">
+                <sequence>
+                    <element minOccurs="0" name="headShape" type="gml:CodeType">
+                        <annotation>
+                            <documentation>The plan shape of the head - square, rectangular or
+                                circular. Needed to interpret headWidth: without it, a single plan
+                                dimension is ambiguous between the side of a square and the diameter
+                                of a circle, which differ in area by 4/pi.
+
+                                Deliberately NOT diggs:PileShapeEnumExtType
+                                (specialty/DeepFoundation.xsd), despite that being the closest
+                                existing vocabulary. That enumeration describes a pile's structural
+                                CROSS SECTION and carries values meaningless for a cap - "circular
+                                open", "square hollow". A cap's plan shape is a different
+                                concept.</documentation>
+                        </annotation>
+                    </element>
+                    <element minOccurs="0" name="headWidth" type="diggs:LengthMeasureType">
+                        <annotation>
+                            <documentation>a: the governing plan dimension of the head - the side
+                                length of a square cap, the diameter of a circular one, or the
+                                smaller side of a rectangular one. This is the quantity the arching
+                                literature calls a, and the one
+                                diggs:RIColumnDesignType/areaReplacementRatio is computed
+                                from where a cap is present, since it is the cap and not the shaft
+                                that determines the area replaced.</documentation>
+                        </annotation>
+                    </element>
+                    <element minOccurs="0" name="headLength" type="diggs:LengthMeasureType">
+                        <annotation>
+                            <documentation>The second plan dimension, for a rectangular head only.
+                                Omit for a square or circular head, where headWidth alone is
+                                sufficient - that headShape and this element must agree is a
+                                correlation XSD cannot express, and is left to the validation
+                                chain.</documentation>
+                        </annotation>
+                    </element>
+                    <element minOccurs="0" name="headThickness" type="diggs:LengthMeasureType">
+                        <annotation>
+                            <documentation>The structural depth of the head, measured vertically.
+                                Distinct from the plan dimensions above and consumed by a different
+                                check: punching shear depends on the depth available to develop the
+                                shear perimeter, not on the plan area.</documentation>
+                        </annotation>
+                    </element>
+                </sequence>
+            </extension>
+        </complexContent>
+    </complexType>
+    <complexType name="RIColumnHeadPropertyType">
+        <annotation>
+            <documentation>Property type for containing OR REFERENCING one diggs:RIColumnHead.
+                gml:AssociationAttributeGroup is what admits the reference form, which is the point
+                of the object: a cap specification repeated across many columns is declared once and
+                cited thereafter.</documentation>
+        </annotation>
+        <sequence minOccurs="0">
+            <element ref="diggs:RIColumnHead"/>
+        </sequence>
+        <attributeGroup ref="gml:AssociationAttributeGroup"/>
     </complexType>
     <!-- CMCSubmittedDesign was declared here, typed CMCArrayType. Both are retired (C4). The
          array scope form they served - a coverage whose range carried a planned-identifier column
@@ -961,7 +1063,21 @@
                     <element minOccurs="0" name="placedGroutVolume" type="diggs:VolumeMeasureType"/>
                     <element minOccurs="0" name="cutoffMethod"
                         type="diggs:SpecificationPropertyType"/>
-                    <element minOccurs="0" name="columnCapheadPresent" type="boolean"/>
+                    <element minOccurs="0" name="columnHead"
+                        type="diggs:RIColumnHeadPropertyType">
+                        <annotation>
+                            <documentation>The head or cap as actually installed on this column.
+                                Inline, or an xlink:href to a diggs:RIColumnHead declared once and
+                                shared by every column built to the same cap detail.
+
+                                REPLACES columnCapheadPresent (boolean), removed at W1. Presence of
+                                this property is the assertion that a head exists, so the boolean
+                                stated nothing this does not - while being unable to state the cap's
+                                size. The removal was free: zero occurrences in C1, the verification
+                                suite, the released examples, and release
+                                3.0.0.</documentation>
+                        </annotation>
+                    </element>
                     <element minOccurs="0" name="meetsVerticality" type="boolean">
                         <annotation>
                             <documentation>True when verticality of the rigid inclusion meets specified verticality tolerances. Such tolerances should be specified in the ColumnSpec object of RIDesignSpec.</documentation>
@@ -975,7 +1091,7 @@
                         </annotation>
                     </element>
                     <element maxOccurs="unbounded" minOccurs="0" name="reinforcement"
-                        type="diggs:ReinforcementArrayPropertyType">
+                        type="diggs:ReinforcementPropertyType">
                         <annotation>
                             <documentation>The steel reinforcement actually installed in this
                                 column, by zone. Named to match
@@ -1638,6 +1754,22 @@
                                 a value here.</documentation>
                         </annotation>
                     </element>
+                    <element minOccurs="0" name="columnHead"
+                        type="diggs:RIColumnHeadPropertyType">
+                        <annotation>
+                            <documentation>The head or cap this design requires at the top of the
+                                column. Inline, or an xlink:href to a diggs:RIColumnHead declared
+                                once and shared by every column designed to the same cap detail.
+
+                                PLACED IMMEDIATELY BEFORE areaReplacementRatio BECAUSE IT IS ITS
+                                INPUT: where a cap is present it is the cap plan area, not the shaft
+                                area, that is replaced, so a design stating an area replacement
+                                ratio without the cap dimension it was computed from is not
+                                reproducible. The punching-shear provisions consume headThickness
+                                the same way. Both consumers were built before any element could
+                                state the cap - the gap W1 closes.</documentation>
+                        </annotation>
+                    </element>
                     <element minOccurs="0" name="areaReplacementRatio"
                         type="diggs:AreaPerAreaMeasureType">
                         <annotation>
@@ -1734,8 +1866,8 @@
                                 zones.</documentation>
                         </annotation>
                     </element>
-                    <element maxOccurs="1" minOccurs="0" name="reinforcement"
-                        type="diggs:ReinforcementArrayPropertyType">
+                    <element maxOccurs="unbounded" minOccurs="0" name="reinforcement"
+                        type="diggs:ReinforcementPropertyType">
                         <annotation>
                             <documentation>The steel reinforcement required in this design, by
                                 zone. Named to match diggs:RIColumnType/reinforcement, the
