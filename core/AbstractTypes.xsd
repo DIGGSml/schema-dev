@@ -1512,14 +1512,96 @@
     </element>
     <complexType abstract="true" name="AbstractProgramBasisType">
         <annotation>
-            <documentation>Base type for program basis features. Adds nothing to
-                diggs:AbstractProgramModuleType: a basis is distinguished by being a separate
-                substitution-group head, which is what lets basedOnRef chains stay within a kind and
-                what lets basisRef name a single target. Concrete bases add their own
-                content.</documentation>
+            <documentation>Base type for program basis features. Carries the design premises that
+                are not specific to any one practice area - the service life assumed, the
+                consequence class governing reliability, and the seismic hazard adopted - so that
+                every concrete basis inherits them rather than redeclaring them. A basis is also
+                distinguished by being a separate substitution-group head, which is what lets
+                basedOnRef chains stay within a kind and what lets basisRef name a single target.
+                Concrete bases add their own domain-specific content on top.
+
+                AN EARLIER DRAFT OF THIS TYPE ADDED NOTHING to
+                diggs:AbstractProgramModuleType, and its documentation said so. designWorkingLife
+                and consequenceClass were originally built on diggs:RIProgramBasisType (S9) and
+                were moved here at D10, on the same test that placed peakGroundAcceleration here:
+                none of the three is RI-specific, and a basis prepared for any other practice area
+                - a grouting program, a testing program, a deep foundation program - states them
+                identically. Nothing about any of them depends on the ground being improved with
+                rigid inclusions.</documentation>
         </annotation>
         <complexContent>
-            <extension base="diggs:AbstractProgramModuleType"/>
+            <extension base="diggs:AbstractProgramModuleType">
+                <sequence>
+                    <element minOccurs="0" name="designWorkingLife" type="diggs:TimeMeasureType">
+                        <annotation>
+                            <documentation>The service life the design assumes - governs the
+                                consequence class, durability provisions and, where the safety
+                                format is Eurocode-based, which partial factors apply.
+
+                                Generic to any designed program, not to rigid inclusions: moved
+                                here from diggs:RIProgramBasisType at D10.</documentation>
+                        </annotation>
+                    </element>
+                    <element minOccurs="0" name="consequenceClass" type="gml:CodeType">
+                        <annotation>
+                            <documentation>The consequence or reliability class governing the
+                                design - for example a Eurocode consequence class (EN 1990
+                                CC1-CC3) or an equivalent national scheme.
+
+                                Generic to any designed program, not to rigid inclusions: moved
+                                here from diggs:RIProgramBasisType at D10. Its published
+                                vocabulary (consequenceClass.xml) was authored for the RI build at
+                                S9 and is EC7/EN 1990-sourced only; RI_Design_Parameter_
+                                Analysis.md Group A row 10 flags that several national schemes
+                                (ASIRI's domain classification, EBGEO's load case) use this same
+                                slot for concepts that are not directly interchangeable with each
+                                other or with the Eurocode classes, and those are intentionally
+                                left for SME confirmation rather than guessed at. The dictionary's
+                                Occurrence bindings were widened from
+                                //diggs:RIProgramBasis/diggs:consequenceClass to
+                                //diggs:consequenceClass when this element moved, so that the
+                                vocabulary is usable from any basis rather than only the RI one -
+                                the same correction R11 had to make to roles.xml.</documentation>
+                        </annotation>
+                    </element>
+                    <element minOccurs="0" name="peakGroundAcceleration"
+                        type="diggs:LinearAccelerationMeasureType">
+                        <annotation>
+                            <documentation>a_g: the design peak ground acceleration the design
+                                adopts as its seismic hazard premise - normally read from a
+                                national seismic hazard map, or from a site-specific hazard study,
+                                for the return period that the design working life and consequence
+                                class imply.
+
+                                A BASIS INPUT WITH NO ACHIEVED COUNTERPART, and that is what
+                                distinguishes it from diggs:RITreatedAreaType/seismicSiteClass.
+                                Ground improvement can change a site's Vs30 and therefore its site
+                                class, which is precisely why TAD1 gave seismicSiteClass both a
+                                predicted form on the design and an achieved form on the treated
+                                area. It cannot change the seismic hazard AT the site, which is
+                                fixed by regional seismicity and the chosen return period. So a_g
+                                is a pure input, and the predicted/achieved split that
+                                seismicSiteClass needs would be meaningless here.
+
+                                diggs:LinearAccelerationMeasureType rather than a dimensionless
+                                value: PGA is quoted as a fraction of standard gravity at least as
+                                often as in m/s2, and the mandatory uom - "gn" for the former,
+                                "m/s2" for the latter - is what keeps 0.3 g from being read as
+                                0.3 m/s2. The same unit-hazard argument that made
+                                diggs:RIColumnDesignType/areaReplacementRatio an
+                                AreaPerAreaMeasureType rather than a dimensionless one.
+
+                                NO CODED VOCABULARY AND NO properties.xml ENTRY, DELIBERATELY.
+                                This is a closed physical quantity in a uniquely named,
+                                single-occupant element, which per AR1/R6 is exactly the case that
+                                does NOT need a dictionary-bound parameter - the element name
+                                already fully disambiguates the quantity. A measured strong-motion
+                                record is a different thing in a different domain and is not
+                                modelled here.</documentation>
+                        </annotation>
+                    </element>
+                </sequence>
+            </extension>
         </complexContent>
     </complexType>
     <element abstract="true" name="AbstractProgramDesign" type="diggs:AbstractProgramDesignType"
