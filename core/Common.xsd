@@ -2999,6 +2999,180 @@
             <element ref="diggs:DesignVerification"/>
         </sequence>
     </complexType>
+    <element name="NonConformance" type="diggs:NonConformanceType">
+        <annotation>
+            <documentation>A record that a realized thing departed from a stated requirement, and
+                what was decided about it. Distinguished from diggs:DesignVerification, which is a
+                verdict reached by ANALYSIS on the design side (a demand checked against a
+                capacity), by being an AS-BUILT finding: the requirement existed, the work did not
+                meet it, and a decision had to be taken.
+
+                WHY THIS IS IN SCOPE FOR DIGGS AT ALL, SINCE THAT WAS THE QUESTION. DIGGS
+                consistently declines to model project administration - a contract delivery method
+                is carried by diggs:Contract, not by a design basis, and this schema holds no
+                schedule, cost, or correspondence objects. A non-conformance sits close to that
+                line. It is included because the fact it turns on is ALREADY a DIGGS fact: a
+                diggs:AbstractAcceptanceCriterion states a requirement and names what it is
+                evaluated against, so whether that requirement was met is a statement this schema
+                can already almost make. What it could not express is the half that follows -
+                which requirement was breached, what was decided, and what was done. Those are
+                properties of the work, not of the contract, and without them a data set can say a
+                column was built and can say what it was required to achieve, but cannot say that
+                the two disagreed.
+
+                WHAT IS DELIBERATELY NOT HERE. There is no approval workflow, no assignee, no cost,
+                no correspondence trail, and no numbering scheme - a non-conformance report as a
+                DOCUMENT remains an attachment, carried by the inherited associatedFile property of
+                whatever object holds it. This object records the engineering content of the
+                finding, not its administration. The reference number, where a project uses one,
+                is the inherited gml:name.
+
+                LIFECYCLE STATE IS INHERITED, NOT DECLARED HERE. diggs:status is available on every
+                object descended from diggs:AbstractObjectType and is documented for exactly this
+                purpose - "to track QA/QC controls, review or release status" - so an open, closed,
+                or superseded non-conformance is expressed with status rather than with a second
+                field meaning the same thing. Likewise the narrative account of the finding and of
+                its resolution belongs in the inherited remark property; the coded elements below
+                exist so the record can be QUERIED, not to replace the description.
+
+                GENERIC, NOT RI-SPECIFIC, which is why it lives here beside diggs:DesignVerification
+                rather than in specialty/RigidInclusions.xsd. Any construction domain that states
+                acceptance criteria can fail to meet them. Note diggs:RIConstructionActivityType
+                already carries groutLevelCorrectiveAction, which is a narrow, in-progress,
+                RI-specific response to ONE failure mode (grout dropping below the expected level)
+                recorded while the column is being built. That element is not superseded by this
+                object and is not a special case of it: it records an immediate construction
+                response, whereas a NonConformance records a formal departure from a requirement
+                and its disposition.</documentation>
+        </annotation>
+    </element>
+    <complexType name="NonConformanceType">
+        <annotation>
+            <documentation>Complex type: NonConformanceType. Extends diggs:AbstractObjectType
+                rather than the lighter diggs:AbstractComponentObjectBaseType that
+                diggs:DesignVerificationType uses, and the choice is deliberate: that base supplies
+                gml:name, diggs:status and remark, which are respectively the non-conformance's
+                reference number, its open/closed state, and its narrative - three things this
+                object needs and would otherwise have had to declare for itself. It also makes
+                gml:id mandatory, so a non-conformance can always be cited from
+                elsewhere.</documentation>
+        </annotation>
+        <complexContent>
+            <extension base="diggs:AbstractObjectType">
+                <sequence>
+                    <element name="disposition" type="gml:CodeType">
+                        <annotation>
+                            <documentation>What was decided about the non-conforming work - accept
+                                as is, repair, rework, replace, or reject. Intended to come from a
+                                controlled list.
+
+                                MANDATORY, and it is the one mandatory field on this type, because
+                                a non-conformance with no disposition is not a record of anything
+                                that was settled. The bare fact that work failed a criterion is
+                                already expressible without this object: the criterion states the
+                                limit, and the measurement states the value. What makes this object
+                                worth declaring is the decision, so an instance that omits it would
+                                carry no information the schema did not already hold.
+
+                                A DISPOSITION IS NOT A CORRECTIVE ACTION and the two are separate
+                                elements here. The disposition concerns THIS non-conforming work -
+                                what happens to the column that failed. A corrective action
+                                concerns the CAUSE - what changes so the next column does not fail
+                                the same way. Recording only one of the two is common practice and
+                                both are optional to populate in that sense, but conflating them
+                                loses the distinction a reviewer needs.</documentation>
+                        </annotation>
+                    </element>
+                    <element minOccurs="0" maxOccurs="unbounded" name="correctiveAction"
+                        type="gml:CodeType">
+                        <annotation>
+                            <documentation>Action taken to address the CAUSE of the non-conformance
+                                so that it does not recur - a change of method, plant, sequence, or
+                                supervision - as distinct from the disposition of the affected work
+                                itself. Intended to come from a controlled list. Repeatable, since
+                                one finding commonly triggers more than one change. Absent where
+                                the non-conformance was isolated and no cause needed
+                                addressing.</documentation>
+                        </annotation>
+                    </element>
+                    <element minOccurs="0" maxOccurs="unbounded" name="breachedSpecificationRef"
+                        type="diggs:FeatureReferenceType">
+                        <annotation>
+                            <appinfo source="urn:x-gml:targetElement">diggs:AbstractProgramSpecification</appinfo>
+                            <documentation>The requirement that was not met, as a reference to the
+                                specification object stating it - typically a
+                                diggs:DesignConformanceCriterion or a diggs:PerformanceCriterion.
+
+                                TARGETS diggs:AbstractProgramSpecification RATHER THAN
+                                diggs:AbstractAcceptanceCriterion DELIBERATELY. The narrower head
+                                would exclude diggs:CompositeAcceptanceCriterion, which substitutes
+                                the specification head rather than the criterion head precisely
+                                because a composite has no operator and no limit of its own. Since
+                                a compound rule - rate below X AND torque above Y - is exactly the
+                                kind of requirement a refusal breaches, excluding it would exclude
+                                one of the cases this element exists to record.
+
+                                Repeatable, because one departure can breach more than one
+                                requirement at once. Optional, because a non-conformance may be
+                                raised against a requirement stated only in a specification
+                                document, in which case the document is an attachment and the
+                                narrative is in remark. A property element that supports a value by
+                                reference only.</documentation>
+                        </annotation>
+                    </element>
+                    <element minOccurs="0" maxOccurs="unbounded" name="detectedByRef"
+                        type="diggs:FeatureReferenceType">
+                        <annotation>
+                            <appinfo source="urn:x-gml:targetElement">diggs:AbstractMeasurement</appinfo>
+                            <documentation>The test, monitoring record, or other measurement that
+                                revealed the non-conformance - for example the load test whose
+                                settlement exceeded a performance criterion, or the integrity test
+                                that found a defect.
+
+                                This is how a non-conformance found AFTER construction attaches to
+                                the evidence for it, and it is why this object does not need to
+                                restate the measured value: the measurement already carries it.
+                                Optional, because a non-conformance may be found by inspection
+                                rather than by measurement. A property element that supports a
+                                value by reference only.</documentation>
+                        </annotation>
+                    </element>
+                    <element minOccurs="0" name="dateIdentified" type="gml:TimePositionType">
+                        <annotation>
+                            <documentation>When the non-conformance was identified. Together with
+                                dateResolved this is the trail the record exists to support: how
+                                long a departure stood open, and whether it was closed before or
+                                after subsequent work proceeded.</documentation>
+                        </annotation>
+                    </element>
+                    <element minOccurs="0" name="dateResolved" type="gml:TimePositionType">
+                        <annotation>
+                            <documentation>When the disposition was completed and the
+                                non-conformance closed. Absent while the non-conformance is still
+                                open - which the inherited status property states directly, this
+                                element carrying only the date.</documentation>
+                        </annotation>
+                    </element>
+                </sequence>
+            </extension>
+        </complexContent>
+    </complexType>
+    <complexType name="NonConformancePropertyType">
+        <annotation>
+            <documentation>Property type for containing OR REFERENCING one diggs:NonConformance.
+                gml:AssociationAttributeGroup is what admits the reference form, and it is needed
+                here rather than optional convenience: the work that DISPOSES of a non-conformance
+                is frequently a different construction activity from the one that raised it - a
+                remedial column installed later, alongside the original - and that later activity
+                has to be able to cite the non-conformance it answers rather than restate it. The
+                same mechanism lets several activities cite one finding that affected all of
+                them.</documentation>
+        </annotation>
+        <sequence minOccurs="0">
+            <element ref="diggs:NonConformance"/>
+        </sequence>
+        <attributeGroup ref="gml:AssociationAttributeGroup"/>
+    </complexType>
     <element name="LoadTransferRelation" type="diggs:LoadTransferRelationType">
         <annotation>
             <documentation>A shaft (t-z) or tip (q-z) load-transfer relation for one geotechnical
