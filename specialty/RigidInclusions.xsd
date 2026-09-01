@@ -859,6 +859,144 @@
             </extension>
         </complexContent>
     </complexType>
+    <element name="InstallationSequenceStep" type="diggs:InstallationSequenceStepType">
+        <annotation>
+            <documentation>One explicitly ordered installation position - a sequence number paired
+                with the grid node it applies to. Repeated within a
+                diggs:RIInstallationSequence to state an order no traversal rule can generate.
+
+                TWO NAMED FIELDS RATHER THAN ONE ENCODED LIST. A sequence number and a grid index
+                could both be carried in a single gml:integerList as "seq i j", but that is a
+                convention, and diggs:RIColumnDesignType/spacingX already records this project's
+                position on conventions in a data standard: they are read wrongly sooner or
+                later.</documentation>
+        </annotation>
+    </element>
+    <complexType name="InstallationSequenceStepType">
+        <complexContent>
+            <extension base="diggs:AbstractComponentObjectBaseType">
+                <sequence>
+                    <element name="sequenceNumber" type="positiveInteger">
+                        <annotation>
+                            <documentation>The position of this node in the installation order,
+                                counting from 1. Mandatory, and deliberately not left to document
+                                order: an explicit number lets a SPARSE sequence be stated - "the
+                                node at (5,5) is installed 47th" - without enumerating the 46 that
+                                precede it.</documentation>
+                        </annotation>
+                    </element>
+                    <element name="gridIndex" type="gml:integerList">
+                        <annotation>
+                            <documentation>The node this step applies to, as an index into the index
+                                space of the enclosing design's plannedPositions grid. Same type and
+                                same ordering convention as diggs:realizesGridIndex and
+                                diggs:plannedGridIndex, so a planned order can be compared directly
+                                against what was built.</documentation>
+                        </annotation>
+                    </element>
+                </sequence>
+            </extension>
+        </complexContent>
+    </complexType>
+    <complexType name="InstallationSequenceStepPropertyType">
+        <annotation>
+            <documentation>Property type for containing one
+                diggs:InstallationSequenceStep.</documentation>
+        </annotation>
+        <sequence minOccurs="0">
+            <element ref="diggs:InstallationSequenceStep"/>
+        </sequence>
+    </complexType>
+    <element name="RIInstallationSequence" type="diggs:RIInstallationSequenceType">
+        <annotation>
+            <documentation>The order in which the columns of one design are to be installed, stated
+                over the index space of the design's plannedPositions grid.
+
+                INDEXES THE GRID, NOT A SET OF OBJECTS, and that is the point: a design that states
+                a plannedPositions grid already has an addressable node at every column position,
+                so an installation order can be given WITHOUT any diggs:TargetRIColumn existing.
+                Enumerating a thousand planned columns purely to number them would be a large cost
+                for a statement the grid already supports.
+
+                TWO WAYS TO STATE THE ORDER, AND THEY COMPOSE. sequenceRule with startPoint gives a
+                generated traversal - compact, and right for the regular cases. step gives explicit
+                (sequenceNumber, gridIndex) pairs. WHERE BOTH APPEAR, step WINS for the nodes it
+                names and the rule governs the rest, which is the same precedence
+                diggs:RIColumnType/installationSequenceNumber has over this object as a whole. A
+                fully arbitrary order is expressed by omitting the rule and listing every node.
+
+                WHAT THIS OBJECT DOES NOT EXPRESS, deliberately, because other machinery already
+                does:
+                - ORDER BETWEEN DESIGNS - primary/secondary/tertiary passes, or "all columns of one
+                  type first, wherever they are" - is diggs:RIColumnDesignType/installationOrder
+                  ranking sibling designs, each with its own scope. Per R12 a multi-grid treated
+                  area is already sibling designs; a pass is the same construct. GML's sequence
+                  rules cannot express split spacing, and this is why they do not need to.
+                - MINIMUM SPACING TO FRESH CONCRETE and MINIMUM AGE BEFORE ADJACENT INSTALLATION are
+                  requirements, not an order, and are diggs:DesignConformanceCriterion - a
+                  designProperty, an operator and a limit - so that they are checkable rather than
+                  inert.</documentation>
+        </annotation>
+    </element>
+    <complexType name="RIInstallationSequenceType">
+        <complexContent>
+            <extension base="diggs:AbstractComponentObjectBaseType">
+                <sequence>
+                    <element minOccurs="0" name="sequenceRule" type="gml:SequenceRuleType">
+                        <annotation>
+                            <documentation>The traversal that generates the installation order over
+                                the grid - Linear, Boustrophedonic, Cantor-diagonal, Spiral, Morton
+                                or Hilbert, with the axisOrder attribute giving direction (for
+                                example "+1 +2"). gml:SequenceRuleType, whose rule names are ISO
+                                19123's and which gml:GridFunction already uses for exactly this
+                                purpose: mapping the nodes of a grid to an ordered sequence. Reused
+                                rather than restated as a DIGGS codelist, so an installation order
+                                and a coverage traversal are named the same way.
+
+                                Boustrophedonic is the serpentine rig path most RI layouts actually
+                                follow; Linear with an axisOrder is row-by-row returning to the same
+                                side; Spiral covers outside-in and inside-out from
+                                startPoint.</documentation>
+                        </annotation>
+                    </element>
+                    <element minOccurs="0" name="startPoint" type="gml:integerList">
+                        <annotation>
+                            <documentation>The grid node the sequence begins at. Where omitted,
+                                gml:GridFunction's own default applies - the grid's gml:low, its
+                                lowest-indexed corner. Meaningless without sequenceRule; that the
+                                two must agree is a correlation XSD cannot express.</documentation>
+                        </annotation>
+                    </element>
+                    <element minOccurs="0" maxOccurs="unbounded" name="step"
+                        type="diggs:InstallationSequenceStepPropertyType">
+                        <annotation>
+                            <documentation>Explicitly ordered nodes, each pairing a sequence number
+                                with a grid index. Repeatable, and OVERRIDES sequenceRule for the
+                                nodes it names.
+
+                                This is what a traversal rule cannot do. A rule computes the next
+                                node from the current one, so an order like (1,1) then (10,2) then
+                                (1,2) - or one driven by equipment availability or by which load
+                                transfer platform zone a column falls in - fits no rule and must be
+                                stated node by node.</documentation>
+                        </annotation>
+                    </element>
+                </sequence>
+            </extension>
+        </complexContent>
+    </complexType>
+    <complexType name="RIInstallationSequencePropertyType">
+        <annotation>
+            <documentation>Property type for containing or referencing one
+                diggs:RIInstallationSequence. gml:AssociationAttributeGroup admits the reference
+                form so that sibling designs forming successive passes over the same layout can
+                cite one sequence rather than restate it.</documentation>
+        </annotation>
+        <sequence minOccurs="0">
+            <element ref="diggs:RIInstallationSequence"/>
+        </sequence>
+        <attributeGroup ref="gml:AssociationAttributeGroup"/>
+    </complexType>
     <complexType name="RIColumnHeadPropertyType">
         <annotation>
             <documentation>Property type for containing OR REFERENCING one diggs:RIColumnHead.
@@ -995,6 +1133,28 @@
                             <documentation>The period of time when the hole is constructed. This
                                 should include the entire time the drill rig is on
                                 site.</documentation>
+                        </annotation>
+                    </element>
+                    <element minOccurs="0" name="installationSequenceNumber"
+                        type="positiveInteger">
+                        <annotation>
+                            <documentation>The position this column actually occupied in the
+                                installation order, counting from 1 - the as-built counterpart of
+                                the planned order that
+                                diggs:RIColumnDesignType/installationSequence states.
+
+                                RECORDED RATHER THAN DERIVED. Actual order is not reliably
+                                recoverable from whenConstructed: that element is optional and in
+                                practice thinly populated, and a timestamp answers "when" rather
+                                than "in what order", which matters where several rigs work
+                                concurrently. Nor is it recoverable from the column's name, since a
+                                naming convention is not data. So it is stated.
+
+                                Comparing this against the design's planned order is what shows
+                                whether a specified sequence was followed - and where a minimum age
+                                or minimum spacing to fresh concrete was specified as a
+                                diggs:DesignConformanceCriterion, this is the as-built side that
+                                criterion is evaluated against.</documentation>
                         </annotation>
                     </element>
                     <element maxOccurs="unbounded" minOccurs="0" name="constructionMethod"
@@ -1138,6 +1298,26 @@
                                 nothing about the trial/test/production/sacrificial distinction is
                                 specific to either side of the plan/realized
                                 boundary.</documentation>
+                        </annotation>
+                    </element>
+                    <element minOccurs="0" name="installationSequenceNumber"
+                        type="positiveInteger">
+                        <annotation>
+                            <documentation>The position this planned column is to occupy in the
+                                installation order, counting from 1.
+
+                                FOR INDIVIDUALLY PLANNED COLUMNS. Where a design enumerates its
+                                columns as targets, the order is stated here per column and
+                                OVERRIDES anything diggs:RIColumnDesignType/installationSequence
+                                generates for the corresponding node. Where columns are not
+                                enumerated - the normal case for a large uniform grid - the design's
+                                own installationSequence carries the order instead, and nothing need
+                                be created here.
+
+                                Use plannedGridIndex (inherited from
+                                diggs:AbstractTargetObjectType) to say which node of the design's
+                                grid this target refines, so that the override lands on the right
+                                node.</documentation>
                         </annotation>
                     </element>
                 </sequence>
@@ -1678,6 +1858,48 @@
                             <documentation>Centre-to-centre spacing of the columns along the second
                                 grid axis, for a rectangular pattern where it differs from spacingX.
                                 Omit for square and triangular patterns. See spacingX.</documentation>
+                        </annotation>
+                    </element>
+                    <element minOccurs="0" name="installationOrder" type="positiveInteger">
+                        <annotation>
+                            <documentation>The rank of THIS DESIGN among its siblings in the order
+                                the work is to be carried out, counting from 1. Lower is earlier;
+                                designs sharing a value are unordered with respect to each other.
+
+                                THE PASS MECHANISM. Split-spacing - primary, secondary, tertiary -
+                                is expressed as sibling diggs:RIColumnDesign objects, each scoped to
+                                its own coarser or offset plannedPositions grid, ranked by this
+                                element. R12 already settled that a treated area needing more than
+                                one grid is sibling designs each with their own scope; a pass is
+                                that same construct, and no separate pass-count field is needed.
+                                Stating it this way is also unambiguous on a triangular or staggered
+                                lattice, where a bare "three passes" would not be: each pass's grid
+                                says exactly which nodes it contains.
+
+                                ALSO THE MECHANISM FOR NON-GEOMETRIC ORDERING - "install every
+                                column of one type first, wherever they are", or an order driven by
+                                equipment availability or by load transfer platform zone. Those are
+                                groupings rather than traversals, so they are sibling designs ranked
+                                here, not something installationSequence below could
+                                generate.</documentation>
+                        </annotation>
+                    </element>
+                    <element minOccurs="0" name="installationSequence"
+                        type="diggs:RIInstallationSequencePropertyType">
+                        <annotation>
+                            <documentation>The order in which the columns WITHIN this design are to
+                                be installed, over the index space of the inherited scope's
+                                plannedPositions grid. See diggs:RIInstallationSequence for how a
+                                generated traversal and explicit per-node steps compose.
+
+                                Requires that the scope carry a plannedPositions grid: the sequence
+                                indexes that grid, so on a zone-scoped design with no layout there
+                                is nothing to index and this element states nothing. That
+                                dependency is a correlation XSD cannot express.
+
+                                Distinct from installationOrder above, which orders this design
+                                against its siblings rather than the columns within
+                                it.</documentation>
                         </annotation>
                     </element>
                     <element minOccurs="0" name="equivalentDiameter" type="diggs:LengthMeasureType">
