@@ -863,7 +863,8 @@
         <annotation>
             <documentation>One explicitly ordered installation position - a sequence number paired
                 with the grid node it applies to. Repeated within a
-                diggs:RIInstallationSequence to state an order no traversal rule can generate.
+                diggs:RIInstallationSequence's steps array to state an order no traversal rule can
+                generate.
 
                 TWO NAMED FIELDS RATHER THAN ONE ENCODED LIST. A sequence number and a grid index
                 could both be carried in a single gml:integerList as "seq i j", but that is a
@@ -898,12 +899,25 @@
             </extension>
         </complexContent>
     </complexType>
-    <complexType name="InstallationSequenceStepPropertyType">
+    <complexType name="InstallationSequenceStepArrayPropertyType">
         <annotation>
-            <documentation>Property type for containing one
-                diggs:InstallationSequenceStep.</documentation>
+            <documentation>Property type for an array of diggs:InstallationSequenceStep objects -
+                one wrapper element containing one or more steps, matching
+                diggs:LTPLiftArrayPropertyType's shape.
+
+                AN ARRAY RATHER THAN A REPEATED SINGLE-OBJECT PROPERTY, and the distinction is a
+                real one this schema applies consistently: a step is never addressed from outside
+                the sequence that contains it, so it needs neither its own wrapper per object nor
+                gml:AssociationAttributeGroup. Contrast diggs:ReinforcementPropertyType and
+                diggs:RIColumnHeadPropertyType, which went the OTHER way at W1 precisely because a
+                cage or a cap detail IS cited from elsewhere. The rule: an array where the members
+                are internal to their parent, a referenceable property where they are shared.
+
+                Encoding a long explicit sequence this way also removes one wrapper element per
+                step, which matters when a sequence names every node of a large
+                grid.</documentation>
         </annotation>
-        <sequence minOccurs="0">
+        <sequence minOccurs="1" maxOccurs="unbounded">
             <element ref="diggs:InstallationSequenceStep"/>
         </sequence>
     </complexType>
@@ -919,8 +933,8 @@
                 for a statement the grid already supports.
 
                 TWO WAYS TO STATE THE ORDER, AND THEY COMPOSE. sequenceRule with startPoint gives a
-                generated traversal - compact, and right for the regular cases. step gives explicit
-                (sequenceNumber, gridIndex) pairs. WHERE BOTH APPEAR, step WINS for the nodes it
+                generated traversal - compact, and right for the regular cases. steps gives explicit
+                (sequenceNumber, gridIndex) pairs. WHERE BOTH APPEAR, steps WINS for the nodes it
                 names and the rule governs the rest, which is the same precedence
                 diggs:RIColumnType/installationSequenceNumber has over this object as a whole. A
                 fully arbitrary order is expressed by omitting the rule and listing every node.
@@ -967,18 +981,24 @@
                                 two must agree is a correlation XSD cannot express.</documentation>
                         </annotation>
                     </element>
-                    <element minOccurs="0" maxOccurs="unbounded" name="step"
-                        type="diggs:InstallationSequenceStepPropertyType">
+                    <element minOccurs="0" name="steps"
+                        type="diggs:InstallationSequenceStepArrayPropertyType">
                         <annotation>
                             <documentation>Explicitly ordered nodes, each pairing a sequence number
-                                with a grid index. Repeatable, and OVERRIDES sequenceRule for the
-                                nodes it names.
+                                with a grid index. OVERRIDES sequenceRule for the nodes it names.
 
                                 This is what a traversal rule cannot do. A rule computes the next
                                 node from the current one, so an order like (1,1) then (10,2) then
                                 (1,2) - or one driven by equipment availability or by which load
                                 transfer platform zone a column falls in - fits no rule and must be
-                                stated node by node.</documentation>
+                                stated node by node.
+
+                                ONE ARRAY RATHER THAN A REPEATED PROPERTY: the steps carry the
+                                repetition inside a single wrapper, so a sequence naming every node
+                                of a large grid costs one element per step rather than two. Present
+                                at most once, and where present it holds at least one step - an
+                                empty steps element would state nothing that omitting it does
+                                not.</documentation>
                         </annotation>
                     </element>
                 </sequence>
