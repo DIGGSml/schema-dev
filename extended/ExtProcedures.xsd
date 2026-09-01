@@ -1023,6 +1023,81 @@
             <element maxOccurs="1" minOccurs="1" ref="diggs:LoadTestIncrement"/>
         </sequence>
     </complexType>
+    <element name="LateralLoadTest" type="diggs:LateralLoadTestType" abstract="false"
+        substitutionGroup="diggs:AbstractLoadTestProcedure">
+        <annotation>
+            <documentation>A static lateral (transverse) load-deflection test applied directly to a
+                deep foundation element or group, per ASTM D3966/D3966M or the French national
+                counterpart NF P94-151. Not itself a Post-installation workbook row, but the as-built
+                counterpart of Design rows 33 and 35 (lateral/bending demand) - a lateral test
+                verifies the same capacity those design quantities predict.
+
+                SHARES S27's diggs:AbstractLoadTestProcedureType, UNLIKE S29/S31. A lateral test has
+                a reaction system and a load-increment schedule exactly as an axial one does - ASTM
+                D3966 describes the same maintained-load/increment discipline as D1143, just applied
+                transversely - so referenceSystem, maxTestLoad and increment (diggs:LoadTestIncrement,
+                including its two hold-criterion fields) all apply unchanged. This is the opposite
+                placement decision from diggs:LowStrainIntegrityTest/diggs:ThermalIntegrityProfiling
+                (S29/S31), which substitute diggs:AbstractInsituTestProcedure directly because no
+                load is applied there.
+
+                MULTI-STANDARD BY DESIGN. ASTM D3966/D3966M names eight loading procedures (standard
+                loading, excess loading, cyclic loading, surge loading, reverse loading, reciprocal
+                loading, specified lateral movement, combined loading) - loadingProcedure's vocabulary
+                (lateralLoadTestProcedure.xml) carries all eight. NF P94-151 ("Essai statique de pieu
+                isole sous effort transversal," current, not withdrawn) is the French counterpart;
+                checked for an EN ISO 22477 part covering this scope and found none - a Part 3 for
+                transverse pile load testing was proposed and its working draft abandoned in 2007,
+                and was never published. Cite whichever standard governs a given instance through the
+                inherited testProcedureMethod.
+
+                SINGLE PILE OR GROUP IS NOT A SEPARATE FIELD - ASTM D3966/D3966M explicitly covers
+                both, and which one a test used is already expressed by how many diggs:RIColumn
+                features Test/samplingFeatureRef cites, the same mechanism
+                diggs:PlateLoadTest/diggs:ZoneLoadTest (S28) uses to distinguish a single-element test
+                from a group test.
+
+                loadApplicationPoint EXISTS BECAUSE THE MOMENT ARM MATTERS. A lateral test's induced
+                bending moment depends on the eccentricity between the load application point and the
+                point of fixity in the ground - the same level a project would otherwise have to
+                infer from ground-surface or working-platform elevation. Given as a position, per the
+                ET1 convention, not a scalar height, since it is a level.
+
+                THE MEASURED LATERAL DEFLECTION IS A RESULT, NOT PROCEDURE CONTENT, per this family's
+                established split (S27-S29/S31). It goes on Test/outcome's ResultSet via the new
+                properties.xml#lateral_deflection - a genuine pre-existing gap:
+                properties.xml#settlement (DE1) is explicitly vertical-only ("positive downward") and
+                does not serve a horizontal quantity.</documentation>
+        </annotation>
+    </element>
+    <complexType name="LateralLoadTestType">
+        <annotation>
+            <documentation>Base type for LateralLoadTest. See the element's own documentation for the
+                full rationale.</documentation>
+        </annotation>
+        <complexContent>
+            <extension base="diggs:AbstractLoadTestProcedureType">
+                <sequence>
+                    <element minOccurs="0" name="loadingProcedure" type="gml:CodeType">
+                        <annotation>
+                            <documentation>The loading procedure used, from
+                                lateralLoadTestProcedure.xml - ASTM D3966/D3966M's eight named
+                                procedures. See this element's own documentation above for the ASTM/
+                                French correspondence.</documentation>
+                        </annotation>
+                    </element>
+                    <element minOccurs="0" name="loadApplicationPoint"
+                        type="diggs:PointLocationPropertyType">
+                        <annotation>
+                            <documentation>The level on the element at which the lateral load was
+                                applied. See this element's own documentation above for why the
+                                eccentricity this implies matters to interpreting the test.</documentation>
+                        </annotation>
+                    </element>
+                </sequence>
+            </extension>
+        </complexContent>
+    </complexType>
     <element name="AbstractPlateBearingTestProcedure" type="diggs:AbstractPlateBearingTestProcedureType"
         abstract="true" substitutionGroup="diggs:AbstractLoadTestProcedure">
         <annotation>
