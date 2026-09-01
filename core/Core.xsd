@@ -6564,6 +6564,138 @@
         </complexContent>
     </complexType>
 
+    <simpleType name="LogicalOperatorEnumType">
+        <annotation>
+            <documentation>How the member criteria of a diggs:CompositeAcceptanceCriterion combine
+                into one verdict. A closed, fixed set, so an enumeration rather than a gml:CodeType
+                with a dictionary - the same call TF2 made for a physically closed set, and the same
+                form diggs:CriterionOperatorEnumType already uses in this
+                family.</documentation>
+        </annotation>
+        <restriction base="string">
+            <enumeration value="and">
+                <annotation>
+                    <documentation>Every member criterion must be satisfied. The conjunctive case
+                        that motivated this object: a drilling refusal criterion such as
+                        "penetration rate below X AND torque above Y" is met only when both hold
+                        together, and recording the two separately loses exactly the conjunction
+                        that defines refusal.</documentation>
+                </annotation>
+            </enumeration>
+            <enumeration value="or">
+                <annotation>
+                    <documentation>At least one member criterion must be satisfied. Termination
+                        rules are often disjunctive - stop at design depth OR on reaching a
+                        specified resistance, whichever occurs first.</documentation>
+                </annotation>
+            </enumeration>
+        </restriction>
+    </simpleType>
+    <element name="CompositeAcceptanceCriterion" type="diggs:CompositeAcceptanceCriterionType"
+        substitutionGroup="diggs:AbstractProgramSpecification">
+        <annotation>
+            <documentation>A requirement formed by combining two or more separately stated
+                acceptance criteria under one logical operator - "penetration rate below X AND
+                torque above Y", the drilling refusal case (D6, answered 2026-08-16, built at the
+                task of the same name).
+
+                WHY IT EXISTS. diggs:AbstractAcceptanceCriterion states one comparison of one
+                evaluated value against one limit, and its documentation is explicit that several
+                requirements on the same property are several criteria sharing a scope. That is the
+                right rule and is unchanged. What it cannot express is a requirement whose MEANING
+                is the conjunction: two co-scoped criteria state "each of these must hold", which is
+                indistinguishable from "both must hold at the same instant, on the same element" -
+                and for a refusal rule the difference is the whole content. This object states the
+                combination itself, so nothing is inferred from co-scoping.
+
+                IT DOES NOT SUBSTITUTE diggs:AbstractAcceptanceCriterion, DELIBERATELY, and the
+                reason is structural rather than conceptual. diggs:AbstractAcceptanceCriterionType
+                mandates operator and limit; a composite has neither of its own - its members carry
+                them - and XSD restriction cannot drop a mandatory particle, so membership in that
+                group would force every composite to state a meaningless comparison against a
+                meaningless value. It substitutes diggs:AbstractProgramSpecification instead, the
+                head diggs:AbstractAcceptanceCriterion itself substitutes. NOTHING IS LOST BY THIS:
+                no slot anywhere in DIGGS is typed on diggs:AbstractAcceptanceCriterion -
+                diggs:ProgramSpecificationPropertyType and every other consumer is typed on
+                diggs:AbstractProgramSpecification - so a composite is accepted exactly where a
+                diggs:PerformanceCriterion is, with no slot changed.
+
+                THE MEMBERS REMAIN FIRST-CLASS. Each is a normally declared criterion with its own
+                subject, statistic, operator, limit, basis and evaluatedAgainstRef, evaluated on its
+                own terms; this object combines the verdicts and adds nothing to how any one of them
+                is assessed. That is also why it carries no statistic, basis or baseLength of its
+                own - those govern how a single evaluated value is reduced and compared, which is a
+                member's business, not the combination's.</documentation>
+        </annotation>
+    </element>
+    <complexType name="CompositeAcceptanceCriterionType">
+        <annotation>
+            <documentation>Type for a criterion whose content is a logical combination of other
+                criteria. Extends diggs:AbstractProgramSpecificationType, so it inherits scope and
+                basedOnRef like any program specification and can be scoped to the features it
+                governs in the ordinary way.</documentation>
+        </annotation>
+        <complexContent>
+            <extension base="diggs:AbstractProgramSpecificationType">
+                <sequence>
+                    <element minOccurs="1" maxOccurs="1" name="logicalOperator"
+                        type="diggs:LogicalOperatorEnumType">
+                        <annotation>
+                            <documentation>How the member criteria combine. Mandatory: a set of
+                                criteria with no stated operator is exactly the co-scoped collection
+                                this object exists to disambiguate.
+
+                                ONE OPERATOR ACROSS ALL MEMBERS. A mixed expression - "A and (B or
+                                C)" - is written as nested composites, the inner one declared first
+                                and cited by the outer through criterionRef, which is why
+                                criterionRef admits a composite as a member. Carrying a
+                                per-member operator instead would make precedence implicit, and
+                                implicit precedence in a data standard is read wrongly sooner or
+                                later.
+
+                                THERE IS NO "not". Negation takes one operand, which contradicts
+                                criterionRef's minimum of two, and a negated comparison is already
+                                expressible directly: the complement of "le" is "ge" on the same
+                                property, and diggs:CriterionOperatorEnumType carries both along
+                                with "ne".</documentation>
+                        </annotation>
+                    </element>
+                    <element minOccurs="2" maxOccurs="unbounded" name="criterionRef"
+                        type="diggs:FeatureReferenceType">
+                        <annotation>
+                            <appinfo source="urn:x-gml:targetElement">diggs:AbstractProgramSpecification</appinfo>
+                            <documentation>A reference to one member criterion - a
+                                diggs:PerformanceCriterion, a diggs:DesignConformanceCriterion, or
+                                another diggs:CompositeAcceptanceCriterion where the expression
+                                nests.
+
+                                MINIMUM OF TWO, because a composite of one member states nothing
+                                that the member does not state by itself.
+
+                                A REFERENCE RATHER THAN A CONTAINED OBJECT. A criterion is a
+                                first-class program specification that is normally cited from
+                                elsewhere - by a diggs:DesignVerification, by a report - and one
+                                criterion may take part in more than one composite. Containing it
+                                here would either hide it from those consumers or duplicate it. The
+                                members must therefore be declared BEFORE the composite that cites
+                                them, per the antecedent rule; both sit in the same repeatable
+                                specification slot, so this is a matter of document order only.
+
+                                targetElement names diggs:AbstractProgramSpecification, which is
+                                BROADER THAN THE INTENDED TARGET SET - it also admits
+                                diggs:TestSpecification and the domain specifications. It is named
+                                anyway because it is a real substitution-group head that covers all
+                                three legitimate targets, and naming a head is the pattern;
+                                enumerating members instead is what left diggs:samplingFeatureRef
+                                stale, as diggs:AbstractAcceptanceCriterionType/evaluatedAgainstRef
+                                already records. That the target is specifically a criterion is left
+                                to the validation chain.</documentation>
+                        </annotation>
+                    </element>
+                </sequence>
+            </extension>
+        </complexContent>
+    </complexType>
     <element name="TargetSamplingFeature" type="diggs:TargetSamplingFeatureType"
         substitutionGroup="diggs:AbstractTargetObject">
         <annotation>
