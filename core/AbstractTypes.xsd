@@ -1192,8 +1192,8 @@
         <annotation>
             <documentation>Property type wrapper for AbstractMaterialTestProcedure elements. This type enables AbstractMaterialTestProcedure to be used as a property in other types, following the GML property pattern. The property type provides a container that can hold a reference to a MaterialTestProcedure element defined elsewhere in the document or include the element inline.</documentation>
         </annotation>
-        <sequence>
-            <element ref="diggs:AbstractMaterialTestProcedure" minOccurs="0"/>
+        <sequence minOccurs="0">
+            <element ref="diggs:AbstractMaterialTestProcedure"/>
         </sequence>
         <attributeGroup ref="gml:AssociationAttributeGroup"/>
         <attributeGroup ref="gml:OwnershipAttributeGroup"/>
@@ -2473,7 +2473,19 @@
     </element>
     <complexType name="AbstractSensorType" abstract="true">
         <annotation>
-            <documentation>Base type for sensors that measure physical parameters such as temperature or pressure.</documentation>
+            <documentation>Base type for sensors that measure physical parameters such as temperature or pressure.
+
+                CARRIES NO gml:AssociationAttributeGroup OR gml:OwnershipAttributeGroup, and that is
+                deliberate (removed 9/26). Both are GML PROPERTY-element constructs, by GML's own
+                definition: AssociationAttributeGroup exists "to support the use of Xlinks as the
+                method for indicating the value of A PROPERTY by reference", and
+                OwnershipAttributeGroup "may be added to object-valued PROPERTY elements", its owns
+                attribute stating whether the referenced object's existence depends on the parent.
+                Neither statement is one an object can make about itself. This type only ever types
+                an object - the abstract substitution-group head below - so carrying them let the
+                object element itself take xlink:href and owns, which inverts the mechanism: the
+                property that POINTS AT the object is what carries them, and diggs:SensorPropertyType already does exactly
+                that.</documentation>
         </annotation>
         <complexContent>
             <extension base="diggs:AbstractEquipmentType">
@@ -2500,8 +2512,6 @@
                         </annotation>
                     </element>
                 </sequence>
-                <attributeGroup ref="gml:AssociationAttributeGroup"/>
-                <attributeGroup ref="gml:OwnershipAttributeGroup"/>
             </extension>
         </complexContent>
     </complexType>

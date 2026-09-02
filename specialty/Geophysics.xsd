@@ -563,7 +563,7 @@
         <annotation>
             <documentation>Property type for trackline references. Used to wrap trackline objects or references in properties.</documentation>
         </annotation>
-        <sequence maxOccurs="1">
+        <sequence minOccurs="0" maxOccurs="1">
             <element ref="diggs:GP_Trackline"/>
         </sequence>
         <attributeGroup ref="gml:OwnershipAttributeGroup"/>
@@ -1047,13 +1047,19 @@
         <annotation>
             <documentation>Property type for sensor locations references. Used to wrap sensor locations objects or references in properties.</documentation>
         </annotation>
-        <choice minOccurs="0">
-            <element ref="diggs:PointLocation"/>
-            <element ref="diggs:MultiPointLocation"/>
-            <element ref="diggs:RectifiedGrid"/>
-        </choice>
-        <attributeGroup ref="gml:OwnershipAttributeGroup"/>
-        <attributeGroup ref="gml:AssociationAttributeGroup"/>
+        <complexContent>
+            <restriction base="gml:DomainSetType">
+                <sequence minOccurs="0">
+                    <choice>
+                        <element ref="diggs:PointLocation"/>
+                        <element ref="diggs:MultiPointLocation"/>
+                        <element ref="diggs:RectifiedGrid"/>
+                    </choice>
+                </sequence>
+                <attributeGroup ref="gml:AssociationAttributeGroup"/>
+                <attributeGroup ref="gml:OwnershipAttributeGroup"/>
+            </restriction>
+        </complexContent>
     </complexType>
     <element name="GP_Location" type="diggs:GP_LocationType">
         <annotation>
@@ -1587,7 +1593,19 @@
     </element>
     <complexType name="AbstractGP_SourceType" abstract="true">
         <annotation>
-            <documentation>Extended type based on AbstractEquipmentType. Adds elements for abstract source type definition.</documentation>
+            <documentation>Extended type based on AbstractEquipmentType. Adds elements for abstract source type definition.
+
+                CARRIES NO gml:AssociationAttributeGroup OR gml:OwnershipAttributeGroup, and that is
+                deliberate (removed 9/26). Both are GML PROPERTY-element constructs, by GML's own
+                definition: AssociationAttributeGroup exists "to support the use of Xlinks as the
+                method for indicating the value of A PROPERTY by reference", and
+                OwnershipAttributeGroup "may be added to object-valued PROPERTY elements", its owns
+                attribute stating whether the referenced object's existence depends on the parent.
+                Neither statement is one an object can make about itself. This type only ever types
+                an object - the abstract substitution-group head below - so carrying them let the
+                object element itself take xlink:href and owns, which inverts the mechanism: the
+                property that POINTS AT the object is what carries them, and diggs:SourceEquipmentPropertyType already does exactly
+                that.</documentation>
         </annotation>
         <complexContent>
             <extension base="diggs:AbstractEquipmentType">
@@ -1611,8 +1629,6 @@
                         </annotation>
                     </element>
                 </sequence>
-                <attributeGroup ref="gml:AssociationAttributeGroup"/>
-                <attributeGroup ref="gml:OwnershipAttributeGroup"/>
             </extension>
         </complexContent>
     </complexType>
@@ -1851,7 +1867,7 @@
         <annotation>
             <documentation>Property type for receiver equipment references. Used to wrap receiver equipment objects or references in properties.</documentation>
         </annotation>
-        <sequence maxOccurs="1">
+        <sequence minOccurs="0" maxOccurs="1">
             <element ref="diggs:AbstractGP_Receiver">
                 <annotation>
                     <documentation>The head of a substitution group for receiver
@@ -1866,7 +1882,7 @@
         <annotation>
             <documentation>Property type for source equipment references. Used to wrap source equipment objects or references in properties.</documentation>
         </annotation>
-        <sequence maxOccurs="1">
+        <sequence minOccurs="0" maxOccurs="1">
             <element ref="diggs:AbstractGP_Source">
                 <annotation>
                     <documentation>The head of a substitution group for source
@@ -1881,7 +1897,7 @@
         <annotation>
             <documentation>Property type for data acquisition system references. Used to wrap data acquisition system objects or references in properties.</documentation>
         </annotation>
-        <sequence maxOccurs="1">
+        <sequence minOccurs="0" maxOccurs="1">
             <element ref="diggs:AbstractGP_DataAcquisitionSystem"/>
         </sequence>
         <attributeGroup ref="gml:AssociationAttributeGroup"/>
