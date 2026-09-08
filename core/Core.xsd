@@ -3053,6 +3053,30 @@
         <complexContent>
             <extension base="diggs:AbstractObservationType">
                 <sequence>
+                    <element minOccurs="0" name="lithologyClassificationType" type="gml:CodeType">
+                        <annotation>
+                            <documentation>The classification system that applies to THIS
+                                observation. Use it to override the enclosing
+                                diggs:LithologySystem's default for this interval, or - where the
+                                system declares more than one default - to indicate which of those
+                                defaults the observation is classified under. Omit it and the
+                                observation takes the system's default.
+
+                                Same element name and type as the property on
+                                diggs:LithologySystemType, deliberately: it is the same axis stated
+                                at a finer grain, and the system-level property was relaxed to
+                                minOccurs="0" at the same time so a system may decline to set a
+                                default and let each observation state its own.
+
+                                Typical use is a soil column classified visually throughout (eg.
+                                ASTM D2488 as the system default) in which a few intervals were
+                                sampled and tested, so their classification is laboratory-based
+                                (ASTM D2487) and stated here. The value may also record that no
+                                soil-classification system applies to the interval at all - for
+                                material that is not a soil, or is not naturally
+                                deposited.</documentation>
+                        </annotation>
+                    </element>
                     <element name="primaryLithology" type="diggs:LithologyPropertyType">
                         <annotation>
                             <documentation>A description of the lithologies that make up the
@@ -3138,12 +3162,24 @@
         <complexContent>
             <extension base="diggs:AbstractObservationSystemType">
                 <sequence>
-                    <element name="lithologyClassificationType" type="gml:CodeType"
+                    <element name="lithologyClassificationType" type="gml:CodeType" minOccurs="0"
                         maxOccurs="unbounded">
                         <annotation>
                             <documentation>Describes the classification system(s) used to define the
-                                lithology classification codes (eg. USCS) used within this
-                                system</documentation>
+                                lithology classification codes (eg. USCS) used within this system.
+                                These are the DEFAULT classification(s) for the system: an
+                                observation that states nothing is classified under them.
+
+                                An individual diggs:LithologyObservation may carry its own
+                                lithologyClassificationType, which either overrides this default for
+                                that interval or - where more than one default is declared here -
+                                indicates which of them applies to that observation.
+
+                                Relaxed from minOccurs="1" to minOccurs="0" (9/26) so that a system
+                                need not declare a default at all, for the case where classification
+                                varies interval by interval and every observation states its own.
+                                Backward compatible: a system that declares one or more, as every
+                                document written before 9/26 does, is unaffected.</documentation>
                         </annotation>
                     </element>
                     <element name="lithologyObservation"
