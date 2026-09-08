@@ -1496,11 +1496,30 @@
                                 evidence a design basis should be able to state, not merely
                                 permitted content. Zero occurrences remains valid for a model with no
                                 honest anchor at all - the case architecture §6.3(a) calls out for a
-                                project with no site-spanning feature to hang off
-                                honestly.</documentation>
+                                project with no site-spanning feature to hang off honestly.
+
+                                AS OF 9/26 THE sampleRef BRANCH IS DEPRECATED and only
+                                samplingFeatureRef should be used here; see that element's own
+                                annotation. The sample being observed is now stated on the
+                                individual observation, diggs:sampleRef on
+                                diggs:AbstractObservationType. Nothing about samplingFeatureRef or
+                                about the relaxed cardinality changes.</documentation>
                         </annotation>
                         <element ref="diggs:samplingFeatureRef"/>
-                        <element ref="diggs:sampleRef"/>
+                        <element ref="diggs:sampleRef">
+                            <annotation>
+                                <appinfo>DEPRECATED 9/26. Use diggs:sampleRef on the individual
+                                    observation (diggs:AbstractObservationType) instead.</appinfo>
+                                <documentation>Deprecated - an observation system spans many
+                                    observations, so a sample reference here cannot say WHICH
+                                    observation the sample belongs to. State it on the observation
+                                    instead: diggs:sampleRef on diggs:AbstractObservationType, added
+                                    9/26 for this purpose. Retained for backward compatibility with
+                                    documents written before 9/26; it is still valid, and
+                                    samplingFeatureRef in this same choice is NOT
+                                    deprecated.</documentation>
+                            </annotation>
+                        </element>
                     </choice>
                     <element minOccurs="0" name="observationProcedure"
                         type="diggs:SpecificationPropertyType" maxOccurs="unbounded">
@@ -1540,6 +1559,25 @@
         <complexContent>
             <extension base="diggs:AbstractObjectNoDescriptionType">
                 <sequence>
+                    <element minOccurs="0" ref="diggs:sampleRef">
+                        <annotation>
+                            <appinfo>diggs:Sample</appinfo>
+                            <documentation>If the observation was made ON a specific sample, this
+                                element points to that sample via the xlink:href attribute. Use it
+                                for the individual observation, not for the enclosing observation
+                                system: a system spans many observations, and the sample being
+                                described belongs to one of them. This replaces the sampleRef branch
+                                of the choice on diggs:AbstractObservationSystemType, deprecated 9/26
+                                for that reason; samplingFeatureRef there is unaffected and remains
+                                the way a system states what it was made along or from.
+
+                                NOT for an in-situ observation. Like diggs:sampleRef on a
+                                measurement, this asserts that the observation was made ON the
+                                sample. An observation of the ground itself does not carry one, even
+                                where a sample was recovered from the same interval - the sample is
+                                then an output of the activity, not its subject.</documentation>
+                        </annotation>
+                    </element>
                     <element maxOccurs="unbounded" minOccurs="0" ref="diggs:measurementRef">
                         <annotation>
                             <appinfo>diggs:Test</appinfo>
