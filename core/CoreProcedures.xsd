@@ -1656,6 +1656,23 @@
         <complexContent>
             <extension base="diggs:AbstractLaboratoryTestProcedureType">
                 <sequence>
+                    <element minOccurs="0" name="targetMaxDryDensity"
+                        type="diggs:DensityOrUnitWeightMeasureType">
+                        <annotation>
+                            <documentation>Derived from a Modified Proctor Compaction test on the same sample, this is the maximum dry density (MDD) for the sample against which the CBR is determined (eg. CBR at 95% MDD).</documentation>
+                        </annotation>
+                    </element>
+                    <element minOccurs="0" name="targetOptWaterContent"
+                        type="diggs:MassPerMassMeasureType">
+                        <annotation>
+                            <documentation>Derived from a Modified Proctor Compaction test on the same sample, this is the optimum moisture content at which the maximum dry density (MDD) for the sample is achieved. It is used as a target moisture content for the specimens subject to CBR testing.</documentation>
+                        </annotation>
+                    </element>
+                    <element minOccurs="0" name="loadCellCalibrationConstant" type="double">
+                        <annotation>
+                            <documentation>The calibration constant of the proving ring (or load ring/load cell) used to apply and measure force during the penetration test. In a mechanical CBR frame, the plunger load isn't read directly — it's read as a dial gauge deflection on the proving ring, which deforms elastically under load. The correction factor converts that raw dial reading into an actual load.</documentation>
+                        </annotation>
+                    </element>
                     <element name="trial" type="diggs:LabCBRTestTrialPropertyType" minOccurs="0"
                         maxOccurs="unbounded">
                         <annotation>
@@ -1694,6 +1711,51 @@
                         </annotation>
                     </element>
                     <element minOccurs="0" ref="diggs:specimenRef"/>
+                    <element name="mouldDiameter" type="diggs:LengthMeasureType" minOccurs="0">
+                        <annotation>
+                            <documentation>The mould diameter property.</documentation>
+                        </annotation>
+                    </element>
+                    <element name="mouldVolume" type="diggs:VolumeMeasureType" minOccurs="0">
+                        <annotation>
+                            <documentation>The mould volume property.</documentation>
+                        </annotation>
+                    </element>
+                    <element name="rammerDiameter" type="diggs:LengthMeasureType" minOccurs="0">
+                        <annotation>
+                            <documentation>The rammer diameter property.</documentation>
+                        </annotation>
+                    </element>
+                    <element name="rammerMass" type="diggs:MassMeasureType" minOccurs="0">
+                        <annotation>
+                            <documentation>The mass of the rammer (hammer) used.</documentation>
+                        </annotation>
+                    </element>
+                    <element name="rammerWeight" type="diggs:ForceMeasureType" minOccurs="0">
+                        <annotation>
+                            <documentation>The weight of the rammer (hammer) used, in force units.</documentation>
+                        </annotation>
+                    </element>
+                    <element name="rammerDrop" type="diggs:LengthMeasureType" minOccurs="0">
+                        <annotation>
+                            <documentation>The rammer drop height.</documentation>
+                        </annotation>
+                    </element>
+                    <element name="rammerIsManual" type="boolean" minOccurs="0">
+                        <annotation>
+                            <documentation>The rammer is manual property.</documentation>
+                        </annotation>
+                    </element>
+                    <element name="numberOfLayers" type="positiveInteger" minOccurs="0">
+                        <annotation>
+                            <documentation>The number of layers property.</documentation>
+                        </annotation>
+                    </element>
+                    <element name="blowsPerLayer" type="positiveInteger" minOccurs="0">
+                        <annotation>
+                            <documentation>The blows per layer property.</documentation>
+                        </annotation>
+                    </element>
                     <element name="bottomWaterContent" type="diggs:VolumePerVolumeMeasureType"
                         minOccurs="0">
                         <annotation>
@@ -1703,7 +1765,7 @@
                     </element>
                     <element minOccurs="0" name="cbr_0.1" type="diggs:DimensionlessMeasureType">
                         <annotation>
-                            <documentation>Corrected CBR at 0.100 in penetration for this specimen
+                            <documentation>Corrected CBR at 0.100 in (2.54 mm) penetration for this specimen
                                 trial.Repeat this value in test results if this is the only CBR
                                 trial for this sample. If other CBRs at different compaction and
                                 water content are run, overall test CBR value (as average or
@@ -1712,8 +1774,8 @@
                     </element>
                     <element minOccurs="0" name="cbr_0.2" type="diggs:DimensionlessMeasureType">
                         <annotation>
-                            <documentation>Corrected CBR at 0.200 in penetration for this specimen
-                                trial.Repeat this value in test results if this is the only CBR
+                            <documentation>Corrected CBR at 0.200 in (5.08 mm) penetration for this specimen
+                                trial. Repeat this value in test results if this is the only CBR
                                 trial for this sample. If other CBRs at different compaction and
                                 water content are run, overall test CBR value (as average or
                                 otherwise) is reported in the test result.</documentation>
@@ -1727,7 +1789,13 @@
                     </element>
                     <element minOccurs="0" name="pistonDiameter" type="diggs:LengthMeasureType">
                         <annotation>
-                            <documentation>Diameter of the penetration piston</documentation>
+                            <documentation>Diameter of the penetration piston or plunger</documentation>
+                        </annotation>
+                    </element>
+                    <element minOccurs="0" name="pistonArea" type="diggs:AreaMeasureType">
+                        <annotation>
+                            <documentation>The area of the penetration piston or plunger
+</documentation>
                         </annotation>
                     </element>
                     <element name="seatingForce" type="diggs:ForceMeasureType" minOccurs="0">
@@ -1757,7 +1825,8 @@
                         minOccurs="0">
                         <annotation>
                             <documentation>Amount of swell recorded during soaking (if applicable),
-                                as expressed as a percentage of initial height .</documentation>
+                                as expressed as a percentage of initial height. The specimen initial height should be recorded in the pre-test SpecimenConditions object of the SoilSpecimen associated with this trial.
+                                </documentation>
                         </annotation>
                     </element>
                     <element name="topWaterContent" type="diggs:VolumePerVolumeMeasureType"
@@ -1794,7 +1863,7 @@
                     <element minOccurs="0" name="calculatedStress" type="diggs:PressureMeasureType">
                         <annotation>
                             <documentation>Stress calculated from the measured load for this
-                                penetration increment.</documentation>
+                                penetration increment. This value is the total load (usually measured in kgf) divided by the piston or plunger area.</documentation>
                         </annotation>
                     </element>
                     <element minOccurs="0" name="measuredLoad" type="diggs:ForceMeasureType">
