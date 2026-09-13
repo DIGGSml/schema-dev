@@ -366,7 +366,51 @@
     <element name="InsituResistivityTest" type="diggs:InsituResistivityTestType" abstract="false"
         substitutionGroup="diggs:AbstractInsituTestProcedure">
         <annotation>
-            <documentation>This test determines the insitu resistivity of a soil.</documentation>
+            <documentation>An object describing an in-situ electrical resistivity test procedure: a
+                multi-electrode measurement made on the ground surface or on the surface of an
+                in-place material, from which the resistivity of that material is determined.
+
+                ONE TYPE SERVES SEVERAL SURVEY GEOMETRIES, AND THAT IS DELIBERATE. The atomic
+                measurement is the same in all of them - a multi-electrode reading characterised by
+                its array geometry, orientation and position, yielding a measured resistance and the
+                apparent resistivity computed from it. What differs between them is only which of
+                those variables is stepped from one reading to the next:
+
+                - a vertical electrical sounding steps the electrode separation about a fixed array
+                centre, to characterise variation with depth;
+                - electrical profiling, also called constant separation traversing, holds the
+                separation fixed and steps the array along a traverse, to characterise lateral
+                variation at a roughly constant depth of investigation;
+                - an azimuthal sounding steps the array orientation about a fixed centre, to
+                characterise anisotropy;
+                - a single-separation measurement takes one reading at one geometry, as is usual for
+                a Wenner probe applied to an in-place concrete surface.
+
+                Because these differ in survey design rather than in what is measured, they are
+                distinguished by diggs:surveyGeometry and diggs:arrayType rather than by separate
+                procedure types, which would otherwise carry identical content models. The readings
+                themselves are diggs:ResistivityReading objects in every case.
+
+                NOT FOR TOMOGRAPHIC SURVEYS. A multi-electrode survey that is inverted to produce a
+                2-D or 3-D resistivity model - electrical resistivity tomography - is a
+                diggs:GeophysicalFieldSurvey carrying diggs:geophysicalMethod "electrical resistivity
+                tomography (ERT)" (specialty/Geophysics.xsd), which has the source, receiver,
+                processing and data-package machinery an inversion needs. This type is for the
+                discrete, directly reported measurement, whose result is a resistivity rather than a
+                model derived from many readings. Note that the abbreviation "ERT" is used in
+                industry for both; what separates them is whether an inversion was performed.
+
+                NOT FOR LABORATORY MEASUREMENT. Resistivity determined on a specimen removed from
+                the ground - the soil-box method of ASTM G57, or AASHTO T288 - is
+                diggs:LabResistivityTest.
+
+                STANDARD-NEUTRAL BY DESIGN, as with the other procedure objects: the inherited
+                diggs:AbstractTestProcedureType/testProcedureMethod cites whichever standard governs
+                a given instance, and is repeatable so more than one can be cited at once. ASTM G57
+                (Wenner array, for corrosion assessment and earthing design), IEEE Std 81 (earthing
+                design) and ASTM D6431 (subsurface characterisation, and the standard under which
+                apparent resistivity is interpreted to yield layer depths and thicknesses) all
+                describe measurements this type carries.</documentation>
         </annotation>
     </element>
     <complexType name="InsituResistivityTestType">
@@ -378,13 +422,170 @@
                 <sequence>
                     <element minOccurs="0" name="testType" type="gml:CodeType">
                         <annotation>
-                            <documentation>The type of insitu test conducted. Intended to come from
-                                a controlled list of terms. </documentation>
+                            <appinfo>DEPRECATED 9/26. Use diggs:arrayType for the electrode array
+                                configuration and diggs:surveyGeometry for how the array was stepped
+                                between readings.</appinfo>
+                            <documentation>DEPRECATED 9/26 - use diggs:arrayType for the electrode
+                                array configuration and diggs:surveyGeometry for how the array was
+                                stepped between readings.</documentation>
                         </annotation>
                     </element>
                     <element minOccurs="0" name="electrodeSpacing" type="gml:CodeType">
                         <annotation>
-                            <documentation>Average electrode spacing</documentation>
+                            <appinfo>DEPRECATED 9/26. Use diggs:ResistivityReading/diggs:electrodeSpacing,
+                                which is typed as a length and so carries a unit of measure, and which
+                                records the separation actually used for each reading rather than an
+                                average over the survey.</appinfo>
+                            <documentation>DEPRECATED 9/26 - use
+                                diggs:ResistivityReading/diggs:electrodeSpacing. This property is typed
+                                as a code and so cannot carry a unit of measure, and an average
+                                separation does not describe a survey in which the separation was
+                                deliberately stepped.</documentation>
+                        </annotation>
+                    </element>
+                    <element minOccurs="0" name="arrayType" type="gml:CodeType">
+                        <annotation>
+                            <documentation>The electrode array configuration used - for example
+                                Wenner (four electrodes at equal separation), Schlumberger (a closely
+                                spaced potential pair at the centre of a wider, expanding current
+                                pair), dipole-dipole, or a driven-rod arrangement. The array
+                                determines which of the separation properties on
+                                diggs:ResistivityReading apply, and which expression converts a
+                                measured resistance into an apparent resistivity. Intended to come
+                                from a controlled list of terms.</documentation>
+                        </annotation>
+                    </element>
+                    <element minOccurs="0" name="surveyGeometry" type="gml:CodeType">
+                        <annotation>
+                            <documentation>How the array was stepped from one reading to the next -
+                                for example a vertical electrical sounding (separation expanded about
+                                a fixed centre), constant separation traversing (fixed separation
+                                moved along a line), an azimuthal sounding (orientation rotated about
+                                a fixed centre), or a single-separation measurement. This states the
+                                survey design; the individual diggs:ResistivityReading objects record
+                                the geometry that resulted. Intended to come from a controlled list
+                                of terms.</documentation>
+                        </annotation>
+                    </element>
+                    <element minOccurs="0" name="electrodeDepth" type="diggs:LengthMeasureType">
+                        <annotation>
+                            <documentation>The depth to which the electrodes were driven into the
+                                surface - the "b" term in the full Wenner expression for apparent
+                                resistivity. ASTM G57 requires that this not exceed 5 % of the
+                                smallest electrode separation, which is also the condition under
+                                which that expression reduces to the commonly used short form. Stated
+                                once for the procedure, as it is normally held constant across a
+                                survey.</documentation>
+                        </annotation>
+                    </element>
+                    <element minOccurs="0" maxOccurs="unbounded" name="reading"
+                        type="diggs:ResistivityReadingPropertyType">
+                        <annotation>
+                            <documentation>The individual electrode readings making up the survey.
+                                Repeatable: a sounding carries one reading per separation, a traverse
+                                one per position, an azimuthal sounding one per orientation, and a
+                                survey that varies more than one of those carries one reading per
+                                combination.</documentation>
+                        </annotation>
+                    </element>
+                </sequence>
+            </extension>
+        </complexContent>
+    </complexType>
+    <element name="ResistivityReading" type="diggs:ResistivityReadingType" abstract="false">
+        <annotation>
+            <documentation>A single electrode reading within an in-situ resistivity test: the array
+                geometry at which it was taken, together with the resistance measured and the
+                apparent resistivity computed from it. Which of the geometry properties are populated
+                depends on the array and on the survey geometry - an array of uniform separation
+                populates diggs:electrodeSpacing, a Schlumberger array the two separation properties,
+                a traverse additionally diggs:readingLocation, and an azimuthal survey
+                diggs:orientation.</documentation>
+        </annotation>
+    </element>
+    <complexType name="ResistivityReadingPropertyType">
+        <annotation>
+            <documentation>Property for ResistivityReadings, required parent element that holds the
+                multiple readings.</documentation>
+        </annotation>
+        <sequence>
+            <element ref="diggs:ResistivityReading" minOccurs="1" maxOccurs="1"/>
+        </sequence>
+    </complexType>
+    <complexType name="ResistivityReadingType">
+        <annotation>
+            <documentation>Base type for ResistivityReadings</documentation>
+        </annotation>
+        <complexContent>
+            <extension base="diggs:AbstractObjectType">
+                <sequence>
+                    <element minOccurs="0" name="electrodeSpacing" type="diggs:LengthMeasureType">
+                        <annotation>
+                            <documentation>The separation between adjacent electrodes, for arrays in
+                                which that separation is uniform - the "a" dimension of a Wenner
+                                array, and the probe spacing of a Wenner probe applied to a concrete
+                                surface. For an array whose current and potential pairs are separated
+                                differently, use diggs:currentElectrodeSeparation and
+                                diggs:potentialElectrodeSeparation instead.</documentation>
+                        </annotation>
+                    </element>
+                    <element minOccurs="0" name="currentElectrodeSeparation"
+                        type="diggs:LengthMeasureType">
+                        <annotation>
+                            <documentation>The separation between the two current electrodes, for
+                                arrays in which the current and potential pairs are separated
+                                differently - principally Schlumberger. Stated as the full separation
+                                between the pair, not the half-separation that sounding curves are
+                                conventionally plotted against.</documentation>
+                        </annotation>
+                    </element>
+                    <element minOccurs="0" name="potentialElectrodeSeparation"
+                        type="diggs:LengthMeasureType">
+                        <annotation>
+                            <documentation>The separation between the two potential electrodes, for
+                                arrays in which the current and potential pairs are separated
+                                differently - principally Schlumberger. Stated as the full separation
+                                between the pair, on the same convention as
+                                diggs:currentElectrodeSeparation.</documentation>
+                        </annotation>
+                    </element>
+                    <element minOccurs="0" name="orientation" type="diggs:BearingMeasureType">
+                        <annotation>
+                            <documentation>The bearing of the line the electrode array was laid out
+                                along, for surveys in which orientation is varied or is otherwise
+                                significant. An array line has no inherent direction, so either of
+                                the two opposed bearings describes it; state the one falling between
+                                0 and 180 degrees. The reference direction the bearing is measured
+                                from is carried by the measure's own refAzimuth
+                                attribute.</documentation>
+                        </annotation>
+                    </element>
+                    <element minOccurs="0" name="readingLocation" type="diggs:LocationPropertyType">
+                        <annotation>
+                            <documentation>The position of the array for this reading, normally its
+                                centre. Populated where readings were taken at differing positions -
+                                principally constant separation traversing, and readings taken at
+                                successive points on a structure. Where every reading shares one
+                                position, that position is carried by the sampling feature the test
+                                was performed at and is not repeated here.</documentation>
+                        </annotation>
+                    </element>
+                    <element minOccurs="0" name="measuredResistance"
+                        type="diggs:ElectricResistanceMeasureType">
+                        <annotation>
+                            <documentation>The resistance read from the instrument for this
+                                reading.</documentation>
+                        </annotation>
+                    </element>
+                    <element minOccurs="0" name="apparentResistivity"
+                        type="diggs:ElectricalResistivityMeasureType">
+                        <annotation>
+                            <documentation>The apparent resistivity computed from the measured
+                                resistance and the array geometry. "Apparent" because it is the
+                                resistivity of an equivalent homogeneous medium; where the ground is
+                                layered or anisotropic it is not the resistivity of any one layer. At
+                                least one of this property and diggs:measuredResistance should be
+                                present.</documentation>
                         </annotation>
                     </element>
                 </sequence>
