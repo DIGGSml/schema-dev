@@ -448,11 +448,12 @@
                             <documentation>The electrode array configuration used - for example
                                 Wenner (four electrodes at equal separation), Schlumberger (a closely
                                 spaced potential pair at the centre of a wider, expanding current
-                                pair), dipole-dipole, or a driven-rod arrangement. The array
-                                determines which of the separation properties on
-                                diggs:ResistivityReading apply, and which expression converts a
-                                measured resistance into an apparent resistivity. Intended to come
-                                from a controlled list of terms.</documentation>
+                                pair), or dipole-dipole (a current dipole and a potential dipole of
+                                equal length, separated by a multiple of that length). The array
+                                determines which of the geometry properties on the
+                                diggs:ResistivityReading/diggs:reading choice apply, and which
+                                expression converts a measured resistance into an apparent
+                                resistivity. Intended to come from a controlled list of terms.</documentation>
                         </annotation>
                     </element>
                     <element minOccurs="0" name="surveyGeometry" type="gml:CodeType">
@@ -496,10 +497,13 @@
         <annotation>
             <documentation>A single electrode reading within an in-situ resistivity test: the array
                 geometry at which it was taken, together with the resistance measured and the
-                apparent resistivity computed from it. Which of the geometry properties are populated
-                depends on the array and on the survey geometry - an array of uniform separation
-                populates diggs:electrodeSpacing, a Schlumberger array the two separation properties,
-                a traverse additionally diggs:readingLocation, and an azimuthal survey
+                apparent resistivity computed from it. The separation geometry is a choice of
+                exactly one of three mutually exclusive forms, selected by the procedure's
+                diggs:arrayType: a Wenner array populates diggs:electrodeSpacing alone, a
+                Schlumberger array the diggs:currentElectrodeSeparation/
+                diggs:potentialElectrodeSeparation pair, and a dipole-dipole array the
+                diggs:dipoleLength/diggs:nFactor pair. Independently of which geometry form applies,
+                a traverse additionally populates diggs:readingLocation, and an azimuthal survey
                 diggs:orientation.</documentation>
         </annotation>
     </element>
@@ -519,36 +523,72 @@
         <complexContent>
             <extension base="diggs:AbstractObjectType">
                 <sequence>
-                    <element minOccurs="0" name="electrodeSpacing" type="diggs:LengthMeasureType">
+                    <choice minOccurs="0">
                         <annotation>
-                            <documentation>The separation between adjacent electrodes, for arrays in
-                                which that separation is uniform - the "a" dimension of a Wenner
-                                array, and the probe spacing of a Wenner probe applied to a concrete
-                                surface. For an array whose current and potential pairs are separated
-                                differently, use diggs:currentElectrodeSeparation and
-                                diggs:potentialElectrodeSeparation instead.</documentation>
+                            <documentation>The separation geometry, in whichever of three mutually
+                                exclusive forms matches the procedure's diggs:arrayType. The three
+                                forms are never combined on one reading - a Wenner array's single
+                                uniform spacing, a Schlumberger array's independently stated current
+                                and potential pair separations, and a dipole-dipole array's dipole
+                                length and separation multiplier describe the same underlying idea
+                                (how far apart the electrodes are) in three shapes that do not share
+                                a common representation, which is why this is a choice rather than
+                                three independently optional siblings.</documentation>
                         </annotation>
-                    </element>
-                    <element minOccurs="0" name="currentElectrodeSeparation"
-                        type="diggs:LengthMeasureType">
-                        <annotation>
-                            <documentation>The separation between the two current electrodes, for
-                                arrays in which the current and potential pairs are separated
-                                differently - principally Schlumberger. Stated as the full separation
-                                between the pair, not the half-separation that sounding curves are
-                                conventionally plotted against.</documentation>
-                        </annotation>
-                    </element>
-                    <element minOccurs="0" name="potentialElectrodeSeparation"
-                        type="diggs:LengthMeasureType">
-                        <annotation>
-                            <documentation>The separation between the two potential electrodes, for
-                                arrays in which the current and potential pairs are separated
-                                differently - principally Schlumberger. Stated as the full separation
-                                between the pair, on the same convention as
-                                diggs:currentElectrodeSeparation.</documentation>
-                        </annotation>
-                    </element>
+                        <element name="electrodeSpacing" type="diggs:LengthMeasureType">
+                            <annotation>
+                                <documentation>The separation between adjacent electrodes, for
+                                    arrays in which that separation is uniform - the "a" dimension of
+                                    a Wenner array, and the probe spacing of a Wenner probe applied to
+                                    a concrete surface.</documentation>
+                            </annotation>
+                        </element>
+                        <sequence>
+                            <element name="currentElectrodeSeparation"
+                                type="diggs:LengthMeasureType">
+                                <annotation>
+                                    <documentation>The separation between the two current
+                                        electrodes, for arrays in which the current and potential
+                                        pairs are separated differently - principally Schlumberger.
+                                        Stated as the full separation between the pair, not the
+                                        half-separation that sounding curves are conventionally
+                                        plotted against.</documentation>
+                                </annotation>
+                            </element>
+                            <element name="potentialElectrodeSeparation"
+                                type="diggs:LengthMeasureType">
+                                <annotation>
+                                    <documentation>The separation between the two potential
+                                        electrodes, for arrays in which the current and potential
+                                        pairs are separated differently - principally Schlumberger.
+                                        Stated as the full separation between the pair, on the same
+                                        convention as diggs:currentElectrodeSeparation.</documentation>
+                                </annotation>
+                            </element>
+                        </sequence>
+                        <sequence>
+                            <element name="dipoleLength" type="diggs:LengthMeasureType">
+                                <annotation>
+                                    <documentation>The length of the current dipole, for a
+                                        dipole-dipole array - the separation between the two current
+                                        electrodes, which equals the separation between the two
+                                        potential electrodes (the "a" spacing in the conventional n-a
+                                        dipole-dipole notation).</documentation>
+                                </annotation>
+                            </element>
+                            <element name="nFactor" type="double">
+                                <annotation>
+                                    <documentation>The separation between the current dipole and the
+                                        potential dipole, for a dipole-dipole array, expressed as a
+                                        multiple of diggs:dipoleLength (the "n" in the conventional
+                                        n-a dipole-dipole notation) rather than as an independent
+                                        length - the multiplier, not a distance, is what a
+                                        dipole-dipole survey actually steps from one reading to the
+                                        next at fixed dipole length.</documentation>
+                                </annotation>
+                            </element>
+                        </sequence>
+                    </choice>
                     <element minOccurs="0" name="orientation" type="diggs:BearingMeasureType">
                         <annotation>
                             <documentation>The bearing of the line the electrode array was laid out
