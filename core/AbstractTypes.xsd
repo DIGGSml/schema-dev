@@ -1480,31 +1480,40 @@
                 <sequence>
                     <element ref="diggs:projectRef" maxOccurs="unbounded"/>
                     <element minOccurs="0" ref="diggs:programRef"/>
-                    <choice minOccurs="0" maxOccurs="unbounded">
+                    <choice>
                         <annotation>
-                            <documentation>What this observation system was made along or from -
-                                zero, one, or many sampling features or samples, in any
-                                combination. Relaxed from a mandatory single choice (S10; RI_Program_
-                                Architecture.md §6.3(a)): the original exactly-one-of assumed every
-                                observation system is an interpretation ALONG one feature - a log
-                                down one borehole. A ground model (diggs:GeoUnitSystem, and by
-                                extension every AbstractObservationSystemType descendant, since this
-                                choice is inherited rather than overridden per subtype) is instead
-                                synthesized FROM many features - an interpretation over a volume,
-                                with nothing correct to put in a single mandatory slot. Repeating
-                                samplingFeatureRef also lets the system record its own provenance:
-                                "this model was built from these fourteen borings" is itself
-                                evidence a design basis should be able to state, not merely
-                                permitted content. Zero occurrences remains valid for a model with no
-                                honest anchor at all - the case architecture §6.3(a) calls out for a
-                                project with no site-spanning feature to hang off honestly.
+                            <documentation>The feature this observation system occurs in or was made
+                                along, or the sample it was made on - exactly one, mandatory. What is
+                                referenced here is the SUBJECT of the system: the thing being
+                                described.
+
+                                REVERTED 9/26 to this, the 3.0.0 cardinality, retracting S10's
+                                widening to [0..*] (RI_Program_Architecture.md §6.3(a)). S10 widened
+                                the choice so that a synthesized site-wide ground model could cite
+                                the several features it was built from, reading the choice as
+                                provenance - "this model was built from these fourteen borings."
+                                That conflated two distinct things. This reference says what is
+                                being described; the data an observation was DERIVED FROM is stated
+                                per observation, through diggs:measurementRef ([0..*] on
+                                diggs:AbstractObservationType). A unit whose unit weight derives
+                                from a series of SPT or CPT tests cites those measurements there, on
+                                the observation whose property they bear on - which a reference here
+                                could not do, since a system spans many observations and could not
+                                say which one each source bore on. That is the same defect that
+                                deprecated the sampleRef branch below.
+
+                                A site-wide interpretation still has one honest subject: the
+                                sampling feature whose ground it describes. Where the system is a log
+                                it is the borehole; where it is a ground model over a site it is a
+                                feature spanning that site - diggs:RITreatedArea,
+                                diggs:PlanarSamplingFeature or diggs:VolumetricSamplingFeature.
 
                                 AS OF 9/26 THE sampleRef BRANCH IS DEPRECATED and only
                                 samplingFeatureRef should be used here; see that element's own
                                 annotation. The sample being observed is now stated on the
                                 individual observation, diggs:sampleRef on
-                                diggs:AbstractObservationType. Nothing about samplingFeatureRef or
-                                about the relaxed cardinality changes.</documentation>
+                                diggs:AbstractObservationType. Nothing about samplingFeatureRef
+                                changes.</documentation>
                         </annotation>
                         <element ref="diggs:samplingFeatureRef"/>
                         <element ref="diggs:sampleRef">
@@ -1541,11 +1550,12 @@
                                 diggs:AbstractProjectScopedGroup.
 
                                 DISTINCT FROM THE samplingFeatureRef/sampleRef CHOICE ABOVE, which is
-                                provenance - the features this system was interpreted FROM. This
-                                element is membership: the other observation systems this one is read
-                                ALONGSIDE. A ground model built from fourteen borings states that
-                                through the choice; a ground model that is one of three competing
-                                interpretations of the same site states that here.</documentation>
+                                the subject - the single feature or sample this system describes.
+                                This element is membership: the other observation systems this one is
+                                read ALONGSIDE. A ground model that is one of three competing
+                                interpretations of the same site states that here. Provenance is
+                                neither of these: the data an observation derives from is cited per
+                                observation, through diggs:measurementRef.</documentation>
                         </annotation>
                     </element>
                 </sequence>
