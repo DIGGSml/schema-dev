@@ -1562,6 +1562,31 @@
             </extension>
         </complexContent>
     </complexType>
+    <element abstract="true" name="AbstractObservation" type="diggs:AbstractObservationType">
+        <annotation>
+            <documentation>The head of the observation substitution group - a single qualitative or
+                category description of a zone or region, as opposed to the
+                diggs:AbstractObservationSystem that collects many of them.
+
+                Added 9/26. Until then the observation family was the only one in DIGGS with an
+                abstract TYPE but no abstract head ELEMENT: the concrete observations were standalone
+                global elements, so nothing could name the family as a whole and
+                diggs:observationRef had no honest target. Declaring the head brings observations
+                into line with diggs:AbstractMeasurement, diggs:AbstractSamplingFeature,
+                diggs:AbstractSpecimen and the group heads.
+
+                PURELY ADDITIVE. The observation property types continue to reference their concrete
+                observation directly (diggs:LithologyObservationPropertyType holds
+                diggs:LithologyObservation by ref, not this head), so membership widens nothing:
+                an element ref admits that element's own substitutes, not its siblings under a
+                common head. Nothing referenced this head before it existed.
+
+                diggs:FractureObservation and diggs:PlacedObservation are NOT members despite their
+                names - FractureObservationType descends from diggs:AbstractObjectType and
+                PlacedObservationType from diggs:AbstractComponentObjectBaseType. Neither is an
+                observation in this sense.</documentation>
+        </annotation>
+    </element>
     <complexType abstract="true" name="AbstractObservationType">
         <annotation>
             <documentation>The base type for all descriptions, which extend this
@@ -1613,6 +1638,26 @@
                                 element can be optionally used to point to the subject Test,
                                 Materia;Test or Monitor feature via the xlink:href
                                 attribute</documentation>
+                        </annotation>
+                    </element>
+                    <element maxOccurs="unbounded" minOccurs="0" ref="diggs:observationRef">
+                        <annotation>
+                            <appinfo>diggs:AbstractObservation</appinfo>
+                            <documentation>Zero or more references to other observations this
+                                description was interpreted from - the per-borehole
+                                diggs:LithologyObservation a site-wide diggs:GeoUnitObservation
+                                synthesizes, or the lithology a diggs:StratigraphyObservation rests
+                                on. Added 9/26.
+
+                                The observation-level counterpart to diggs:measurementRef above,
+                                covering the case that one could not: a description whose basis is
+                                another DESCRIPTION rather than a measured value. Between them the
+                                two state an observation's full provenance, and both sit here rather
+                                than on diggs:AbstractObservationSystemType for the same reason -
+                                a system spans many observations and cannot say which one a given
+                                source bore on. See that type's anchoring choice, whose own
+                                documentation records the 9/26 reversal that made this
+                                separation explicit.</documentation>
                         </annotation>
                     </element>
                     <element minOccurs="0" ref="diggs:location">
