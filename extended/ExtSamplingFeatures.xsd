@@ -838,24 +838,28 @@
     </element>
     <!-- ================================================================================= -->
     <!-- TRIANGULATED SURFACE - v 3.1 addition (planar-triangle-mesh equivalent of gml:TriangulatedSurface)  -->
-    <!-- Parallels MultiPlanarSurface/PlanarSurfacePatch exactly: restricts/extends the     -->
-    <!-- GML type directly and substitutes into diggs:AbstractSurface (which itself        -->
-    <!-- substitutes into gml:AbstractSurface), so it's automatically usable anywhere       -->
+    <!-- Parallels MultiPlanarSurface/PlanarSurfacePatch exactly: extends diggs:AbstractSurfaceType -->
+    <!-- and substitutes diggs:AbstractSurface, so it's automatically usable anywhere        -->
     <!-- PlanarSurface/MultiPlanarSurface already are today (arealExtent's SurfacePropertyType -->
-    <!-- choice, a Solid's Shell surfaceMember, etc.) — no other schema changes needed.-->
+    <!-- choice, a Solid's Shell surfaceMember, etc.) — no other schema changes needed.       -->
+    <!-- (Corrected S32f, 2026-09: diggs:AbstractSurface does NOT itself substitute           -->
+    <!-- gml:AbstractSurface - it substitutes diggs:AbstractGeometricPrimitive, which         -->
+    <!-- substitutes diggs:AbstractGeometry, which substitutes gml:AbstractGeometry. Since    -->
+    <!-- S32e, diggs:AbstractSurfaceType does TYPE-DERIVE from gml:AbstractSurfaceType, which  -->
+    <!-- is the separate, correct sense in which this family now carries real GML identity.)-->
     <!-- ================================================================================= -->
 
     <element name="TriangulatedSurface" substitutionGroup="diggs:AbstractSurface"
         type="diggs:TriangulatedSurfaceType">
         <annotation>
             <documentation>A Diggs geometry object that represents a single contiguous surface
-                composed exclusively of planar triangular patches (diggs:TriangulatedSurfacePatch).
+                composed exclusively of planar triangular patches (diggs:TrianglePatch).
                 Unlike diggs:MultiPlanarSurface, whose patches are arbitrary polygons that must be
                 independently verified as coplanar, every patch here has exactly three vertices and
                 is therefore planar by construction. Intended for representing an inherently
                 irregular (non-planar) surface — e.g. a geologic contact, stratigraphic boundary, or
                 other soil/rock-model bounding surface — as a triangulated mesh, typically as one of
-                several faces (diggs:Shell surfaceMembers) forming a gml:Solid soil-model volume.
+                several faces (diggs:Shell surfaceMembers) forming a diggs:Solid soil-model volume.
                 Each patch must share an edge with an adjacent patch to form a continuous surface,
                 the same connectivity requirement as diggs:MultiPlanarSurface.</documentation>
         </annotation>
@@ -872,7 +876,7 @@
                     <element ref="gml:patches">
                         <annotation>
                             <documentation>The patches property. Every member is expected to be a
-                                diggs:TriangulatedSurfacePatch (enforced by convention/documentation
+                                diggs:TrianglePatch (enforced by convention/documentation
                                 only, the same way gml:TriangulatedSurface's own patches are not
                                 machine-restricted to gml:Triangle members by the XSD content
                                 model).</documentation>
