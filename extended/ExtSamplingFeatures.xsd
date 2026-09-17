@@ -463,28 +463,7 @@
                 primitive, i.e. is continuous.</documentation>
         </annotation>
         <complexContent>
-            <extension base="diggs:AbstractGeometricPrimitiveType">
-                <sequence>
-                    <element minOccurs="0" name="exterior" type="diggs:ShellPropertyType">
-                        <annotation>
-                            <documentation>The exterior boundary surface of the volume. Defines the
-                                outer shell that encloses the three-dimensional feature. For solid
-                                volumes, this is the only boundary surface needed.</documentation>
-                        </annotation>
-                    </element>
-                    <element maxOccurs="unbounded" minOccurs="0" name="interior"
-                        type="diggs:ShellPropertyType">
-                        <annotation>
-                            <documentation>Interior boundary surfaces (voids or holes) within the
-                                volume. Defines hollow spaces or cavities inside the
-                                three-dimensional feature. Multiple interior boundaries can be
-                                specified for complex geometries with multiple voids. Optional - not
-                                needed for solid volumes without internal voids.</documentation>
-                        </annotation>
-                    </element>
-                    <element minOccurs="0" name="uncertainty" type="diggs:UncertaintyPropertyType"/>
-                </sequence>
-            </extension>
+            <extension base="diggs:AbstractGeometricPrimitiveType"/>
         </complexContent>
     </complexType>
 
@@ -506,11 +485,33 @@
     </complexType>
     <complexType name="SolidType">
         <annotation>
-            <documentation>Concrete type extending AbstractVolumeType. Provides implementation for
-                solid type.</documentation>
+            <documentation>Concrete type extending AbstractVolumeType. A volume bounded by shells:
+                exterior specifies the outer boundary, interior the inner boundary (voids or holes)
+                of the solid.</documentation>
         </annotation>
         <complexContent>
-            <extension base="diggs:AbstractVolumeType"> </extension>
+            <extension base="diggs:AbstractVolumeType">
+                <sequence>
+                    <element minOccurs="0" name="exterior" type="diggs:ShellPropertyType">
+                        <annotation>
+                            <documentation>The exterior boundary surface of the volume. Defines the
+                                outer shell that encloses the three-dimensional feature. For solid
+                                volumes, this is the only boundary surface needed.</documentation>
+                        </annotation>
+                    </element>
+                    <element maxOccurs="unbounded" minOccurs="0" name="interior"
+                        type="diggs:ShellPropertyType">
+                        <annotation>
+                            <documentation>Interior boundary surfaces (voids or holes) within the
+                                volume. Defines hollow spaces or cavities inside the
+                                three-dimensional feature. Multiple interior boundaries can be
+                                specified for complex geometries with multiple voids. Optional - not
+                                needed for solid volumes without internal voids.</documentation>
+                        </annotation>
+                    </element>
+                    <element minOccurs="0" name="uncertainty" type="diggs:UncertaintyPropertyType"/>
+                </sequence>
+            </extension>
         </complexContent>
     </complexType>
     <element name="Solid" substitutionGroup="diggs:AbstractVolume" type="diggs:SolidType">
@@ -561,6 +562,21 @@
         <sequence>
             <element ref="diggs:Shell"/>
         </sequence>
+    </complexType>
+
+    <element name="SurfaceBoundedSolid" type="diggs:SurfaceBoundedSolidType"
+        substitutionGroup="diggs:AbstractVolume"/>
+
+    <complexType name="SurfaceBoundedSolidType">
+        <complexContent>
+            <extension base="diggs:AbstractVolumeType">
+                <sequence>
+                    <element name="footprint" type="diggs:SurfacePropertyType"/>
+                    <element name="topSurface" type="diggs:SurfacePropertyType"/>
+                    <element name="bottomSurface" type="diggs:SurfacePropertyType"/>
+                </sequence>
+            </extension>
+        </complexContent>
     </complexType>
 
     <element name="MultiCurve" substitutionGroup="diggs:AbstractCurve" type="diggs:MultiCurveType">
