@@ -8664,10 +8664,24 @@
     <!-- ================================================================================= -->
 
     <element abstract="true" name="AbstractGeometricAggregate"
-        substitutionGroup="diggs:AbstractGeometry" type="diggs:AbstractGeometricAggregateType">
+        substitutionGroup="diggs:AbstractGeometry" type="gml:AbstractGeometricAggregateType">
         <annotation>
             <documentation>Abstract element for geometry aggregates. Serves as the head of the
-                substitution group for collections of geometric primitives.</documentation>
+                substitution group for collections of geometric primitives.
+
+                Typed directly to gml:AbstractGeometricAggregateType, not the like-named
+                diggs:AbstractGeometricAggregateType (S32e, 2026-09) - XSD requires a substitution
+                group member's type to be validly derived from the HEAD element's own declared type.
+                Since every concrete DIGGS geometry type now derives from its real GML counterpart
+                (diggs:MultiCurveType from gml:AbstractGeometricAggregateType via
+                diggs:AbstractGeometricAggregateType, diggs:AbstractCurveType from
+                gml:AbstractCurveType, etc.), the head's declared type must be the GML type itself for
+                that derivation to be recognized - a diggs:-namespace wrapper type here, even one that
+                itself extends the same GML type, sits on a parallel branch the deriver chain never
+                passes through, and every concrete type fails validation as a substitution-group
+                member. diggs:AbstractGeometricAggregateType remains a named type in its own right,
+                unaffected - concrete types keep deriving from it exactly as before; only this
+                element's own declared type changed.</documentation>
         </annotation>
     </element>
     <complexType abstract="true" name="AbstractGeometricAggregateType">
@@ -8681,14 +8695,17 @@
                 feature).</documentation>
         </annotation>
         <complexContent>
-            <extension base="diggs:AbstractGeometryType"> </extension>
+            <extension base="gml:AbstractGeometricAggregateType"> </extension>
         </complexContent>
     </complexType>
 
     <element abstract="true" name="AbstractGeometricPrimitive"
-        substitutionGroup="diggs:AbstractGeometry" type="diggs:AbstractGeometricPrimitiveType">
+        substitutionGroup="diggs:AbstractGeometry" type="gml:AbstractGeometricPrimitiveType">
         <annotation>
-            <documentation>Base type for DIGGS geometry primitives </documentation>
+            <documentation>Base type for DIGGS geometry primitives. Typed directly to
+                gml:AbstractGeometricPrimitiveType, not diggs:AbstractGeometricPrimitiveType - see
+                diggs:AbstractGeometricAggregate's documentation, just above, for why (S32e,
+                2026-09).</documentation>
         </annotation>
     </element>
     <complexType abstract="true" name="AbstractGeometricPrimitiveType">
@@ -8699,46 +8716,53 @@
                 in the direction implied by the sequence of their coordinate tuples.</documentation>
         </annotation>
         <complexContent>
-            <extension base="diggs:AbstractGeometryType"/>
+            <extension base="gml:AbstractGeometricPrimitiveType"/>
         </complexContent>
     </complexType>
 
     <element abstract="true" name="AbstractGeometry" substitutionGroup="gml:AbstractGeometry"
-        type="diggs:AbstractGeometryType">
+        type="gml:AbstractGeometryType">
         <annotation>
-            <documentation>Base type for DIGGS geometry objects </documentation>
+            <documentation>Base type for DIGGS geometry objects. Typed directly to
+                gml:AbstractGeometryType, not diggs:AbstractGeometryType - see
+                diggs:AbstractGeometricAggregate's documentation, above, for why (S32e, 2026-09).
+                diggs:AbstractGeometryType remains a named type, used directly by diggs:Grid,
+                diggs:RectifiedGrid, diggs:ReferenceableGridByArray, and
+                diggs:PlanarObservationRepresentation - geometries that are neither primitives nor
+                aggregates.</documentation>
         </annotation>
     </element>
     <complexType name="AbstractGeometryType" abstract="true">
         <annotation>
-            <documentation>Base type for all DIGGS geometry objects. DIGGS geometry is based on GML
-                (Geography Markup Language) geometry but restricted to a simplified subset
-                appropriate for geotechnical and geoenvironmental applications. This abstract type
-                is the root of the DIGGS geometry hierarchy and ensures compatibility with GML while
-                providing geotechnical-specific geometric representations for sampling features,
-                locations, and spatial relationships.
+            <documentation>Base type for all DIGGS geometry objects. This is the root of the DIGGS
+                geometry hierarchy and the gate through which every DIGGS geometry type derives from
+                gml:AbstractGeometryType, per that type's own stated rule: "Every geometry type
+                shall derive from this abstract type."
 
-                gml:id IS OPTIONAL (relaxed 9/26 from use="required"). GML itself declares gml:id
-                optional on gml:AbstractGMLType, and requiring it here was a DIGGS-specific
-                tightening that GML's own AbstractGeometryType documentation contradicts ("a geometry
-                element MAY have an identifying attribute"). The obligation bought nothing in
-                practice: measured across this project's instance corpus, 4,968 of 5,060 geometry
-                objects carried an id that nothing referenced.
+                A plain, empty extension of gml:AbstractGeometryType (S32e, 2026-09) - previously a
+                restriction narrowing gml:AbstractGeometryType's content down to gml:description-only
+                with no gml:name/gml:identifier/gml:descriptionReference. That restriction, plus a
+                parallel DIGGS-only hierarchy below it (AbstractGeometricPrimitiveType,
+                AbstractCurveType, AbstractSurfaceType, AbstractVolumeType,
+                AbstractGeometricAggregateType all derived from each other rather than from their
+                GML counterparts), meant no DIGGS geometry type actually carried GML/ISO 19107 type
+                identity: nothing derived from gml:AbstractCurveType, gml:AbstractSurfaceType, or
+                gml:AbstractSolidType. S32e rebased the whole family onto its GML counterpart at
+                every tier; this type dropping its restriction is the one step in that rebase with a
+                real content-model effect - gml:name, gml:identifier, and gml:descriptionReference
+                become legal on every DIGGS geometry (previously only gml:description was). Nothing
+                in the corpus used them before, and nothing is required to use them now; a DIGGS
+                geometry can still be authored exactly as before.
 
-                STATE AN id WHENEVER THE GEOMETRY IS REFERENCED, and that remains the common case for
-                any geometry serving as a linear-referencing element, a shared extent cited by
-                xlink:href, or a local CRS axis definition - a reference cannot resolve without one.
-                Omit it only for geometry that is wholly contained and never cited. Relaxing the
-                requirement is backward compatible: every document valid before this change remains
-                valid.</documentation>
+                gml:id IS OPTIONAL (relaxed 9/26 from use="required", predating S32e). GML itself
+                declares gml:id optional on gml:AbstractGMLType; requiring it here had been a
+                DIGGS-specific tightening now removed. STATE AN id WHENEVER THE GEOMETRY IS
+                REFERENCED - a linear-referencing element, a shared extent cited by xlink:href, or a
+                local CRS axis definition cannot resolve without one. Omit it only for geometry that
+                is wholly contained and never cited.</documentation>
         </annotation>
         <complexContent>
-            <restriction base="gml:AbstractGeometryType">
-                <sequence>
-                    <element ref="gml:description" minOccurs="0"/>
-                </sequence>
-                <attribute ref="gml:id" use="optional"/>
-            </restriction>
+            <extension base="gml:AbstractGeometryType"/>
         </complexContent>
     </complexType>
 
@@ -8967,7 +8991,7 @@
                 primitive, i.e. is continuous.</documentation>
         </annotation>
         <complexContent>
-            <extension base="diggs:AbstractGeometricPrimitiveType"/>
+            <extension base="gml:AbstractCurveType"/>
         </complexContent>
     </complexType>
 
