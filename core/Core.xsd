@@ -2833,7 +2833,24 @@
     <complexType name="GeoUnitObservationType">
         <annotation>
             <documentation>Extended type based on AbstractObservationType. Adds elements for geo
-                unit observation type definition.</documentation>
+                unit observation type definition.
+
+                A UNIT'S 3D BODY, IF ONE IS AUTHORED, IS CARRIED BY THE INHERITED diggs:location
+                PROPERTY (AbstractObservationType), NOT BY ANY ELEMENT DECLARED HERE. location's
+                type admits any diggs:AbstractGeometry, so a site-wide unit synthesized as a real
+                volume is expressed there as a diggs:SurfaceBoundedSolid, diggs:Solid,
+                diggs:MultiSolid or diggs:CompositeSolid, exactly as any other observation's
+                location would be. topElevation/baseElevation (added at S10, 2026-08-17, for
+                exactly this purpose) were REMOVED 2026-09-18, never having been used in any
+                instance: a pair of absolute-elevation scalars duplicated information a real
+                geometry in location already states more completely and more honestly (a level
+                interpreted for a unit is not one point, it is wherever the top or base surface
+                sits). See RI_Program_Architecture.md §6.3(b)/§11 for the fuller retraction, and
+                docs/build/S32i/NOTES.md §6.2 in the rigid-inclusions repo for the reasoning that
+                prompted it. The verticalDistanceTo*/verticalThicknessOfUnit elements below are
+                UNAFFECTED by this — they describe a different, still-current use, a single
+                borehole log rather than a site-wide model; see their own
+                documentation.</documentation>
         </annotation>
         <complexContent>
             <extension base="diggs:AbstractObservationType">
@@ -2852,53 +2869,38 @@
                     <element minOccurs="0" name="verticalDistanceToTopOfUnit"
                         type="diggs:LengthMeasureType">
                         <annotation>
-                            <documentation>When encountered in a linear sampling feature, the
-                                vertical distance to the top (or beginning) of the unit, measured
-                                from the feature's reference point.</documentation>
+                            <documentation>RELEVANT ONLY TO A ONE-DIMENSIONAL GeoUnitObservation —
+                                one encountered along a single linear sampling feature (a borehole
+                                log), where "distance from the feature's reference point" is a
+                                well-defined single number. Not meaningful for a unit synthesized
+                                across many boreholes into a site-wide body: that case has no one
+                                reference point to measure from, and is expressed instead through
+                                diggs:location holding a real 3D geometry (see this type's own
+                                documentation). The vertical distance to the top (or beginning) of
+                                the unit, measured from the feature's reference
+                                point.</documentation>
                         </annotation>
                     </element>
                     <element minOccurs="0" name="verticalDistanceToBaseOfUnit"
                         type="diggs:LengthMeasureType">
                         <annotation>
-                            <documentation>When encountered in a linear sampling feature, the
+                            <documentation>RELEVANT ONLY TO A ONE-DIMENSIONAL GeoUnitObservation —
+                                see verticalDistanceToTopOfUnit, the reasoning is identical. The
                                 vertical distance to the base (or end) of the unit, measured from
                                 the feature's reference point.</documentation>
-                        </annotation>
-                    </element>
-                    <element minOccurs="0" name="topElevation"
-                        type="diggs:PointLocationPropertyType">
-                        <annotation>
-                            <documentation>The absolute elevation of the top of the unit. Added
-                                (S10; RI_Program_Architecture.md §6.3(b)) alongside
-                                verticalDistanceToTopOfUnit rather than replacing it: that element
-                                is correct for a single log, where "distance from the feature's
-                                reference point" is exactly the right frame, but wrong for a
-                                site-wide model synthesized across many boreholes, where a unit's
-                                top is a level shared across the model, not an offset from any one
-                                borehole's collar.
-
-                                diggs:PointLocationPropertyType, for consistency with how every
-                                other elevation in DIGGS is carried: that type holds srsName
-                                natively and supports one-dimensional, linear-referenced and
-                                three-dimensional frames alike, so a level stated in a vertical CRS
-                                is expressed as a one-dimensional position. AN EARLIER DRAFT typed
-                                this diggs:ElevationType, a scalar, arguing that a level interpreted
-                                for a unit has no single point on that unit's surface it is uniquely
-                                the position of. That argument is RETRACTED, and diggs:ElevationType
-                                has been removed from the schema.</documentation>
-                        </annotation>
-                    </element>
-                    <element minOccurs="0" name="baseElevation"
-                        type="diggs:PointLocationPropertyType">
-                        <annotation>
-                            <documentation>The absolute elevation of the base of the unit. See
-                                topElevation.</documentation>
                         </annotation>
                     </element>
                     <choice minOccurs="0">
                         <element name="verticalThicknessOfUnit" type="diggs:LengthMeasureType">
                             <annotation>
                                 <documentation>
+                                    RELEVANT ONLY TO A ONE-DIMENSIONAL GeoUnitObservation — see
+                                    verticalDistanceToTopOfUnit; this element is simply the
+                                    difference of that pair along one log and inherits the same
+                                    restriction. A site-wide body's thickness at a point is instead
+                                    a computed property of the two bounding surfaces held in
+                                    diggs:location, not an authored scalar.
+
                                     Thickness of the unit, measured vertically. This would be
                                     the difference between the verticalDistanceToBaseOfUnit -
                                     verticalDistanceToTopOfUnit.
@@ -9146,6 +9148,35 @@
         </annotation>
         <sequence minOccurs="0">
             <element ref="diggs:PlanarSurface"/>
+        </sequence>
+        <attributeGroup ref="gml:OwnershipAttributeGroup"/>
+        <attributeGroup ref="gml:AssociationAttributeGroup"/>
+    </complexType>
+    <complexType name="PlanarSurfaceOrMultiSurfacePropertyType">
+        <annotation>
+            <documentation>Property type admitting either a single diggs:PlanarSurface or a
+                diggs:MultiSurface of them — narrower than diggs:SurfacePropertyType (which admits
+                any diggs:AbstractSurface, including non-planar and multi-patch-contiguous forms),
+                deliberately, for a host that wants one planar region OR several disjoint planar
+                regions and nothing else.
+
+                Built for diggs:SurfaceBoundedSolid/footprint: a footprint that is not one connected
+                region — a unit present as several unconnected plan-view patches — is expressed as
+                one diggs:MultiSurface whose members are each expected to be a diggs:PlanarSurface,
+                enforced by this documentation only, the same convention diggs:TrianglePatch's own
+                ring shape uses; diggs:MultiSurface's own content model does not restrict its
+                members to any particular diggs:AbstractSurface. Each member is treated as an
+                independent footprint component: the solid's wall construction runs once per
+                component, generating an independent set of walls for each, and components shall
+                not overlap in plan view — overlapping components would double-wall and double-cap
+                the same region, a requirement as unenforceable as, and analogous to, the
+                gap/overlap tiling constraint on diggs:CompositeSolid's members.</documentation>
+        </annotation>
+        <sequence minOccurs="0">
+            <choice>
+                <element ref="diggs:PlanarSurface"/>
+                <element ref="diggs:MultiSurface"/>
+            </choice>
         </sequence>
         <attributeGroup ref="gml:OwnershipAttributeGroup"/>
         <attributeGroup ref="gml:AssociationAttributeGroup"/>

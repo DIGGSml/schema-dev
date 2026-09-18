@@ -568,15 +568,277 @@
     </complexType>
 
     <element name="SurfaceBoundedSolid" type="diggs:SurfaceBoundedSolidType"
-        substitutionGroup="diggs:AbstractVolume"/>
+        substitutionGroup="diggs:AbstractVolume">
+        <annotation>
+            <documentation>A Diggs geometry object that encodes a volume of earth material whose
+                sides are vertical, as a pair of bounding surfaces (top and bottom) plus a
+                footprint that fixes the volume's lateral extent — one planar region, or several
+                disjoint planar regions when the body's plan-view extent is itself disconnected
+                (see diggs:PlanarSurfaceOrMultiSurfacePropertyType). Intended for geologic bodies —
+                a stratigraphic unit, a geotechnical layer, a zone of treated ground — where the
+                top and bottom vary in relief but the lateral boundary is a vertical surface
+                everywhere.
+
+                The point of the object is economy of expression. The same body encoded as a
+                diggs:Solid requires an explicit diggs:Shell enumerating every bounding polygon,
+                including one side polygon per footprint edge; those side polygons carry no
+                information that the footprint and the two bounding surfaces do not already imply.
+                diggs:SurfaceBoundedSolid states only the independent geometry and leaves the side
+                walls to be computed, which for a body with a many-vertex footprint or a
+                finely-triangulated top surface is a large reduction in instance size.
+
+                CONSTRUCTION. The solid is the region between topSurface and bottomSurface, bounded
+                laterally by vertical walls erected on the footprint's own boundary — or, when the
+                footprint is a diggs:MultiSurface, on the boundary of EACH of its members
+                independently, producing a separate disjoint body per member that together make up
+                the one SurfaceBoundedSolid. The wall vertices are taken from the footprint, NOT
+                from whatever vertices the top and bottom surfaces happen to carry along their own
+                edges: for each vertex of each footprint ring, the top and bottom surfaces are
+                evaluated (interpolated) at that vertex's (x, y) position to obtain the wall's upper
+                and lower corner at that station. Each wall panel spanning two consecutive footprint
+                vertices is therefore planar by construction, and the top and bottom surfaces need
+                not share a vertex count, a triangulation, or any edge geometry with each other or
+                with the footprint. A footprint interior ring (a hole through the body, or through
+                one member of a multi-part footprint) generates its own wall in the same way.
+                Footprint members (when more than one) shall not overlap in plan view.
+
+                AUTHORING REQUIREMENT, NOT MACHINE-ENFORCED. The top and bottom surfaces shall each
+                extend to or beyond the footprint over the footprint's entire area, so that
+                evaluating them at every footprint vertex is always defined and the footprint alone
+                determines the lateral extent. Nothing in this content model enforces that, in the
+                same way nothing enforces diggs:TrianglePatch's three-vertex ring convention; a
+                consumer encountering a footprint that is not fully covered should be regarded as
+                encountering an authoring error, and this specification does not define what it
+                renders. Neither bounding surface is required to be planar, single-patch, or
+                monotonic, and the two may touch (a zero-thickness edge) but shall not cross.
+
+                NO GML COUNTERPART. ISO 19107 and GML represent a solid only by explicit boundary
+                representation (gml:Solid bounded by gml:Shell), and offer no primitive for a volume
+                swept or interpolated between two surfaces. This object is therefore a DIGGS
+                construct with no GML equivalent to derive from or align to, unlike every other
+                member of the diggs geometry family. It nonetheless substitutes diggs:AbstractVolume
+                and its type derives from diggs:AbstractVolumeType — which since the 3.1 geometry
+                rebase derives in turn from gml:AbstractSolidType — so a schema-aware GML consumer
+                still sees a legitimate member of the solid family, and only a DIGGS-aware consumer
+                needs to know how to expand it.</documentation>
+        </annotation>
+    </element>
 
     <complexType name="SurfaceBoundedSolidType">
+        <annotation>
+            <documentation>Concrete type extending AbstractVolumeType. Adds the footprint and the
+                two bounding surfaces that define a vertical-sided volume. See
+                diggs:SurfaceBoundedSolid for the construction rule, the authoring requirement that
+                the bounding surfaces cover the footprint, and why this object has no GML
+                counterpart. The sibling concrete volume type is diggs:SolidType, which is the
+                explicit boundary-representation form and remains the right choice for a volume
+                whose sides are not vertical.</documentation>
+        </annotation>
         <complexContent>
             <extension base="diggs:AbstractVolumeType">
                 <sequence>
-                    <element name="footprint" type="diggs:SurfacePropertyType"/>
-                    <element name="topSurface" type="diggs:SurfacePropertyType"/>
-                    <element name="bottomSurface" type="diggs:SurfacePropertyType"/>
+                    <element name="footprint" type="diggs:PlanarSurfaceOrMultiSurfacePropertyType">
+                        <annotation>
+                            <documentation>The lateral extent of the volume: either one planar
+                                polygon (diggs:PlanarSurface) whose boundary is the trace of the
+                                volume's vertical sides, or several disjoint such polygons
+                                (diggs:MultiSurface, each member expected to be a
+                                diggs:PlanarSurface) when the body's plan-view extent is itself
+                                disconnected — a geologic unit present as separate unconnected
+                                patches, for instance. Narrower than the wider
+                                diggs:SurfacePropertyType used by topSurface and bottomSurface —
+                                see diggs:PlanarSurfaceOrMultiSurfacePropertyType — because a
+                                footprint component is by definition one planar region, and because
+                                the vertical-wall construction reads each component's own vertices
+                                as that component's definitive wall stations. Each component's
+                                exterior ring is that component's outer wall; each interior ring is
+                                a hole through the body at that component and generates its own
+                                wall. Components (when more than one) shall not overlap in plan
+                                view.
+
+                                Normally horizontal, and normally authored as a plan-view polygon,
+                                but this content model does not require the plane to be horizontal.
+                                Any elevation carried by the footprint's own coordinates is not the
+                                volume's top or bottom: the footprint supplies (x, y) only, and the
+                                bounding surfaces supply elevation. Authors should not infer that a
+                                footprint at some elevation clips the body vertically — it does
+                                not.</documentation>
+                        </annotation>
+                    </element>
+                    <element name="topSurface" type="diggs:SurfacePropertyType">
+                        <annotation>
+                            <documentation>The upper bounding surface of the volume — for a geologic
+                                body, the top of the unit. Any surface substitutable for
+                                diggs:AbstractSurface (or a diggs:MultiSurface) is admitted, so the
+                                relief may be expressed as a single diggs:PlanarSurface, as a
+                                multi-patch diggs:MultiPlanarSurface or diggs:CompositeSurface, or
+                                as a diggs:TriangulatedSurface mesh. Shall extend to or beyond the
+                                footprint over the footprint's whole area — see
+                                diggs:SurfaceBoundedSolid. The portion lying outside the footprint
+                                is not part of the solid; it is discarded by the footprint's lateral
+                                bound, which is what allows one authored surface to serve several
+                                adjacent bodies.</documentation>
+                        </annotation>
+                    </element>
+                    <element name="bottomSurface" type="diggs:SurfacePropertyType">
+                        <annotation>
+                            <documentation>The lower bounding surface of the volume — for a geologic
+                                body, the base of the unit, which is commonly the top of the unit
+                                below and may be the same surface object cited twice by reference.
+                                Admits the same range of surface geometries as topSurface and is
+                                subject to the same coverage requirement. Shall not rise above
+                                topSurface anywhere within the footprint; the two may
+                                touch.</documentation>
+                        </annotation>
+                    </element>
+                    <element minOccurs="0" name="uncertainty"
+                        type="diggs:LocationUncertaintyPropertyType">
+                        <annotation>
+                            <documentation>The uncertainty property. Positional uncertainty of the
+                                volume as a whole. Uncertainty specific to one bounding surface
+                                belongs on that surface's own uncertainty property
+                                instead.</documentation>
+                        </annotation>
+                    </element>
+                </sequence>
+            </extension>
+        </complexContent>
+    </complexType>
+
+    <element name="solidMember" type="diggs:SolidMemberPropertyType">
+        <annotation>
+            <documentation>A single volume member of a diggs:CompositeSolid or diggs:MultiSolid.
+                Either references a volume via the xlink:href attributes or contains the volume
+                element inline. A volume element here is any element substitutable for
+                diggs:AbstractVolume — diggs:Solid or diggs:SurfaceBoundedSolid, or in principle a
+                nested diggs:CompositeSolid, though a composite whose own members are composites is
+                unusual and worth a second look before authoring it. Mirrors diggs:surfaceMember's
+                pattern for the volume family.</documentation>
+        </annotation>
+    </element>
+    <complexType name="SolidMemberPropertyType">
+        <annotation>
+            <documentation>Property type for a single volume member reference, following GML's
+                surfaceMember/SurfacePropertyType pattern one dimension up. Either the reference or
+                the contained element shall be given, but not both nor neither.</documentation>
+        </annotation>
+        <sequence minOccurs="0">
+            <element ref="diggs:AbstractVolume"/>
+        </sequence>
+        <attributeGroup ref="gml:AssociationAttributeGroup"/>
+        <attributeGroup ref="gml:OwnershipAttributeGroup"/>
+    </complexType>
+    <element name="solidMembers" type="diggs:solidMembersArrayPropertyType">
+        <annotation>
+            <documentation>An inline array of volume members of a diggs:CompositeSolid or
+                diggs:MultiSolid. The order of the elements is significant and shall be preserved
+                when processing the array. Prefer this form over repeated diggs:solidMember
+                elements when every member is inline and element count should stay directly
+                readable (e.g. a block model with one value per cell).</documentation>
+        </annotation>
+    </element>
+    <complexType name="solidMembersArrayPropertyType">
+        <annotation>
+            <documentation>Property type for an inline array of volume members. Referencing volume
+                elements or arrays of volume elements via xlink is not supported here — use the
+                singular diggs:solidMember for that.</documentation>
+        </annotation>
+        <sequence maxOccurs="unbounded">
+            <element ref="diggs:AbstractVolume"/>
+        </sequence>
+    </complexType>
+
+    <element name="CompositeSolid" substitutionGroup="diggs:AbstractVolume"
+        type="diggs:CompositeSolidType">
+        <annotation>
+            <documentation>A DIGGS geometry object representing a single connected volume assembled
+                from one or more independently-existing volume members that join along shared
+                boundary faces (ISO 19107 GM_CompositeSolid) — ONE body, tiled into cells that
+                between them cover it exactly once with no gaps and no overlaps. Because it IS-A
+                volume, it substitutes diggs:AbstractVolume and is legal anywhere diggs:Solid or
+                diggs:SurfaceBoundedSolid is — including diggs:featureExtent — with no property-type
+                change needed.
+
+                The gap/overlap tiling constraint is NOT machine-enforced (this schema has no way to
+                verify member boundaries actually coincide), the same documentation-only convention
+                used throughout this geometry family (e.g. diggs:TrianglePatch's ring convention,
+                diggs:SurfaceBoundedSolid's footprint-coverage requirement).
+
+                Intended use: a body naturally divided into cells that individually carry different
+                property values (a fault-block model, a block model in the mining sense) while still
+                behaving as one connected volume for any purpose that needs "the body" as a whole —
+                e.g. a total-volume computation, or citing it as the single subject of one
+                observation. When the members are NOT asserted to tile one connected body — several
+                separate bodies, or bodies that may overlap — use diggs:MultiSolid
+                instead.</documentation>
+        </annotation>
+    </element>
+    <complexType name="CompositeSolidType">
+        <annotation>
+            <documentation>Extended type based on AbstractVolumeType. A composite volume built from
+                one or more solidMember/solidMembers references, each member sharing a boundary
+                face with its neighbor(s) so the whole tiles one connected body. See
+                diggs:CompositeSolid for the constraint this asserts and how it differs from
+                diggs:MultiSolid.</documentation>
+        </annotation>
+        <complexContent>
+            <extension base="diggs:AbstractVolumeType">
+                <sequence>
+                    <element ref="diggs:solidMember" minOccurs="0" maxOccurs="unbounded"/>
+                    <element ref="diggs:solidMembers" minOccurs="0"/>
+                    <element minOccurs="0" name="uncertainty"
+                        type="diggs:LocationUncertaintyPropertyType">
+                        <annotation>
+                            <documentation>The uncertainty property.</documentation>
+                        </annotation>
+                    </element>
+                </sequence>
+                <attributeGroup ref="gml:AggregationAttributeGroup"/>
+            </extension>
+        </complexContent>
+    </complexType>
+    <complexType name="CompositeSolidPropertyType">
+        <annotation>
+            <documentation>Property type for referencing a CompositeSolid element, following GML
+                property type pattern.</documentation>
+        </annotation>
+        <sequence minOccurs="0">
+            <element ref="diggs:CompositeSolid"/>
+        </sequence>
+        <attributeGroup ref="gml:OwnershipAttributeGroup"/>
+        <attributeGroup ref="gml:AssociationAttributeGroup"/>
+    </complexType>
+
+    <element name="MultiSolid" substitutionGroup="diggs:AbstractGeometricAggregate"
+        type="diggs:MultiSolidType">
+        <annotation>
+            <documentation>A DIGGS geometry object that holds a collection of volume geometries with
+                no assumed adjacency, contiguity, or tiling relationship between members — a
+                genuinely disjoint set of bodies (ISO 19107 GM_MultiSolid), such as a geologic unit
+                present as several unconnected patches, or a coverage domain needing one value per
+                volume. Unlike diggs:CompositeSolid, a diggs:MultiSolid does NOT itself behave as
+                one solid: it substitutes diggs:AbstractGeometricAggregate (via
+                diggs:AbstractGeometry), not diggs:AbstractVolume, so it is reachable through
+                diggs:location and any other diggs:AbstractGeometry-typed property, but NOT through
+                diggs:featureExtent, which is restricted to diggs:AbstractVolume. Members may
+                overlap; nothing here asserts they do not. Members may be given inline
+                (solidMember/solidMembers) or by xlink:href to a volume defined elsewhere in the
+                document. Contrast with diggs:CompositeSolid (members tile one connected body, IS-A
+                volume).</documentation>
+        </annotation>
+    </element>
+    <complexType name="MultiSolidType">
+        <annotation>
+            <documentation>Extended type based on AbstractGeometricAggregateType. A collection of
+                volumes with no assumed adjacency or tiling between members (ISO 19107
+                GM_MultiSolid). See diggs:MultiSolid for how this differs from
+                diggs:CompositeSolid.</documentation>
+        </annotation>
+        <complexContent>
+            <extension base="diggs:AbstractGeometricAggregateType">
+                <sequence>
+                    <element ref="diggs:solidMember" minOccurs="0" maxOccurs="unbounded"/>
+                    <element ref="diggs:solidMembers" minOccurs="0"/>
                     <element minOccurs="0" name="uncertainty"
                         type="diggs:LocationUncertaintyPropertyType">
                         <annotation>
@@ -586,6 +848,17 @@
                 </sequence>
             </extension>
         </complexContent>
+    </complexType>
+    <complexType name="MultiSolidPropertyType">
+        <annotation>
+            <documentation>Property type for referencing a MultiSolid element, following GML
+                property type pattern.</documentation>
+        </annotation>
+        <sequence minOccurs="0">
+            <element ref="diggs:MultiSolid"/>
+        </sequence>
+        <attributeGroup ref="gml:OwnershipAttributeGroup"/>
+        <attributeGroup ref="gml:AssociationAttributeGroup"/>
     </complexType>
 
     <element name="MultiCurve" substitutionGroup="diggs:AbstractGeometricAggregate" type="diggs:MultiCurveType">
