@@ -602,15 +602,38 @@
                 one member of a multi-part footprint) generates its own wall in the same way.
                 Footprint members (when more than one) shall not overlap in plan view.
 
-                AUTHORING REQUIREMENT, NOT MACHINE-ENFORCED. The top and bottom surfaces shall each
-                extend to or beyond the footprint over the footprint's entire area, so that
-                evaluating them at every footprint vertex is always defined and the footprint alone
-                determines the lateral extent. Nothing in this content model enforces that, in the
-                same way nothing enforces diggs:TrianglePatch's three-vertex ring convention; a
-                consumer encountering a footprint that is not fully covered should be regarded as
-                encountering an authoring error, and this specification does not define what it
-                renders. Neither bounding surface is required to be planar, single-patch, or
-                monotonic, and the two may touch (a zero-thickness edge) but shall not cross.
+                COVERAGE REQUIREMENT. The top and bottom surfaces shall each extend to or beyond the
+                footprint over the footprint's entire area, so that evaluating them at every point of
+                the footprint is always defined and the footprint alone determines the lateral
+                extent. A body whose top or bottom surface stops short of its footprint is not a
+                valid diggs:SurfaceBoundedSolid, and this specification defines no rendering for it:
+                a consumer is not expected to extend the surface out to the footprint, and whatever
+                it produces from such an instance is an artefact. The XSD content model cannot
+                express a geometric condition, so schema validation does not enforce this; it is
+                meant to be checked by instance-level geometry validation of the footprint against
+                the extent of each bounding surface.
+
+                BOUNDING SURFACES. topSurface and bottomSurface are each ONE continuous surface: a
+                diggs:PlanarSurface, diggs:CompositeSurface, diggs:MultiPlanarSurface or
+                diggs:TriangulatedSurface (see diggs:BoundingSurfacePropertyType). They are
+                deliberately not a diggs:MultiSurface, whose members are a collection with no assumed
+                adjacency. A body that is present as several disjoint pieces is expressed instead
+                with a diggs:MultiSurface FOOTPRINT over continuous top and bottom surfaces: each
+                footprint member is walled and capped independently, so one continuous pair of
+                surfaces yields as many disjoint bodies as the footprint has members. The members of
+                a diggs:CompositeSurface, and the patches of a diggs:MultiPlanarSurface, shall share
+                boundaries — adjacent members meet along a common boundary curve in three
+                dimensions, not merely in plan view — so a step in a bounding surface is represented
+                by a vertical member (or patch) joining the two levels, never by a gap. Neither
+                surface is required to be planar, single-patch or monotonic.
+
+                CROSSING SURFACES. The two bounding surfaces may touch or cross. The solid exists
+                only where topSurface lies above bottomSurface; wherever the top is at or below the
+                bottom the body has no thickness and that part of the footprint is empty. A body may
+                therefore pinch out within its footprint, along one line or several, and the
+                surviving regions are separate parts of the one solid. A consumer should treat the
+                empty regions, and the wall panels that would stand on them, as void rather than
+                render an inverted, negative-thickness volume.
 
                 NO GML COUNTERPART. ISO 19107 and GML represent a solid only by explicit boundary
                 representation (gml:Solid bounded by gml:Shell), and offer no primitive for a volume
@@ -624,12 +647,39 @@
         </annotation>
     </element>
 
+    <complexType name="BoundingSurfacePropertyType">
+        <annotation>
+            <documentation>Property type for one continuous bounding surface of a
+                diggs:SurfaceBoundedSolid — a diggs:PlanarSurface, diggs:CompositeSurface,
+                diggs:MultiPlanarSurface or diggs:TriangulatedSurface, given inline or by
+                xlink:href. Narrower than diggs:SurfacePropertyType, which also admits
+                diggs:MultiSurface: a collection of surfaces with no assumed adjacency cannot serve
+                as one bounding surface, and a body in disjoint pieces is expressed with a
+                diggs:MultiSurface footprint instead. The four elements listed are exactly those
+                that substitute diggs:AbstractSurface today; they are named explicitly so that a
+                surface type added to that group later is not admitted here without a deliberate
+                decision. That the members of a diggs:CompositeSurface, and the patches of a
+                diggs:MultiPlanarSurface, share boundaries is a geometric condition this type cannot
+                express — see diggs:SurfaceBoundedSolid.</documentation>
+        </annotation>
+        <sequence minOccurs="0">
+            <choice>
+                <element ref="diggs:PlanarSurface"/>
+                <element ref="diggs:CompositeSurface"/>
+                <element ref="diggs:MultiPlanarSurface"/>
+                <element ref="diggs:TriangulatedSurface"/>
+            </choice>
+        </sequence>
+        <attributeGroup ref="gml:OwnershipAttributeGroup"/>
+        <attributeGroup ref="gml:AssociationAttributeGroup"/>
+    </complexType>
+
     <complexType name="SurfaceBoundedSolidType">
         <annotation>
             <documentation>Concrete type extending AbstractVolumeType. Adds the footprint and the
                 two bounding surfaces that define a vertical-sided volume. See
-                diggs:SurfaceBoundedSolid for the construction rule, the authoring requirement that
-                the bounding surfaces cover the footprint, and why this object has no GML
+                diggs:SurfaceBoundedSolid for the construction rule, the requirement that the
+                bounding surfaces cover the footprint, and why this object has no GML
                 counterpart. The sibling concrete volume type is diggs:SolidType, which is the
                 explicit boundary-representation form and remains the right choice for a volume
                 whose sides are not vertical.</documentation>
@@ -645,12 +695,15 @@
                                 (diggs:MultiSurface, each member expected to be a
                                 diggs:PlanarSurface) when the body's plan-view extent is itself
                                 disconnected — a geologic unit present as separate unconnected
-                                patches, for instance. Narrower than the wider
-                                diggs:SurfacePropertyType used by topSurface and bottomSurface —
-                                see diggs:PlanarSurfaceOrMultiSurfacePropertyType — because a
-                                footprint component is by definition one planar region, and because
-                                the vertical-wall construction reads each component's own vertices
-                                as that component's definitive wall stations. Each component's
+                                patches, for instance. Unlike topSurface and bottomSurface, which
+                                are each one continuous surface (diggs:BoundingSurfacePropertyType),
+                                the footprint may be a diggs:MultiSurface — see
+                                diggs:PlanarSurfaceOrMultiSurfacePropertyType — because a footprint
+                                component is by definition one planar region, and because the
+                                vertical-wall construction reads each component's own vertices as
+                                that component's definitive wall stations. A MultiSurface footprint
+                                laid over one pair of continuous bounding surfaces therefore yields
+                                a separate body for each member. Each component's
                                 exterior ring is that component's outer wall; each interior ring is
                                 a hole through the body at that component and generates its own
                                 wall. Components (when more than one) shall not overlap in plan
@@ -665,30 +718,30 @@
                                 not.</documentation>
                         </annotation>
                     </element>
-                    <element name="topSurface" type="diggs:SurfacePropertyType">
+                    <element name="topSurface" type="diggs:BoundingSurfacePropertyType">
                         <annotation>
                             <documentation>The upper bounding surface of the volume — for a geologic
-                                body, the top of the unit. Any surface substitutable for
-                                diggs:AbstractSurface (or a diggs:MultiSurface) is admitted, so the
-                                relief may be expressed as a single diggs:PlanarSurface, as a
-                                multi-patch diggs:MultiPlanarSurface or diggs:CompositeSurface, or
-                                as a diggs:TriangulatedSurface mesh. Shall extend to or beyond the
-                                footprint over the footprint's whole area — see
-                                diggs:SurfaceBoundedSolid. The portion lying outside the footprint
-                                is not part of the solid; it is discarded by the footprint's lateral
-                                bound, which is what allows one authored surface to serve several
-                                adjacent bodies.</documentation>
+                                body, the top of the unit. One continuous surface, so the relief may
+                                be expressed as a single diggs:PlanarSurface, as a multi-patch
+                                diggs:MultiPlanarSurface or diggs:CompositeSurface (whose patches or
+                                members share boundaries, a step being a vertical member), or as a
+                                diggs:TriangulatedSurface mesh — not as a diggs:MultiSurface; see
+                                diggs:SurfaceBoundedSolid. Shall extend to or beyond the footprint
+                                over the footprint's whole area. The portion lying outside the
+                                footprint is not part of the solid; it is discarded by the
+                                footprint's lateral bound, which is what allows one authored surface
+                                to serve several adjacent bodies.</documentation>
                         </annotation>
                     </element>
-                    <element name="bottomSurface" type="diggs:SurfacePropertyType">
+                    <element name="bottomSurface" type="diggs:BoundingSurfacePropertyType">
                         <annotation>
                             <documentation>The lower bounding surface of the volume — for a geologic
                                 body, the base of the unit, which is commonly the top of the unit
                                 below and may be the same surface object cited twice by reference.
-                                Admits the same range of surface geometries as topSurface and is
-                                subject to the same coverage requirement. Shall not rise above
-                                topSurface anywhere within the footprint; the two may
-                                touch.</documentation>
+                                Admits the same surfaces as topSurface and is subject to the same
+                                coverage requirement. It may touch or cross topSurface: where it
+                                lies at or above the top the body pinches out and that part of the
+                                footprint is empty — see diggs:SurfaceBoundedSolid.</documentation>
                         </annotation>
                     </element>
                     <element minOccurs="0" name="uncertainty"
@@ -761,8 +814,7 @@
 
                 The gap/overlap tiling constraint is NOT machine-enforced (this schema has no way to
                 verify member boundaries actually coincide), the same documentation-only convention
-                used throughout this geometry family (e.g. diggs:TrianglePatch's ring convention,
-                diggs:SurfaceBoundedSolid's footprint-coverage requirement).
+                used throughout this geometry family (e.g. diggs:TrianglePatch's ring convention).
 
                 Intended use: a body naturally divided into cells that individually carry different
                 property values (a fault-block model, a block model in the mining sense) while still
