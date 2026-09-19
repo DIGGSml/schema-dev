@@ -591,16 +591,22 @@
                 laterally by vertical walls erected on the footprint's own boundary — or, when the
                 footprint is a diggs:MultiSurface, on the boundary of EACH of its members
                 independently, producing a separate disjoint body per member that together make up
-                the one SurfaceBoundedSolid. The wall vertices are taken from the footprint, NOT
-                from whatever vertices the top and bottom surfaces happen to carry along their own
-                edges: for each vertex of each footprint ring, the top and bottom surfaces are
-                evaluated (interpolated) at that vertex's (x, y) position to obtain the wall's upper
-                and lower corner at that station. Each wall panel spanning two consecutive footprint
-                vertices is therefore planar by construction, and the top and bottom surfaces need
-                not share a vertex count, a triangulation, or any edge geometry with each other or
-                with the footprint. A footprint interior ring (a hole through the body, or through
-                one member of a multi-part footprint) generates its own wall in the same way.
-                Footprint members (when more than one) shall not overlap in plan view.
+                the one SurfaceBoundedSolid. The footprint decides only WHERE a wall stands, in plan
+                view; it never decides how tall the wall is. A wall lies in the vertical plane
+                through its footprint edge, and its upper and lower edges FOLLOW the top and bottom
+                surfaces along that edge: the upper edge is the top surface's profile — its height at
+                every point along the edge — and the lower edge is the bottom surface's profile.
+                Between one footprint vertex and the next a wall is therefore not in general a
+                simple four-cornered panel: it changes slope wherever the surface does, and where a
+                surface has a vertical member crossing the edge (a step — see BOUNDING SURFACES) the
+                wall steps with it, at the same position and by the same amount, so that the wall
+                meets the surface without a ramp or a gap and the solid is closed. Where a surface is
+                one plane, or is linear along the whole edge, the wall reduces to one planar
+                quadrilateral whose corners are the surface evaluated at the edge's two end
+                vertices. The vertices of the top and bottom surfaces need not coincide with each
+                other or with the footprint's. A footprint interior ring (a hole through the body, or
+                through one member of a multi-part footprint) generates its own wall in the same
+                way. Footprint members (when more than one) shall not overlap in plan view.
 
                 COVERAGE REQUIREMENT. The top and bottom surfaces shall each extend to or beyond the
                 footprint over the footprint's entire area, so that evaluating them at every point of
@@ -632,8 +638,9 @@
                 bottom the body has no thickness and that part of the footprint is empty. A body may
                 therefore pinch out within its footprint, along one line or several, and the
                 surviving regions are separate parts of the one solid. A consumer should treat the
-                empty regions, and the wall panels that would stand on them, as void rather than
-                render an inverted, negative-thickness volume.
+                empty regions as void, together with the parts of the walls that would stand on
+                them — a wall ends exactly where the thickness reaches zero — rather than render an
+                inverted, negative-thickness volume.
 
                 NO GML COUNTERPART. ISO 19107 and GML represent a solid only by explicit boundary
                 representation (gml:Solid bounded by gml:Shell), and offer no primitive for a volume
@@ -699,9 +706,8 @@
                                 are each one continuous surface (diggs:BoundingSurfacePropertyType),
                                 the footprint may be a diggs:MultiSurface — see
                                 diggs:PlanarSurfaceOrMultiSurfacePropertyType — because a footprint
-                                component is by definition one planar region, and because the
-                                vertical-wall construction reads each component's own vertices as
-                                that component's definitive wall stations. A MultiSurface footprint
+                                component is by definition one planar region, and because walls
+                                are erected on each component's own boundary. A MultiSurface footprint
                                 laid over one pair of continuous bounding surfaces therefore yields
                                 a separate body for each member. Each component's
                                 exterior ring is that component's outer wall; each interior ring is
