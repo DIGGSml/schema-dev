@@ -2205,7 +2205,7 @@
             </extension>
         </complexContent>
     </complexType>
-    <element name="ArchingCoefficients" type="diggs:ArchingCoefficientsType">
+    <element name="ArchingCoefficient" type="diggs:ArchingCoefficientType">
         <annotation>
             <documentation>The coefficients an arching (load-transfer) calculation produced under
                 one named model, together with the model itself.
@@ -2225,7 +2225,7 @@
                 structural necessity rather than a preference: a dictionary Definition's
                 conditionalElementXpath is evaluated with the ancestor:: axis, which can only see
                 containment, not a basisRef cross-reference. So each coefficient's Occurrence
-                condition reads ancestor::diggs:ArchingCoefficients/diggs:archingModel, which is
+                condition reads ancestor::diggs:ArchingCoefficient/diggs:archingModel, which is
                 only resolvable if the model is stated locally, in the same containment tree as the
                 coefficient. A diggs:RIProgramBasis cited through basisRef (S9) may additionally
                 carry its own archingModel as the program-level record of record, but this local
@@ -2238,9 +2238,9 @@
                 one.</documentation>
         </annotation>
     </element>
-    <complexType name="ArchingCoefficientsType">
+    <complexType name="ArchingCoefficientType">
         <annotation>
-            <documentation>Type for diggs:ArchingCoefficients. See the element's documentation for
+            <documentation>Type for diggs:ArchingCoefficient. See the element's documentation for
                 why this exists as one generic object rather than named elements per
                 coefficient.</documentation>
         </annotation>
@@ -2277,13 +2277,13 @@
             </extension>
         </complexContent>
     </complexType>
-    <complexType name="ArchingCoefficientsPropertyType">
+    <complexType name="ArchingCoefficientPropertyType">
         <annotation>
-            <documentation>Property type for containing a single diggs:ArchingCoefficients
+            <documentation>Property type for containing a single diggs:ArchingCoefficient
                 object.</documentation>
         </annotation>
         <sequence>
-            <element ref="diggs:ArchingCoefficients" minOccurs="1" maxOccurs="1"/>
+            <element ref="diggs:ArchingCoefficient" minOccurs="1" maxOccurs="1"/>
         </sequence>
     </complexType>
     <element name="RILTPDesign" type="diggs:RILTPDesignType"
@@ -2307,6 +2307,48 @@
         <complexContent>
             <extension base="diggs:AbstractProgramDesignType">
                 <sequence>
+                    <element minOccurs="0" name="supportedStructureType" type="gml:CodeType">
+                        <annotation>
+                            <documentation>What this platform supports - footing, mat, slab,
+                                embankment, wall, tank, culvert, bridge - drawn from the same
+                                supportedStructureType.xml this element carried on
+                                diggs:RIProgramBasisType before PB1 (2026-09-23). This is the
+                                element every sibling "conditional on structure type" element on
+                                this type (sideSlopeRatio/sideSlopeAngle, embankmentHeight) now
+                                actually resolves against - a dictionary Occurrence condition can
+                                only see local containment, the same reason archingModel is
+                                repeated locally on archingCoefficient rather than read solely from
+                                basisRef (see criticalHeight below).
+
+                                MOVED HERE FROM diggs:RIProgramBasisType, NOT DUPLICATED THERE, AND
+                                NOT KEPT MANDATORY. PB1: the basis-level placement assumed one
+                                supported structure per program, which a real multi-zone site (this
+                                project's own nine-zone substation) breaks - the field cannot stay
+                                singular and program-wide once a program legitimately has more than
+                                one platform. Unlike archingModel, which stays split between a
+                                basis-level record of record and a design-level locally-resolvable
+                                copy (archingModel is meaningless without archingCoefficient's own
+                                data, which may legitimately be absent), supportedStructureType
+                                never lacks a home to fall back to - every rigid inclusion design
+                                has a load transfer platform - so nothing is gained by also keeping
+                                it on the basis, and it was dropped there rather than
+                                duplicated.
+
+                                OPTIONAL, DELIBERATELY, NOT MANDATORY AS IT WAS ON THE BASIS: a
+                                platform over ground given only general treatment, with no single
+                                identifiable loaded structure above it, is real (this project's own
+                                "Remaining Area" zone) and should not be forced to name one.
+
+                                AT MOST ONE VALUE PER PLATFORM. Where a single load transfer
+                                platform genuinely underlies more than one structure type (this
+                                project's own "Building Raft and TR Tunnels" zone, a raft and a
+                                tunnel sharing one platform in the source report's own Table 4),
+                                state the structure type that GOVERNS THE PLATFORM'S DESIGN - the
+                                one with the greatest load demand, if that is the actual basis of
+                                the design decision - not an arbitrary or first-listed
+                                one.</documentation>
+                        </annotation>
+                    </element>
                     <element minOccurs="0" name="ltpThickness" type="diggs:LengthMeasureType">
                         <annotation>
                             <documentation>The designed vertical thickness of the load transfer
@@ -2335,7 +2377,7 @@
                                 rather than a dictionary entry; but what it evaluates to depends
                                 entirely on which arching model was used, so the number is not
                                 interpretable without that model. State the model on a sibling
-                                diggs:archingCoefficients/archingModel on this same design - present
+                                diggs:archingCoefficient/archingModel on this same design - present
                                 whether or not that object carries any coefficients - and read the
                                 two together; that is also the element every coefficient's own
                                 dictionary Occurrence condition keys on, so it is guaranteed to be
@@ -2365,7 +2407,8 @@
                                     the choice makes stating both impossible, which is the
                                     point.
 
-                                    Applies only where the supported structure is an embankment.</documentation>
+                                    Applies only where the sibling supportedStructureType above
+                                    names an embankment.</documentation>
                             </annotation>
                         </element>
                         <element name="sideSlopeAngle" type="diggs:PlaneAngleMeasureType">
@@ -2379,8 +2422,9 @@
                     <element minOccurs="0" name="embankmentHeight" type="diggs:LengthMeasureType">
                         <annotation>
                             <documentation>H: the height of the embankment or fill above the
-                                platform. Row 76 (S20). Conditional on structure type = embankment,
-                                like sideSlopeRatio/sideSlopeAngle above, which it pairs
+                                platform. Row 76 (S20). Conditional on the sibling
+                                supportedStructureType above naming an embankment, like
+                                sideSlopeRatio/sideSlopeAngle above, which it pairs
                                 with.</documentation>
                         </annotation>
                     </element>
@@ -2437,11 +2481,11 @@
                                 code is not comparable across designs.</documentation>
                         </annotation>
                     </element>
-                    <element minOccurs="0" maxOccurs="unbounded" name="archingCoefficients"
-                        type="diggs:ArchingCoefficientsPropertyType">
+                    <element minOccurs="0" maxOccurs="unbounded" name="archingCoefficient"
+                        type="diggs:ArchingCoefficientPropertyType">
                         <annotation>
                             <documentation>The coefficients the arching calculation produced, together
-                                with the model that produced them. See diggs:ArchingCoefficients for
+                                with the model that produced them. See diggs:ArchingCoefficient for
                                 why this is one generic object rather than a named element per
                                 coefficient, and criticalHeight above for why archingModel is stated
                                 here rather than solely on a program basis.
@@ -2482,11 +2526,11 @@
                                 promoted equivalentDiameter above. The dictionary route earns its
                                 keep for a genuinely open vocabulary (methodApplicabilityRatio, where
                                 a future arching method may add its own applicability check) or a
-                                fixed, closed set of per-model values (diggs:ArchingCoefficients'
+                                fixed, closed set of per-model values (diggs:ArchingCoefficient'
                                 coefficient); Ka is neither - it is one formula, cited once, the same
                                 category as columnDiameter or spacingX.
 
-                                DELIBERATELY NOT IN diggs:ArchingCoefficients alongside the other
+                                DELIBERATELY NOT IN diggs:ArchingCoefficient alongside the other
                                 Group F/I coefficients, and not in methodApplicabilityRatio either:
                                 Ka is a property of the FILL, used across whichever arching model
                                 governs the vertical load transfer - not an output specific to one
@@ -2743,9 +2787,9 @@
          out of scope - a Contract-level gap noted in the analysis, not RI-specific.
 
          archingModel DELIBERATELY REUSES AN ELEMENT NAME ALREADY IN USE ELSEWHERE
-         (diggs:ArchingCoefficients/archingModel, S5) SO THE SAME DICTIONARY GOVERNS BOTH. It
+         (diggs:ArchingCoefficient/archingModel, S5) SO THE SAME DICTIONARY GOVERNS BOTH. It
          remains optional here: the design-side, locally-resolvable statement
-         (archingCoefficients/archingModel) is what a consumer can actually resolve without
+         (archingCoefficient/archingModel) is what a consumer can actually resolve without
          following basisRef, and this object is the program-level record of record the two should
          agree with, not the sole source.
 
@@ -2754,27 +2798,45 @@
          diggs:RIColumnSpecificationType/columnType. Dan's objection: a basis is the JUSTIFICATION a
          design rests on, and restating the technique justifies nothing. Every other field here is
          something the design effort ADOPTS and is judged against - the governing standard, the
-         design method, the safety format, the working life, the consequence class, the factors,
-         the supported structure type. The technique family is not adopted; it is SPECIFIED TO THE
-         CONTRACTOR. It is an output of the design, not a premise of it, and it already has a home
-         on the specification where it can legitimately vary by scope. The apparent counter - that
-         the arching model depends on the technique, so the design does assume one - is answered by
-         the design being prepared against a specification that names it; the basis restating it
-         only adds a second place to disagree.
+         design method, the safety format, the working life, the consequence class, the factors.
+         The technique family is not adopted; it is SPECIFIED TO THE CONTRACTOR. It is an output of
+         the design, not a premise of it, and it already has a home on the specification where it
+         can legitimately vary by scope. The apparent counter - that the arching model depends on
+         the technique, so the design does assume one - is answered by the design being prepared
+         against a specification that names it; the basis restating it only adds a second place to
+         disagree.
 
          APPLY THE SAME TEST BEFORE ADDING ANYTHING HERE: is this something the design effort was
          prepared FROM, or something it produced? Only the former belongs on a basis. That is also
          why the installation-method family, added at R4, sits on the specification and the column
-         rather than here. -->
+         rather than here.
+
+         supportedStructureType WAS REMOVED AT PB1 (2026-09-23) ON THE SAME TEST, FROM THE OTHER
+         DIRECTION: it passed the "prepared FROM" test at S9 (a structure's load source is
+         evidence, not output), but failed a test this project's own data exposed - that it is not
+         ONE fact for a program. Ingesting a real multi-structure-type site (Table 4 of the
+         project's own final technical report: nine zones, nine different supported structures,
+         one shared basis) showed the field cannot be both mandatory and singular once a program
+         legitimately has more than one platform. See
+         diggs:RILTPDesignType/supportedStructureType for where it moved and why that placement
+         does not face the same problem. -->
     <element name="RIProgramBasis" type="diggs:RIProgramBasisType"
         substitutionGroup="diggs:AbstractProgramBasis">
         <annotation>
             <documentation>The site-wide basis a rigid inclusion program's designs were prepared
-                from: the governing standards, design method, supported structure type, arching
-                model, safety format, working life and consequence class that make every other
-                design value in the program interpretable. Cited by a design through
-                basisRef, parallel to how diggs:RITreatedAreaDesign is cited through
-                basedOnRef.</documentation>
+                from: the governing standards, design method, arching model, safety format,
+                working life and consequence class that make every other design value in the
+                program interpretable. Cited by a design through basisRef, parallel to how
+                diggs:RITreatedAreaDesign is cited through basedOnRef.
+
+                DOES NOT CARRY supportedStructureType, DESPITE BEING THE "PREPARED FROM" OBJECT -
+                see diggs:RILTPDesignType/supportedStructureType (PB1) for where it lives and why.
+                Unlike the fields this object does carry, what a given platform supports is not one
+                fact for the whole program: this project's own data (a substation with nine
+                differently-loaded zones under one basis) is the case that surfaced it. It also,
+                unlike archingModel, never lacks a home to fall back to - every rigid inclusion
+                design has a load transfer platform, so the design-side statement is never
+                absent.</documentation>
         </annotation>
     </element>
     <complexType name="RIProgramBasisType">
@@ -2845,28 +2907,15 @@
                                 guessed at here.</documentation>
                         </annotation>
                     </element>
-                    <element minOccurs="1" name="supportedStructureType" type="gml:CodeType">
-                        <annotation>
-                            <documentation>What the rigid inclusions support - footing, mat, slab,
-                                embankment, wall, tank, culvert, bridge. MANDATORY: this is the
-                                master conditional a large part of the Design and Post-installation
-                                groups key on - side slope, embankment height, critical height,
-                                lateral spreading and most of the embankment-specific group are
-                                meaningful only where this names an embankment or wall, while slab
-                                stress concentration is meaningful only where it names a slab or
-                                mat. A consumer needs this value to know which other elements should
-                                even be present.</documentation>
-                        </annotation>
-                    </element>
                     <element minOccurs="0" name="archingModel" type="gml:CodeType">
                         <annotation>
                             <documentation>The load-transfer (arching) model the program's designs
                                 assume, drawn from the same dictionary as
-                                diggs:ArchingCoefficients/archingModel (S5). That sibling element on
+                                diggs:ArchingCoefficient/archingModel (S5). That sibling element on
                                 the design itself, not this one, is what every arching coefficient's
                                 own dictionary Occurrence condition keys on, since a
                                 conditionalElementXpath cannot reach across basisRef - see
-                                RILTPDesignType/criticalHeight and /archingCoefficients for why.
+                                RILTPDesignType/criticalHeight and /archingCoefficient for why.
                                 This element is the program-level record of record the design-level
                                 statement should agree with.</documentation>
                         </annotation>
