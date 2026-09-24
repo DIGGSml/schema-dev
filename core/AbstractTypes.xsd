@@ -1813,40 +1813,59 @@
                                 the same correction R11 had to make to roles.xml.</documentation>
                         </annotation>
                     </element>
-                    <element minOccurs="0" name="peakGroundAcceleration"
-                        type="diggs:LinearAccelerationMeasureType">
+                    <element minOccurs="0" name="seismicHazard"
+                        type="diggs:SeismicHazardParametersPropertyType">
                         <annotation>
-                            <documentation>a_g: the design peak ground acceleration the design
-                                adopts as its seismic hazard premise - normally read from a
-                                national seismic hazard map, or from a site-specific hazard study,
-                                for the return period that the design working life and consequence
-                                class imply.
+                            <documentation>The seismic hazard the design adopts as a premise - the
+                                mapped ground motion values, the site coefficients derived from
+                                them, the site class those coefficients were read against, and the
+                                design peak ground acceleration.
 
-                                A BASIS INPUT WITH NO ACHIEVED COUNTERPART, and that is what
-                                distinguishes it from diggs:RITreatedAreaType/seismicSiteClass.
-                                Ground improvement can change a site's Vs30 and therefore its site
-                                class, which is precisely why TAD1 gave seismicSiteClass both a
-                                predicted form on the design and an achieved form on the treated
-                                area. It cannot change the seismic hazard AT the site, which is
-                                fixed by regional seismicity and the chosen return period. So a_g
-                                is a pure input, and the predicted/achieved split that
-                                seismicSiteClass needs would be meaningless here.
+                                CARRIES peakGroundAcceleration, WHICH WAS DECLARED DIRECTLY HERE
+                                BEFORE PB7 (2026-09-24). a_g was the only seismic field a basis
+                                could state, which forced any project reporting the values a_g is
+                                derived FROM - this project reports Ss, S1, Fa, Fv and a site
+                                class, and no a_g at all - to either discard them or misfile them.
+                                Folding a_g into the object that carries its own inputs keeps one
+                                seismic statement in one place. The move cost nothing: neither this
+                                type nor peakGroundAcceleration appears in the 3.0.0 release, and
+                                no instance used it.
 
-                                diggs:LinearAccelerationMeasureType rather than a dimensionless
-                                value: PGA is quoted as a fraction of standard gravity at least as
-                                often as in m/s2, and the mandatory uom - "gn" for the former,
-                                "m/s2" for the latter - is what keeps 0.3 g from being read as
-                                0.3 m/s2. The same unit-hazard argument that made
-                                diggs:RIColumnDesignType/areaReplacementRatio an
-                                AreaPerAreaMeasureType rather than a dimensionless one.
+                                A BASIS INPUT WITH NO ACHIEVED COUNTERPART, which is what
+                                distinguishes everything in here from
+                                diggs:RITreatedAreaType/seismicSiteClass. Ground improvement can
+                                change a site's Vs30 and therefore its site class, which is
+                                precisely why TAD1 gave seismicSiteClass both a predicted form on
+                                the design and an achieved form on the treated area. It cannot
+                                change the hazard AT the site, which is fixed by regional
+                                seismicity and the chosen return period.</documentation>
+                        </annotation>
+                    </element>
+                    <element minOccurs="0" maxOccurs="unbounded" name="basisParameter"
+                        type="diggs:DesignBasisParameterPropertyType">
+                        <annotation>
+                            <documentation>A premise the design adopted that is neither a governing
+                                standard nor a coded classification - a correlation coefficient
+                                taken from a published method, a value assumed for a calculation
+                                input, an adopted design groundwater or ground level. One
+                                diggs:DesignBasisParameter per named premise.
 
-                                NO CODED VOCABULARY AND NO properties.xml ENTRY, DELIBERATELY.
-                                This is a closed physical quantity in a uniquely named,
-                                single-occupant element, which per AR1/R6 is exactly the case that
-                                does NOT need a dictionary-bound parameter - the element name
-                                already fully disambiguates the quantity. A measured strong-motion
-                                record is a different thing in a different domain and is not
-                                modelled here.</documentation>
+                                DISTINCT FROM A FACTOR, AND THE DISTINCTION IS THE POINT.
+                                diggs:DesignFactor, and the factor element on the concrete bases
+                                that carry it, are for the partial or global safety factor set a
+                                safety format applies. A penetrometer bearing factor or a
+                                mobilization coefficient is a premise the calculation consumes, not
+                                a safety margin applied to it; filing one as a factor would make
+                                the two indistinguishable to a consumer reading a factor
+                                set.</documentation>
+                        </annotation>
+                    </element>
+                    <element minOccurs="0" maxOccurs="unbounded" ref="diggs:groundModelRef">
+                        <annotation>
+                            <documentation>The ground model or models this basis adopts. See
+                                diggs:groundModelRef for why it is a reference to an observation
+                                system rather than a contained object, and why it is
+                                unbounded.</documentation>
                         </annotation>
                     </element>
                 </sequence>
@@ -1875,7 +1894,45 @@
                                 intent chain.</documentation>
                         </annotation>
                     </element>
-                    <element minOccurs="0" maxOccurs="unbounded" ref="diggs:basisRef"/>
+                    <element minOccurs="0" maxOccurs="1" ref="diggs:basisRef">
+                        <annotation>
+                            <documentation>The basis this design was prepared from - ONE, the most
+                                specific one that applies to it. Anything more general reaches the
+                                design through that basis's own basedOnRef chain, resolved per
+                                property, most specific first.
+
+                                RESTRICTED FROM [0..*] TO [0..1] AT PB7 (2026-09-24). The unbounded
+                                form was never justified: the use site carried no annotation, and
+                                it appears to have been written alongside programSpecificationRef
+                                [0..*] in the same step, which does need to be unbounded because a
+                                design may be prepared to satisfy many specifications. The only
+                                rationale the wording of basisRef itself suggests - "the evidence,
+                                ground model, requirement set or other input" - is the
+                                several-basis-kinds world that C2.1 of specialty/RigidInclusions.xsd
+                                explicitly declined to build, choosing one basis type instead.
+
+                                WHAT THE UNBOUNDED FORM COST: two ways to express one relationship.
+                                An author could cite only the specific basis and let the chain
+                                supply the rest, or cite the specific basis and its parent
+                                together. Both validate, both describe the same program, and a
+                                consumer computing which bases govern a design gets a different
+                                answer depending on which convention the author happened to follow.
+                                Singular removes the choice and makes the basedOnRef chain the
+                                single mechanism for differently scoped premises.
+
+                                SHOULD A PROGRAM EVER BE PREPARED FROM TWO GENUINELY INDEPENDENT
+                                BASES - peers, not one specializing the other - the concrete design
+                                type for that program declares its own additional reference
+                                property alongside this inherited one, exactly as
+                                diggs:RITreatedAreaDesignType declares groutDesignRef. That keeps
+                                the second relationship named and typed for the domain that needs
+                                it, rather than making every design in every domain carry an
+                                open-ended list to serve a case none of them has yet. Relaxing this
+                                back to unbounded later would also be additive, whereas restricting
+                                it later would not - which is why it is being tightened now, while
+                                no instance anywhere carries more than one.</documentation>
+                        </annotation>
+                    </element>
                 </sequence>
             </extension>
         </complexContent>

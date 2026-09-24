@@ -242,6 +242,36 @@
             <documentation>A reference to a construction activity</documentation>
         </annotation>
     </element>
+    <element name="groundModelRef" type="diggs:FeatureReferenceType">
+        <annotation>
+            <appinfo source="urn:x-gml:targetElement">diggs:AbstractObservationSystem</appinfo>
+            <documentation>A reference to the ground model a design was prepared from - the
+                observation system, typically a diggs:GeoUnitSystem, whose observations carry the
+                units and properties the design assumed.
+
+                A REFERENCE, NOT A CONTAINED OBJECT. A ground model is already a first-class
+                feature with its own anchoring sampling feature and its own observation semantics.
+                Containing a copy inside a basis would duplicate it and create a second place for
+                the two to disagree - the objection that removed riTechniqueType from
+                diggs:RIProgramBasisType at R4.
+
+                diggs:FeatureReferenceType RATHER THAN gml:ReferenceType, because an observation
+                system IS a feature: diggs:AbstractObservationSystemType extends
+                diggs:AbstractFeatureType, which carries gml:identifier. This is the same test
+                OBSREF1 applied to diggs:observationRef and got the opposite answer to - an
+                observation is an object with no gml:identifier, so that one had to be a
+                gml:ReferenceType.
+
+                UNBOUNDED, DELIBERATELY AND FOR A STATED REASON. One scope may legitimately have
+                more than one ground model, because models are distinguished by geoUnitType as well
+                as by extent - a soil model, a rock model and a model of parameters assigned per
+                borehole can all describe the same volume for different purposes. Where several
+                models instead describe DIFFERENT parts of a program, that is not what this
+                unboundedness is for: those belong on separate bases, each with its own scope,
+                chained to a program-wide basis through basedOnRef, so that a design citing one
+                basis resolves exactly the model that governs it.</documentation>
+        </annotation>
+    </element>
     <element name="dataValues" substitutionGroup="gml:tupleList" type="gml:CoordinatesType">
         <annotation>
             <documentation>A property that holds a string of data values as part of a measurement
@@ -2775,6 +2805,275 @@
         </annotation>
         <sequence>
             <element ref="diggs:DesignFactor" minOccurs="1" maxOccurs="1"/>
+        </sequence>
+    </complexType>
+    <element name="DesignBasisParameter" type="diggs:DesignBasisParameterType">
+        <annotation>
+            <documentation>A named premise a design was prepared from, carrying its value where it
+                has one, the condition under which that value applies, and where it came from - a
+                correlation coefficient adopted from a published method, a calculation input
+                assumed rather than measured, an adopted design groundwater or ground level.
+
+                ONE TYPE FOR COEFFICIENTS AND ASSUMPTIONS ALIKE, because the distinction between
+                them is not structural. An embedment depth "conservatively assumed to be zero" is
+                simultaneously a calculation coefficient and a design assumption; forcing a choice
+                between two types would make every such item an arbitrary filing decision. The
+                distinction is carried instead by the inherited derivation element, whose
+                vocabulary already separates an assumed value from a correlated one.
+
+                NOT A diggs:DesignFactor. That type is for the partial or global safety factor set
+                a safety format applies, and for material reduction factors. A bearing factor or a
+                mobilization coefficient is a premise the calculation consumes, not a margin
+                applied to its result.
+
+                GENERIC, NOT TIED TO ANY PRACTICE AREA - a deep foundation program adopting an
+                alpha-method adhesion factor, a grouting program adopting a permeation radius
+                correlation, and a rigid inclusion program adopting a penetrometer bearing factor
+                all state the identical thing. It therefore lives here and attaches to
+                diggs:AbstractProgramBasisType, not to any one specialty
+                schema.</documentation>
+        </annotation>
+    </element>
+    <complexType name="DesignBasisParameterType">
+        <annotation>
+            <documentation>Complex type: DesignBasisParameterType. Extends
+                diggs:ProvenancedParameterType by plain extension - the same inheritance pattern
+                diggs:DesignFactorType uses - so that parameterName (dictionary-bound), typeData,
+                the min/value/max triple, parameterUnits, subjectRef, derivation and sourceRef are
+                all inherited rather than restated. The min/value/max triple is what lets a premise
+                be stated as a single value or as a range without any addition here, and typeData
+                is what lets a premise with no numeric value at all be stated as text.
+
+                WHAT IS ADDED, AND WHY EACH WAS NOT ALREADY AVAILABLE. appliesToCondition carries
+                the condition a value is contingent on, because the same named coefficient
+                routinely takes different values for different soil behaviours - the reasoning
+                diggs:DesignFactorType/appliesTo records at length, that collapsing identity and
+                applicability into one dictionary term produces combinatorial growth across every
+                method by condition combination. sourceSpecification carries the publication a
+                value was taken from, which the inherited sourceRef cannot do: sourceRef is a
+                diggs:FeatureReferenceType aimed at a Test, Observation or Sounding, so a standard
+                clause or a journal paper had nowhere to go. associatedFile carries a premise that
+                is only expressible as a document - the digitised chart a factor is read off, or
+                the spreadsheet a correlation was implemented in.
+
+                functionExpression EXISTS BECAUSE NOT EVERY PREMISE IS A SCALAR. Some are
+                relationships - a modulus conversion, a skin friction curve against cone
+                resistance, a bearing factor varying with embedment ratio. Stating the relationship
+                as text alongside, or instead of, a value keeps it readable and citable without
+                committing DIGGS to an expression language it does not have. Where the
+                relationship is a published chart rather than a closed form, sourceSpecification
+                and associatedFile carry it and the value elements are simply left
+                absent.</documentation>
+        </annotation>
+        <complexContent>
+            <extension base="diggs:ProvenancedParameterType">
+                <sequence>
+                    <element minOccurs="0" name="appliesToCondition" type="gml:CodeType">
+                        <annotation>
+                            <documentation>The condition under which this value applies - a soil
+                                behaviour class, a material, a loading case, a formation level.
+                                Where a premise is unconditional, omit it. Where one named premise
+                                takes several values under different conditions, state one
+                                diggs:DesignBasisParameter per condition rather than one carrying a
+                                range, since the values are alternatives selected by condition and
+                                not bounds on a single quantity.</documentation>
+                        </annotation>
+                    </element>
+                    <element minOccurs="0" name="functionExpression" type="string">
+                        <annotation>
+                            <documentation>The relationship this premise expresses, written out -
+                                for example a modulus conversion as a product of a rheological
+                                factor and a Young's modulus, or an end bearing pressure as a
+                                bearing factor times a cone resistance. Free text, deliberately: it
+                                is for human reading and citation, and no expression language is
+                                implied or parsed. Where the relationship is published as a chart
+                                with no closed form, leave this absent and cite the chart through
+                                sourceSpecification, naming the figure in the referenced
+                                Specification's standardClause.</documentation>
+                        </annotation>
+                    </element>
+                    <element minOccurs="0" maxOccurs="unbounded" name="sourceSpecification"
+                        type="diggs:SpecificationPropertyType">
+                        <annotation>
+                            <documentation>The standard, code or publication this premise was taken
+                                from, referenced into a specification registry or stated inline.
+                                Repeatable, because a single adopted value may rest on more than
+                                one published source.</documentation>
+                        </annotation>
+                    </element>
+                    <element minOccurs="0" maxOccurs="unbounded" name="associatedFile"
+                        type="diggs:AssociatedFilePropertyType">
+                        <annotation>
+                            <appinfo source="urn:x-gml:targetElement">diggs:AssociatedFile</appinfo>
+                            <documentation>An external file carrying the premise where a value and
+                                an expression cannot - the scanned or digitised chart a factor is
+                                read from, or the spreadsheet a correlation was implemented
+                                in.</documentation>
+                        </annotation>
+                    </element>
+                </sequence>
+            </extension>
+        </complexContent>
+    </complexType>
+    <complexType name="DesignBasisParameterPropertyType">
+        <annotation>
+            <documentation>Property type for containing a single DesignBasisParameter object. A set
+                of premises uses a repeated wrapper element of this type, one premise per element,
+                matching diggs:DesignFactorPropertyType and the convention S5 recorded, rather than
+                one array wrapper containing many.</documentation>
+        </annotation>
+        <sequence>
+            <element ref="diggs:DesignBasisParameter" minOccurs="1" maxOccurs="1"/>
+        </sequence>
+    </complexType>
+    <element name="SeismicHazardParameters" type="diggs:SeismicHazardParametersType">
+        <annotation>
+            <documentation>The seismic hazard a design adopts as a premise, as a single object: the
+                mapped spectral response accelerations, the site class, the site coefficients read
+                against that class, and the design peak ground acceleration.
+
+                ONE OBJECT RATHER THAN LOOSE ELEMENTS ON THE BASIS, because these values are a
+                derivation chain and are close to meaningless apart. Site coefficients are read
+                from a code table as a function of the site class and the mapped accelerations, and
+                a coefficient quoted without the class it was read against cannot be checked. The
+                object keeps the chain together and lets the standard that supplied all of it be
+                cited once.
+
+                CODE-AGNOSTIC ELEMENT NAMES, WITH THE FAMILIAR SYMBOLS IN THE DOCUMENTATION RATHER
+                THAN IN THE NAMES. The values below are named for what they are, not as Ss, S1, Fa
+                and Fv, so that a design under Eurocode 8 - which states a reference peak ground
+                acceleration, a ground type and a soil factor - uses the same slots instead of
+                being locked out of a structure built around one national code's
+                notation.</documentation>
+        </annotation>
+    </element>
+    <complexType name="SeismicHazardParametersType">
+        <annotation>
+            <documentation>Complex type: SeismicHazardParametersType. Extends
+                diggs:AbstractComponentObjectType, so it carries gml:description, gml:name, status
+                and remark - a hazard statement usually needs to record which map edition, return
+                period or study it came from, and remark is where a per-value clause citation goes
+                when the values come from several figures of one code.
+
+                EVERY ELEMENT OPTIONAL. Codes differ in what they publish: some give a mapped peak
+                ground acceleration directly, others give only spectral ordinates from which no
+                peak ground acceleration can be derived without a separate mapped value and its own
+                site coefficient. An object stating only what its own code supplies is the honest
+                case, not a deficient one.</documentation>
+        </annotation>
+        <complexContent>
+            <extension base="diggs:AbstractComponentObjectType">
+                <sequence>
+                    <element minOccurs="0" name="shortPeriodSpectralAcceleration"
+                        type="diggs:LinearAccelerationMeasureType">
+                        <annotation>
+                            <documentation>The mapped spectral response acceleration at short
+                                period, for the reference site condition the source code defines -
+                                Ss, conventionally at 0.2 s, in IBC/ASCE 7 and codes derived from
+                                it. A mapped value before any site adjustment.</documentation>
+                        </annotation>
+                    </element>
+                    <element minOccurs="0" name="onePeriodSpectralAcceleration"
+                        type="diggs:LinearAccelerationMeasureType">
+                        <annotation>
+                            <documentation>The mapped spectral response acceleration at the
+                                one-second period, for the reference site condition the source code
+                                defines - S1 in IBC/ASCE 7 and codes derived from it. A mapped
+                                value before any site adjustment.</documentation>
+                        </annotation>
+                    </element>
+                    <element minOccurs="0" name="seismicSiteClass" type="gml:CodeType">
+                        <annotation>
+                            <documentation>The site classification the site coefficients below were
+                                read against, as investigated - the ground as found, before any
+                                improvement.
+
+                                THE SAME ELEMENT NAME AS diggs:RITreatedAreaType/seismicSiteClass
+                                AND diggs:RITreatedAreaDesignType/seismicSiteClass, DELIBERATELY, SO
+                                THAT ONE DICTIONARY GOVERNS ALL THREE - the precedent
+                                diggs:RIProgramBasisType/archingModel set. The three are genuinely
+                                different facts about the same scale: this one is what the
+                                investigation found and what the hazard lookup used, the design-side
+                                one is what the design predicts improvement will achieve, and the
+                                treated-area one is what was achieved. A project that improves the
+                                ground enough to change its class will state all three and they will
+                                not agree - which is the finding, not an
+                                error.</documentation>
+                        </annotation>
+                    </element>
+                    <element minOccurs="0" name="shortPeriodSiteCoefficient"
+                        type="diggs:DimensionlessMeasureType">
+                        <annotation>
+                            <documentation>The site coefficient applied to the short-period mapped
+                                acceleration - Fa in IBC/ASCE 7 and codes derived from it. Read from
+                                a code table as a function of the site class and the mapped value,
+                                which is why it is stated alongside both rather than
+                                alone.</documentation>
+                        </annotation>
+                    </element>
+                    <element minOccurs="0" name="longPeriodSiteCoefficient"
+                        type="diggs:DimensionlessMeasureType">
+                        <annotation>
+                            <documentation>The site coefficient applied to the one-second mapped
+                                acceleration - Fv in IBC/ASCE 7 and codes derived from
+                                it.</documentation>
+                        </annotation>
+                    </element>
+                    <element minOccurs="0" name="peakGroundAcceleration"
+                        type="diggs:LinearAccelerationMeasureType">
+                        <annotation>
+                            <documentation>a_g: the design peak ground acceleration adopted as the
+                                seismic hazard premise - read from a national hazard map, or from a
+                                site-specific hazard study, for the return period the design working
+                                life and consequence class imply.
+
+                                MOVED HERE FROM diggs:AbstractProgramBasisType AT PB7 (2026-09-24),
+                                where it was declared directly and was the only seismic field a
+                                basis could carry.
+
+                                NOT DERIVABLE FROM THE VALUES ABOVE, AND MUST NOT BE SYNTHESISED
+                                FROM THEM. In ASCE 7 and the codes derived from it a site-adjusted
+                                peak ground acceleration comes from a separately mapped peak ground
+                                acceleration and its own site coefficient; the coefficients above
+                                apply to spectral ordinates and not to it. Where a source states
+                                spectral values but no peak ground acceleration, leave this absent.
+
+                                diggs:LinearAccelerationMeasureType rather than a dimensionless
+                                value: peak ground acceleration is quoted as a fraction of standard
+                                gravity at least as often as in m/s2, and the mandatory uom - "gn"
+                                for the former, "m/s2" for the latter - is what keeps 0.3 g from
+                                being read as 0.3 m/s2.
+
+                                NO CODED VOCABULARY AND NO properties.xml ENTRY, DELIBERATELY. A
+                                closed physical quantity in a uniquely named, single-occupant
+                                element is exactly the case AR1/R6 says does not need a
+                                dictionary-bound parameter. A measured strong-motion record is a
+                                different thing in a different domain and is not modelled
+                                here.</documentation>
+                        </annotation>
+                    </element>
+                    <element minOccurs="0" maxOccurs="unbounded" name="hazardStandard"
+                        type="diggs:SpecificationPropertyType">
+                        <annotation>
+                            <documentation>The code, map or hazard study the values above were taken
+                                from. Repeatable, since a project may take mapped values from one
+                                source and a site classification procedure from another. Where
+                                every value comes from one code but from different figures or
+                                tables within it, cite the code once here and record the per-value
+                                clauses in remark.</documentation>
+                        </annotation>
+                    </element>
+                </sequence>
+            </extension>
+        </complexContent>
+    </complexType>
+    <complexType name="SeismicHazardParametersPropertyType">
+        <annotation>
+            <documentation>Property type for containing a single SeismicHazardParameters
+                object.</documentation>
+        </annotation>
+        <sequence>
+            <element ref="diggs:SeismicHazardParameters" minOccurs="1" maxOccurs="1"/>
         </sequence>
     </complexType>
     <element name="DesignAction" type="diggs:DesignActionType">
