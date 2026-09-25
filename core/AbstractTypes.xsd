@@ -1933,6 +1933,37 @@
                                 no instance anywhere carries more than one.</documentation>
                         </annotation>
                     </element>
+                    <element minOccurs="0" name="plannedPositions"
+                        type="diggs:PlannedPositionsPropertyType">
+                        <annotation>
+                            <documentation>The layout this design prescribes, as a grid geometry
+                                carrying an index space.
+
+                                ON THE DESIGN, NOT ON A SCOPE WRAPPER, AND THAT IS THE POINT. A
+                                planned layout is something a design STATES - a deliverable, of the
+                                same kind as a diameter or a thickness - not a test for selecting
+                                which features a provision reaches. It sat inside diggs:ProgramScope
+                                until 2026-09-24 and moved here when that type was retired; nothing
+                                about the grid or about diggs:realizesGridIndex changed with it.
+
+                                DECLARED ON THE DESIGN HEAD RATHER THAN THE MODULE HEAD, so
+                                specifications and bases do not inherit it: a specification states
+                                requirements the work must meet and a basis states the evidence it
+                                was prepared from, and neither prescribes where things go.
+
+                                WHAT IT IS FOR. Two things, neither of them membership. It lets a
+                                realized feature declare which planned position it fulfils, through
+                                diggs:realizesGridIndex, which is an index lookup and explicitly not
+                                a proximity match. And it is the ONLY construct in this schema that
+                                can detect ABSENCE - a planned node that no realized feature claims
+                                is a column that was designed and not installed, and no
+                                membership-by-citation scheme can find one, because the missing
+                                feature is precisely the one not there to cite anything.
+
+                                Optional, and a design that states no layout inherits one through
+                                basedOnRef, resolved per property most specific first.</documentation>
+                        </annotation>
+                    </element>
                 </sequence>
             </extension>
         </complexContent>
@@ -1941,31 +1972,103 @@
         <annotation>
             <documentation>Abstract element serving as the common ancestor of the three kinds of
                 object a program issues or relies on: designs (intent), specifications (constraint)
-                and bases (evidence). It exists to declare, once, the two properties all three
-                share - scope and basedOnRef - and to give basedOnRef a single abstract target to
-                name. It is not itself a substitution group member of anything, and no object
-                substitutes it directly; instances substitute one of the three heads below
-                it.</documentation>
+                and bases (evidence). It exists to declare, once, the properties all three share -
+                appliesToZone, appliesToFeatureType and basedOnRef - and to give basedOnRef a single
+                abstract target to name. It is not itself a substitution group member of anything,
+                and no object substitutes it directly; instances substitute one of the three heads
+                below it.</documentation>
         </annotation>
     </element>
     <complexType abstract="true" name="AbstractProgramModuleType">
         <annotation>
             <documentation>Base type for program modules - the designs, specifications and bases a
-                program issues or relies on. Carries only what all three share.</documentation>
+                program issues or relies on. Carries only what all three share.
+
+                MEMBERSHIP IS NOT DECLARED HERE, AND THIS REPLACED A TYPE THAT TRIED TO DECLARE IT.
+                Until 2026-09-24 these two properties were branches of a diggs:ProgramScope object
+                on a "scope" element, documented as declaring "the population of features to which a
+                program design or specification applies". That framing is retracted. A provision's
+                membership is established from the realized side and only there, by
+                diggs:programDesignRef / diggs:programSpecificationRef on the feature itself; the
+                properties below are CHECKS APPLIED TO THOSE MEMBERS, never a second way of
+                selecting them.
+
+                WHY THE CHANGE. The scope framing left two routes to one fact - geometric
+                (is this feature inside the polygon?) and declared (what does the feature cite?) -
+                and settled their disagreement with a precedence rule. This schema has retracted
+                exactly that arrangement three times before: diggs:ltpRef and diggs:WorkingPlatform/
+                wpRef both supersede positional inference, and diggs:realizesGridIndex forbids
+                matching a realized feature to a planned position by proximity. A fourth, on
+                basisRef's own cardinality, states the general principle: two ways to express one
+                relationship is itself the defect. The polygon could also never decide the boundary
+                case it most needed to - a column head centimetres outside a zone edge was assigned
+                by rounding rather than by intent. As a check, that same column keeps the membership
+                it declares and raises a finding instead, which is both safer and more useful.
+
+                ALSO REMOVED: an appliesToFeatureRef branch that enumerated realized features. It
+                was fenced to remedial and retrofit work, where the features genuinely precede the
+                design, but enumeration on the provision is the pattern this schema rejects
+                elsewhere (a group is not edited to admit a member), and it addressed only the
+                easy half of retrofit - which features - while leaving sequence, supersession and
+                changed feature state unexpressed. Retrofit and re-use are therefore NOT expressible
+                through this type at all. That is a known, deliberate gap, partially addressed by
+                diggs:ProgramDesignReferenceType/designRole on the feature side, and awaiting an
+                additive or versioning mechanism there rather than a return to enumeration
+                here.</documentation>
         </annotation>
         <complexContent>
             <extension base="diggs:AbstractFeatureType">
                 <sequence>
-                    <element minOccurs="0" name="scope" type="diggs:ProgramScopePropertyType">
+                    <element minOccurs="0" ref="diggs:basedOnRef"/>
+                    <element minOccurs="0" name="appliesToZone"
+                        type="diggs:PlanarSurfaceOrMultiSurfacePropertyType">
                         <annotation>
-                            <documentation>The population of features this module applies to,
-                                declared prospectively by geometry or feature type rather than by
-                                enumerating realized features. Where absent, the module applies to
-                                the whole program, or inherits a scope through
-                                basedOnRef.</documentation>
+                            <documentation>The region this module was drawn for, as a plan-view
+                                polygon or, where the region is discontinuous, several of them.
+
+                                A CHECK, NOT A MEMBERSHIP TEST. Where present, every member
+                                established by diggs:programDesignRef / programSpecificationRef is
+                                expected to have its diggs:referencePoint within this region, a node
+                                on the boundary counting as inside. A member outside it is a
+                                FINDING - the declared membership stands and the geometry is what is
+                                questioned, not the other way about. Where absent, no spatial check
+                                applies and members are unconstrained in position.
+
+                                THE TEST IS ON referencePoint, DELIBERATELY, because every sampling
+                                feature carries one and it is mandatory - so the check is decidable
+                                the same way for a column, a borehole and a platform alike, rather
+                                than becoming a containment question whose answer depends on the
+                                member's own dimensionality.
+
+                                CARRIES GEOMETRY, NOT JUST A REFERENCE, AND THAT IS THE POINT. A
+                                module's region is often not any feature's extent - a subarea of one
+                                platform, or a band spanning parts of several - so the polygon is
+                                stated inline where no existing surface expresses it, and cited by
+                                xlink:href where one does. diggs:PlanarSurfaceOrMultiSurfacePropertyType
+                                rather than the wider diggs:SurfacePropertyType: a plan-view region is
+                                planar, and the MultiSurface branch is required rather than optional
+                                - real zones are routinely discontinuous, and a type admitting only a
+                                single PlanarSurface could not express them.</documentation>
                         </annotation>
                     </element>
-                    <element minOccurs="0" ref="diggs:basedOnRef"/>
+                    <element minOccurs="0" name="appliesToFeatureType"
+                        type="gml:CodeWithAuthorityType">
+                        <annotation>
+                            <documentation>The kind of feature this module was drawn for - eg.
+                                "ri_column", "load_transfer_platform" - from
+                                samplingFeatureTypes.xml.
+
+                                A CHECK, exactly as appliesToZone is: every member established from
+                                the realized side is expected to be of this kind, and one that is
+                                not is a finding. Where absent, no type check applies.
+
+                                codeSpace IS MANDATORY (gml:CodeWithAuthorityType rather than
+                                gml:CodeType), because a check keyed on an uncodespaced literal is
+                                not reliably evaluable - the same reasoning
+                                diggs:RIColumnType/elementClass gives for its own
+                                type.</documentation>
+                        </annotation>
+                    </element>
                 </sequence>
             </extension>
         </complexContent>

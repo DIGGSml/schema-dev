@@ -439,13 +439,28 @@
             <documentation>An object that contains Diggs property parameters.</documentation>
         </annotation>
     </element>
-    <element name="programDesignRef" type="diggs:FeatureReferenceType">
+    <element name="programDesignRef" type="diggs:ProgramDesignReferenceType">
         <annotation>
             <appinfo source="urn:x-gml:targetElement">diggs:AbstractProgramDesign</appinfo>
             <documentation>A reference to a program design object that states the intent (planned
                 characteristics, requirements, or target parameters) this feature was realized to
                 satisfy. Distinct from programSpecificationRef, which references a constraint the
-                feature must satisfy rather than an intent it was built to.</documentation>
+                feature must satisfy rather than an intent it was built to.
+
+                THIS IS THE ONLY MECHANISM THAT ESTABLISHES MEMBERSHIP of a feature in a design, and
+                it points one way: from the realized thing to the design. A design does not
+                enumerate its members. That keeps membership expressible in append and streaming
+                workflows, where members are constructed one at a time over months and the design
+                cannot be reopened to admit each one - the same reasoning diggs:samplingFeatureGroupRef
+                rests on. A design's own appliesToZone and appliesToFeatureType do NOT determine
+                membership; they are checks applied to the members established here (see
+                diggs:AbstractProgramModuleType).
+
+                REPEATABLE FOR TWO DIFFERENT REASONS, which diggs:ProgramDesignReferenceType/designRole
+                exists to separate: concurrent strands governing different aspects of one feature,
+                and sequential designs where a later one governs a repair, strengthening or re-use.
+                A bare reference with no designRole means the feature was built to the referenced
+                design, which is what every such reference has always meant.</documentation>
         </annotation>
     </element>
     <element name="programRef" type="diggs:FeatureReferenceType">
@@ -995,6 +1010,73 @@
             <element ref="diggs:AbstractProgramDesign"/>
         </sequence>
     </complexType>
+    <complexType name="ProgramDesignReferenceType">
+        <annotation>
+            <documentation>A reference from a realized thing to a program design that governs it,
+                optionally qualified by WHICH KIND of governing relationship it is and WHEN that
+                relationship took effect. Extends diggs:FeatureReferenceType, so a bare
+                xlink:href/identifierRef reference remains valid and is the normal form.
+
+                WHY THE QUALIFIERS EXIST. Without them, diggs:programDesignRef being repeatable
+                carries two unrelated multiplicities in one undifferentiated list: CONCURRENT
+                strands (a geotechnical design and a structural design governing different aspects
+                of the same column, both in force at once) and SEQUENTIAL ones (the design a column
+                was built to, followed by a later design under which it was repaired, strengthened
+                or re-used). A consumer asking "what was this built to?" cannot separate them, and
+                "which design governs it now?" has no answer at all.
+
+                AN INTERIM STRUCTURE, DELIBERATELY NOT A COMPLETE ANSWER TO REPAIR AND RE-USE.
+                Qualifying the reference states which designs govern a feature and in what role. It
+                does NOT express the feature's own change of state - a column whose head elevation
+                differs before and after re-casting is one feature with one set of as-built
+                properties in any given instance, and DIGGS reports current state only. Those are
+                two different axes and this type addresses only the first; a fuller answer needs an
+                additive or versioning mechanism at the feature level, and is deferred rather than
+                approximated here.
+
+                CONTENT ALONGSIDE xlink:href IS NOT THE ANTI-PATTERN IT RESEMBLES. Where a property
+                carries an object inline AND an xlink:href to a different encoding of that same
+                object, the two compete and one is redundant. Here the children qualify the
+                RELATIONSHIP rather than restating the target: the role of a reference is not a
+                second way of saying which design is referenced.</documentation>
+        </annotation>
+        <complexContent>
+            <extension base="diggs:FeatureReferenceType">
+                <sequence>
+                    <element minOccurs="0" name="designRole" type="gml:CodeWithAuthorityType">
+                        <annotation>
+                            <documentation>The kind of governing relationship - the design the thing
+                                was originally built to, a later design under which it was repaired
+                                or strengthened, a design that adopted it unchanged, or one that no
+                                longer governs. From a controlled list; codeSpace is mandatory
+                                (gml:CodeWithAuthorityType) because the value changes how the whole
+                                reference reads, and a consumer separating original intent from
+                                later intervention cannot do so on an uncodespaced literal.
+
+                                ABSENT MEANS "BUILT TO THIS", the overwhelmingly common case and the
+                                reading every existing bare reference already carries. Stating it is
+                                only necessary once a feature cites more than one design, or cites
+                                one it was not originally built to.</documentation>
+                        </annotation>
+                    </element>
+                    <element minOccurs="0" name="effectiveFrom" type="gml:TimePositionType">
+                        <annotation>
+                            <documentation>When this governing relationship took effect - for an
+                                original design normally the construction date and therefore
+                                redundant, for a later intervention the date that intervention
+                                brought the feature under the referenced design.
+
+                                Orders SEQUENTIAL references where more than one applies. It does
+                                not close them: no corresponding effectiveTo is declared, because a
+                                relationship that ended is better stated by the successor's own
+                                effectiveFrom together with a designRole marking the earlier one
+                                superseded, than by two dates that can disagree.</documentation>
+                        </annotation>
+                    </element>
+                </sequence>
+            </extension>
+        </complexContent>
+    </complexType>
     <complexType name="ProgramPropertyType" abstract="false">
         <annotation>
             <documentation> Property type for containing any program feature (belonging to the
@@ -1002,14 +1084,6 @@
         </annotation>
         <sequence>
             <element maxOccurs="1" minOccurs="1" ref="diggs:AbstractProgram"/>
-        </sequence>
-    </complexType>
-    <complexType name="ProgramScopePropertyType">
-        <annotation>
-            <documentation> Property type for containing a ProgramScope object.</documentation>
-        </annotation>
-        <sequence>
-            <element ref="diggs:ProgramScope" minOccurs="1" maxOccurs="1"/>
         </sequence>
     </complexType>
     <complexType abstract="false" name="ProgramSpecificationPropertyType">
@@ -2355,103 +2429,6 @@
             </extension>
         </complexContent>
     </complexType>
-    <element name="ProgramScope" type="diggs:ProgramScopeType">
-        <annotation>
-            <documentation>An object declaring the population of features to which a program design,
-                specification or acceptance criterion applies.</documentation>
-        </annotation>
-    </element>
-    <complexType name="ProgramScopeType">
-        <annotation>
-            <documentation>Declares the population of features to which a program design or
-                specification applies. Scope is prospective and declarative: it states where the
-                provision applies, not which realized features fulfil it. A realized feature asserts
-                its own membership through programDesignRef / programSpecificationRef.</documentation>
-        </annotation>
-        <complexContent>
-            <extension base="diggs:AbstractComponentObjectBaseType">
-                <sequence>
-                    <element minOccurs="0" name="appliesToFeatureType" type="gml:CodeType">
-                        <annotation>
-                            <documentation>The kind of feature this provision governs, eg. "RIColumn",
-                        "LoadTransferPlatform". From a controlled list. May accompany any of the
-                        branches below, or stand alone for a provision that applies to every feature
-                        of that kind in the program.</documentation>
-                        </annotation>
-                    </element>
-                    <choice minOccurs="0">
-                        <sequence>
-                            <element name="zoneExtent" type="diggs:SurfacePropertyType">
-                                <annotation>
-                                    <documentation>A surface (polygon) within which this provision applies.
-                                Bounds applicability; states no layout. This is the only form
-                                available to a provision that does not know the layout - which is
-                                the normal case for a specification or an acceptance criterion.
-                                Where plannedPositions also appears, the planned population is the
-                                grid's lattice INTERSECTED WITH this surface; a node on the boundary
-                                is included.
-
-                                THIS IS WHERE A ZONE'S GEOMETRY BELONGS, and realized features
-                                within the zone should cite this surface rather than restate it. A
-                                zone is a design concept - a region over which design parameters are
-                                uniform - so its boundary is drawn by the designer and exists before
-                                anything is built inside it. Declaring the polygon here and pointing
-                                the realized feature's diggs:featureExtent at it by xlink:href (both
-                                are diggs:SurfacePropertyType, and both admit the reference form)
-                                keeps one authoritative copy AND points the reference at an
-                                antecedent. The reverse arrangement cannot do the latter: a design
-                                must not reference features it has not yet caused to exist, which is
-                                the same rule appliesToFeatureRef below states for its own branch,
-                                and it is why zone geometry is not carried on the as-built side - on
-                                a sampling feature group such as diggs:RigidInclusionSystem, say -
-                                with this element referencing that. Document order agrees: program
-                                precedes samplingFeature in diggs:DiggsType.
-
-                                NO SEPARATE ZONE OBJECT EXISTS, deliberately. The zone IS the
-                                diggs:AbstractProgramDesign whose scope this is. That is also what
-                                diggs:DesignAction/appliesToZoneRef targets, for the reason given
-                                there: DIGGS has one mechanism for stating a zone's extent, and a
-                                second parallel one would leave nothing correlating them. A realized
-                                feature declares which zone it belongs to through
-                                diggs:programDesignRef, not by geometry alone.</documentation>
-                                </annotation>
-                            </element>
-                            <element minOccurs="0" name="plannedPositions"
-                                type="diggs:PlannedPositionsPropertyType">
-                                <annotation>
-                                    <documentation>The planned layout within the zone. The grid registers
-                                where the lattice sits, and its limits need only COVER the zone - it
-                                does not enumerate the features, and index positions falling outside
-                                zoneExtent are not part of the population. Optional: a design that
-                                states no layout inherits one through basedOnRef.</documentation>
-                                </annotation>
-                            </element>
-                        </sequence>
-                        <element name="plannedPositions" type="diggs:PlannedPositionsPropertyType">
-                            <annotation>
-                                <documentation>The planned layout, where the layout itself delimits the
-                            population and no separate zone boundary is drawn. This is the one case
-                            in which the grid's limits ARE the population, there being nothing to
-                            intersect with - appropriate for a test panel or any layout whose extent
-                            genuinely is the lattice.</documentation>
-                            </annotation>
-                        </element>
-                        <element maxOccurs="unbounded" name="appliesToFeatureRef"
-                            type="diggs:FeatureReferenceType">
-                            <annotation>
-                                <appinfo source="urn:x-gml:targetElement">diggs:AbstractSamplingFeature</appinfo>
-                                <documentation>An explicit set of existing features this provision applies
-                            to. Valid only where those features PRECEDE the design - remedial or
-                            retrofit work. For prospective design use zoneExtent or
-                            plannedPositions; a design must not reference features it has not yet
-                            caused to exist.</documentation>
-                            </annotation>
-                        </element>
-                    </choice>
-                </sequence>
-            </extension>
-        </complexContent>
-    </complexType>
     <element name="ProjectEvent" type="diggs:ProjectEventType">
         <annotation>
             <documentation>An object that contains properties of time or location related events
@@ -3172,17 +3149,23 @@
                         type="diggs:FeatureReferenceType">
                         <annotation>
                             <appinfo source="urn:x-gml:targetElement">diggs:AbstractProgramDesign</appinfo>
-                            <documentation>Where this action applies, for a host design whose own
-                                scope covers more than one zone with different loading - for
-                                example an RITreatedAreaDesign on which several DesignAction entries each
-                                govern a different part of the site. References the zone-scoped
-                                AbstractProgramDesign (typically an RIColumnDesign or RILTPDesign)
-                                whose own ProgramScope/zoneExtent already defines that zone's
-                                extent, rather than restating a boundary here: DIGGS already has one
-                                mechanism for stating a zone's extent, and this reuses it instead of
-                                building a second. Omit where the host design's own scope already
-                                identifies the population this action governs - the common
-                                case.</documentation>
+                            <documentation>Where this action applies, for a host design covering
+                                more than one zone with different loading - for example an
+                                RITreatedAreaDesign on which several DesignAction entries each govern
+                                a different part of the site.
+
+                                REFERENCES THE ZONE DESIGN, NOT A BOUNDARY. The target is the
+                                zone-scoped AbstractProgramDesign (typically an RIColumnDesign or
+                                RILTPDesign), which IS the zone - no separate zone object exists, and
+                                a zone design is one-to-one with the zone it governs. Restating a
+                                polygon here would create a second, unreconciled statement of the
+                                same region. Where that design also carries an appliesToZone polygon
+                                the two agree by construction, but the reference is what identifies
+                                the zone, not the geometry.
+
+                                Omit where the host design governs one loading regime throughout -
+                                the common case, and the case on this project, where a single
+                                surcharge applies site-wide.</documentation>
                         </annotation>
                     </element>
                 </sequence>
@@ -3459,6 +3442,42 @@
                                 the same way. Recording only one of the two is common practice and
                                 both are optional to populate in that sense, but conflating them
                                 loses the distinction a reviewer needs.</documentation>
+                        </annotation>
+                    </element>
+                    <element minOccurs="0" name="dispositionDesignRef"
+                        type="diggs:FeatureReferenceType">
+                        <annotation>
+                            <appinfo source="urn:x-gml:targetElement">diggs:AbstractProgramDesign</appinfo>
+                            <documentation>The remedial design the disposition was carried out to,
+                                where one exists - the repair, rework or replacement design prepared
+                                in response to this finding.
+
+                                CLOSES A GAP THE OTHER ELEMENTS DO NOT. Four of the five dispositions
+                                in common use - repair, rework, replace, redesign - imply that a
+                                design was prepared to implement them, and until this element existed
+                                nothing could cite it. Neither neighbour fills in: correctiveAction
+                                concerns the CAUSE and is a code rather than a reference, and
+                                breachedSpecificationRef names what was violated, not what resolves
+                                it. A file could state "column CMC-412 failed, decision: repair" and
+                                could not state what it was repaired TO.
+
+                                POINTS AT AN ANTECEDENT. The remedial design is prepared before the
+                                remedial work is executed and before this reference is written, so
+                                it exists when cited. Singular: one disposition is carried out to one
+                                design. Absent where the disposition needed no design of its own -
+                                accept-as-is and reject being the ordinary cases, and a simple
+                                rework carried out to the ORIGINAL design being the third, which
+                                cites that original design here rather than leaving the element
+                                empty.
+
+                                WHAT THIS DOES NOT DO. It does not make the affected feature a member
+                                of the referenced design - membership is asserted only by the
+                                feature's own diggs:programDesignRef, and a feature repaired under a
+                                remedial design states that there, with designRole marking it as
+                                later intervention rather than original intent. This element records
+                                how a FINDING was resolved; that one records what a FEATURE is
+                                governed by. Both are normally present for the same repair and they
+                                are not substitutes.</documentation>
                         </annotation>
                     </element>
                     <element minOccurs="0" maxOccurs="unbounded" name="correctiveAction"
