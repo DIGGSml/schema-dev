@@ -1781,6 +1781,7 @@
         <complexContent>
             <extension base="diggs:AbstractProgramModuleType">
                 <sequence>
+                    <element minOccurs="0" ref="diggs:basedOnRef"/>
                     <element minOccurs="0" name="designWorkingLife" type="diggs:TimeMeasureType">
                         <annotation>
                             <documentation>The service life the design assumes - governs the
@@ -1885,15 +1886,7 @@
         <complexContent>
             <extension base="diggs:AbstractProgramModuleType">
                 <sequence>
-                    <element minOccurs="0" maxOccurs="unbounded" ref="diggs:programSpecificationRef">
-                        <annotation>
-                            <documentation>Zero or more references to the specifications this design
-                                was prepared to satisfy. Design-to-specification is a different
-                                relationship from basedOnRef and is carried here so that inheritance
-                                up the basedOnRef chain does not silently pull constraint into the
-                                intent chain.</documentation>
-                        </annotation>
-                    </element>
+                    <element minOccurs="0" ref="diggs:basedOnRef"/>
                     <element minOccurs="0" maxOccurs="1" ref="diggs:basisRef">
                         <annotation>
                             <documentation>The basis this design was prepared from - ONE, the most
@@ -1933,35 +1926,96 @@
                                 no instance anywhere carries more than one.</documentation>
                         </annotation>
                     </element>
-                    <element minOccurs="0" name="plannedPositions"
-                        type="diggs:PlannedPositionsPropertyType">
+                    <element minOccurs="0" maxOccurs="unbounded" ref="diggs:programSpecificationRef">
                         <annotation>
-                            <documentation>The layout this design prescribes, as a grid geometry
-                                carrying an index space.
+                            <documentation>Zero or more references to the specifications this design
+                                was prepared to satisfy. Design-to-specification is a different
+                                relationship from basedOnRef and is carried here so that inheritance
+                                up the basedOnRef chain does not silently pull constraint into the
+                                intent chain.</documentation>
+                        </annotation>
+                    </element>
+                </sequence>
+            </extension>
+        </complexContent>
+    </complexType>
 
-                                ON THE DESIGN, NOT ON A SCOPE WRAPPER, AND THAT IS THE POINT. A
-                                planned layout is something a design STATES - a deliverable, of the
-                                same kind as a diameter or a thickness - not a test for selecting
-                                which features a provision reaches. It sat inside diggs:ProgramScope
-                                until 2026-09-24 and moved here when that type was retired; nothing
-                                about the grid or about diggs:realizesGridIndex changed with it.
+    <element name="AbstractSamplingFeatureDesign" type="diggs:AbstractSamplingFeatureDesignType"
+        substitutionGroup="diggs:AbstractProgramDesign"/>
+    <complexType abstract="true" name="AbstractSamplingFeatureDesignType">
+        <complexContent>
+            <extension base="diggs:AbstractProgramDesignType">
+                <sequence>
+                    <element name="samplingFeatureType" type="gml:CodeWithAuthorityType">
+                        <annotation>
+                            <documentation>The kind of sampling feature this design applies to, from
+                                samplingFeatureTypes.xml. A realized feature that fulfils this design
+                                is expected to be of this type.</documentation>
+                        </annotation>
+                    </element>
+                    <element minOccurs="0" name="scope" type="diggs:SFDesignScopePropertyType"/>
+                    <element minOccurs="0" name="installationOrder" type="positiveInteger">
+                        <annotation>
+                            <documentation>The rank of this design among its sibling designs in the
+                                order the work is to be carried out, counting from 1. Lower is
+                                earlier; designs sharing a value are unordered with respect to each
+                                other. Use this to order installation passes or groupings between
+                                designs; use scope/plannedPositions/installationSequence to order the
+                                features within one design.</documentation>
+                        </annotation>
+                    </element>
+                    <element minOccurs="0" name="progress"
+                        type="diggs:ProgressEventArrayPropertyType">
+                        <annotation>
+                            <documentation>The lifecycle of this planned object, as a track of dated
+                                states. This is what answers "what is planned but not yet built?"
+                                without any reference from the plan to its realization: a target
+                                with no progress recorded, or whose latest progressState has not
+                                reached completion, is not yet fulfilled.</documentation>
+                        </annotation>
+                    </element>
+                    <element maxOccurs="unbounded" minOccurs="0" name="plannedEquipment"
+                        type="diggs:EquipmentPropertyType">
+                        <annotation>
+                            <documentation>Equipment planned to be used in realizing this target,
+                                held inline or by reference - a piezometer a monitoring plan intends
+                                to install, a sampler a collection plan intends to use, a rig a
+                                construction plan intends to bring. GENERIC ACROSS THE WHOLE TARGET
+                                FAMILY (D2, decided 2026-08-16, built 2026-08-19): placed here rather
+                                than as a per-type named field so it is "referenceable from any other
+                                target," per D2's own framing, rather than requiring a parallel
+                                bespoke field on each Target specialization that happens to need one.
+                                Named for what it is (equipment), not for which Target subtype hosts
+                                it - diggs:TargetMeasurement uses this for a planned instrument the
+                                same way diggs:TargetSample uses it for planned sampling equipment;
+                                neither gets its own differently-named copy.
 
-                                DECLARED ON THE DESIGN HEAD RATHER THAN THE MODULE HEAD, so
-                                specifications and bases do not inherit it: a specification states
-                                requirements the work must meet and a basis states the evidence it
-                                was prepared from, and neither prescribes where things go.
+                                THE PROPERTY DIGGS ALREADY HAD NO HOME FOR. Before this element,
+                                ri_properties.xml#instrument_type stated a planned instrument's kind
+                                as a bare parameter, explicitly because "there is no equipment
+                                reference on diggs:TargetMeasurementType for it to become instead."
+                                That entry is now retired: state the instrument as an inline or
+                                referenced diggs:Sensor/diggs:Equipment here, with its kind carried
+                                on the equipment's own diggs:class (equipmentClass.xml already binds
+                                to //diggs:Sensor/diggs:class and //diggs:Equipment/diggs:class
+                                unconditionally, so no dictionary change was needed to make this
+                                element's content dictionary-checkable).
 
-                                WHAT IT IS FOR. Two things, neither of them membership. It lets a
-                                realized feature declare which planned position it fulfils, through
-                                diggs:realizesGridIndex, which is an index lookup and explicitly not
-                                a proximity match. And it is the ONLY construct in this schema that
-                                can detect ABSENCE - a planned node that no realized feature claims
-                                is a column that was designed and not installed, and no
-                                membership-by-citation scheme can find one, because the missing
-                                feature is precisely the one not there to cite anything.
-
-                                Optional, and a design that states no layout inherits one through
-                                basedOnRef, resolved per property most specific first.</documentation>
+                                SUPERSEDES diggs:TargetSampleType's own former samplingEquipment
+                                field (built one day earlier, same session arc, as part of the
+                                TargetSample rework) - that field was the first instance of exactly
+                                this need, built before D2's generic answer existed. Retired in favour
+                                of this element; diggs:TargetSample now carries planned sampling
+                                equipment here like every other Target.</documentation>
+                        </annotation>
+                    </element>
+                    <element maxOccurs="unbounded" minOccurs="0" name="otherDesignProperty"
+                        type="diggs:ParameterPropertyType">
+                        <annotation>
+                            <documentation>The dictionary escape hatch: a planned property that has
+                                no named element on this or a more specific target type. Prefer a
+                                named element wherever the plan has one; use this only where none
+                                exists.</documentation>
                         </annotation>
                     </element>
                 </sequence>
@@ -1970,106 +2024,20 @@
     </complexType>
     <element abstract="true" name="AbstractProgramModule" type="diggs:AbstractProgramModuleType">
         <annotation>
-            <documentation>Abstract element serving as the common ancestor of the three kinds of
-                object a program issues or relies on: designs (intent), specifications (constraint)
-                and bases (evidence). It exists to declare, once, the properties all three share -
-                appliesToZone, appliesToFeatureType and basedOnRef - and to give basedOnRef a single
-                abstract target to name. It is not itself a substitution group member of anything,
-                and no object substitutes it directly; instances substitute one of the three heads
-                below it.</documentation>
+            <documentation>Common ancestor of the three kinds of object a program issues or relies
+                on: designs (intent), specifications (constraint) and bases (evidence). Not itself a
+                substitution group member; instances substitute one of the three heads below
+                it.</documentation>
         </annotation>
     </element>
     <complexType abstract="true" name="AbstractProgramModuleType">
         <annotation>
             <documentation>Base type for program modules - the designs, specifications and bases a
-                program issues or relies on. Carries only what all three share.
-
-                MEMBERSHIP IS NOT DECLARED HERE, AND THIS REPLACED A TYPE THAT TRIED TO DECLARE IT.
-                Until 2026-09-24 these two properties were branches of a diggs:ProgramScope object
-                on a "scope" element, documented as declaring "the population of features to which a
-                program design or specification applies". That framing is retracted. A provision's
-                membership is established from the realized side and only there, by
-                diggs:programDesignRef / diggs:programSpecificationRef on the feature itself; the
-                properties below are CHECKS APPLIED TO THOSE MEMBERS, never a second way of
-                selecting them.
-
-                WHY THE CHANGE. The scope framing left two routes to one fact - geometric
-                (is this feature inside the polygon?) and declared (what does the feature cite?) -
-                and settled their disagreement with a precedence rule. This schema has retracted
-                exactly that arrangement three times before: diggs:ltpRef and diggs:WorkingPlatform/
-                wpRef both supersede positional inference, and diggs:realizesGridIndex forbids
-                matching a realized feature to a planned position by proximity. A fourth, on
-                basisRef's own cardinality, states the general principle: two ways to express one
-                relationship is itself the defect. The polygon could also never decide the boundary
-                case it most needed to - a column head centimetres outside a zone edge was assigned
-                by rounding rather than by intent. As a check, that same column keeps the membership
-                it declares and raises a finding instead, which is both safer and more useful.
-
-                ALSO REMOVED: an appliesToFeatureRef branch that enumerated realized features. It
-                was fenced to remedial and retrofit work, where the features genuinely precede the
-                design, but enumeration on the provision is the pattern this schema rejects
-                elsewhere (a group is not edited to admit a member), and it addressed only the
-                easy half of retrofit - which features - while leaving sequence, supersession and
-                changed feature state unexpressed. Retrofit and re-use are therefore NOT expressible
-                through this type at all. That is a known, deliberate gap, partially addressed by
-                diggs:ProgramDesignReferenceType/designRole on the feature side, and awaiting an
-                additive or versioning mechanism there rather than a return to enumeration
-                here.</documentation>
+                program issues or relies on.</documentation>
         </annotation>
         <complexContent>
             <extension base="diggs:AbstractFeatureType">
-                <sequence>
-                    <element minOccurs="0" ref="diggs:basedOnRef"/>
-                    <element minOccurs="0" name="appliesToZone"
-                        type="diggs:PlanarSurfaceOrMultiSurfacePropertyType">
-                        <annotation>
-                            <documentation>The region this module was drawn for, as a plan-view
-                                polygon or, where the region is discontinuous, several of them.
-
-                                A CHECK, NOT A MEMBERSHIP TEST. Where present, every member
-                                established by diggs:programDesignRef / programSpecificationRef is
-                                expected to have its diggs:referencePoint within this region, a node
-                                on the boundary counting as inside. A member outside it is a
-                                FINDING - the declared membership stands and the geometry is what is
-                                questioned, not the other way about. Where absent, no spatial check
-                                applies and members are unconstrained in position.
-
-                                THE TEST IS ON referencePoint, DELIBERATELY, because every sampling
-                                feature carries one and it is mandatory - so the check is decidable
-                                the same way for a column, a borehole and a platform alike, rather
-                                than becoming a containment question whose answer depends on the
-                                member's own dimensionality.
-
-                                CARRIES GEOMETRY, NOT JUST A REFERENCE, AND THAT IS THE POINT. A
-                                module's region is often not any feature's extent - a subarea of one
-                                platform, or a band spanning parts of several - so the polygon is
-                                stated inline where no existing surface expresses it, and cited by
-                                xlink:href where one does. diggs:PlanarSurfaceOrMultiSurfacePropertyType
-                                rather than the wider diggs:SurfacePropertyType: a plan-view region is
-                                planar, and the MultiSurface branch is required rather than optional
-                                - real zones are routinely discontinuous, and a type admitting only a
-                                single PlanarSurface could not express them.</documentation>
-                        </annotation>
-                    </element>
-                    <element minOccurs="0" name="appliesToFeatureType"
-                        type="gml:CodeWithAuthorityType">
-                        <annotation>
-                            <documentation>The kind of feature this module was drawn for - eg.
-                                "ri_column", "load_transfer_platform" - from
-                                samplingFeatureTypes.xml.
-
-                                A CHECK, exactly as appliesToZone is: every member established from
-                                the realized side is expected to be of this kind, and one that is
-                                not is a finding. Where absent, no type check applies.
-
-                                codeSpace IS MANDATORY (gml:CodeWithAuthorityType rather than
-                                gml:CodeType), because a check keyed on an uncodespaced literal is
-                                not reliably evaluable - the same reasoning
-                                diggs:RIColumnType/elementClass gives for its own
-                                type.</documentation>
-                        </annotation>
-                    </element>
-                </sequence>
+                <sequence> </sequence>
             </extension>
         </complexContent>
     </complexType>
@@ -2602,11 +2570,21 @@
                     <element minOccurs="0" ref="diggs:originalProjectRef"/>
                     <element maxOccurs="unbounded" minOccurs="0" ref="diggs:associatedProjectRef"/>
                     <element minOccurs="0" ref="diggs:programRef"/>
-                    <element minOccurs="0" maxOccurs="unbounded" ref="diggs:programDesignRef">
+                    <element minOccurs="0" maxOccurs="1" name="currentDesign"
+                        type="diggs:ProgramDesignReferencePropertyType">
                         <annotation>
-                            <documentation>Zero or more references to program design objects this feature was
-                                realized to satisfy. A feature may cite more than one design where multiple design
-                                strands govern different aspects of it.</documentation>
+                            <documentation>The program design this feature was realized to satisfy,
+                                as currently built.</documentation>
+                        </annotation>
+                    </element>
+                    <element minOccurs="0" maxOccurs="unbounded" name="previousDesign"
+                        type="diggs:ProgramDesignReferencePropertyType">
+                        <annotation>
+                            <documentation>A design that governed this feature at an earlier point in
+                                its history - for example the design a feature was originally built
+                                to, before a later repair or modification. Use designRole and
+                                effectiveFrom on the reference to state which design and
+                                when.</documentation>
                         </annotation>
                     </element>
                     <element minOccurs="0" maxOccurs="unbounded" ref="diggs:programSpecificationRef">
@@ -2755,6 +2733,7 @@
             </extension>
         </complexContent>
     </complexType>
+
     <element name="AbstractSensor" substitutionGroup="diggs:AbstractEquipment"
         type="diggs:AbstractSensorType" abstract="true">
         <annotation>

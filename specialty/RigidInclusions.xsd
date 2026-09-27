@@ -876,164 +876,6 @@
             </extension>
         </complexContent>
     </complexType>
-    <element name="InstallationSequenceStep" type="diggs:InstallationSequenceStepType">
-        <annotation>
-            <documentation>One explicitly ordered installation position - a sequence number paired
-                with the grid node it applies to. Repeated within a
-                diggs:RIInstallationSequence's steps array to state an order no traversal rule can
-                generate.
-
-                TWO NAMED FIELDS RATHER THAN ONE ENCODED LIST. A sequence number and a grid index
-                could both be carried in a single gml:integerList as "seq i j", but that is a
-                convention, and diggs:RIColumnDesignType/spacingX already records this project's
-                position on conventions in a data standard: they are read wrongly sooner or
-                later.</documentation>
-        </annotation>
-    </element>
-    <complexType name="InstallationSequenceStepType">
-        <complexContent>
-            <extension base="diggs:AbstractComponentObjectBaseType">
-                <sequence>
-                    <element name="sequenceNumber" type="positiveInteger">
-                        <annotation>
-                            <documentation>The position of this node in the installation order,
-                                counting from 1. Mandatory, and deliberately not left to document
-                                order: an explicit number lets a SPARSE sequence be stated - "the
-                                node at (5,5) is installed 47th" - without enumerating the 46 that
-                                precede it.</documentation>
-                        </annotation>
-                    </element>
-                    <element name="gridIndex" type="gml:integerList">
-                        <annotation>
-                            <documentation>The node this step applies to, as an index into the index
-                                space of the enclosing design's plannedPositions grid. Same type and
-                                same ordering convention as diggs:realizesGridIndex and
-                                diggs:plannedGridIndex, so a planned order can be compared directly
-                                against what was built.</documentation>
-                        </annotation>
-                    </element>
-                </sequence>
-            </extension>
-        </complexContent>
-    </complexType>
-    <complexType name="InstallationSequenceStepArrayPropertyType">
-        <annotation>
-            <documentation>Property type for an array of diggs:InstallationSequenceStep objects -
-                one wrapper element containing one or more steps, matching
-                diggs:LTPLiftArrayPropertyType's shape.
-
-                AN ARRAY RATHER THAN A REPEATED SINGLE-OBJECT PROPERTY, and the distinction is a
-                real one this schema applies consistently: a step is never addressed from outside
-                the sequence that contains it, so it needs neither its own wrapper per object nor
-                gml:AssociationAttributeGroup. Contrast diggs:ReinforcementPropertyType and
-                diggs:RIColumnHeadPropertyType, which went the OTHER way at W1 precisely because a
-                cage or a cap detail IS cited from elsewhere. The rule: an array where the members
-                are internal to their parent, a referenceable property where they are shared.
-
-                Encoding a long explicit sequence this way also removes one wrapper element per
-                step, which matters when a sequence names every node of a large
-                grid.</documentation>
-        </annotation>
-        <sequence minOccurs="1" maxOccurs="unbounded">
-            <element ref="diggs:InstallationSequenceStep"/>
-        </sequence>
-    </complexType>
-    <element name="RIInstallationSequence" type="diggs:RIInstallationSequenceType">
-        <annotation>
-            <documentation>The order in which the columns of one design are to be installed, stated
-                over the index space of the design's plannedPositions grid.
-
-                INDEXES THE GRID, NOT A SET OF OBJECTS, and that is the point: a design that states
-                a plannedPositions grid already has an addressable node at every column position,
-                so an installation order can be given WITHOUT any diggs:TargetRIColumn existing.
-                Enumerating a thousand planned columns purely to number them would be a large cost
-                for a statement the grid already supports.
-
-                TWO WAYS TO STATE THE ORDER, AND THEY COMPOSE. sequenceRule with startPoint gives a
-                generated traversal - compact, and right for the regular cases. steps gives explicit
-                (sequenceNumber, gridIndex) pairs. WHERE BOTH APPEAR, steps WINS for the nodes it
-                names and the rule governs the rest, which is the same precedence
-                diggs:RIColumnType/installationSequenceNumber has over this object as a whole. A
-                fully arbitrary order is expressed by omitting the rule and listing every node.
-
-                WHAT THIS OBJECT DOES NOT EXPRESS, deliberately, because other machinery already
-                does:
-                - ORDER BETWEEN DESIGNS - primary/secondary/tertiary passes, or "all columns of one
-                  type first, wherever they are" - is diggs:RIColumnDesignType/installationOrder
-                  ranking sibling designs, each with its own scope. Per R12 a multi-grid treated
-                  area is already sibling designs; a pass is the same construct. GML's sequence
-                  rules cannot express split spacing, and this is why they do not need to.
-                - MINIMUM SPACING TO FRESH CONCRETE and MINIMUM AGE BEFORE ADJACENT INSTALLATION are
-                  requirements, not an order, and are diggs:DesignConformanceCriterion - a
-                  designProperty, an operator and a limit - so that they are checkable rather than
-                  inert.</documentation>
-        </annotation>
-    </element>
-    <complexType name="RIInstallationSequenceType">
-        <complexContent>
-            <extension base="diggs:AbstractComponentObjectBaseType">
-                <sequence>
-                    <element minOccurs="0" name="sequenceRule" type="gml:SequenceRuleType">
-                        <annotation>
-                            <documentation>The traversal that generates the installation order over
-                                the grid - Linear, Boustrophedonic, Cantor-diagonal, Spiral, Morton
-                                or Hilbert, with the axisOrder attribute giving direction (for
-                                example "+1 +2"). gml:SequenceRuleType, whose rule names are ISO
-                                19123's and which gml:GridFunction already uses for exactly this
-                                purpose: mapping the nodes of a grid to an ordered sequence. Reused
-                                rather than restated as a DIGGS codelist, so an installation order
-                                and a coverage traversal are named the same way.
-
-                                Boustrophedonic is the serpentine rig path most RI layouts actually
-                                follow; Linear with an axisOrder is row-by-row returning to the same
-                                side; Spiral covers outside-in and inside-out from
-                                startPoint.</documentation>
-                        </annotation>
-                    </element>
-                    <element minOccurs="0" name="startPoint" type="gml:integerList">
-                        <annotation>
-                            <documentation>The grid node the sequence begins at. Where omitted,
-                                gml:GridFunction's own default applies - the grid's gml:low, its
-                                lowest-indexed corner. Meaningless without sequenceRule; that the
-                                two must agree is a correlation XSD cannot express.</documentation>
-                        </annotation>
-                    </element>
-                    <element minOccurs="0" name="steps"
-                        type="diggs:InstallationSequenceStepArrayPropertyType">
-                        <annotation>
-                            <documentation>Explicitly ordered nodes, each pairing a sequence number
-                                with a grid index. OVERRIDES sequenceRule for the nodes it names.
-
-                                This is what a traversal rule cannot do. A rule computes the next
-                                node from the current one, so an order like (1,1) then (10,2) then
-                                (1,2) - or one driven by equipment availability or by which load
-                                transfer platform zone a column falls in - fits no rule and must be
-                                stated node by node.
-
-                                ONE ARRAY RATHER THAN A REPEATED PROPERTY: the steps carry the
-                                repetition inside a single wrapper, so a sequence naming every node
-                                of a large grid costs one element per step rather than two. Present
-                                at most once, and where present it holds at least one step - an
-                                empty steps element would state nothing that omitting it does
-                                not.</documentation>
-                        </annotation>
-                    </element>
-                </sequence>
-            </extension>
-        </complexContent>
-    </complexType>
-    <complexType name="RIInstallationSequencePropertyType">
-        <annotation>
-            <documentation>Property type for containing or referencing one
-                diggs:RIInstallationSequence. gml:AssociationAttributeGroup admits the reference
-                form so that sibling designs forming successive passes over the same layout can
-                cite one sequence rather than restate it.</documentation>
-        </annotation>
-        <sequence minOccurs="0">
-            <element ref="diggs:RIInstallationSequence"/>
-        </sequence>
-        <attributeGroup ref="gml:AssociationAttributeGroup"/>
-    </complexType>
     <complexType name="RIColumnHeadPropertyType">
         <annotation>
             <documentation>Property type for containing OR REFERENCING one diggs:RIColumnHead.
@@ -1046,12 +888,6 @@
         </sequence>
         <attributeGroup ref="gml:AssociationAttributeGroup"/>
     </complexType>
-    <!-- CMCSubmittedDesign was declared here, typed CMCArrayType. Both are retired (C4). The
-         array scope form they served - a coverage whose range carried a planned-identifier column
-         plus per-column properties - was retracted because a coverage row has no gml:id and so
-         cannot be referenced by a ProgressEvent, an AcceptanceCriterion or a TargetSample. The
-         concept is now RIColumnDesign plus, where columns vary arbitrarily, one
-         TargetSamplingFeature per column. -->
     <element name="RIColumn" type="diggs:RIColumnType"
         substitutionGroup="diggs:AbstractLinearSamplingFeature">
         <annotation>
@@ -1103,28 +939,12 @@
                                 asserted by the member.</documentation>
                         </annotation>
                     </element>
-                    <element name="elementClass" type="gml:CodeWithAuthorityType">
+                    <element ref="diggs:elementClass">
                         <annotation>
-                            <documentation>The role this column plays in the works, as distinct from
-                                what it is made of or how it is built - trial, test, production, or
-                                sacrificial (elementClass.xml). Mandatory, and codeSpace is mandatory
-                                on it (inherited from gml:CodeWithAuthorityType): the distinction
-                                governs which acceptance criteria apply and how a test result may be
-                                extrapolated, so it must be stated rather than left to be inferred.
-
-                                THE AUTHORITATIVE SIGNAL, SUPERSEDING samplingFeatureGroupRef's
-                                ABSENCE (inherited from diggs:AbstractSamplingFeatureType; GR1,
-                                2026-08-22, group-redesign). Before EC1 (2026-08-19), a trial column
-                                was identified only by omitting the element then named
-                                samplingFeatureRef - a real but indirect signal, easy to mistake for
-                                an oversight rather than a deliberate statement. GR1 removed that
-                                element outright: what was optional samplingFeatureRef on RIColumn is
-                                now the inherited, equally optional samplingFeatureGroupRef, and
-                                identification remains exclusively via THIS element regardless. A
-                                trial column may still be left out of any group, or may be included
-                                in one where its data informs other columns' interpretation - either
-                                is a legitimate use of the group reference and neither reopens the
-                                old absence-based convention this element replaced.</documentation>
+                            <documentation>Whether this column is trial, test, production, or
+                                sacrificial. Authoritative regardless of whether the column belongs
+                                to a samplingFeatureGroupRef: group membership does not itself
+                                indicate a column's role.</documentation>
                         </annotation>
                     </element>
                     <element minOccurs="0" name="columnType" type="gml:CodeType">
@@ -1289,64 +1109,6 @@
                                 the same naming convention as columnDiameter and columnLength.
                                 Absent where the column is unreinforced, the common
                                 case.</documentation>
-                        </annotation>
-                    </element>
-                </sequence>
-            </extension>
-        </complexContent>
-    </complexType>
-    <element name="TargetRIColumn" type="diggs:TargetRIColumnType"
-        substitutionGroup="diggs:AbstractTargetObject">
-        <annotation>
-            <documentation>A specialization of diggs:TargetSamplingFeature for a planned rigid
-                inclusion column, carrying the one property an RI column plan needs beyond the
-                base: its role in the works (EC1, 2026-08-19). Where a planned column needs
-                nothing beyond diggs:TargetSamplingFeatureType's own fields, plain
-                diggs:TargetSamplingFeature is still used directly, per that type's own
-                documentation - diggs:RIColumn is one of the realized heads it already names.
-                TargetRIColumn exists for the case a plan must also commit to the column's role
-                (trial, test, production, sacrificial) ahead of construction, the same reason
-                diggs:TargetBorehole and diggs:TargetInstallation (core/Core.xsd) exist for their
-                own feature kinds. Substitutes diggs:AbstractTargetObject directly rather than
-                diggs:TargetSamplingFeature - concrete DIGGS elements are never substitution-group
-                heads - but its type extends diggs:TargetSamplingFeatureType, the same pattern
-                diggs:TargetBoreholeType uses.</documentation>
-        </annotation>
-    </element>
-    <complexType name="TargetRIColumnType">
-        <complexContent>
-            <extension base="diggs:TargetSamplingFeatureType">
-                <sequence>
-                    <element name="elementClass" type="gml:CodeWithAuthorityType">
-                        <annotation>
-                            <documentation>Matches diggs:RIColumnType/elementClass in name, type,
-                                dictionary (elementClass.xml) and mandatory cardinality - the
-                                planned counterpart of the realized column's own role statement,
-                                committed to at design time rather than left to be inferred once
-                                the column exists. A planned trial column states elementClass=trial
-                                here for the same reason its eventual as-built diggs:RIColumn does;
-                                nothing about the trial/test/production/sacrificial distinction is
-                                specific to either side of the plan/realized
-                                boundary.</documentation>
-                        </annotation>
-                    </element>
-                    <element minOccurs="0" name="installationSequenceNumber" type="positiveInteger">
-                        <annotation>
-                            <documentation>The position this planned column is to occupy in the
-                                installation order, counting from 1.
-
-                                FOR INDIVIDUALLY PLANNED COLUMNS. Where a design enumerates its
-                                columns as targets, the order is stated here per column and
-                                OVERRIDES anything diggs:RIColumnDesignType/installationSequence
-                                generates for the corresponding node. Where columns are not
-                                enumerated - the normal case for a large uniform grid - the design's
-                                own installationSequence carries the order instead, and nothing need
-                                be created here.
-
-                                Use plannedGridIndex (inherited from
-                                diggs:AbstractTargetObjectType) to say which node of the design's
-                                grid this target refines, so that the override lands on the right
-                                node.</documentation>
                         </annotation>
                     </element>
                 </sequence>
@@ -1538,7 +1300,7 @@
             <extension base="diggs:AbstractProgramType">
                 <sequence>
                     <element minOccurs="0" maxOccurs="unbounded" name="design"
-                        type="diggs:ProgramDesignPropertyType">
+                        type="diggs:RIProgramDesignPropertyType">
                         <annotation>
                             <documentation>A design this program issues - what is intended to be
                                 built. Holds any member of the diggs:AbstractProgramDesign
@@ -1548,7 +1310,7 @@
                         </annotation>
                     </element>
                     <element minOccurs="0" maxOccurs="unbounded" name="specification"
-                        type="diggs:ProgramSpecificationPropertyType">
+                        type="diggs:RIProgramSpecificationPropertyType">
                         <annotation>
                             <documentation>A specification this program must satisfy - the
                                 constraints and tolerances the work is judged against. Holds any
@@ -1589,12 +1351,10 @@
     </element>
     <complexType name="RITreatedAreaDesignType">
         <annotation>
-            <documentation>Type for the site-wide rigid inclusion system design. Inherits scope,
-                basedOnRef, programSpecificationRef and basisRef from
-                diggs:AbstractProgramDesignType.</documentation>
+            <documentation>Type for the site-wide rigid inclusion system design.</documentation>
         </annotation>
         <complexContent>
-            <extension base="diggs:AbstractProgramDesignType">
+            <extension base="diggs:AbstractSamplingFeatureDesignType">
                 <sequence>
                     <element minOccurs="0" maxOccurs="unbounded" name="groutDesignRef"
                         type="diggs:FeatureReferenceType">
@@ -1613,33 +1373,27 @@
                                 wins.</documentation>
                         </annotation>
                     </element>
-                    <element maxOccurs="1" minOccurs="0" name="action"
-                        type="diggs:DesignActionArrayPropertyType">
+                    <element maxOccurs="1" minOccurs="0" name="designLoad"
+                        type="diggs:DesignLoadArrayPropertyType">
                         <annotation>
                             <documentation>The applied loads this system design must resist -
                                 embankment self-weight, traffic, a structure or slab load, a
-                                surcharge, and so on (Design Parameter Analysis rows 78-79). Placed
-                                here rather than on diggs:RILTPDesignType because not every action a
-                                site must resist is transmitted through a load transfer platform - a
-                                footing or tank load may bear on RI-improved ground directly - and
-                                because a single site-wide design is exactly where
-                                diggs:DesignAction's own appliesToZoneRef earns its place: each
-                                repetition can govern a different part of the site under one
-                                RITreatedAreaDesign, the same way groutDesignRef above may repeat for
-                                different mixes used across zones.</documentation>
+                                surcharge, and so on. Placed here rather than on RILTPDesignType
+                                because not every load a site must resist is transmitted through a
+                                load transfer platform - a footing or tank load may bear on
+                                RI-improved ground directly. Repeatable, with each DesignLoad's own
+                                appliesToZoneRef stating which part of the site it governs where
+                                loading differs by zone.</documentation>
                         </annotation>
                     </element>
                     <element maxOccurs="1" minOccurs="0" name="verification"
                         type="diggs:DesignVerificationArrayPropertyType">
                         <annotation>
-                            <documentation>Site-wide design checks - global/slope stability,
-                                lateral spreading, seismic/liquefaction (Design Parameter Analysis
-                                rows 84, 86, 88). Placed here rather than on
-                                diggs:RIColumnDesignType because these three are checks against the
-                                whole foundation system's stability and behaviour, not against one
-                                column - contrast diggs:RIColumnDesignType/verification, which
-                                carries the column-level structural checks (buckling, shear) from
-                                the same analysis's Group C.</documentation>
+                            <documentation>Site-wide design checks - global/slope stability, lateral
+                                spreading, seismic/liquefaction - against the whole foundation
+                                system's stability and behaviour. Contrast
+                                RIColumnDesignType/verification, which carries column-level
+                                structural checks (buckling, shear).</documentation>
                         </annotation>
                     </element>
                     <element minOccurs="0" name="settlementEfficacy"
@@ -1818,119 +1572,21 @@
         <annotation>
             <documentation>The design of the rigid inclusion columns themselves: their layout,
                 geometry, material strength and axial capacity, for whatever population the
-                inherited scope declares.
+                inherited scope declares - a site-wide population, one zone, or a single column.
 
-                One object may govern three thousand columns or one. A site-wide design scopes
-                itself with appliesToFeatureType; a zone design adds a zoneExtent polygon and
-                usually a plannedPositions grid; a local exception carries a clipped polygon, no
-                layout at all, and a basedOnRef to the design it departs from - inheriting the
-                grid it does not restate.
-
-                PROPERTIES THAT VARY WITHIN THE POPULATION DO NOT BELONG HERE. This object
-                carries the uniform values - every column in this design is 400 mm. Where a
-                particular column differs, that column is planned individually as a
-                diggs:TargetSamplingFeature, which is a feature and so can carry its own typed
-                properties, its own ProvenancedParameters, a gml:id that a criterion or a
-                progress event can reference, and provenance for where its value came from. A
-                coverage row could carry none of those, which is why the array design form was
-                retracted.</documentation>
+                Carries the uniform values shared by every column in scope. Where a particular
+                column differs from the rest, plan it individually as its own RIColumnDesign,
+                scoped to that one column via scope/targetPosition, with a basedOnRef to the design
+                it departs from so it inherits everything it does not restate.</documentation>
         </annotation>
     </element>
     <complexType name="RIColumnDesignType">
         <annotation>
-            <documentation>Type for the rigid inclusion column design. Inherits scope,
-                basedOnRef, programSpecificationRef and basisRef from
-                diggs:AbstractProgramDesignType.</documentation>
+            <documentation>Type for the rigid inclusion column design.</documentation>
         </annotation>
         <complexContent>
-            <extension base="diggs:AbstractProgramDesignType">
+            <extension base="diggs:AbstractSamplingFeatureDesignType">
                 <sequence>
-                    <element minOccurs="0" name="gridPattern" type="gml:CodeType">
-                        <annotation>
-                            <documentation>The plan arrangement of the columns - square,
-                                rectangular, triangular, staggered or irregular. gml:CodeType with
-                                a dictionary vocabulary rather than an enumeration, since layout
-                                patterns are named differently across practices and the list is not
-                                closed.
-
-                                THE GEOMETRY PREVAILS where the inherited scope states a
-                                plannedPositions grid: that grid's offsetVectors define the lattice
-                                exactly, including patterns like an equilateral triangular
-                                arrangement whose vectors are not orthogonal, and this code merely
-                                names what they already express. Where scope carries no grid - a
-                                zone-scoped or type-scoped design - THIS PROPERTY AND THE SPACINGS
-                                BELOW ARE THE PREVAILING STATEMENT of the layout. A consumer cannot
-                                tell which branch applies without inspecting the
-                                scope.</documentation>
-                        </annotation>
-                    </element>
-                    <element minOccurs="0" name="spacingX" type="diggs:LengthMeasureType">
-                        <annotation>
-                            <documentation>Centre-to-centre spacing of the columns along the first
-                                grid axis.
-
-                                STATE THIS ELEMENT ALONE for a square or triangular pattern, where
-                                one spacing plus gridPattern is the whole layout. State spacingY as
-                                well only for a rectangular pattern, where the two differ. Two
-                                elements rather than one is deliberate: a single spacing element
-                                would force a rectangular grid to encode two numbers under a
-                                convention, and conventions in a data standard are read wrongly
-                                sooner or later.
-
-                                Informational where the scope carries a plannedPositions grid; see
-                                gridPattern for both branches of the precedence
-                                rule.</documentation>
-                        </annotation>
-                    </element>
-                    <element minOccurs="0" name="spacingY" type="diggs:LengthMeasureType">
-                        <annotation>
-                            <documentation>Centre-to-centre spacing of the columns along the second
-                                grid axis, for a rectangular pattern where it differs from spacingX.
-                                Omit for square and triangular patterns. See spacingX.</documentation>
-                        </annotation>
-                    </element>
-                    <element minOccurs="0" name="installationOrder" type="positiveInteger">
-                        <annotation>
-                            <documentation>The rank of THIS DESIGN among its siblings in the order
-                                the work is to be carried out, counting from 1. Lower is earlier;
-                                designs sharing a value are unordered with respect to each other.
-
-                                THE PASS MECHANISM. Split-spacing - primary, secondary, tertiary -
-                                is expressed as sibling diggs:RIColumnDesign objects, each scoped to
-                                its own coarser or offset plannedPositions grid, ranked by this
-                                element. R12 already settled that a treated area needing more than
-                                one grid is sibling designs each with their own scope; a pass is
-                                that same construct, and no separate pass-count field is needed.
-                                Stating it this way is also unambiguous on a triangular or staggered
-                                lattice, where a bare "three passes" would not be: each pass's grid
-                                says exactly which nodes it contains.
-
-                                ALSO THE MECHANISM FOR NON-GEOMETRIC ORDERING - "install every
-                                column of one type first, wherever they are", or an order driven by
-                                equipment availability or by load transfer platform zone. Those are
-                                groupings rather than traversals, so they are sibling designs ranked
-                                here, not something installationSequence below could
-                                generate.</documentation>
-                        </annotation>
-                    </element>
-                    <element minOccurs="0" name="installationSequence"
-                        type="diggs:RIInstallationSequencePropertyType">
-                        <annotation>
-                            <documentation>The order in which the columns WITHIN this design are to
-                                be installed, over the index space of the inherited scope's
-                                plannedPositions grid. See diggs:RIInstallationSequence for how a
-                                generated traversal and explicit per-node steps compose.
-
-                                Requires that the scope carry a plannedPositions grid: the sequence
-                                indexes that grid, so on a zone-scoped design with no layout there
-                                is nothing to index and this element states nothing. That
-                                dependency is a correlation XSD cannot express.
-
-                                Distinct from installationOrder above, which orders this design
-                                against its siblings rather than the columns within
-                                it.</documentation>
-                        </annotation>
-                    </element>
                     <element minOccurs="0" name="equivalentDiameter" type="diggs:LengthMeasureType">
                         <annotation>
                             <documentation>d_Ers (EBGEO) / D_e (FHWA): the diameter of the circular
@@ -2296,12 +1952,10 @@
     </element>
     <complexType name="RILTPDesignType">
         <annotation>
-            <documentation>Type for the load transfer platform design. Inherits scope, basedOnRef,
-                programSpecificationRef and basisRef from
-                diggs:AbstractProgramDesignType.</documentation>
+            <documentation>Type for the load transfer platform design.</documentation>
         </annotation>
         <complexContent>
-            <extension base="diggs:AbstractProgramDesignType">
+            <extension base="diggs:AbstractSamplingFeatureDesignType">
                 <sequence>
                     <element minOccurs="0" name="supportedStructureType" type="gml:CodeType">
                         <annotation>
@@ -2909,9 +2563,8 @@
     </element>
     <complexType name="RIProgramBasisType">
         <annotation>
-            <documentation>Type for the site-wide rigid inclusion program basis. Inherits scope and
-                basedOnRef from diggs:AbstractProgramModuleType by way of
-                diggs:AbstractProgramBasisType, which adds nothing of its own.</documentation>
+            <documentation>Type for the site-wide rigid inclusion program basis. Adds nothing beyond
+                what it inherits from diggs:AbstractProgramBasisType.</documentation>
         </annotation>
         <complexContent>
             <extension base="diggs:AbstractProgramBasisType">

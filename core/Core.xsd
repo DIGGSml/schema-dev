@@ -1387,7 +1387,6 @@
     <!-- ================================================================================== -->
     <!-- SOUNDING ELEMENTS                                                                  -->
     <!-- ================================================================================== -->
-
     <element abstract="false" name="Sounding"
         substitutionGroup="diggs:AbstractLinearSamplingFeature" type="diggs:SoundingType">
         <annotation>
@@ -6452,6 +6451,11 @@
                 <sequence>
                     <element name="timeStamp" type="gml:TimePositionType"/>
                     <element name="progressState" type="gml:CodeType"/>
+                    <element minOccurs="0" name="featureCount" type="nonNegativeInteger">
+                        <annotation>
+                            <documentation>Where the progress involves creation or disposiion of features (sampling features, samples, this property provides the number of features completed at this phase of the design implementation.</documentation>
+                        </annotation>
+                    </element>
                 </sequence>
             </extension>
         </complexContent>
@@ -6750,56 +6754,435 @@
             </extension>
         </complexContent>
     </complexType>
-    <element name="TargetSamplingFeature" type="diggs:TargetSamplingFeatureType"
-        substitutionGroup="diggs:AbstractTargetObject">
+    <element name="SamplingFeatureDesign" type="diggs:SamplingFeatureDesignType"
+        substitutionGroup="diggs:AbstractSamplingFeatureDesign">
         <annotation>
-            <documentation>A planned counterpart of a realized diggs:AbstractSamplingFeature - a
-                borehole, sounding, trial pit, well, pile, or an RI sampling feature
-                (RIColumn, LoadTransferPlatform, RigidInclusionSystem). One Target for the whole
-                realized head, per the granularity rule: what varies between concrete sampling
-                feature kinds is result content, which a target does not carry.
-                
-                diggs:TargetBorehole and diggs:TargetInstallation specialize this type for feature
-                kinds that genuinely need extra properties; where a feature kind needs nothing
-                beyond what this type already carries, TargetSamplingFeature is used
-                directly.</documentation>
+            <documentation>A non-specialized design for sampling features, promarily those that carry only geospatialdata - eg. Transect, PlanarSamplingFeature, VolumetricSamplingFeature, etc. and where location conformance is the primary test. </documentation>
         </annotation>
     </element>
-    <complexType name="TargetSamplingFeatureType">
+    <complexType name="SamplingFeatureDesignType">
         <annotation>
-            <documentation>Base type for planned sampling features.</documentation>
+            <documentation>A design for a sampling feature with no specialization of its own -
+                typically one whose conformance is judged mainly by location, such as a Transect,
+                PlanarSamplingFeature or VolumetricSamplingFeature.</documentation>
         </annotation>
         <complexContent>
-            <extension base="diggs:AbstractTargetObjectType">
+            <extension base="diggs:AbstractSamplingFeatureDesignType"/>
+        </complexContent>
+    </complexType>
+
+    <element name="InstallationSequenceStep" type="diggs:InstallationSequenceStepType">
+        <annotation>
+            <documentation>One explicitly ordered installation position - a sequence number paired
+                with the grid node it applies to. Repeated within a
+                diggs:InstallationSequence's steps array to state an order no traversal rule can
+                generate.
+                
+                TWO NAMED FIELDS RATHER THAN ONE ENCODED LIST. A sequence number and a grid index
+                could both be carried in a single gml:integerList as "seq i j", but that is a
+                convention, and diggs:RIColumnDesignType/spacingX already records this project's
+                position on conventions in a data standard: they are read wrongly sooner or
+                later.</documentation>
+        </annotation>
+    </element>
+    <complexType name="InstallationSequenceStepType">
+        <complexContent>
+            <extension base="diggs:AbstractComponentObjectBaseType">
                 <sequence>
-                    <element minOccurs="1" maxOccurs="1" name="targetSFType"
-                        type="gml:CodeWithAuthorityType">
+                    <element name="sequenceNumber" type="positiveInteger">
                         <annotation>
-                            <documentation>The kind of sampling feature planned - for example
-                                borehole, sounding, trial pit, well, pile, rigid inclusion, load
-                                transfer platform. Mandatory, and codeSpace is mandatory on it
-                                (inherited from gml:CodeWithAuthorityType): the value must resolve
-                                in a dictionary so a consumer need not infer the planned feature kind
-                                from context or a closed schema enumeration.
+                            <documentation>The position of this node in the installation order,
+                                counting from 1. Mandatory, and deliberately not left to document
+                                order: a number stated on the step survives reserialization, and can
+                                be compared directly against the as-built
+                                diggs:RIColumnType/installationSequenceNumber. Document order
+                                supports neither.
                                 
-                                NO SUCH DICTIONARY EXISTS YET. The intended one is
-                                samplingFeatureTypes.xml (build step 7, out of scope here), covering
-                                both plain sampling features and installation types in one
-                                vocabulary, since an installation IS a sampling feature
-                                (diggs:AbstractLinearInstallation, diggs:AbstractPlanarInstallation
-                                both substitute diggs:AbstractSamplingFeature directly) - so no
-                                separate installation-type vocabulary is needed. Until the dictionary
-                                exists, populate codeSpace with whatever project-specific vocabulary
-                                is in use; do not leave it empty and do not invent a DIGGS
-                                codeSpace URL.</documentation>
+                                AN EARLIER DRAFT justified the explicit number by sparse statement -
+                                "the node at (5,5) is installed 47th" without enumerating the 46
+                                before it - which was only meaningful while a sequenceRule could
+                                order the nodes the steps did not name. Since
+                                diggs:RIInstallationSequenceType became a choice, steps account for
+                                every node and the numbers of one sequence run 1..n. A single node
+                                taken out of order is
+                                diggs:TargetPositionType/designInstallationSequenceNumber
+                                instead.</documentation>
                         </annotation>
                     </element>
-                    <element minOccurs="0" maxOccurs="1" name="targetSFLocation"
-                        type="diggs:LocationPropertyType">
+                    <element name="gridIndex" type="gml:integerList">
                         <annotation>
-                            <documentation>The planned location or extent of the feature. Optional
-                                because a population-scope design (scope, inherited) has no single
-                                location - the population's extent is expressed there instead.
+                            <documentation>The node this step applies to, as an index into the index
+                                space of the enclosing design's plannedPositions grid. Same type and
+                                same ordering convention as diggs:realizesGridIndex and
+                                diggs:plannedGridIndex, so a planned order can be compared directly
+                                against what was built.</documentation>
+                        </annotation>
+                    </element>
+                </sequence>
+            </extension>
+        </complexContent>
+    </complexType>
+    <complexType name="InstallationSequenceStepArrayPropertyType">
+        <annotation>
+            <documentation>Property type for an array of diggs:InstallationSequenceStep objects -
+                one wrapper element containing one or more steps, matching
+                diggs:LTPLiftArrayPropertyType's shape.
+                
+                AN ARRAY RATHER THAN A REPEATED SINGLE-OBJECT PROPERTY, and the distinction is a
+                real one this schema applies consistently: a step is never addressed from outside
+                the sequence that contains it, so it needs neither its own wrapper per object nor
+                gml:AssociationAttributeGroup. Contrast diggs:ReinforcementPropertyType and
+                diggs:RIColumnHeadPropertyType, which went the OTHER way at W1 precisely because a
+                cage or a cap detail IS cited from elsewhere. The rule: an array where the members
+                are internal to their parent, a referenceable property where they are shared.
+                
+                Encoding a long explicit sequence this way also removes one wrapper element per
+                step, which matters when a sequence names every node of a large
+                grid.</documentation>
+        </annotation>
+        <sequence minOccurs="1" maxOccurs="unbounded">
+            <element ref="diggs:InstallationSequenceStep"/>
+        </sequence>
+    </complexType>
+    <simpleType name="InstallationSequenceRuleEnumType">
+        <annotation>
+            <documentation>The traversal rules admitted for an installation order, restricted to the
+                two whose meaning is fully determined by the rule name and axisOrder alone. GML's
+                own spelling is kept for both, so that a reader moving between an installation order
+                and a coverage traversal sees the same words.
+                
+                A DIGGS ENUMERATION RESTRICTING gml:SequenceRuleEnumeration, WHICH OFFERS SIX. The
+                four omitted are Cantor-diagonal, Spiral, Morton and Hilbert, and each needs
+                information neither GML nor this schema carries. Cantor-diagonal does not say which
+                direction the first diagonal runs, nor whether direction alternates per diagonal or
+                resets - the same policy Linear and Boustrophedonic make explicit for rows, left
+                implicit for diagonals. Spiral does not say its rotation sense, its radial direction
+                or its initial heading, and those are not independent: for some combinations of them
+                and startPoint the generated order does not reach every node, so the rule can
+                validate and then yield an incomplete installation order. Morton and Hilbert are
+                defined over 2^n index spaces, so on any other grid they need an embedding size, a
+                per-axis bit width and an out-of-range skip policy, and - being computed on
+                zero-based indices - a statement of whether the raw index or the index less gml:low
+                is meant, a distinction live in DIGGS because instances declare gml:low as both
+                "0 0" and "1 1"; Hilbert additionally needs one of eight base-cell orientations.
+                
+                NOTHING IS LOST BY OMITTING THEM. They are space-filling curves for raster storage
+                locality, which is the purpose gml:GridFunction uses the full six for, and no
+                construction rationale is known for traversing a site in Morton or Hilbert order. An
+                arbitrary installation order is stated exactly, and without convention, as steps.
+                
+                THE FULL SIX REMAIN AVAILABLE FOR COVERAGES: this restriction is local to the
+                installation-order use site and gml:SequenceRuleType is untouched.</documentation>
+        </annotation>
+        <restriction base="string">
+            <enumeration value="Linear">
+                <annotation>
+                    <documentation>Row by row, returning to the same side of the grid to begin each
+                        row. Which axis counts as a row, and the direction taken on every axis, are
+                        axisOrder's to state.</documentation>
+                </annotation>
+            </enumeration>
+            <enumeration value="Boustrophedonic">
+                <annotation>
+                    <documentation>Serpentine: as Linear, but alternate rows run in the opposite
+                        direction, so the traversal never crosses the grid to begin a row. The rig
+                        path most RI layouts actually follow.</documentation>
+                </annotation>
+            </enumeration>
+        </restriction>
+    </simpleType>
+    <complexType name="InstallationSequenceRuleType">
+        <annotation>
+            <documentation>A traversal rule with its axis order - the DIGGS counterpart of
+                gml:SequenceRuleType, and deliberately the same shape: an enumerated rule name
+                extended with an axisOrder attribute. Only the enumeration differs. See
+                diggs:InstallationSequenceRuleEnumType for why.</documentation>
+        </annotation>
+        <simpleContent>
+            <extension base="diggs:InstallationSequenceRuleEnumType">
+                <attribute name="axisOrder" type="gml:AxisDirectionList">
+                    <annotation>
+                        <documentation>Which axis of the grid's index space varies fastest, and the
+                            direction taken along each - a whitespace-separated list of signed,
+                            1-based axis numbers, for example "+1 +2" or "-2 +1".
+                            
+                            THE NUMBERS INDEX THE GRID'S OWN AXES, in the order its axisLabels and
+                            offsetVectors declare them, not the axes of the CRS named by srsName.
+                            The sign is the direction: + runs gml:low to gml:high, - runs high to
+                            low. POSITION IN THE LIST IS PRECEDENCE - the axis named first varies
+                            fastest, the one named last slowest. Each axis of the grid appears
+                            exactly once, so a two-dimensional grid takes exactly two values.
+                            
+                            Where omitted, the axes are taken in their declared order, all
+                            ascending, equivalent to "+1 +2" on a two-dimensional grid. GML states
+                            no default for its own axisOrder; one is stated here because an absent
+                            value would otherwise leave the traversal undetermined, which is the
+                            defect this type exists to remove.</documentation>
+                    </annotation>
+                </attribute>
+            </extension>
+        </simpleContent>
+    </complexType>
+    <element name="InstallationSequence" type="diggs:InstallationSequenceType">
+        <annotation>
+            <documentation>The order in which the columns of one design are to be installed, stated
+                over the index space of the design's plannedPositions grid.
+                
+                INDEXES THE GRID, NOT A SET OF OBJECTS, and that is the point: a design that states
+                a plannedPositions grid already has an addressable node at every column position,
+                so an installation order can be given WITHOUT any TargetPosition existing.
+                Enumerating a thousand planned columns purely to number them would be a large cost
+                for a statement the grid already supports.
+                
+                TWO WAYS TO STATE THE ORDER, AND EXACTLY ONE IS USED - a choice, not a pair of
+                layers. sequenceRule with an optional startPoint gives a generated traversal,
+                compact and right for the regular cases. steps gives explicit (sequenceNumber,
+                gridIndex) pairs and accounts for every node of the grid. One branch is mandatory:
+                an RIInstallationSequence carrying neither would state nothing.
+                
+                AN EARLIER DRAFT LET THE TWO COMBINE, with steps winning for the nodes they named
+                and the rule governing the rest. That was withdrawn because the composition had no
+                stated meaning. "The rule governs the rest" admits three readings, and they
+                disagree: the rule numbers every node and steps overwrite, which collides and is
+                not a total order at all; the steps are a prefix the rule continues after, which
+                cannot express a sparse number; or the steps claim absolute positions and the rule
+                deals the unnamed nodes into the positions left free. Only the third is always a
+                total order. Nothing said which was meant, so an author and a consumer could
+                disagree while each believed itself correct - and no rule was stated either for the
+                further collision between a step and a
+                diggs:TargetPositionType/designInstallationSequenceNumber claiming the same position.
+                
+                A PREFIX-THEN-FALLBACK ORDER IS A GROUPING, NOT A TRAVERSAL, and belongs to
+                diggs:RIColumnDesignType/installationOrder ranking sibling designs - which is what
+                that element's own documentation already says of an order driven by equipment
+                availability or by load transfer platform zone. A few nodes first and then the
+                serpentine over the remainder is two designs, each with its own plannedPositions
+                grid stating exactly which nodes it contains. A single node taken out of order is
+                diggs:TargetPositionType/designInstallationSequenceNumber on an individually planned node.
+                Neither case needs this object to blend a rule with an enumeration.
+                
+                WHAT THIS OBJECT DOES NOT EXPRESS, deliberately, because other machinery already
+                does:
+                - ORDER BETWEEN DESIGNS - primary/secondary/tertiary passes, or "all columns of one
+                type first, wherever they are" - is diggs:RIColumnDesignType/installationOrder
+                ranking sibling designs, each with its own scope. Per R12 a multi-grid treated
+                area is already sibling designs; a pass is the same construct. GML's sequence
+                rules cannot express split spacing, and this is why they do not need to.
+                - MINIMUM SPACING TO FRESH CONCRETE and MINIMUM AGE BEFORE ADJACENT INSTALLATION are
+                requirements, not an order, and are diggs:DesignConformanceCriterion - a
+                designProperty, an operator and a limit - so that they are checkable rather than
+                inert.</documentation>
+        </annotation>
+    </element>
+    <complexType name="InstallationSequenceType">
+        <complexContent>
+            <extension base="diggs:AbstractComponentObjectBaseType">
+                <choice>
+                    <sequence>
+                        <element name="sequenceRule" type="diggs:InstallationSequenceRuleType">
+                            <annotation>
+                                <documentation>The traversal that generates the installation order
+                                    over the grid - Linear or Boustrophedonic, with axisOrder
+                                    stating which axis varies fastest and the direction taken along
+                                    each. Mandatory in this branch of the choice: the rule is what
+                                    makes the order a generated one, and a startPoint by itself
+                                    states nothing.
+                                    
+                                    diggs:InstallationSequenceRuleType RESTRICTS GML'S SIX RULE
+                                    NAMES TO THESE TWO while keeping GML's own shape and spelling.
+                                    The four dropped rules each require information no instance can
+                                    carry, and one of them can generate an order that does not reach
+                                    every node; see that type and
+                                    diggs:InstallationSequenceRuleEnumType for the
+                                    reasoning.</documentation>
+                            </annotation>
+                        </element>
+                        <element minOccurs="0" name="startPoint" type="gml:integerList">
+                            <annotation>
+                                <documentation>The grid node the sequence begins at. Where omitted,
+                                    the grid's gml:low - its lowest-indexed corner - as
+                                    gml:GridFunction also defaults.
+                                    
+                                    Only meaningful alongside sequenceRule, which the enclosing
+                                    choice now enforces structurally: before the choice this was a
+                                    correlation XSD could not express, and a startPoint could be
+                                    stated with no rule to consume it.</documentation>
+                            </annotation>
+                        </element>
+                    </sequence>
+                    <element name="steps" type="diggs:InstallationSequenceStepArrayPropertyType">
+                        <annotation>
+                            <documentation>Explicitly ordered nodes, each pairing a sequence number
+                                with a grid index - the ALTERNATIVE to a generated traversal, not an
+                                overlay on one.
+                                
+                                THE STEPS ACCOUNT FOR EVERY NODE of the design's plannedPositions
+                                grid, because no rule accompanies them to order a remainder. Each
+                                node appears exactly once and the sequence numbers run 1..n over n
+                                nodes; both are correlations XSD cannot express, so neither is
+                                enforced here. An enumeration that would be too verbose to write out
+                                is the signal that the order is really a grouping - see this
+                                object's own documentation, which routes that case to
+                                diggs:RIColumnDesignType/installationOrder over sibling designs.
+                                
+                                This is what a traversal rule cannot do. A rule computes the next
+                                node from the current one, so an order like (1,1) then (10,2) then
+                                (1,2) fits no rule and must be stated node by node.
+                                
+                                ONE ARRAY RATHER THAN A REPEATED PROPERTY: the steps carry the
+                                repetition inside a single wrapper, so a sequence naming every node
+                                of a large grid costs one element per step rather than two. Present
+                                at most once, and where present it holds at least one step - an
+                                empty steps element would state nothing that omitting it does
+                                not.</documentation>
+                        </annotation>
+                    </element>
+                </choice>
+            </extension>
+        </complexContent>
+    </complexType>
+    <complexType name="InstallationSequencePropertyType">
+        <annotation>
+            <documentation>Property type for containing or referencing one
+                diggs:RIInstallationSequence. gml:AssociationAttributeGroup admits the reference
+                form so that sibling designs forming successive passes over the same layout can
+                cite one sequence rather than restate it.</documentation>
+        </annotation>
+        <sequence minOccurs="0">
+            <element ref="diggs:InstallationSequence"/>
+        </sequence>
+        <attributeGroup ref="gml:AssociationAttributeGroup"/>
+    </complexType>
+
+    <element name="PlannedPositions" type="diggs:PlannedPositionsType"/>
+    <complexType name="PlannedPositionsType">
+        <annotation>
+            <documentation>The planned layout of a population of sampling features, either as an
+                exact, indexed grid or as a general pattern with no grid geometry yet
+                defined.</documentation>
+        </annotation>
+        <complexContent>
+            <extension base="diggs:AbstractComponentObjectBaseType">
+                <choice>
+                    <sequence>
+                        <choice>
+                            <element ref="diggs:RectifiedGrid">
+                                <annotation>
+                                    <documentation>A regular lattice defined by an origin and offset
+                                        vectors. The offset vectors need not be orthogonal, so a
+                                        triangular or staggered layout is a
+                                        RectifiedGrid.</documentation>
+                                </annotation>
+                            </element>
+                            <element ref="diggs:ReferenceableGridByArray">
+                                <annotation>
+                                    <documentation>An irregular layout, with positions given
+                                        explicitly against a declared index space.</documentation>
+                                </annotation>
+                            </element>
+                        </choice>
+                        <element minOccurs="0" name="installationSequence"
+                            type="diggs:InstallationSequencePropertyType">
+                            <annotation>
+                                <documentation>The order in which the features at this layout's grid
+                                    nodes are to be installed.</documentation>
+                            </annotation>
+                        </element>
+                    </sequence>
+                    <sequence>
+                        <element minOccurs="0" name="gridPattern" type="gml:CodeType">
+                            <annotation>
+                                <documentation>The general plan arrangement - square, rectangular,
+                                    triangular, staggered or irregular - stated without a grid
+                                    geometry. From gridPattern.xml.</documentation>
+                            </annotation>
+                        </element>
+                        <element minOccurs="0" name="spacingX" type="diggs:LengthMeasureType">
+                            <annotation>
+                                <documentation>Centre-to-centre spacing along the first axis. State
+                                    this alone for a square or triangular pattern; add spacingY only
+                                    where a rectangular pattern's two spacings
+                                    differ.</documentation>
+                            </annotation>
+                        </element>
+                        <element minOccurs="0" name="spacingY" type="diggs:LengthMeasureType">
+                            <annotation>
+                                <documentation>Centre-to-centre spacing along the second axis, for a
+                                    rectangular pattern where it differs from
+                                    spacingX.</documentation>
+                            </annotation>
+                        </element>
+                    </sequence>
+                </choice>
+            </extension>
+        </complexContent>
+    </complexType>
+
+    <element name="SFDesignScope" type="diggs:SFDesignScopeType">
+        <annotation>
+            <documentation>Defines which sampling features fulfil this design, at one of three
+                levels of generality: a zone with a count but no individual positions, a set of
+                planned positions (a grid, or a general pattern with no grid), or a single target
+                location.</documentation>
+        </annotation>
+    </element>
+    <complexType name="SFDesignScopeType">
+        <complexContent>
+            <extension base="diggs:AbstractComponentObjectBaseType">
+                <choice>
+                    <sequence>
+                        <element minOccurs="0" name="featureCount" type="nonNegativeInteger">
+                            <annotation>
+                                <documentation>The total number of features the design applies to
+                                    within the zone - for example, 20 boreholes to be drilled
+                                    somewhere in this zone. Individual positions are not stated at
+                                    this level, so installation sequencing cannot be
+                                    defined.</documentation>
+                            </annotation>
+                        </element>
+                        <element name="zone" type="diggs:PlanarSurfaceOrMultiSurfacePropertyType">
+                            <annotation>
+                                <documentation>The area the design applies to. A feature fulfils this
+                                    design if its reference point lies within this
+                                    zone.</documentation>
+                            </annotation>
+                        </element>
+                    </sequence>
+                    <sequence>
+                        <element ref="diggs:plannedPositions">
+                            <annotation>
+                                <documentation>The planned layout of the features this design
+                                    applies to.</documentation>
+                            </annotation>
+                        </element>
+                        <element name="zone" minOccurs="0"
+                            type="diggs:PlanarSurfaceOrMultiSurfacePropertyType">
+                            <annotation>
+                                <documentation>Where present, restricts plannedPositions' grid nodes
+                                    to those that also fall within this zone.</documentation>
+                            </annotation>
+                        </element>
+                    </sequence>
+                    <element ref="diggs:targetPosition">
+                        <annotation>
+                            <documentation>Scopes the design to a single feature's planned location
+                                and geometry.</documentation>
+                        </annotation>
+                    </element>
+                </choice>
+            </extension>
+        </complexContent>
+    </complexType>
+
+    <element name="targetPosition" type="diggs:TargetPositionPropertyType"/>
+    <element name="TargetPosition" type="diggs:TargetPositionType"/>
+    <complexType name="TargetPositionType">
+        <complexContent>
+            <extension base="diggs:AbstractComponentObjectBaseType">
+                <sequence>
+                    <element name="targetLocation" type="diggs:LocationPropertyType">
+                        <annotation>
+                            <documentation>The planned location or extent of the feature. 
                                 diggs:LocationPropertyType admits every DIGGS geometry, so the choice
                                 of geometry kind is guidance rather than a schema constraint:
                                 PointLocation for a point feature (a borehole, a pile), an
@@ -6808,43 +7191,105 @@
                                 AbstractVolume for a 3-D extent.</documentation>
                         </annotation>
                     </element>
-                    <element minOccurs="0" name="diameter" type="diggs:LengthMeasureType">
+                    <element minOccurs="0" name="designInstallationSequenceNumber"
+                        type="positiveInteger">
                         <annotation>
-                            <documentation>The planned diameter, where the feature kind has one (a
-                                pile, a rigid inclusion, a sounding). Informational convenience: THE
-                                GEOMETRY PREVAILS where targetSFLocation carries an extent that
-                                disagrees with this value.</documentation>
-                        </annotation>
-                    </element>
-                    <element minOccurs="0" name="totalLength" type="diggs:LengthMeasureType">
-                        <annotation>
-                            <documentation>The planned total length, for a linear feature - the
-                                analogue of the realized side's totalMeasuredDepth. Informational
-                                convenience: THE GEOMETRY PREVAILS where targetSFLocation carries a
-                                curve whose length disagrees with this value.</documentation>
+                            <documentation>The position this feature is intended to occupy in the
+                                installation order, counting from 1.</documentation>
                         </annotation>
                     </element>
                 </sequence>
             </extension>
         </complexContent>
     </complexType>
-
-    <element name="TargetBorehole" type="diggs:TargetBoreholeType"
-        substitutionGroup="diggs:AbstractTargetObject">
+    <element name="plannedPositions" type="diggs:PlannedPositionsPropertyType">
         <annotation>
-            <documentation>A specialization of diggs:TargetSamplingFeature for a planned borehole,
-                carrying the two properties a borehole plan needs beyond the base: what casing and
-                backfill are planned. Substitutes diggs:AbstractTargetObject directly rather than
-                diggs:TargetSamplingFeature - concrete DIGGS elements are never substitution-group
-                heads - but its type extends diggs:TargetSamplingFeatureType, the same pattern
-                diggs:ConcretePile (specialty/DeepFoundation.xsd) uses against
-                diggs:AbstractLinearInstallation.</documentation>
+            <documentation>The layout for a set of planned sampling features - a grid with an index
+                space, or a general pattern with no grid defined.</documentation>
         </annotation>
     </element>
-    <complexType name="TargetBoreholeType">
+
+    <element name="ProgramDesignReference" type="diggs:ProgramDesignReferenceType"/>
+    <complexType name="ProgramDesignReferenceType">
+        <annotation>
+            <documentation>A reference from a realized feature to a program design that governs it,
+                qualified by which kind of governing relationship it is and when that relationship
+                took effect. Use a bare programDesignRef where a feature has exactly one governing
+                design in its original, as-built role; use this type where more than one design
+                governs it, or where a later design supersedes an earlier one.</documentation>
+        </annotation>
         <complexContent>
-            <extension base="diggs:TargetSamplingFeatureType">
+            <extension base="diggs:AbstractComponentObjectBaseType">
                 <sequence>
+                    <element minOccurs="0" ref="diggs:programDesignRef"/>
+                    <element minOccurs="0" name="designRole" type="gml:CodeWithAuthorityType">
+                        <annotation>
+                            <documentation>The kind of governing relationship - the design the
+                                feature was originally built to, a later design under which it was
+                                repaired or strengthened, a design that adopted it unchanged, or one
+                                that no longer governs. Absent means built to this design, the default
+                                reading of a bare reference.</documentation>
+                        </annotation>
+                    </element>
+                    <element minOccurs="0" name="effectiveFrom" type="gml:TimePositionType">
+                        <annotation>
+                            <documentation>When this governing relationship took effect. Orders
+                                multiple references where more than one applies; a superseded
+                                relationship is stated by the successor's own effectiveFrom together
+                                with a designRole marking the earlier one superseded, not by a
+                                separate end date.</documentation>
+                        </annotation>
+                    </element>
+                </sequence>
+            </extension>
+        </complexContent>
+    </complexType>
+    
+    <element name="BoreholeDesign" type="diggs:BoreholeDesignType"
+        substitutionGroup="diggs:AbstractSamplingFeatureDesign">
+        <annotation>
+            <documentation>A design for a planned borehole - its diameter, depth, and
+                inclination.</documentation>
+        </annotation>
+    </element>
+    <complexType name="BoreholeDesignType">
+        <complexContent>
+            <extension base="diggs:AbstractSamplingFeatureDesignType">
+                <sequence>
+                    <element minOccurs="0" name="designDiameter" type="diggs:LengthMeasureType">
+                        <annotation>
+                            <documentation>The nominal designed diameter, from the bit diameter
+                                intended for use. For a stepped borehole, the maximum intended
+                                diameter.</documentation>
+                        </annotation>
+                    </element>
+                    <element minOccurs="0" name="designMinDiameter" type="diggs:LengthMeasureType">
+                        <annotation>
+                            <documentation>For a stepped borehole, the minimum intended
+                                diameter.</documentation>
+                        </annotation>
+                    </element>
+                    <element minOccurs="0" name="designDepth" type="diggs:LengthMeasureType">
+                        <annotation>
+                            <documentation>The designed total measured depth, from the top of the
+                                centerline.</documentation>
+                        </annotation>
+                    </element>
+                    <element minOccurs="0" name="designPlunge" type="diggs:PlungeMeasureType">
+                        <annotation>
+                            <documentation>The design plunge angle, measured from the horizontal,
+                                positive up. Where absent, vertical (-90 degrees) is
+                                assumed.</documentation>
+                        </annotation>
+                    </element>
+                    <element minOccurs="0" name="designBearing" type="diggs:BearingMeasureType">
+                        <annotation>
+                            <documentation>Where the design borehole is inclined, the direction of
+                                plunge. Meaningless without designPlunge; where designPlunge is
+                                stated and this is absent, the direction is
+                                unconstrained.</documentation>
+                        </annotation>
+                    </element>
                     <element minOccurs="0" name="casingDescription" type="string">
                         <annotation>
                             <documentation>A description of the casing planned for the
@@ -6862,22 +7307,18 @@
         </complexContent>
     </complexType>
 
-    <element name="TargetInstallation" type="diggs:TargetInstallationType"
-        substitutionGroup="diggs:AbstractTargetObject">
+    <element name="InstallationDesign" type="diggs:InstallationDesignType"
+        substitutionGroup="diggs:AbstractSamplingFeatureDesign">
         <annotation>
-            <documentation>A specialization of diggs:TargetSamplingFeature for a planned
-                installation - a well, a pile, a rigid inclusion, or any other member of
-                diggs:AbstractLinearInstallation / diggs:AbstractPlanarInstallation, all of which
-                substitute diggs:AbstractSamplingFeature directly (there is no separate installation
-                head on the realized side to target). Adds no properties of its own: targetSFType
-                (inherited) already carries which installation kind is planned, dictionary-bound, so
-                nothing here needs to be closed-enumerated. Substitutes diggs:AbstractTargetObject
-                directly, matching diggs:TargetBorehole.</documentation>
+            <documentation>A design for a planned installation - a well, a pile, a rigid inclusion,
+                or any other member of AbstractLinearInstallation / AbstractPlanarInstallation. Adds
+                no properties of its own beyond the inherited samplingFeatureType, which already
+                states which kind of installation is planned.</documentation>
         </annotation>
     </element>
-    <complexType name="TargetInstallationType">
+    <complexType name="InstallationDesignType">
         <complexContent>
-            <extension base="diggs:TargetSamplingFeatureType"/>
+            <extension base="diggs:AbstractSamplingFeatureDesignType"/>
         </complexContent>
     </complexType>
 
@@ -6956,7 +7397,7 @@
                     <element minOccurs="0" maxOccurs="unbounded" name="targetSFRef"
                         type="diggs:FeatureReferenceType">
                         <annotation>
-                            <appinfo source="urn:x-gml:targetElement">diggs:TargetSamplingFeature</appinfo>
+                            <appinfo source="urn:x-gml:targetElement">diggs:AbstractSamplingFeatureDesign</appinfo>
                             <documentation>A reference to the planned sampling feature this sample
                                 is to be collected from - the planned counterpart of the mandatory
                                 diggs:samplingFeatureRef/diggs:samplingLocation choice
@@ -6965,10 +7406,9 @@
                                 diggs:TargetConstructionActivity/targetSFRef. Widened to [0..*],
                                 matching those two: a population-scope sampling plan (scope,
                                 inherited) governs many features without naming one. Plan-to-plan:
-                                cites a TargetSamplingFeature (or one of its specializations,
-                                diggs:TargetBorehole / diggs:TargetInstallation), an antecedent
-                                within the plan graph, never a realized sampling
-                                feature.</documentation>
+                                cites an AbstractSamplingFeatureDesign (or one of its specializations,
+                                BoreholeDesign / InstallationDesign), an antecedent within the
+                                plan graph, never a realized sampling feature.</documentation>
                         </annotation>
                     </element>
                     <element minOccurs="0" name="samplingLocation" type="diggs:LocationPropertyType">
@@ -7149,8 +7589,8 @@
                                 
                                 gml:CodeType with a dictionary vocabulary, deliberately NOT a closed XSD
                                 enumeration: the set of measurement kinds grows without a schema release. Note the
-                                contrast with diggs:TargetSamplingFeatureType/targetSFType, which is
-                                gml:CodeWithAuthorityType. That element is mandatory and its values must be precise,
+                                contrast with diggs:AbstractSamplingFeatureDesignType/samplingFeatureType,
+                                which is gml:CodeWithAuthorityType. That element is mandatory and its values must be precise,
                                 so it compels a codeSpace; this one is optional and largely derivable, so it does
                                 not.
                                 
@@ -7163,12 +7603,12 @@
                     <element minOccurs="0" maxOccurs="unbounded" name="targetSFRef"
                         type="diggs:FeatureReferenceType">
                         <annotation>
-                            <appinfo source="urn:x-gml:targetElement">diggs:TargetSamplingFeature</appinfo>
+                            <appinfo source="urn:x-gml:targetElement">diggs:AbstractSamplingFeatureDesign</appinfo>
                             <documentation>A reference to the planned sampling feature this
                                 measurement is to be performed on or from - the planned counterpart
                                 of diggs:samplingFeatureRef (AbstractMeasurementType), and typed the
-                                same way. Plan-to-plan: cites a TargetSamplingFeature (or one of its
-                                specializations, diggs:TargetBorehole / diggs:TargetInstallation), an
+                                same way. Plan-to-plan: cites an AbstractSamplingFeatureDesign (or one
+                                of its specializations, BoreholeDesign / InstallationDesign), an
                                 antecedent within the plan graph, never a realized sampling
                                 feature.</documentation>
                         </annotation>
@@ -7430,11 +7870,10 @@
         substitutionGroup="diggs:AbstractTargetObject">
         <annotation>
             <documentation>A planned counterpart of a realized diggs:AbstractConstructionActivity -
-                the act that builds something, not the thing built. Where
-                diggs:TargetSamplingFeature plans "a column here", TargetConstructionActivity plans
-                "installed by full-displacement auger, terminated on this refusal criterion, in this
-                sequence relative to neighbours" - installation-tab rows 7, 8, 39 and 40, which
-                TargetSamplingFeature cannot hold because they describe the act, not the object. The
+                the act that builds something, not the thing built. Where an AbstractSamplingFeatureDesign
+                plans "a column here", TargetConstructionActivity plans "installed by
+                full-displacement auger, terminated on this refusal criterion, in this sequence
+                relative to neighbours" - properties of the act, not of the object. The
                 termination/refusal criterion itself is not a property of this type: it is cited the
                 same way any other requirement is, through programSpecificationRef, inherited from
                 diggs:AbstractProgramDesignType.</documentation>
@@ -7450,7 +7889,7 @@
                     <element minOccurs="0" maxOccurs="unbounded" name="targetSFRef"
                         type="diggs:FeatureReferenceType">
                         <annotation>
-                            <appinfo source="urn:x-gml:targetElement">diggs:TargetSamplingFeature</appinfo>
+                            <appinfo source="urn:x-gml:targetElement">diggs:AbstractSamplingFeatureDesign</appinfo>
                             <documentation>A reference to the planned sampling feature this activity
                                 is to construct or act on - the planned counterpart of
                                 diggs:samplingFeatureRef (AbstractConstructionActivityType, where it
@@ -7460,10 +7899,9 @@
                                 inherited) governs many features without naming one, and an
                                 individual activity may reasonably act on more than one feature (a
                                 platform excavation spanning several planned columns). Plan-to-plan:
-                                cites a TargetSamplingFeature (or one of its specializations,
-                                diggs:TargetBorehole / diggs:TargetInstallation), an antecedent
-                                within the plan graph, never a realized sampling
-                                feature.</documentation>
+                                cites an AbstractSamplingFeatureDesign (or one of its specializations,
+                                BoreholeDesign / InstallationDesign), an antecedent within the
+                                plan graph, never a realized sampling feature.</documentation>
                         </annotation>
                     </element>
                     <element minOccurs="0" maxOccurs="unbounded" name="constructionMethod"
