@@ -1946,11 +1946,13 @@
         <complexContent>
             <extension base="diggs:AbstractProgramDesignType">
                 <sequence>
-                    <element name="samplingFeatureType" type="gml:CodeWithAuthorityType">
+                    <element minOccurs="0" name="samplingFeatureType" type="gml:CodeWithAuthorityType">
                         <annotation>
                             <documentation>The kind of sampling feature this design applies to, from
                                 samplingFeatureTypes.xml. A realized feature that fulfils this design
-                                is expected to be of this type.</documentation>
+                                is expected to be of this type. Optional like every other property
+                                here: an exception design resolves it, along with everything else it
+                                does not restate, up its basedOnRef chain.</documentation>
                         </annotation>
                     </element>
                     <element minOccurs="0" name="scope" type="diggs:SFDesignScopePropertyType"/>
@@ -2078,7 +2080,44 @@
             <documentation>Base type for detailed program specifications that define technical requirements and acceptance criteria. Specifications typically reference specific standards (e.g., ASTM, AASHTO), specify numerical acceptance criteria, define testing methods and frequencies, and establish quality control requirements. Unlike designs, specifications are typically contractual documents that establish enforceable requirements for program execution.</documentation>
         </annotation>
         <complexContent>
-            <extension base="diggs:AbstractProgramModuleType"/>
+            <extension base="diggs:AbstractProgramModuleType">
+                <sequence>
+                    <element minOccurs="0" name="appliesToZone"
+                        type="diggs:PlanarSurfaceOrMultiSurfacePropertyType">
+                        <annotation>
+                            <documentation>The region this specification applies to, as a plan-view
+                                polygon or, where the region is discontinuous, several of them.
+
+                                A CHECK, NOT A MEMBERSHIP TEST: it does not itself establish which
+                                features this specification governs - that is asserted only from the
+                                realized side, through programSpecificationRef, or from a design that
+                                adopts this specification. Where stated, every feature so established
+                                is expected to have its referencePoint within this region (a node on
+                                the boundary counts as inside); one that does not is a finding, not a
+                                reason to exclude it. Where absent, no spatial check applies.
+
+                                Independent of any citing design's own scope: a specification shared
+                                across several designs, or cited directly by a feature, has no single
+                                design scope to inherit this check from.</documentation>
+                        </annotation>
+                    </element>
+                    <element minOccurs="0" name="appliesToFeatureType"
+                        type="gml:CodeWithAuthorityType">
+                        <annotation>
+                            <documentation>The kind of feature this specification applies to - for
+                                example "ri_column", "load_transfer_platform" - from
+                                samplingFeatureTypes.xml.
+
+                                The same kind of check as appliesToZone: every feature established as
+                                a member through programSpecificationRef or an adopting design is
+                                expected to be of this type; one that is not is a finding. Where
+                                absent, no type check applies. codeSpace is mandatory, since a check
+                                keyed on an uncodespaced literal is not reliably
+                                evaluable.</documentation>
+                        </annotation>
+                    </element>
+                </sequence>
+            </extension>
         </complexContent>
     </complexType>
     <element abstract="true" name="AbstractProgram" type="diggs:AbstractProgramType">
@@ -2569,6 +2608,32 @@
                     <element ref="diggs:projectRef" maxOccurs="unbounded"/>
                     <element minOccurs="0" ref="diggs:originalProjectRef"/>
                     <element maxOccurs="unbounded" minOccurs="0" ref="diggs:associatedProjectRef"/>
+                    <element minOccurs="0" maxOccurs="unbounded" ref="diggs:samplingFeatureGroupRef">
+                        <annotation>
+                            <documentation>Zero or more references to sampling feature groups this
+                                feature is a member of.
+
+                                THE MEMBER CITES THE GROUP, never the reverse. A group is not edited
+                                to admit a member, which is what makes membership expressible in
+                                append and streaming workflows - the case that matters when members
+                                are constructed one at a time over months. See
+                                diggs:AbstractProjectScopedGroup for the full rationale and for why
+                                the released group types that reference downward are deprecated.
+
+                                NOT TO BE CONFUSED WITH samplingFeatureRef, which on an installation
+                                means CONTAINMENT ("I am constructed within the referenced feature")
+                                and is mandatory there. This element means MEMBERSHIP ("I am
+                                interpreted jointly with the other members of the referenced
+                                group"), is always optional, and never implies containment. The two
+                                were previously conflated on a single element name whose meaning
+                                depended on which type declared it; separating them is the point of
+                                this element.
+
+                                A feature may belong to more than one group - groups are not a
+                                partition, and a borehole may be simultaneously a member of a
+                                borehole/CPT pair and of a wider investigation-phase group.</documentation>
+                        </annotation>
+                    </element>
                     <element minOccurs="0" ref="diggs:programRef"/>
                     <element minOccurs="0" maxOccurs="1" name="currentDesign"
                         type="diggs:ProgramDesignReferencePropertyType">
@@ -2619,72 +2684,6 @@
                                 the case most likely to be nearer some other node.</documentation>
                         </annotation>
                     </element>
-                    <element maxOccurs="unbounded" minOccurs="0" name="environment"
-                        type="diggs:EnvironmentPropertyType">
-                        <annotation>
-                            <documentation>Reference to an object containing environmental
-                                parameters recorded during construction of the sampling
-                                feature</documentation>
-                        </annotation>
-                    </element>
-                    <element maxOccurs="unbounded" minOccurs="0" name="otherSamplingFeatureProperty"
-                        type="diggs:ParameterPropertyType">
-                        <annotation>
-                            <documentation>Reference to an Parameter object containing the name,
-                                value or range of values and unit of measure of a property or a
-                                measurement parameter.</documentation>
-                        </annotation>
-                    </element>
-                    <element name="locality" type="diggs:LocalityPropertyType" minOccurs="0"
-                        maxOccurs="1">
-                        <annotation>
-                            <documentation>A reference to a Locality object, containing
-                                non-coordinate location information for a feature.</documentation>
-                        </annotation>
-                    </element>
-                    <element name="referencePoint" type="diggs:PointLocationPropertyType"
-                        minOccurs="1">
-                        <annotation>
-                            <documentation>Reference to a PointLocation object on the feature that
-                                defines the location of the samplingFeature within a known spatial
-                                3D CRS or compound CRS (geographic or projected 2D CRS, plus a
-                                vertical CRS).</documentation>
-                        </annotation>
-                    </element>
-                    <element minOccurs="0" name="localCoordinates"
-                        type="diggs:LocalCoordinatePropertyType">
-                        <annotation>
-                            <documentation>A reference to a LocalCoordinate object that holds the
-                                values of local coordinates for the reference point of the
-                                associated feature. </documentation>
-                        </annotation>
-                    </element>
-                    <element minOccurs="0" maxOccurs="unbounded" ref="diggs:samplingFeatureGroupRef">
-                        <annotation>
-                            <documentation>Zero or more references to sampling feature groups this
-                                feature is a member of.
-
-                                THE MEMBER CITES THE GROUP, never the reverse. A group is not edited
-                                to admit a member, which is what makes membership expressible in
-                                append and streaming workflows - the case that matters when members
-                                are constructed one at a time over months. See
-                                diggs:AbstractProjectScopedGroup for the full rationale and for why
-                                the released group types that reference downward are deprecated.
-
-                                NOT TO BE CONFUSED WITH samplingFeatureRef, which on an installation
-                                means CONTAINMENT ("I am constructed within the referenced feature")
-                                and is mandatory there. This element means MEMBERSHIP ("I am
-                                interpreted jointly with the other members of the referenced
-                                group"), is always optional, and never implies containment. The two
-                                were previously conflated on a single element name whose meaning
-                                depended on which type declared it; separating them is the point of
-                                this element.
-
-                                A feature may belong to more than one group - groups are not a
-                                partition, and a borehole may be simultaneously a member of a
-                                borehole/CPT pair and of a wider investigation-phase group.</documentation>
-                        </annotation>
-                    </element>
                     <element minOccurs="0" maxOccurs="unbounded" name="nonConformance"
                         type="diggs:NonConformancePropertyType">
                         <annotation>
@@ -2727,6 +2726,46 @@
                                 Repeatable, since a feature is normally checked against several
                                 requirements - position, verticality, length, capacity - each
                                 reaching its own verdict.</documentation>
+                        </annotation>
+                    </element>
+                    <element maxOccurs="unbounded" minOccurs="0" name="environment"
+                        type="diggs:EnvironmentPropertyType">
+                        <annotation>
+                            <documentation>Reference to an object containing environmental
+                                parameters recorded during construction of the sampling
+                                feature</documentation>
+                        </annotation>
+                    </element>
+                    <element maxOccurs="unbounded" minOccurs="0" name="otherSamplingFeatureProperty"
+                        type="diggs:ParameterPropertyType">
+                        <annotation>
+                            <documentation>Reference to an Parameter object containing the name,
+                                value or range of values and unit of measure of a property or a
+                                measurement parameter.</documentation>
+                        </annotation>
+                    </element>
+                    <element name="locality" type="diggs:LocalityPropertyType" minOccurs="0"
+                        maxOccurs="1">
+                        <annotation>
+                            <documentation>A reference to a Locality object, containing
+                                non-coordinate location information for a feature.</documentation>
+                        </annotation>
+                    </element>
+                    <element name="referencePoint" type="diggs:PointLocationPropertyType"
+                        minOccurs="1">
+                        <annotation>
+                            <documentation>Reference to a PointLocation object on the feature that
+                                defines the location of the samplingFeature within a known spatial
+                                3D CRS or compound CRS (geographic or projected 2D CRS, plus a
+                                vertical CRS).</documentation>
+                        </annotation>
+                    </element>
+                    <element minOccurs="0" name="localCoordinates"
+                        type="diggs:LocalCoordinatePropertyType">
+                        <annotation>
+                            <documentation>A reference to a LocalCoordinate object that holds the
+                                values of local coordinates for the reference point of the
+                                associated feature. </documentation>
                         </annotation>
                     </element>
                 </sequence>
