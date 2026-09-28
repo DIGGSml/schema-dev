@@ -6754,6 +6754,182 @@
             </extension>
         </complexContent>
     </complexType>
+    <simpleType name="ClearanceTemporalOrderEnumType">
+        <annotation>
+            <documentation>Whether a diggs:ClearanceConstraint's minimumElapsedTime requirement is
+                ordered or symmetric. A closed, fixed set - the same call
+                diggs:LogicalOperatorEnumType and diggs:CriterionOperatorEnumType already make for a
+                small enumeration with no dictionary use beyond this family.</documentation>
+        </annotation>
+        <restriction base="string">
+            <enumeration value="unordered">
+                <annotation>
+                    <documentation>The two governing timestamps must simply be at least
+                        minimumElapsedTime apart, in either order - "no two of these within T of
+                        each other."</documentation>
+                </annotation>
+            </enumeration>
+            <enumeration value="referenceBeforeSubject">
+                <annotation>
+                    <documentation>The reference feature (or, where referenceFeatureType is absent,
+                        an earlier member of the same subject population) must reach its governing
+                        timestamp at least minimumElapsedTime before the subject does - "wait T
+                        after the reference completes."</documentation>
+                </annotation>
+            </enumeration>
+            <enumeration value="subjectBeforeReference">
+                <annotation>
+                    <documentation>The subject must reach its governing timestamp at least
+                        minimumElapsedTime before the reference does - the reverse ordering, stated
+                        separately because "before" is not symmetric and a consumer should not have
+                        to infer direction from which feature happens to be named
+                        first.</documentation>
+                </annotation>
+            </enumeration>
+        </restriction>
+    </simpleType>
+    <element name="ClearanceConstraint" type="diggs:ClearanceConstraintType"
+        substitutionGroup="diggs:AbstractProgramSpecification">
+        <annotation>
+            <documentation>A requirement that two activities or features maintain a minimum
+                separation distance, a minimum elapsed time between them, or both together as a
+                conditional rule - "installations within 3 m of each other must be at least 24 h
+                apart." Generic across domains, not specific to rigid inclusions: adjacent columns
+                protecting fresh grout from vibration, grout-injection stages avoiding hydraulic
+                fracture of a neighbor still curing, a new borehole standing off from an existing
+                utility, a pile sequenced away from a monitored structure.
+
+                NEITHER diggs:PerformanceCriterion NOR diggs:DesignConformanceCriterion FITS. Both
+                state one comparison of one measured value against one limit, on one subject. This
+                states a relation BETWEEN two features or two members of a population, over two
+                different kinds of measure (a length and a duration) that a single operator/limit
+                pair cannot combine. For that reason it substitutes
+                diggs:AbstractProgramSpecification directly rather than
+                diggs:AbstractAcceptanceCriterion - the same structural reason
+                diggs:CompositeAcceptanceCriterion does; see that element's own documentation.
+
+                THE SUBJECT AND THE REFERENCE. appliesToFeatureType (inherited from
+                diggs:AbstractProgramSpecificationType) names the population this constraint
+                governs - the subject. referenceFeatureType, declared here, names what the subject
+                must maintain clearance FROM. Left absent, the constraint is self-referential: every
+                member of the subject population clears every other member - the adjacent-column
+                case. Stated, and naming a different type, the constraint instead relates the
+                subject population to that other one - typically a pre-existing feature this
+                program did not install and therefore cannot date, in which case minimumElapsedTime
+                does not apply on that side.
+
+                DISTANCE-ONLY, TIME-ONLY, OR BOTH TOGETHER, because minimumSeparation and
+                minimumElapsedTime are independently optional rather than a mandatory pair. Both
+                present is the conditional case this object was first designed for: within
+                minimumSeparation, the two governing timestamps must be at least minimumElapsedTime
+                apart. minimumSeparation alone is an unconditional exclusion zone with no timing
+                component. minimumElapsedTime alone is an unconditional sequencing gap - every pair
+                the scope selects must clear the interval regardless of distance. At least one of
+                the two is expected to be present; a constraint with neither states nothing, but
+                XSD cannot enforce "at least one of two optional siblings" as a structural rule, so
+                this is left to the validation chain.
+
+                NOT STRUCTURALLY ENFORCEABLE, BY DESIGN - the same way
+                diggs:AbstractAcceptanceCriterionType's own comparison is stated rather than
+                computed: this object records the rule so it is checkable, not the check itself.
+                Evaluating it means finding, for every pair of features the scope selects, the
+                separation between their locations (per separationBasis) and the elapsed time
+                between their governing timestamps (per elapsedTimeBasis - typically each feature's
+                installing diggs:AbstractConstructionActivity/activityDateTime), and comparing each
+                against its threshold - a validation-module or external-tool job, exactly as
+                evaluating a diggs:PerformanceCriterion against real measurements is.</documentation>
+        </annotation>
+    </element>
+    <complexType name="ClearanceConstraintType">
+        <complexContent>
+            <extension base="diggs:AbstractProgramSpecificationType">
+                <sequence>
+                    <element minOccurs="0" name="referenceFeatureType"
+                        type="gml:CodeWithAuthorityType">
+                        <annotation>
+                            <documentation>The kind of feature the subject population (this
+                                specification's inherited appliesToFeatureType) must maintain
+                                clearance from - from samplingFeatureTypes.xml, the same dictionary
+                                appliesToFeatureType itself resolves against. Absent means
+                                self-referential: members of the subject population clear each
+                                other. Present, and naming a different type, the constraint instead
+                                relates the subject population to that other one.</documentation>
+                        </annotation>
+                    </element>
+                    <element minOccurs="0" name="minimumSeparation" type="diggs:LengthMeasureType">
+                        <annotation>
+                            <documentation>The distance threshold. Where minimumElapsedTime is also
+                                present, the timing requirement applies only between features closer
+                                together than this; where minimumElapsedTime is absent, this alone is
+                                an unconditional exclusion distance.</documentation>
+                        </annotation>
+                    </element>
+                    <element minOccurs="0" name="separationBasis" type="gml:CodeType">
+                        <annotation>
+                            <documentation>How minimumSeparation is measured between two features -
+                                centerline to centerline, edge to edge, nearest point, plan-view
+                                distance, or slant distance. gml:CodeType against
+                                separationBasis.xml. Needed because a feature's own location
+                                geometry (a linear extent, a footprint) does not by itself say which
+                                two points the distance is taken between.</documentation>
+                        </annotation>
+                    </element>
+                    <element minOccurs="0" name="minimumElapsedTime" type="diggs:TimeMeasureType">
+                        <annotation>
+                            <documentation>The duration threshold. Where minimumSeparation is also
+                                present, this applies only between features closer together than
+                                that distance; where minimumSeparation is absent, this alone is an
+                                unconditional minimum interval between any two governing timestamps
+                                the scope selects.</documentation>
+                        </annotation>
+                    </element>
+                    <element minOccurs="0" name="elapsedTimeBasis" type="gml:CodeType">
+                        <annotation>
+                            <documentation>Which pair of timestamps minimumElapsedTime is measured
+                                between - completion of one to start of the other, start to start,
+                                completion to completion, or start to completion. gml:CodeType
+                                against elapsedTimeBasis.xml. Without this, "elapsed time between two
+                                activities" is ambiguous between four different intervals that can
+                                differ by the full duration of either activity.</documentation>
+                        </annotation>
+                    </element>
+                    <element minOccurs="0" name="temporalOrder"
+                        type="diggs:ClearanceTemporalOrderEnumType">
+                        <annotation>
+                            <documentation>Whether minimumElapsedTime is symmetric (either governing
+                                timestamp may come first, "unordered") or directional
+                                ("referenceBeforeSubject"/"subjectBeforeReference"). Omitted means
+                                unordered - the common case where two peer installations simply need
+                                to clear the interval regardless of which happened
+                                first.</documentation>
+                        </annotation>
+                    </element>
+                    <element minOccurs="0" name="constraintRationale" type="gml:CodeType">
+                        <annotation>
+                            <documentation>Why the constraint exists - vibration sensitivity, fresh
+                                material curing, hydraulic fracture risk, ground heave or settlement
+                                risk, utility strike risk, structural load interaction, personnel
+                                safety exclusion, noise restriction, environmental buffer.
+                                gml:CodeType against constraintRationale.xml. Documentation, not
+                                load-bearing for the check itself.</documentation>
+                        </annotation>
+                    </element>
+                    <element minOccurs="0" maxOccurs="unbounded" name="evaluatedAgainstRef"
+                        type="diggs:FeatureReferenceType">
+                        <annotation>
+                            <documentation>A reference to a specific feature or activity this
+                                constraint was actually checked against, where citing individual
+                                instances is wanted rather than leaving the constraint purely
+                                scope-driven. Repeatable. Carries no targetElement appinfo
+                                deliberately - the same reason
+                                diggs:AbstractAcceptanceCriterionType/evaluatedAgainstRef does
+                                not.</documentation>
+                        </annotation>
+                    </element>
+                </sequence>
+            </extension>
+        </complexContent>
+    </complexType>
     <element name="SamplingFeatureDesign" type="diggs:SamplingFeatureDesignType"
         substitutionGroup="diggs:AbstractSamplingFeatureDesign">
         <annotation>
@@ -6969,9 +7145,13 @@
                 area is already sibling designs; a pass is the same construct. GML's sequence
                 rules cannot express split spacing, and this is why they do not need to.
                 - MINIMUM SPACING TO FRESH CONCRETE and MINIMUM AGE BEFORE ADJACENT INSTALLATION are
-                requirements, not an order, and are diggs:DesignConformanceCriterion - a
-                designProperty, an operator and a limit - so that they are checkable rather than
-                inert.</documentation>
+                requirements, not an order, and are diggs:ClearanceConstraint - a minimum
+                separation, a minimum elapsed time, or both together as a conditional rule - so
+                that they are checkable rather than inert. (An earlier version of this note pointed
+                at diggs:DesignConformanceCriterion; that type's single subject/operator/limit shape
+                cannot express a pairwise distance-triggers-timing rule, which is why
+                diggs:ClearanceConstraint exists as its own object - see its own
+                documentation.)</documentation>
         </annotation>
     </element>
     <complexType name="InstallationSequenceType">
