@@ -2072,42 +2072,12 @@
         <complexContent>
             <extension base="diggs:AbstractProgramDesignType">
                 <sequence>
-                    <element minOccurs="0" name="activityType" type="diggs:PlannedActivityTypeEnumType">
+                    <element name="activityType" type="diggs:PlannedActivityTypeEnumType">
                         <annotation>
                             <documentation>What kind of sampling activity is planned - collect,
-                                aggregate, subsample, or test. State it where it disambiguates the
-                                design (most usefully alongside sampleScope, whose own
-                                sourceFeatureRef/sourceSampleRef branches read differently depending
-                                on it); omit it where it is already implied by the rest of the
-                                design and would only restate what a reader can already infer - a
-                                design citing sourceSampleRef is a subsample or aggregate either
-                                way, and a DesignGroutMix is an aggregate activity by construction.
-
-                                OPTIONAL, REVERSING AN EARLIER DECISION (Dan, 2026-09-28). The
-                                retired diggs:TargetSampleType/activityType this field carries
-                                forward from was mandatory, called "the identity field... a planned
-                                sample reported without it is not interpretable" - and this field
-                                was first built matching that, mandatory on the shared ancestor.
-                                Two problems surfaced once diggs:DesignGroutMix inherited it through
-                                the rebase: first, a real 3.0.0 backward-compatibility break -
-                                diggs:DesignGroutMixType had zero mandatory fields at the 3.0.0
-                                release (confirmed: git show 3.0.0 plus a direct xmllint test of
-                                the minimal 3.0.0-valid empty <DesignGroutMix/>, which failed
-                                against the mandatory form), so any pre-existing grout-mix data
-                                omitting this field would break; second, and more fundamentally,
-                                the value is usually inferable from the rest of the design (which
-                                branch of sampleScope is populated, or which concrete design type
-                                is instantiated) rather than needing to be stated - forcing it
-                                added no real information in the common case. gml:CodeWithAuthorityType's
-                                codeSpace-mandatory pattern was considered as a middle ground
-                                (present-but-inferred-elsewhere) but rejected: this is a closed
-                                4-value enumeration, not a dictionary-bound classification, and
-                                weakening presence does not change that. A default value was also
-                                considered and rejected on a different, structural ground: XSD
-                                default only fills an element's content when the element is present
-                                but empty, never when it is omitted entirely, so it could not have
-                                restored compatibility for the real case (omission) regardless of
-                                what default were chosen.</documentation>
+                                aggregate, subsample, or test. Mandatory, paralleling
+                                diggs:AbstractSamplingActivityType/activityType on the realized
+                                side.</documentation>
                         </annotation>
                     </element>
                     <element minOccurs="0" name="progress" type="diggs:ProgressEventArrayPropertyType">
@@ -2529,12 +2499,19 @@
                     </element>
                     <element ref="diggs:projectRef" maxOccurs="unbounded"/>
                     <element minOccurs="0" ref="diggs:programRef"/>
-                    <element minOccurs="0" maxOccurs="unbounded" ref="diggs:programDesignRef">
+                    <element minOccurs="0" maxOccurs="1" name="currentDesign"
+                        type="diggs:ProgramDesignReferencePropertyType">
                         <annotation>
-                            <documentation>Zero or more references to program design objects this
-                                activity was carried out to realize (S7). A sampling activity may
-                                cite more than one design where multiple planning strands govern
-                                different aspects of it.</documentation>
+                            <documentation>The program design this activity was carried out to
+                                realize, as currently planned.</documentation>
+                        </annotation>
+                    </element>
+                    <element minOccurs="0" maxOccurs="unbounded" name="previousDesign"
+                        type="diggs:ProgramDesignReferencePropertyType">
+                        <annotation>
+                            <documentation>A design that governed this activity at an earlier point,
+                                before a later design superseded it. Use designRole and effectiveFrom
+                                on the reference to state which design and when.</documentation>
                         </annotation>
                     </element>
                     <element minOccurs="0" maxOccurs="unbounded" ref="diggs:programSpecificationRef">
