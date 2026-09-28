@@ -1158,8 +1158,10 @@
     </element>
     <complexType name="GroutSpecificationType">
         <annotation>
-            <documentation>Extended type based on AbstractProgramSpecificationType. Adds elements for
-                grout specification type definition.
+            <documentation>Extended type based on AbstractProgramSpecificationType. A THIN TYPE,
+                DELIBERATELY SO (GB4, 2026-09-28) - the same shape diggs:RIColumnSpecificationType
+                already established: what remains here is content no diggs:AbstractAcceptanceCriterion
+                can express, not a restatement of what one already can.
 
                 REMOVED, GB2 (2026-09-28): the local designGroutMixRef [0..1] to
                 diggs:DesignGroutMix - a reverse pointer back at the design, unique to this type. No
@@ -1168,7 +1170,42 @@
                 the design side, through diggs:DesignGroutMix's own inherited
                 programSpecificationRef. Matches the "member cites the group, never the reverse"
                 principle diggs:samplingFeatureGroupRef's own documentation already states for a
-                different relationship of the same shape.</documentation>
+                different relationship of the same shape.
+
+                REMOVED, GB4 (2026-09-28): strengthAverage, strength90Percent, strengthMinimum,
+                maxBleedAllowed, maxShrinkageAllowed, maxSlumpAllowed, maxSyneresisAllowed - seven
+                separately named elements each encoding one property x one implicit statistic x one
+                implicit bound, textbook instances of exactly the pattern
+                diggs:AbstractAcceptanceCriterionType's own documentation names as the reason it
+                exists: "one criterion states ONE requirement... several requirements on the same
+                property... is several criteria sharing a scope, not one criterion with several
+                limits" - strengthAverage/strength90Percent/strengthMinimum being three separate
+                elements for the SAME property (compressive strength) at three different statistics
+                is precisely that anti-pattern. Each now expresses as a sibling
+                diggs:PerformanceCriterion (propertyClass from properties.xml - bleed, shrinkage,
+                syneresis, slump and compressive_strength_unconfined all already have entries),
+                attached through diggs:partOfSpecificationRef (GB3) rather than restated as a typed
+                element here.
+
+                KEPT, AND WHY - two different reasons, not one:
+                - aggregateGradationCurveCoarseLimit/FineLimit carry a full grain-size curve
+                  (diggs:GroutGradingSpecificationType extends diggs:SieveAnalysisType), not a
+                  scalar. diggs:AbstractAcceptanceCriterionType/limit is a value or band
+                  (diggs:ParameterPropertyType) - it expresses a scalar tolerance exactly and a
+                  percent-passing curve across several sieve sizes not at all. Not a judgement call:
+                  this exact shape was already decided once, for the identical case, in
+                  diggs:RILTPSpecificationType's own aggregateGradationCurveCoarseLimit/FineLimit
+                  pair (built reusing this type's shape, C2, 2026-08-16) - "the requirement that
+                  could NOT be an acceptance criterion," per that build's own test case comment.
+                - maxDeviationFlowConeTime/GelTime/MarshFunnelTime/UnitWeight state a tolerance
+                  RELATIVE TO diggs:DesignGroutMix's own design value ("percent deviation... from
+                  design mix value"), not an absolute limit. diggs:AbstractAcceptanceCriterionType's
+                  limit compares an evaluated value against a fixed value or band; it has no element
+                  for "the limit is itself another cited object's field, plus or minus X%." Forcing
+                  these into diggs:PerformanceCriterion today would either lose the relative meaning
+                  or misstate it as absolute. Left as typed elements rather than invent a
+                  reference-value mechanism speculatively; worth reconsidering if the criterion
+                  family ever grows one for an unrelated reason.</documentation>
         </annotation>
         <complexContent>
             <extension base="diggs:AbstractProgramSpecificationType">
@@ -1187,12 +1224,6 @@
                             <documentation>A property containing gradation data that describes a
                                 grain size curve that defines the fine grain size limit for grout
                                 aggregate.</documentation>
-                        </annotation>
-                    </element>
-                    <element minOccurs="0" name="maxBleedAllowed"
-                        type="diggs:VolumePerVolumeMeasureType">
-                        <annotation>
-                            <documentation>Maximum allowable bleed for all batches.</documentation>
                         </annotation>
                     </element>
                     <element minOccurs="0" name="maxDeviationFlowConeTime"
@@ -1221,44 +1252,6 @@
                         <annotation>
                             <documentation>Maximum allowable percent deviation of mud balance
                                 density from design mix value.</documentation>
-                        </annotation>
-                    </element>
-                    <element minOccurs="0" name="maxShrinkageAllowed"
-                        type="diggs:VolumePerVolumeMeasureType">
-                        <annotation>
-                            <documentation>Maximum allowable shrinkage for all grout
-                                batches.</documentation>
-                        </annotation>
-                    </element>
-                    <element minOccurs="0" name="maxSlumpAllowed" type="diggs:LengthMeasureType">
-                        <annotation>
-                            <documentation>Maximum amount of slump allowed for all grout
-                                batches.</documentation>
-                        </annotation>
-                    </element>
-                    <element minOccurs="0" name="maxSyneresisAllowed"
-                        type="diggs:VolumeOrMassLossMeasureType">
-                        <annotation>
-                            <documentation>Maximum syneresis value allowed for all grout
-                                batches.</documentation>
-                        </annotation>
-                    </element>
-                    <element minOccurs="0" name="strengthAverage" type="diggs:PressureMeasureType">
-                        <annotation>
-                            <documentation>Minimum average strength allowed for all grout
-                                batches.</documentation>
-                        </annotation>
-                    </element>
-                    <element minOccurs="0" name="strength90Percent" type="diggs:PressureMeasureType">
-                        <annotation>
-                            <documentation>The minimum strength that 90% of grout batches must meet
-                                or exceed.</documentation>
-                        </annotation>
-                    </element>
-                    <element minOccurs="0" name="strengthMinimum" type="diggs:PressureMeasureType">
-                        <annotation>
-                            <documentation>Minimum allowable strength of all grout
-                                batches.</documentation>
                         </annotation>
                     </element>
                 </sequence>

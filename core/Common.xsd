@@ -230,10 +230,12 @@
         <annotation>
             <appinfo source="urn:x-gml:targetElement">diggs:AbstractProgramBasis</appinfo>
             <documentation>A reference to a program basis object - the evidence, ground model,
-                requirement set or other input a design was prepared from. Distinct from
-                basedOnRef, which cites a more general object of the SAME kind that this one
-                specializes, and from programSpecificationRef, which cites a constraint the design
-                must satisfy.</documentation>
+                requirement set or other input a design or specification was prepared from
+                (declared on diggs:AbstractProgramSpecificationType since GB3, 2026-09-28, widening
+                this beyond designs alone - the relationship is the same regardless of which program
+                module holds the premise). Distinct from basedOnRef, which cites a more general
+                object of the SAME kind that this one specializes, and from programSpecificationRef,
+                which cites a constraint the design must satisfy.</documentation>
         </annotation>
     </element>
     <element name="constructionActivityRef" type="diggs:FeatureReferenceType">
@@ -437,6 +439,43 @@
         type="diggs:PropertyInfoPropertyType">
         <annotation>
             <documentation>An object that contains Diggs property parameters.</documentation>
+        </annotation>
+    </element>
+    <element name="partOfSpecificationRef" type="diggs:FeatureReferenceType">
+        <annotation>
+            <appinfo source="urn:x-gml:targetElement">diggs:AbstractProgramSpecification</appinfo>
+            <documentation>A reference from an acceptance criterion to the named specification it
+                elaborates - a diggs:PerformanceCriterion or diggs:DesignConformanceCriterion
+                citing the diggs:RIColumnSpecification, diggs:RILTPSpecification or
+                diggs:GroutSpecification whose requirements it states one of, or a
+                diggs:CompositeAcceptanceCriterion doing the same.
+
+                NOT basedOnRef, DELIBERATELY (GB3, 2026-09-28). Both the criterion and the
+                specification it attaches under substitute the same diggs:AbstractProgramSpecification
+                head, so basedOnRef would validate here too - but a criterion is a COMPONENT of the
+                specification it elaborates, not a more specific version of it, and basedOnRef's
+                per-property most-specific-wins resolution has nothing to inherit between two objects
+                that share no properties. This is the same distinction that already separates
+                diggs:groutSpecificationRef and diggs:groutDesignRef from basedOnRef elsewhere in this
+                schema - composition is not specialization. Reusing basedOnRef for both relationships
+                is exactly what broke: it validated a criterion attaching to a named specification
+                structurally while asserting the wrong thing, which is why basedOnRef was briefly
+                removed from diggs:AbstractProgramSpecificationType entirely before this element was
+                designed to take over the case it was never suited for.
+
+                [0..1], matching basedOnRef's own restriction to a single most-specific target
+                (PB7): a criterion belongs to one specification; where it is also relevant elsewhere,
+                the consuming object cites both independently through its own repeatable
+                programSpecificationRef rather than the criterion claiming dual membership.
+
+                targetElement names the broad head rather than enumerating diggs:RIColumnSpecification/
+                diggs:RILTPSpecification/diggs:GroutSpecification, per the pattern this schema already
+                follows for criterionRef and diggs:samplingFeatureRef's own cautionary history of a
+                stale enumerated list. This also technically permits a criterion citing another
+                criterion or a composite, which is not the intended use (a criterion's membership in a
+                composite is tracked from the composite's own criterionRef instead) but is not
+                separately forbidden, the same tolerance criterionRef's own documentation
+                accepts.</documentation>
         </annotation>
     </element>
     <element name="programDesignRef" type="diggs:FeatureReferenceType">

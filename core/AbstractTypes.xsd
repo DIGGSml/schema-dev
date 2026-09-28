@@ -144,6 +144,16 @@
                                 is.</documentation>
                         </annotation>
                     </element>
+                    <element minOccurs="0" ref="diggs:partOfSpecificationRef">
+                        <annotation>
+                            <documentation>The named program specification this criterion elaborates -
+                                for example a diggs:RIColumnSpecification, diggs:RILTPSpecification or
+                                diggs:GroutSpecification. See diggs:partOfSpecificationRef's own
+                                documentation for why this is not basedOnRef (GB3, 2026-09-28), and
+                                diggs:sourceSpecRef above for the different, standard-citing reference
+                                this is not either.</documentation>
+                        </annotation>
+                    </element>
                 </sequence>
             </extension>
         </complexContent>
@@ -2186,11 +2196,57 @@
     </element>
     <complexType abstract="true" name="AbstractProgramSpecificationType">
         <annotation>
-            <documentation>Base type for detailed program specifications that define technical requirements and acceptance criteria. Specifications typically reference specific standards (e.g., ASTM, AASHTO), specify numerical acceptance criteria, define testing methods and frequencies, and establish quality control requirements. Unlike designs, specifications are typically contractual documents that establish enforceable requirements for program execution.</documentation>
+            <documentation>Base type for detailed program specifications that define technical requirements and acceptance criteria. Specifications typically reference specific standards (e.g., ASTM, AASHTO), specify numerical acceptance criteria, define testing methods and frequencies, and establish quality control requirements. Unlike designs, specifications are typically contractual documents that establish enforceable requirements for program execution.
+
+                basedOnRef AND basisRef ADDED, GB3 (2026-09-28). basedOnRef was briefly removed
+                entirely (2026-09-27, during the program-design rearchitecture) after a real defect
+                surfaced: diggs:AbstractAcceptanceCriterion substitutes this same head, so an
+                acceptance criterion citing the NAMED SPECIFICATION it elaborates (a
+                diggs:PerformanceCriterion attaching under a diggs:RIColumnSpecification, say) was
+                structurally indistinguishable from one specification specializing a more general one
+                of the same kind - the only relationship basedOnRef actually models. The two are not
+                the same relationship: a criterion is a COMPONENT of the specification it elaborates,
+                not a more specific version of it, and basedOnRef's own per-property
+                most-specific-wins resolution is meaningless between two objects that share no
+                properties. Removing the element entirely also broke the genuinely correct case -
+                one diggs:GroutSpecification (or one diggs:DesignConformanceCriterion) specializing a
+                more general one of the SAME concrete type - collateral damage from a fix aimed at
+                the wrong target.
+
+                RESOLUTION: basedOnRef is restored here, for the specialization case it was always
+                meant for (matching its established local declaration on
+                diggs:AbstractProgramDesignType and diggs:AbstractProgramBasisType - each program
+                head declares it separately rather than inheriting a shared one, since
+                diggs:AbstractProgramModuleType's own sequence is deliberately empty). The
+                component/elaboration case gets its own element, diggs:partOfSpecificationRef,
+                declared on diggs:AbstractAcceptanceCriterionType and
+                diggs:CompositeAcceptanceCriterionType specifically rather than here - narrower,
+                matching the only demonstrated need, and avoiding the same head/kind ambiguity that
+                caused the original defect. XSD cannot itself stop a criterion from using basedOnRef
+                where partOfSpecificationRef belongs (both targets share this same head) - task X1's
+                reference-validation module is where that distinction is enforced; see its own
+                write-up for the added rule.
+
+                basisRef is new here, not a restoration - it gives a specification the same route to
+                cite the evidence/ground-model/requirement-set premise a design already has, on the
+                same optional, additive basis every other widening in this family has used. No
+                concrete case demands it yet; included because the relationship is symmetric with
+                designs and costs nothing unused.</documentation>
         </annotation>
         <complexContent>
             <extension base="diggs:AbstractProgramModuleType">
                 <sequence>
+                    <element minOccurs="0" ref="diggs:basedOnRef"/>
+                    <element minOccurs="0" maxOccurs="1" ref="diggs:basisRef">
+                        <annotation>
+                            <documentation>The basis this specification's requirements were derived
+                                from - ONE, the most specific one that applies, matching the
+                                singularity diggs:AbstractProgramDesignType's own basisRef was
+                                restricted to at PB7 and for the same reason: anything more general
+                                reaches the specification through that basis's own basedOnRef
+                                chain.</documentation>
+                        </annotation>
+                    </element>
                     <element minOccurs="0" name="appliesToZone"
                         type="diggs:PlanarSurfaceOrMultiSurfacePropertyType">
                         <annotation>
