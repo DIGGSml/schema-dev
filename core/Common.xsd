@@ -244,6 +244,71 @@
             <documentation>A reference to a construction activity</documentation>
         </annotation>
     </element>
+    <element name="evaluatedAgainstMeasurementRef" type="diggs:FeatureReferenceType">
+        <annotation>
+            <appinfo source="urn:x-gml:targetElement">diggs:AbstractMeasurement</appinfo>
+            <documentation>A reference to a measurement - a test or a monitoring reading - that
+                supplies a value an acceptance criterion is evaluated against. Repeatable, since a
+                statistic may be computed over several measurements of the same kind; do not mix
+                with diggs:evaluatedAgainstSamplingFeatureRef on the same criterion - use one kind or
+                the other.</documentation>
+        </annotation>
+    </element>
+    <element name="evaluatedAgainstSamplingFeatureRef" type="diggs:FeatureReferenceType">
+        <annotation>
+            <appinfo source="urn:x-gml:targetElement">diggs:AbstractSamplingFeature</appinfo>
+            <documentation>A reference to a sampling feature that supplies a value an acceptance
+                criterion is evaluated against, or - on a clearance constraint - a specific feature
+                the constraint was checked against. Repeatable; do not mix with
+                diggs:evaluatedAgainstMeasurementRef on the same criterion.</documentation>
+        </annotation>
+    </element>
+    <element name="relativeToSampleRef" type="diggs:FeatureReferenceType">
+        <annotation>
+            <appinfo source="urn:x-gml:targetElement">diggs:AbstractSample</appinfo>
+            <documentation>The sample a diggs:RelativeLocation's position is stated relative to. Use
+                in place of diggs:relativeToSamplingFeatureRef where the reference point is a sample
+                rather than a sampling feature.</documentation>
+        </annotation>
+    </element>
+    <element name="relativeToSamplingFeatureRef" type="diggs:FeatureReferenceType">
+        <annotation>
+            <appinfo source="urn:x-gml:targetElement">diggs:AbstractSamplingFeature</appinfo>
+            <documentation>The sampling feature a diggs:RelativeLocation's position is stated
+                relative to - for example the borehole a depth is measured down. Use in place of
+                diggs:relativeToSampleRef where the reference point is a sampling feature rather than
+                a sample.</documentation>
+        </annotation>
+    </element>
+    <element name="sourceMeasurementRef" type="diggs:FeatureReferenceType">
+        <annotation>
+            <appinfo source="urn:x-gml:targetElement">diggs:AbstractMeasurement</appinfo>
+            <documentation>A reference to a measurement - a test or a monitoring reading - providing
+                a diggs:ProvenancedParameter value's provenance. Repeatable: a value may be derived
+                from more than one measurement, for example a correlation drawing on several tests.
+                Do not mix with diggs:sourceObservationRef or diggs:sourceSamplingFeatureRef on the
+                same parameter - use one kind of source.</documentation>
+        </annotation>
+    </element>
+    <element name="sourceObservationRef" type="gml:ReferenceType">
+        <annotation>
+            <appinfo source="urn:x-gml:targetElement">diggs:AbstractObservation</appinfo>
+            <documentation>A reference to an observation providing a diggs:ProvenancedParameter
+                value's provenance. Repeatable. Typed gml:ReferenceType rather than
+                diggs:FeatureReferenceType because an observation is an object with no
+                gml:identifier. Do not mix with diggs:sourceMeasurementRef or
+                diggs:sourceSamplingFeatureRef on the same parameter.</documentation>
+        </annotation>
+    </element>
+    <element name="sourceSamplingFeatureRef" type="diggs:FeatureReferenceType">
+        <annotation>
+            <appinfo source="urn:x-gml:targetElement">diggs:AbstractSamplingFeature</appinfo>
+            <documentation>A reference to a sampling feature - for example a diggs:Sounding -
+                providing a diggs:ProvenancedParameter value's provenance. Repeatable. Do not mix
+                with diggs:sourceMeasurementRef or diggs:sourceObservationRef on the same
+                parameter.</documentation>
+        </annotation>
+    </element>
     <element name="groundModelRef" type="diggs:FeatureReferenceType">
         <annotation>
             <appinfo source="urn:x-gml:targetElement">diggs:AbstractObservationSystem</appinfo>
@@ -2710,15 +2775,17 @@
                                 assumed.</documentation>
                         </annotation>
                     </element>
-                    <element minOccurs="0" maxOccurs="unbounded" name="sourceRef"
-                        type="diggs:FeatureReferenceType">
+                    <choice minOccurs="0">
                         <annotation>
-                            <documentation>A reference to an object providing the value's provenance
-                                — typically a Test, an Observation, or a Sounding. Repeatable: a
-                                value may be derived from more than one source, for example a
-                                correlation drawing on several tests.</documentation>
+                            <documentation>A reference to what provides this value's provenance -
+                                one kind of source, repeated as needed; a value derived from sources
+                                of more than one kind states each as a separate
+                                diggs:ProvenancedParameter.</documentation>
                         </annotation>
-                    </element>
+                        <element maxOccurs="unbounded" ref="diggs:sourceMeasurementRef"/>
+                        <element maxOccurs="unbounded" ref="diggs:sourceObservationRef"/>
+                        <element maxOccurs="unbounded" ref="diggs:sourceSamplingFeatureRef"/>
+                    </choice>
                 </sequence>
             </extension>
         </complexContent>
@@ -2812,10 +2879,11 @@
             <documentation>Complex type: DesignBasisParameterType. Extends
                 diggs:ProvenancedParameterType by plain extension - the same inheritance pattern
                 diggs:DesignFactorType uses - so that parameterName (dictionary-bound), typeData,
-                the min/value/max triple, parameterUnits, subjectRef, derivation and sourceRef are
-                all inherited rather than restated. The min/value/max triple is what lets a premise
-                be stated as a single value or as a range without any addition here, and typeData
-                is what lets a premise with no numeric value at all be stated as text.
+                the min/value/max triple, parameterUnits, subjectRef, derivation and the
+                sourceMeasurementRef/sourceObservationRef/sourceSamplingFeatureRef choice are all
+                inherited rather than restated. The min/value/max triple is what lets a premise be
+                stated as a single value or as a range without any addition here, and typeData is
+                what lets a premise with no numeric value at all be stated as text.
 
                 WHAT IS ADDED, AND WHY EACH WAS NOT ALREADY AVAILABLE. appliesToCondition carries
                 the condition a value is contingent on, because the same named coefficient
@@ -2823,9 +2891,9 @@
                 diggs:DesignFactorType/appliesTo records at length, that collapsing identity and
                 applicability into one dictionary term produces combinatorial growth across every
                 method by condition combination. sourceSpecification carries the publication a
-                value was taken from, which the inherited sourceRef cannot do: sourceRef is a
-                diggs:FeatureReferenceType aimed at a Test, Observation or Sounding, so a standard
-                clause or a journal paper had nowhere to go. associatedFile carries a premise that
+                value was taken from, which the inherited source references cannot: those target a
+                measurement, an observation or a sampling feature, so a standard clause or a journal
+                paper had nowhere to go. associatedFile carries a premise that
                 is only expressible as a document - the digitised chart a factor is read off, or
                 the spreadsheet a correlation was implemented in.
 
@@ -4309,15 +4377,17 @@
         <complexContent>
             <extension base="diggs:AbstractComponentObjectBaseType">
                 <sequence>
-                    <element minOccurs="0" name="relativeToRef" type="diggs:FeatureReferenceType">
+                    <choice minOccurs="0">
                         <annotation>
-                            <documentation>The feature this position is relative to. Optional
-                                because the hosting object (for example
-                                diggs:SampleDesignScopeType/sourceFeatureRef) commonly already
-                                names it; state it here only where this diggs:RelativeLocation is
-                                used somewhere that does not.</documentation>
+                            <documentation>What this position is relative to - a sampling feature or
+                                a sample. Optional because the hosting object (for example
+                                diggs:SampleDesignScopeType/sourceFeatureRef) commonly already names
+                                it; state it here only where this diggs:RelativeLocation is used
+                                somewhere that does not.</documentation>
                         </annotation>
-                    </element>
+                        <element ref="diggs:relativeToSamplingFeatureRef"/>
+                        <element ref="diggs:relativeToSampleRef"/>
+                    </choice>
                     <choice>
                         <element name="depth" type="diggs:LengthDoubleListMeasureType">
                             <annotation>
