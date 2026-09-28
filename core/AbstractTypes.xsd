@@ -2063,20 +2063,42 @@
         <complexContent>
             <extension base="diggs:AbstractProgramDesignType">
                 <sequence>
-                    <element name="activityType" type="diggs:PlannedActivityTypeEnumType">
+                    <element minOccurs="0" name="activityType" type="diggs:PlannedActivityTypeEnumType">
                         <annotation>
                             <documentation>What kind of sampling activity is planned - collect,
-                                aggregate, subsample, or test. Mandatory: the identity field every
-                                other Target-family type has exactly one of, carried forward
-                                unchanged from the retired diggs:TargetSampleType/activityType,
-                                whose own documentation called it "the identity field... a planned
-                                sample reported without it is not interpretable." Placed on the
-                                shared ancestor rather than only on diggs:DesignSampleType because
-                                the same is true of a manufactured sample: diggs:DesignGroutMix
-                                states "aggregate" (a grout mix is produced by blending
-                                constituents - the same case
-                                diggs:AbstractSamplingActivityType/mixingTime documents for
-                                soil-cement mixtures).</documentation>
+                                aggregate, subsample, or test. State it where it disambiguates the
+                                design (most usefully alongside sampleScope, whose own
+                                sourceFeatureRef/sourceSampleRef branches read differently depending
+                                on it); omit it where it is already implied by the rest of the
+                                design and would only restate what a reader can already infer - a
+                                design citing sourceSampleRef is a subsample or aggregate either
+                                way, and a DesignGroutMix is an aggregate activity by construction.
+
+                                OPTIONAL, REVERSING AN EARLIER DECISION (Dan, 2026-09-28). The
+                                retired diggs:TargetSampleType/activityType this field carries
+                                forward from was mandatory, called "the identity field... a planned
+                                sample reported without it is not interpretable" - and this field
+                                was first built matching that, mandatory on the shared ancestor.
+                                Two problems surfaced once diggs:DesignGroutMix inherited it through
+                                the rebase: first, a real 3.0.0 backward-compatibility break -
+                                diggs:DesignGroutMixType had zero mandatory fields at the 3.0.0
+                                release (confirmed: git show 3.0.0 plus a direct xmllint test of
+                                the minimal 3.0.0-valid empty <DesignGroutMix/>, which failed
+                                against the mandatory form), so any pre-existing grout-mix data
+                                omitting this field would break; second, and more fundamentally,
+                                the value is usually inferable from the rest of the design (which
+                                branch of sampleScope is populated, or which concrete design type
+                                is instantiated) rather than needing to be stated - forcing it
+                                added no real information in the common case. gml:CodeWithAuthorityType's
+                                codeSpace-mandatory pattern was considered as a middle ground
+                                (present-but-inferred-elsewhere) but rejected: this is a closed
+                                4-value enumeration, not a dictionary-bound classification, and
+                                weakening presence does not change that. A default value was also
+                                considered and rejected on a different, structural ground: XSD
+                                default only fills an element's content when the element is present
+                                but empty, never when it is omitted entirely, so it could not have
+                                restored compatibility for the real case (omission) regardless of
+                                what default were chosen.</documentation>
                         </annotation>
                     </element>
                     <element minOccurs="0" name="progress" type="diggs:ProgressEventArrayPropertyType">
