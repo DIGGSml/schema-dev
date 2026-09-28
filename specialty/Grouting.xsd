@@ -122,18 +122,24 @@
         <annotation>
             <documentation>Extended type based on DesignSampleType (rebased DS1, 2026-09-27; was
                 AbstractProgramDesignType). Adds elements for design grout mix type
-                definition.</documentation>
+                definition.
+
+                REMOVED, GB2 (2026-09-28): the local groutSpecificationRef [0..1] to
+                diggs:GroutSpecification. Redundant with programSpecificationRef [0..*], inherited
+                from diggs:AbstractProgramDesignType since the DS1 rebase - two elements on the same
+                object expressing the same "specification(s) this design was prepared to satisfy"
+                relationship, one narrowly typed and singular, the other generic and repeatable. Cite
+                a GroutSpecification through programSpecificationRef; nothing else changes, since that
+                element was always untyped and GroutSpecification was always a member of the
+                substitution group it targets. Matches the "one mechanism" principle basisRef was
+                restricted to at PB7, and the precedent diggs:RIColumnSpecificationType already set -
+                its own documentation states plainly that a design cites its specification only
+                through programSpecificationRef, with no domain-specific alternative
+                element.</documentation>
         </annotation>
         <complexContent>
             <extension base="diggs:DesignSampleType">
                 <sequence>
-                    <element minOccurs="0" ref="diggs:groutSpecificationRef">
-                        <annotation>
-                            <appinfo>diggs:GroutSpecification</appinfo>
-                            <documentation>Pointer to the GroutSpecification object that this grout
-                                mix is targeted to.</documentation>
-                        </annotation>
-                    </element>
                     <element minOccurs="0" name="placementDescription" type="string">
                         <annotation>
                             <documentation>Description of general location of grout mix on project
@@ -1152,12 +1158,21 @@
     </element>
     <complexType name="GroutSpecificationType">
         <annotation>
-            <documentation>Extended type based on AbstractProgramSpecificationType. Adds elements for grout specification type definition.</documentation>
+            <documentation>Extended type based on AbstractProgramSpecificationType. Adds elements for
+                grout specification type definition.
+
+                REMOVED, GB2 (2026-09-28): the local designGroutMixRef [0..1] to
+                diggs:DesignGroutMix - a reverse pointer back at the design, unique to this type. No
+                other diggs:AbstractProgramSpecification member (diggs:RIColumnSpecification,
+                diggs:RILTPSpecification) points back at its design; the edge is asserted once, from
+                the design side, through diggs:DesignGroutMix's own inherited
+                programSpecificationRef. Matches the "member cites the group, never the reverse"
+                principle diggs:samplingFeatureGroupRef's own documentation already states for a
+                different relationship of the same shape.</documentation>
         </annotation>
         <complexContent>
             <extension base="diggs:AbstractProgramSpecificationType">
                 <sequence>
-                    <element minOccurs="0" ref="diggs:designGroutMixRef"/>
                     <element minOccurs="0" name="aggregateGradationCurveCoarseLimit"
                         type="diggs:GroutGradingSpecificationPropertyType">
                         <annotation>
@@ -1491,32 +1506,45 @@
         type="diggs:GroutBatchType">
         <annotation>
             <documentation>A specialization of Sample that contains properties describing the
-                characteristics of a batch of grout used for production purposes. This object must
-                reference a DesignGroutMix object defined within the GroutingProgram
-                feature.</documentation>
+                characteristics of a batch of grout used for production purposes. This object is
+                expected to reference the diggs:DesignGroutMix it was produced to, through the
+                inherited programDesignRef (diggs:AbstractSampleType) - see GroutBatchType's own
+                documentation for why this is no longer a structurally mandatory element.</documentation>
         </annotation>
     </element>
     <complexType name="GroutBatchType">
         <annotation>
-            <documentation>Extended type based on TrialGroutBatchType. Adds elements for grout batch type definition.</documentation>
+            <documentation>Extended type based on TrialGroutBatchType. Adds nothing of its own.
+
+                REMOVED, GB2 (2026-09-28): the local designGroutMixRef [1..1], mandatory. Redundant
+                with programDesignRef [0..*], already inherited from diggs:AbstractSampleType since
+                S7 and explicitly documented there with DesignSample - which diggs:DesignGroutMix
+                specializes (DS1) - as its own worked example. A GroutBatch cites its DesignGroutMix
+                through that generic element instead.
+
+                DELIBERATELY LOOSENED FROM MANDATORY TO OPTIONAL, not preserved via some other
+                mechanism: diggs:AbstractSampleType's programDesignRef is [0..*], matching every
+                other realized-to-design reference in the schema (diggs:AbstractSamplingFeatureType's
+                currentDesign/previousDesign is likewise optional). A GroutBatch should still, as a
+                matter of practice, cite the design it was produced to - stated on the GroutBatch
+                element's own documentation - but the schema no longer enforces this structurally,
+                consistent with how every other program-design citation in this schema is
+                handled.</documentation>
         </annotation>
         <complexContent>
-            <extension base="diggs:TrialGroutBatchType">
-                <sequence>
-                    <element ref="diggs:designGroutMixRef"/>
-                </sequence>
-            </extension>
+            <extension base="diggs:TrialGroutBatchType"/>
         </complexContent>
     </complexType>
     <element name="groutSpecificationRef" type="diggs:FeatureReferenceType">
         <annotation>
-            <documentation>Reference to grout specification.</documentation>
-        </annotation>
-    </element>
-    <element name="designGroutMixRef" type="diggs:FeatureReferenceType">
-        <annotation>
-            <documentation>A pointer to the gml:id of the DesignGroutMix object that serves as the
-                design standard for the grout used.</documentation>
+            <documentation>Reference to grout specification. Reused by
+                diggs:RIColumnSpecificationType, whose own use-site targets diggs:GroutSpecification
+                specifically - the sole remaining use as of GB2 (2026-09-28), a component reference
+                between two specification-family objects, not a design/specification duality (see
+                that use-site's own documentation). diggs:DesignGroutMixType and
+                diggs:TrialGroutBatchType no longer declare this element; both express "the
+                specification this object must satisfy" through the generic programSpecificationRef
+                instead.</documentation>
         </annotation>
     </element>
     <element name="GroutPump" type="diggs:GroutPumpType" substitutionGroup="diggs:AbstractEquipment">
@@ -1799,12 +1827,18 @@
     </complexType>
     <complexType name="TrialGroutBatchType">
         <annotation>
-            <documentation>Extended type based on AbstractSampleType. Adds elements for trial grout batch type definition.</documentation>
+            <documentation>Extended type based on AbstractSampleType. Adds elements for trial grout
+                batch type definition.
+
+                REMOVED, GB2 (2026-09-28): the local groutSpecificationRef [0..1]. Redundant with
+                programSpecificationRef [0..*], already inherited from diggs:AbstractSampleType since
+                S7 - a realized batch (or its GroutBatchType specialization) cites the
+                GroutSpecification it must satisfy through that generic element, the same mechanism
+                every other sample and sampling feature uses.</documentation>
         </annotation>
         <complexContent>
             <extension base="diggs:AbstractSampleType">
                 <sequence>
-                    <element minOccurs="0" ref="diggs:groutSpecificationRef"/>
                     <element minOccurs="0" name="admixture" type="diggs:AdmixturePropertyType"
                         maxOccurs="unbounded">
                         <annotation>
