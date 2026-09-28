@@ -1988,9 +1988,15 @@
                                 target," per D2's own framing, rather than requiring a parallel
                                 bespoke field on each Target specialization that happens to need one.
                                 Named for what it is (equipment), not for which Target subtype hosts
-                                it - diggs:TargetMeasurement uses this for a planned instrument the
-                                same way diggs:TargetSample uses it for planned sampling equipment;
-                                neither gets its own differently-named copy.
+                                it - diggs:TargetMeasurement uses this for a planned instrument;
+                                it does not get its own differently-named copy. diggs:DesignSample
+                                (DS1, 2026-09-27 - replaced diggs:TargetSample, whose own
+                                plannedEquipment this field originally was) now declares an
+                                identically-shaped copy on diggs:AbstractSamplingDesignType instead
+                                of this one, since a design for a sample or sampling activity is no
+                                longer a member of this Target-object family - see that type's own
+                                documentation for why each design-family branch keeps its own copy
+                                rather than sharing one upward.
 
                                 THE PROPERTY DIGGS ALREADY HAD NO HOME FOR. Before this element,
                                 ri_properties.xml#instrument_type stated a planned instrument's kind
@@ -2007,8 +2013,9 @@
                                 field (built one day earlier, same session arc, as part of the
                                 TargetSample rework) - that field was the first instance of exactly
                                 this need, built before D2's generic answer existed. Retired in favour
-                                of this element; diggs:TargetSample now carries planned sampling
-                                equipment here like every other Target.</documentation>
+                                of this element; diggs:DesignSample (DS1, 2026-09-27 - retired and
+                                replaced diggs:TargetSample) carries planned sampling equipment
+                                here like every other design in this family.</documentation>
                         </annotation>
                     </element>
                     <element maxOccurs="unbounded" minOccurs="0" name="otherDesignProperty"
@@ -2018,6 +2025,86 @@
                                 no named element on this or a more specific target type. Prefer a
                                 named element wherever the plan has one; use this only where none
                                 exists.</documentation>
+                        </annotation>
+                    </element>
+                </sequence>
+            </extension>
+        </complexContent>
+    </complexType>
+    <element name="AbstractSamplingDesign" type="diggs:AbstractSamplingDesignType"
+        substitutionGroup="diggs:AbstractProgramDesign">
+        <annotation>
+            <documentation>Abstract head for designs of samples and sampling activities - the
+                sibling branch to diggs:AbstractSamplingFeatureDesign (which covers designs for
+                sampling features). Built DS1 (2026-09-27) for diggs:DesignSample (the generic
+                member, replacing the retired diggs:TargetSample) and diggs:DesignGroutMix (a
+                specialization of diggs:DesignSample, rebased here from a direct
+                diggs:AbstractProgramDesign extension) - a manufactured/produced sample design and
+                a collected/derived sample design are both, at root, a design for a sample.</documentation>
+        </annotation>
+    </element>
+    <complexType abstract="true" name="AbstractSamplingDesignType">
+        <annotation>
+            <documentation>Base type for the sample/sampling-activity design branch. Every field
+                here has a direct precedent from one of its two existing siblings
+                (diggs:AbstractSamplingFeatureDesignType, diggs:AbstractTargetObjectType) - nothing
+                invented for this type alone.
+
+                scope IS DELIBERATELY NOT HERE, unlike diggs:AbstractSamplingFeatureDesignType.
+                diggs:SFDesignScopePropertyType is purely geospatial (zone/grid/position), which
+                fits a manufactured sample (a grout mix) not at all - and even for a collected
+                sample, population selection and count/interval/pattern selection are different
+                enough concerns that diggs:SFDesignScopePropertyType's own shape does not transfer.
+                Scope for samples (diggs:SampleDesignScopePropertyType) lives one level down, on
+                diggs:DesignSampleType, so diggs:DesignGroutMix simply inherits it unused - the
+                manufactured case needing no scoping mechanism falls out of the type hierarchy
+                rather than needing to be special-cased.</documentation>
+        </annotation>
+        <complexContent>
+            <extension base="diggs:AbstractProgramDesignType">
+                <sequence>
+                    <element name="activityType" type="diggs:PlannedActivityTypeEnumType">
+                        <annotation>
+                            <documentation>What kind of sampling activity is planned - collect,
+                                aggregate, subsample, or test. Mandatory: the identity field every
+                                other Target-family type has exactly one of, carried forward
+                                unchanged from the retired diggs:TargetSampleType/activityType,
+                                whose own documentation called it "the identity field... a planned
+                                sample reported without it is not interpretable." Placed on the
+                                shared ancestor rather than only on diggs:DesignSampleType because
+                                the same is true of a manufactured sample: diggs:DesignGroutMix
+                                states "aggregate" (a grout mix is produced by blending
+                                constituents - the same case
+                                diggs:AbstractSamplingActivityType/mixingTime documents for
+                                soil-cement mixtures).</documentation>
+                        </annotation>
+                    </element>
+                    <element minOccurs="0" name="progress" type="diggs:ProgressEventArrayPropertyType">
+                        <annotation>
+                            <documentation>The lifecycle of this planned object, as a track of dated
+                                states. Matches diggs:AbstractSamplingFeatureDesignType/progress and
+                                diggs:AbstractTargetObjectType/progress in name, type and
+                                meaning - each design-family branch declares its own copy rather
+                                than sharing one upward, the established pattern in this
+                                family.</documentation>
+                        </annotation>
+                    </element>
+                    <element maxOccurs="unbounded" minOccurs="0" name="plannedEquipment"
+                        type="diggs:EquipmentPropertyType">
+                        <annotation>
+                            <documentation>Equipment planned to carry out this design - a batching
+                                plant or mixer for a grout mix, a sampler for a collection. Matches
+                                diggs:AbstractSamplingFeatureDesignType/plannedEquipment and
+                                diggs:AbstractTargetObjectType/plannedEquipment in name, type and
+                                meaning (D2).</documentation>
+                        </annotation>
+                    </element>
+                    <element maxOccurs="unbounded" minOccurs="0" name="otherDesignProperty"
+                        type="diggs:ParameterPropertyType">
+                        <annotation>
+                            <documentation>The dictionary escape hatch: a planned property with no
+                                named element on this or a more specific type. Prefer a named
+                                element wherever one exists.</documentation>
                         </annotation>
                     </element>
                 </sequence>
@@ -2274,7 +2361,7 @@
                     <element minOccurs="0" maxOccurs="unbounded" ref="diggs:programDesignRef">
                         <annotation>
                             <documentation>Zero or more references to program design objects this
-                                sample was collected to satisfy (S7) - for example a TargetSample.
+                                sample was collected to satisfy (S7) - for example a DesignSample.
                                 Same override/fallback precedence as programRef above: where absent,
                                 inherit via samplingActivityRef to the sampling activity's own
                                 programDesignRef.</documentation>
@@ -2980,9 +3067,15 @@
                                 target," per D2's own framing, rather than requiring a parallel
                                 bespoke field on each Target specialization that happens to need one.
                                 Named for what it is (equipment), not for which Target subtype hosts
-                                it - diggs:TargetMeasurement uses this for a planned instrument the
-                                same way diggs:TargetSample uses it for planned sampling equipment;
-                                neither gets its own differently-named copy.
+                                it - diggs:TargetMeasurement uses this for a planned instrument;
+                                it does not get its own differently-named copy. diggs:DesignSample
+                                (DS1, 2026-09-27 - replaced diggs:TargetSample, whose own
+                                plannedEquipment this field originally was) now declares an
+                                identically-shaped copy on diggs:AbstractSamplingDesignType instead
+                                of this one, since a design for a sample or sampling activity is no
+                                longer a member of this Target-object family - see that type's own
+                                documentation for why each design-family branch keeps its own copy
+                                rather than sharing one upward.
 
                                 THE PROPERTY DIGGS ALREADY HAD NO HOME FOR. Before this element,
                                 ri_properties.xml#instrument_type stated a planned instrument's kind
@@ -2998,9 +3091,12 @@
                                 SUPERSEDES diggs:TargetSampleType's own former samplingEquipment
                                 field (built one day earlier, same session arc, as part of the
                                 TargetSample rework) - that field was the first instance of exactly
-                                this need, built before D2's generic answer existed. Retired in favour
-                                of this element; diggs:TargetSample now carries planned sampling
-                                equipment here like every other Target.</documentation>
+                                this need, built before D2's generic answer existed. diggs:TargetSample
+                                itself was later retired (DS1, 2026-09-27), replaced by
+                                diggs:DesignSample, which left this Target-object family entirely
+                                and now carries its own plannedEquipment on
+                                diggs:AbstractSamplingDesignType instead of this
+                                element.</documentation>
                         </annotation>
                     </element>
                     <element minOccurs="0" maxOccurs="unbounded" name="otherProperty"

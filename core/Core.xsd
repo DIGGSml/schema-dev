@@ -2133,6 +2133,17 @@
                                 and prior to any subsampling or specimen preparation</documentation>
                         </annotation>
                     </element>
+                    <element minOccurs="0" name="sampleMass" type="diggs:MassMeasureType">
+                        <annotation>
+                            <documentation>Mass of the sample following collection or production and
+                                prior to any subsampling or specimen preparation. Added alongside
+                                sampleWeight (DS1, 2026-09-27) rather than in place of it - sampling
+                                standards and lab practice commonly specify a minimum sample size in
+                                mass (kg), which sampleWeight (a force) states only awkwardly. Pairs
+                                with diggs:DesignSampleType/plannedSampleMass, added at the same
+                                time for the same reason on the planned side.</documentation>
+                        </annotation>
+                    </element>
                     <element minOccurs="0" name="sampleVolume" type="diggs:VolumeMeasureType">
                         <annotation>
                             <documentation>Volume of the sample following collection or production
@@ -7464,65 +7475,57 @@
         </complexContent>
     </complexType>
 
-    <element name="TargetSample" type="diggs:TargetSampleType"
-        substitutionGroup="diggs:AbstractTargetObject">
+    <element name="DesignSample" type="diggs:DesignSampleType"
+        substitutionGroup="diggs:AbstractSamplingDesign">
         <annotation>
-            <documentation>A planned counterpart of a realized diggs:Sample - covers the whole
-                diggs:AbstractSample head (currently one concrete member, Sample).
+            <documentation>A design for a sample or the activity that produces one - covers the
+                whole diggs:AbstractSample head (currently one concrete member, Sample), and, via
+                diggs:DesignGroutMix's specialization of this type, a manufactured/produced sample
+                too. Replaces diggs:TargetSample (DS1, 2026-09-27), which was retired once this
+                generic form existed - see diggs:AbstractSamplingDesignType for why the family it
+                belongs to changed.
 
                 MIRRORS diggs:AbstractSamplingActivityType, NOT diggs:AbstractSampleType (Dan,
-                2026-08-18, correcting an earlier draft of this type). A sample cannot be designed
-                beyond designing the activity that creates it:
+                2026-08-18, correcting an earlier draft of diggs:TargetSampleType - the same
+                reasoning carries forward unchanged). A collected sample cannot be designed beyond
+                designing the activity that creates it:
                 diggs:AbstractSampleType/samplingActivityRef carries no minOccurs/maxOccurs and so
                 defaults to [1..1] - every realized Sample has exactly one SamplingActivity, and a
                 sample's content (recovery, condition, matrix as observed) is downstream of that
                 activity by construction. What is genuinely plannable is the activity's procedure
-                and intent, the same distinction every other Target in this family draws between
-                what precedes a result and the result itself. The element keeps the name
-                TargetSample, not TargetSamplingActivity, because the planning purpose stated by
-                its host design is still "produce a sample" - only the field content mirrors the
-                activity that produces it.</documentation>
+                and intent. The element keeps the name DesignSample, not DesignSamplingActivity,
+                because the planning purpose stated by its host design is still "produce a
+                sample" - only the field content mirrors the activity that produces it.</documentation>
         </annotation>
     </element>
-    <complexType name="TargetSampleType">
+    <complexType name="DesignSampleType">
         <annotation>
-            <documentation>Base type for planned samples. Mirrors
+            <documentation>Base type for sample designs. Mirrors
                 diggs:AbstractSamplingActivityType's plannable content (procedure and intent) field
                 for field, deliberately excluding everything on that type which is a
                 recovered-material result (lengthLongestPortion, rockQualityDesignationLength,
                 samplingActivityRQD, solidCoreRecoveryLength, totalSampleRecoveryLength,
                 totalSampleRecovery, sampleProduced, samplingEnvironment) or program-module
                 provenance (carried instead through the inherited
-                scope/basedOnRef/programSpecificationRef/basisRef, by way of
-                diggs:AbstractProgramDesignType and diggs:AbstractTargetObjectType). One deliberate
-                exception to the mirroring rule: sampleMatrix, below. A second field,
-                samplingEquipment (matching diggs:AbstractSamplingActivityType/samplingEquipment in
-                name), was built here originally but retired the next day in favour of
-                diggs:AbstractTargetObjectType/plannedEquipment (D2) once that generic, Target-family-
-                wide slot existed - planned sampling equipment is now stated there, not with a
-                sample-specific name.</documentation>
+                basedOnRef/programSpecificationRef/basisRef, by way of
+                diggs:AbstractProgramDesignType, and activityType/progress/plannedEquipment/
+                otherDesignProperty, by way of diggs:AbstractSamplingDesignType). One deliberate
+                exception to the mirroring rule: sampleMatrix, below.
+
+                WHAT REPLACED diggs:TargetSampleType's OWN targetSFRef AND
+                sourceTargetSampleRef (DS1, 2026-09-27): both folded into sampleScope
+                (diggs:SampleDesignScopePropertyType), below, which generalizes "which sampling
+                feature(s)" and "which source sample(s)" into one population-plus-selection
+                mechanism covering count, interval, explicit positions and stride - population
+                selection that neither retired field could express (a fixed count across a
+                referenced group, a regular depth interval, or "every other" of an existing
+                population). samplingLocation is KEPT, unlike those two, for the case sampleScope
+                does not cover: a sample with a known absolute position and no source feature at
+                all (for example a stockpile grab sample at a surveyed point).</documentation>
         </annotation>
         <complexContent>
-            <extension base="diggs:AbstractTargetObjectType">
+            <extension base="diggs:AbstractSamplingDesignType">
                 <sequence>
-                    <element name="activityType" type="diggs:PlannedActivityTypeEnumType">
-                        <annotation>
-                            <documentation>What kind of sampling activity is planned - collect,
-                                aggregate, subsample, or test. Mandatory: the identity field every
-                                other Target in this family has exactly one of (targetSFType,
-                                relationType, actionType, ...), and a planned sample reported
-                                without it is not interpretable - a subsample plan and a collection
-                                plan need different supporting fields, most obviously
-                                sourceTargetSampleRef. Placed first, ahead of the fields that mirror
-                                diggs:AbstractSamplingActivityType's own field order, for the same
-                                identity-field-first reason. Restricted from
-                                diggs:ActivityTypeEnumType (diggs:PlannedActivityTypeEnumType,
-                                declared below): the realized enumeration's "none" ("the activity
-                                failed to produce any physical sample") and "unknown" ("legacy data
-                                where only sample name exists") describe outcomes, not
-                                plans.</documentation>
-                        </annotation>
-                    </element>
                     <element minOccurs="0" name="targetConstructionActivityRef"
                         type="diggs:FeatureReferenceType">
                         <annotation>
@@ -7536,47 +7539,27 @@
                                 never a realized construction activity.</documentation>
                         </annotation>
                     </element>
-                    <element minOccurs="0" maxOccurs="unbounded" name="targetSFRef"
-                        type="diggs:FeatureReferenceType">
-                        <annotation>
-                            <appinfo source="urn:x-gml:targetElement">diggs:AbstractSamplingFeatureDesign</appinfo>
-                            <documentation>A reference to the planned sampling feature this sample
-                                is to be collected from - the planned counterpart of the mandatory
-                                diggs:samplingFeatureRef/diggs:samplingLocation choice
-                                (AbstractSamplingActivityType), and typed the same way as
-                                diggs:TargetMeasurement/targetSFRef and
-                                diggs:TargetConstructionActivity/targetSFRef. Widened to [0..*],
-                                matching those two: a population-scope sampling plan (scope,
-                                inherited) governs many features without naming one. Plan-to-plan:
-                                cites an AbstractSamplingFeatureDesign (or one of its specializations,
-                                DesignBorehole / DesignInstallation), an antecedent within the
-                                plan graph, never a realized sampling feature.</documentation>
-                        </annotation>
-                    </element>
                     <element minOccurs="0" name="samplingLocation" type="diggs:LocationPropertyType">
                         <annotation>
-                            <documentation>The planned location of the sample - most often a
-                                diggs:LinearExtent marking the planned depth interval within
-                                targetSFRef's linear referencing system. Matches
-                                diggs:AbstractSamplingActivityType/samplingLocation in name and type
-                                (diggs:LocationPropertyType). The single most important fact about a
-                                planned sample, and the reason this element exists rather than
-                                leaving planned depth to otherProperty.</documentation>
+                            <documentation>The planned ABSOLUTE location of the sample, in a real
+                                CRS - used only where sampleScope's feature/sample-relative
+                                mechanism does not apply, because no source feature is being cited
+                                at all (for example a known-position grab sample). Where a sample
+                                is planned relative to a cited sampling feature, state the position
+                                through sampleScope/samplingPosition (diggs:RelativeLocation)
+                                instead, which carries no CRS - the design-stage position is not yet
+                                a geometry the way this element's diggs:LocationPropertyType is. The
+                                two are alternative ways of stating "where," not to be used
+                                together.</documentation>
                         </annotation>
                     </element>
-                    <element minOccurs="0" maxOccurs="unbounded" name="sourceTargetSampleRef"
-                        type="diggs:FractionalReferenceType">
+                    <element minOccurs="0" name="sampleScope" type="diggs:SampleDesignScopePropertyType">
                         <annotation>
-                            <appinfo source="urn:x-gml:targetElement">diggs:TargetSample</appinfo>
-                            <documentation>A reference to the planned sample(s) this one is to be
-                                subsampled or aggregated from - the planned counterpart of
-                                diggs:sourceSampleRef (AbstractSamplingActivityType), and typed the
-                                same way (diggs:FractionalReferenceType) so a planned subsample can
-                                state what percentage of the source it will take. Plan-to-plan: this
-                                cites another TargetSample, an antecedent within the plan graph,
-                                never a realized Sample. Meaningful only where activityType is
-                                "aggregate" or "subsample"; XSD cannot enforce that
-                                correlation.</documentation>
+                            <documentation>Which population this sample design's activity draws
+                                from, and how densely or in what pattern - see
+                                diggs:SampleDesignScopeType's own documentation. Supersedes
+                                diggs:TargetSampleType's former targetSFRef and
+                                sourceTargetSampleRef.</documentation>
                         </annotation>
                     </element>
                     <element minOccurs="0" name="purpose" type="string">
@@ -7596,7 +7579,7 @@
                                 diggs:SampleType/type, whose own documentation describes it as "a
                                 shorthand for information provided by other sample or associated
                                 sampling activity properties" - a lossier duplicate of what
-                                activityType, samplingMethod and targetSFRef already state between
+                                activityType, samplingMethod and sampleScope already state between
                                 them.
 
                                 THE ONE DELIBERATE EXCEPTION TO MIRRORING
@@ -7634,10 +7617,56 @@
                     <element minOccurs="0" name="mixingTime" type="diggs:TimeMeasureType">
                         <annotation>
                             <documentation>For planned aggregate activities that involve blending
-                                samples (such as soil-cement mixtures), the planned time duration to
-                                mix the sample together. Matches
-                                diggs:AbstractSamplingActivityType/mixingTime in name and
-                                type.</documentation>
+                                samples (such as soil-cement mixtures, or a grout mix design via
+                                diggs:DesignGroutMix), the planned time duration to mix the sample
+                                together. Matches diggs:AbstractSamplingActivityType/mixingTime in
+                                name and type.</documentation>
+                        </annotation>
+                    </element>
+                    <element minOccurs="0" name="plannedSampleWeight" type="diggs:ForceMeasureType">
+                        <annotation>
+                            <documentation>Planned weight of the sample. Matches
+                                diggs:SampleType/sampleWeight (DS1, 2026-09-27) - the design/as-built
+                                pair, same name pattern, same type, so "did we get the planned
+                                size" is a direct field comparison.</documentation>
+                        </annotation>
+                    </element>
+                    <element minOccurs="0" name="plannedSampleMass" type="diggs:MassMeasureType">
+                        <annotation>
+                            <documentation>Planned mass of the sample. Matches
+                                diggs:SampleType/sampleMass, added alongside sampleWeight/
+                                plannedSampleWeight for the same reason (DS1, 2026-09-27) - many
+                                sampling standards specify a minimum size in mass (kg), which a
+                                force-valued field states only awkwardly.</documentation>
+                        </annotation>
+                    </element>
+                    <element minOccurs="0" name="plannedSampleVolume" type="diggs:VolumeMeasureType">
+                        <annotation>
+                            <documentation>Planned volume of the sample. Matches
+                                diggs:SampleType/sampleVolume. On diggs:DesignGroutMix this
+                                overlaps in MEANING but not in ROLE with the inherited
+                                diggs:DesignGroutMixType/theoreticalYield: theoreticalYield is the
+                                batch volume a stated mix formula computes to, while
+                                plannedSampleVolume is this generic field every sample design
+                                carries. Both may be stated; left as two fields rather than merged,
+                                since consolidating theoreticalYield here would mean restructuring
+                                the choice it is declared inside
+                                (diggs:DesignGroutMixType), a larger and separate
+                                change.</documentation>
+                        </annotation>
+                    </element>
+                    <element minOccurs="0" name="plannedSampleDimensions"
+                        type="diggs:SampleDimensionsPropertyType">
+                        <annotation>
+                            <documentation>Planned dimensions of the sample - diameter/length for a
+                                core sample (measured in the sampling direction), or height/width/
+                                length for a block sample (sides normal to the sampling direction).
+                                Matches diggs:SampleType/sampleDimensions, reusing
+                                diggs:SampleDimensionsType as-is rather than a separate
+                                length/area/volume trio: the realized-side type already
+                                distinguishes the core case from the block case correctly, and a
+                                bare area or volume scalar would state neither as
+                                well.</documentation>
                         </annotation>
                     </element>
                 </sequence>
@@ -7650,7 +7679,8 @@
                 describe a plan rather than an outcome - excludes "none" ("the activity failed to
                 produce any physical sample") and "unknown" ("legacy data where only sample name
                 exists"), neither of which can be planned for. Used for
-                diggs:TargetSampleType/activityType.</documentation>
+                diggs:AbstractSamplingDesignType/activityType (originally
+                diggs:TargetSampleType/activityType, before DS1's rebase).</documentation>
         </annotation>
         <restriction base="string">
             <enumeration value="collect">
@@ -7662,15 +7692,15 @@
             <enumeration value="aggregate">
                 <annotation>
                     <documentation>aggregate - activity will create a sample or samples by
-                        aggregating existing samples; the associated TargetSample(s) should have
-                        more than one sourceTargetSampleRef.</documentation>
+                        aggregating existing samples; the associated diggs:DesignSample's
+                        sampleScope should cite more than one sourceSampleRef.</documentation>
                 </annotation>
             </enumeration>
             <enumeration value="subsample">
                 <annotation>
                     <documentation>subsample - activity will create a sample or samples by
-                        subsampling an existing sample; only one sourceTargetSampleRef should be
-                        specified for the related TargetSample(s).</documentation>
+                        subsampling an existing sample; the associated diggs:DesignSample's
+                        sampleScope should cite exactly one sourceSampleRef.</documentation>
                 </annotation>
             </enumeration>
             <enumeration value="test">
@@ -7758,11 +7788,12 @@
                     <element minOccurs="0" maxOccurs="unbounded" name="targetSampleRef"
                         type="diggs:FractionalReferenceType">
                         <annotation>
-                            <appinfo source="urn:x-gml:targetElement">diggs:TargetSample</appinfo>
+                            <appinfo source="urn:x-gml:targetElement">diggs:DesignSample</appinfo>
                             <documentation>A reference to the planned sample this measurement is to
                                 be performed on - the planned counterpart of diggs:sampleRef
                                 (AbstractMeasurementType), and typed the same way. Plan-to-plan:
-                                cites a TargetSample, never a realized Sample.</documentation>
+                                cites a DesignSample (DS1, 2026-09-27 - retired and replaced
+                                diggs:TargetSample), never a realized Sample.</documentation>
                         </annotation>
                     </element>
                     <element minOccurs="0" name="measurementLocation"
@@ -7804,9 +7835,11 @@
                                 has been resolved into a planned schedule.
 
                                 NORMALLY OMITTED WHERE THE MEASUREMENT IS ON A PLANNED SAMPLE: cite the
-                                sample through targetSampleRef and let its own
-                                diggs:TargetSampleType/samplingLocation carry the depth, rather than
-                                restating it here. Omit it too where the measurement applies to the
+                                sample through targetSampleRef and let its own position (
+                                diggs:DesignSampleType/samplingLocation, or sampleScope/
+                                samplingPosition where it is stated relative to a cited feature)
+                                carry the depth, rather than restating it here. Omit it too where the
+                                measurement applies to the
                                 whole of the referenced feature, as an axial load test applies to a
                                 whole column - absence means the provision is not positioned, never that
                                 its position is unknown.</documentation>

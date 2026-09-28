@@ -4220,6 +4220,282 @@
             <element ref="diggs:DesignGeosyntheticLayer"/>
         </sequence>
     </complexType>
+
+    <element name="RelativeLocation" type="diggs:RelativeLocationType">
+        <annotation>
+            <documentation>A position stated relative to a feature's own geometry, without a CRS -
+                depth, distance along, or a 2-/3-dimensional offset in the feature's own frame.
+                Built for a design-stage sample position (DS1, 2026-09-27), generic beyond that:
+                any planned position where a real spatial reference system does not yet exist.
+
+                WHY THIS EXISTS RATHER THAN A GEOMETRY. A realized position is normally stated as
+                a diggs:LinearExtent/PointLocation/etc. within the feature's own LSRS or a
+                diggs:LocalCartesianCRS - but diggs:LocalCartesianCRS mandates a real
+                originLocation and axisLocation (LocalReferencing.xsd), and at design stage,
+                before a feature exists to survey, neither exists to state. A relative position is
+                not a degenerate or provisional geometry; it is a different kind of fact, stated
+                without any CRS at all - deliberately NOT admitted by diggs:LocationPropertyType
+                and NOT substituting diggs:AbstractGeometry. A consumer resolving a design's
+                planned position against a realized feature's actual geometry is a validation-
+                chain job, the same class as every other design-to-as-built correlation this
+                schema declines to enforce structurally.
+
+                PRECEDENT: diggs:TrialPitEventType/depth (Core.xsd) already states "Measured Depth
+                to base of the pit... in the feature's own system" as a bare LengthMeasureType -
+                this generalizes that idiom rather than inventing a new one.
+
+                FOUR SEPARATE ELEMENTS, NOT ONE TAGGED BY AN AXIS CODE, because depth (downward
+                from a feature's collar/top) and distance (along a feature's path) are physically
+                different measurements that a shared element plus a convention code would only
+                describe indirectly - the same reason diggs:PlungeMeasureType and
+                diggs:DipMeasureType stay separate types rather than one signed-angle type with a
+                sense flag.
+
+                LISTS, NOT REPEATED ELEMENTS, for stating several positions at once - "samples at
+                5, 10, 25 and 30 ft" is one diggs:RelativeLocation with a four-item depth list, the
+                same idiom gml:posList/srsDimension already uses: the chosen element (depth /
+                relativePosition2D / relativePosition3D) names the chunk width, so "20 numbers in
+                relativePosition3D" reads unambiguously as 6 or 7 positions depending on whether a
+                remainder exists - divisibility itself is not enforced, the same open gap
+                gml:posList itself carries, left to the validation chain (X12a/X12b are already
+                queued there for geometry checks generally). Per-position metadata (a differing
+                method or remark at one depth) is deliberately NOT expressible here: a position
+                that needs its own is a different sample design with its own scope, not a richer
+                list entry - the same reasoning that already routes a prefix-then-fallback
+                installation order to sibling designs rather than blending mechanisms
+                (diggs:InstallationSequence's own documentation).</documentation>
+        </annotation>
+    </element>
+    <complexType name="RelativeLocationType">
+        <complexContent>
+            <extension base="diggs:AbstractComponentObjectBaseType">
+                <sequence>
+                    <element minOccurs="0" name="relativeToRef" type="diggs:FeatureReferenceType">
+                        <annotation>
+                            <documentation>The feature this position is relative to. Optional
+                                because the hosting object (for example
+                                diggs:SampleDesignScopeType/sourceFeatureRef) commonly already
+                                names it; state it here only where this diggs:RelativeLocation is
+                                used somewhere that does not.</documentation>
+                        </annotation>
+                    </element>
+                    <choice>
+                        <element name="depth" type="diggs:LengthDoubleListMeasureType">
+                            <annotation>
+                                <documentation>One or more depths, downward from the feature's own
+                                    collar or top, as a flat list sharing one unit - "5 10 25 30
+                                    ft" is one element, four depths, matching
+                                    relativePosition2D/3D's own list-of-length shape
+                                    (diggs:LengthDoubleListMeasureType, not the scalar
+                                    diggs:LengthMeasureType).</documentation>
+                            </annotation>
+                        </element>
+                        <element name="distance" type="diggs:LengthDoubleListMeasureType">
+                            <annotation>
+                                <documentation>One or more distances along the feature's own path
+                                    (for example a horizontal borehole, or a trench measured from
+                                    an end), as a flat list sharing one unit - not a single
+                                    value.</documentation>
+                            </annotation>
+                        </element>
+                        <element name="relativePosition2D" type="diggs:LengthDoubleListMeasureType">
+                            <annotation>
+                                <documentation>One or more 2-dimensional offsets in the feature's
+                                    own frame (for example a position on a trench or test-pit
+                                    face), as a flat list of coordinate pairs sharing one unit -
+                                    "1 2 3 4" is two positions. See frameConvention for what the two
+                                    ordinates mean.</documentation>
+                            </annotation>
+                        </element>
+                        <element name="relativePosition3D" type="diggs:LengthDoubleListMeasureType">
+                            <annotation>
+                                <documentation>One or more 3-dimensional offsets in the feature's
+                                    own frame, as a flat list of coordinate triples sharing one
+                                    unit. See frameConvention for what the three ordinates
+                                    mean.</documentation>
+                            </annotation>
+                        </element>
+                    </choice>
+                    <element minOccurs="0" name="frameConvention" type="gml:CodeWithAuthorityType">
+                        <annotation>
+                            <documentation>What the axes of relativePosition2D/3D mean - meaningless
+                                without this, since there is no CRS to define them. Not meaningful
+                                for depth/distance, which are self-describing 1-dimensional
+                                measures with only one axis to name. codeSpace mandatory against
+                                frameConvention.xml. PROVISIONAL - built from practice (station/
+                                offset/elevation project baselines; trench/test-pit face logging
+                                grids) rather than a single citable naming standard; flagged for SME
+                                review the same way R10's and VERT1's provisional dictionaries
+                                are.</documentation>
+                        </annotation>
+                    </element>
+                </sequence>
+            </extension>
+        </complexContent>
+    </complexType>
+    <complexType name="RelativeLocationPropertyType">
+        <sequence minOccurs="0">
+            <element ref="diggs:RelativeLocation"/>
+        </sequence>
+        <attributeGroup ref="gml:AssociationAttributeGroup"/>
+    </complexType>
+
+    <element name="SamplingInterval" type="diggs:SamplingIntervalType">
+        <annotation>
+            <documentation>A regular spacing along a feature, optionally bounded - "every 5 ft,"
+                or "every 5 ft between 2 m and 20 m." Built for DS1 sample-design scoping; generic
+                enough for any regularly-spaced planned provision along a feature.</documentation>
+        </annotation>
+    </element>
+    <complexType name="SamplingIntervalType">
+        <complexContent>
+            <extension base="diggs:AbstractComponentObjectBaseType">
+                <sequence>
+                    <element name="spacing" type="diggs:LengthMeasureType">
+                        <annotation>
+                            <documentation>The regular spacing between positions.</documentation>
+                        </annotation>
+                    </element>
+                    <element minOccurs="0" name="from" type="diggs:LengthMeasureType">
+                        <annotation>
+                            <documentation>The depth/distance the interval begins at. Absent means
+                                unbounded at this end - the interval applies from the feature's own
+                                start.</documentation>
+                        </annotation>
+                    </element>
+                    <element minOccurs="0" name="to" type="diggs:LengthMeasureType">
+                        <annotation>
+                            <documentation>The depth/distance the interval ends at. Absent means
+                                unbounded at this end - the interval applies to the feature's own
+                                end.</documentation>
+                        </annotation>
+                    </element>
+                </sequence>
+            </extension>
+        </complexContent>
+    </complexType>
+    <complexType name="SamplingIntervalPropertyType">
+        <sequence minOccurs="0">
+            <element ref="diggs:SamplingInterval"/>
+        </sequence>
+        <attributeGroup ref="gml:AssociationAttributeGroup"/>
+    </complexType>
+
+    <element name="SampleDesignScope" type="diggs:SampleDesignScopeType">
+        <annotation>
+            <documentation>Which population a sample design's activity draws from, and how densely
+                or in what pattern - the sample-design counterpart of diggs:SFDesignScopeType,
+                built DS1 (2026-09-27). Two independent questions, not one: WHERE FROM (a zone, one
+                or more sampling-feature designs, or one or more source samples/sample designs) and
+                HOW MANY/WHAT PATTERN (a count, an interval, explicit positions, or a stride).
+
+                POPULATION SELECTION IS NOT RE-IMPLEMENTED HERE. "All boreholes," "a specific one,"
+                and "based on zone" are already exactly what diggs:SFDesignScopeType states on the
+                sampling-feature design itself; sourceFeatureRef cites that design rather than
+                restating its own zone/count/position logic. zone is kept here too, directly, for
+                the common case of scoping straight to a region without an intermediate SF design
+                to cite.
+
+                TWO POPULATION KINDS, NOT ONE, because they are genuinely different relations: a
+                sample collected FROM a sampling feature (sourceFeatureRef, mirroring the retired
+                diggs:TargetSampleType/targetSFRef) is a different fact from a sample subsampled or
+                aggregated FROM another sample or sample design (sourceSampleRef, mirroring the
+                retired diggs:TargetSampleType/sourceTargetSampleRef and typed the same way,
+                diggs:FractionalReferenceType, so a subsample can state what percentage of its
+                source it takes).
+
+                THE SELECTION CHOICE IS OPTIONAL AND MAY BE ABSENT: absence means every member of
+                the population, or one per referenced feature - the natural reading for "aggregate
+                all bulk samples from these 3 test pits," which needs no count at all.</documentation>
+        </annotation>
+    </element>
+    <complexType name="SampleDesignScopeType">
+        <complexContent>
+            <extension base="diggs:AbstractComponentObjectBaseType">
+                <sequence>
+                    <choice>
+                        <element name="zone" type="diggs:PlanarSurfaceOrMultiSurfacePropertyType">
+                            <annotation>
+                                <documentation>The area this sample design applies to. A feature
+                                    fulfils this scope if its reference point lies within this
+                                    zone - the same test diggs:SFDesignScopeType/zone
+                                    applies.</documentation>
+                            </annotation>
+                        </element>
+                        <element maxOccurs="unbounded" name="sourceFeatureRef"
+                            type="diggs:FeatureReferenceType">
+                            <annotation>
+                                <appinfo source="urn:x-gml:targetElement">diggs:AbstractSamplingFeatureDesign</appinfo>
+                                <documentation>One or more sampling-feature designs this sample
+                                    design collects from - "this collection of boreholes," or a
+                                    single ref for "a specific one." Plan-to-plan: cites an
+                                    AbstractSamplingFeatureDesign (or a specialization -
+                                    DesignBorehole, DesignInstallation), an antecedent within the
+                                    plan graph, never a realized sampling feature - the same
+                                    convention diggs:TargetSampleType/targetSFRef
+                                    followed.</documentation>
+                            </annotation>
+                        </element>
+                        <element maxOccurs="unbounded" name="sourceSampleRef"
+                            type="diggs:FractionalReferenceType">
+                            <annotation>
+                                <appinfo source="urn:x-gml:targetElement">diggs:DesignSample</appinfo>
+                                <documentation>One or more sample designs this one is to be
+                                    subsampled or aggregated from - "aggregate all bulk samples
+                                    from these 3 test pits" cites the source pits' own sample
+                                    designs, not the pits themselves. Plan-to-plan: cites a
+                                    DesignSample, an antecedent within the plan graph, never a
+                                    realized Sample - the same convention
+                                    diggs:TargetSampleType/sourceTargetSampleRef followed. Meaningful
+                                    only where the host design's activityType is "aggregate" or
+                                    "subsample"; XSD cannot enforce that
+                                    correlation.</documentation>
+                            </annotation>
+                        </element>
+                    </choice>
+                    <choice minOccurs="0">
+                        <element name="sampleCount" type="positiveInteger">
+                            <annotation>
+                                <documentation>A total count across the population - "50 split-
+                                    barrel samples from this collection of boreholes."</documentation>
+                            </annotation>
+                        </element>
+                        <element name="samplingInterval" type="diggs:SamplingIntervalPropertyType">
+                            <annotation>
+                                <documentation>A regular spacing along each referenced feature,
+                                    optionally bounded - "every 5 ft," or "every 5 ft between 2 m
+                                    and 20 m."</documentation>
+                            </annotation>
+                        </element>
+                        <element name="samplingPosition" type="diggs:RelativeLocationPropertyType">
+                            <annotation>
+                                <documentation>One or more specific planned positions, relative to
+                                    each referenced feature - "samples at 5, 10, 25 and 30
+                                    ft."</documentation>
+                            </annotation>
+                        </element>
+                        <element name="selectionStride" type="positiveInteger">
+                            <annotation>
+                                <documentation>Take every Nth member of the population, in whatever
+                                    order it is otherwise enumerated - "subsample every other
+                                    split-barrel sample" is a stride of 2. Meaningful only for a
+                                    sourceSampleRef/sourceFeatureRef population with an inherent
+                                    order; meaningless for zone, which has
+                                    none.</documentation>
+                            </annotation>
+                        </element>
+                    </choice>
+                </sequence>
+            </extension>
+        </complexContent>
+    </complexType>
+    <complexType name="SampleDesignScopePropertyType">
+        <sequence minOccurs="0">
+            <element ref="diggs:SampleDesignScope"/>
+        </sequence>
+        <attributeGroup ref="gml:AssociationAttributeGroup"/>
+    </complexType>
+
     <element name="PredictedSettlement" type="diggs:PredictedSettlementType">
         <annotation>
             <documentation>One component of a predicted settlement - immediate, primary

@@ -98,20 +98,34 @@
             <element ref="diggs:Chemical"/>
         </sequence>
     </complexType>
-    <element name="DesignGroutMix" substitutionGroup="diggs:AbstractProgramDesign"
+    <element name="DesignGroutMix" substitutionGroup="diggs:DesignSample"
         type="diggs:DesignGroutMixType">
         <annotation>
             <documentation>An object that contains properites describing the characteristics of a
                 batch of grout. This object optionally can reference a DesignGroutMix object defined
-                within the GroutingProgram feature</documentation>
+                within the GroutingProgram feature.
+
+                A SPECIALIZATION OF diggs:DesignSample (DS1, 2026-09-27; previously a direct
+                diggs:AbstractProgramDesign extension). A grout mix is a manufactured/produced
+                sample: it inherits activityType (state "aggregate" - a grout mix is produced by
+                blending constituents), plannedEquipment (a batching plant or mixer), and the
+                generic plannedSampleWeight/Mass/Volume/Dimensions fields, none of which this
+                type needs to restate. sampleScope, DesignSample's population/selection
+                mechanism, is inherited but has no use here and is expected to stay absent - a
+                manufactured sample has no source-feature or source-sample population to scope, per
+                Dan's own framing of the design/build discussion this rebase came from - the type
+                hierarchy makes that fall out naturally rather than needing a special
+                case.</documentation>
         </annotation>
     </element>
     <complexType name="DesignGroutMixType">
         <annotation>
-            <documentation>Extended type based on AbstractProgramDesignType. Adds elements for design grout mix type definition.</documentation>
+            <documentation>Extended type based on DesignSampleType (rebased DS1, 2026-09-27; was
+                AbstractProgramDesignType). Adds elements for design grout mix type
+                definition.</documentation>
         </annotation>
         <complexContent>
-            <extension base="diggs:AbstractProgramDesignType">
+            <extension base="diggs:DesignSampleType">
                 <sequence>
                     <element minOccurs="0" ref="diggs:groutSpecificationRef">
                         <annotation>
@@ -177,7 +191,17 @@
                                 type="diggs:VolumeMeasureType">
                                 <annotation>
                                     <documentation>Theoretical volume of a batch of grout produced
-                                        by following the design mix formula.</documentation>
+                                        by following the design mix formula.
+
+                                        DISTINCT FROM THE INHERITED plannedSampleVolume
+                                        (diggs:DesignSampleType, DS1, 2026-09-27), which now sits
+                                        alongside this field: theoreticalYield is what a stated mix
+                                        formula computes to, plannedSampleVolume is the generic
+                                        planned-size field every sample design carries. Both may be
+                                        stated; kept separate rather than merged since folding
+                                        theoreticalYield into plannedSampleVolume would mean
+                                        restructuring the choice this element is declared
+                                        inside.</documentation>
                                 </annotation>
                             </element>
                             <element minOccurs="0" name="typeMix" type="gml:CodeType">
