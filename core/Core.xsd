@@ -6574,64 +6574,47 @@
             </enumeration>
         </restriction>
     </simpleType>
-    <element name="PerformanceCriterion" type="diggs:PerformanceCriterionType"
+    <element name="PerformanceCriterion" type="diggs:AbstractAcceptanceCriterionType"
         substitutionGroup="diggs:AbstractAcceptanceCriterion">
         <annotation>
             <documentation>An acceptance criterion on a measured physical property of the completed
                 work - a strength, a permeability, a settlement, a modulus. Post-construction
-                acceptance: it is evaluated against what was built, and the property it names is
-                dictionary-bound so that the quantity is unambiguous.</documentation>
+                acceptance: it is evaluated against what was built.
+
+                limit/AuthorizedParameter/parameterName is the property this criterion governs; its
+                mandatory codeSpace should resolve against def/docs/codes/DIGGS/0.1/properties.xml,
+                so that a consumer can identify the quantity without interpreting free text (GB8,
+                2026-09-28 - the guarantee formerly stated by a separate, now-retired propertyClass
+                element; see diggs:AbstractAcceptanceCriterionType's own documentation for the full
+                account of that retirement). Not XSD-enforced which dictionary the codeSpace resolves
+                against - a matter of convention, same as the retired field's own codeSpace was.
+                Where the requirement is on a constructional or geometric property rather than a
+                measured physical one, use diggs:DesignConformanceCriterion instead.</documentation>
         </annotation>
     </element>
 
-    <complexType name="PerformanceCriterionType">
-        <complexContent>
-            <extension base="diggs:AbstractAcceptanceCriterionType">
-                <sequence>
-                    <element minOccurs="1" maxOccurs="1" name="propertyClass"
-                        type="gml:CodeWithAuthorityType">
-                        <annotation>
-                            <documentation>The physical property this criterion governs. The
-                                codeSpace attribute is mandatory and must resolve the property in a
-                                properties dictionary, so that a consumer can identify the quantity
-                                without interpreting free text. Where the requirement is on a
-                                constructional or geometric property rather than a measured physical
-                                one, use diggs:DesignConformanceCriterion
-                                instead.</documentation>
-                        </annotation>
-                    </element>
-                </sequence>
-            </extension>
-        </complexContent>
-    </complexType>
-
-    <element name="DesignConformanceCriterion" type="diggs:DesignConformanceCriterionType"
+    <element name="DesignConformanceCriterion" type="diggs:AbstractAcceptanceCriterionType"
         substitutionGroup="diggs:AbstractAcceptanceCriterion">
         <annotation>
             <documentation>An acceptance criterion on a geometric or constructional property
                 measured against its design intent - position, verticality, diameter, length,
-                cut-off elevation. A tolerance: it asks whether what was built matches what was
-                designed, rather than whether it performs.</documentation>
+                cut-off elevation, or a mix-proportioning requirement such as binding material
+                content or a water/binding-material ratio (any constructional or compositional
+                property checked against design intent, not only a geometric one). A tolerance: it
+                asks whether what was built matches what was designed, rather than whether it
+                performs.
+
+                limit/AuthorizedParameter/parameterName is the design property this criterion
+                governs; its mandatory codeSpace should resolve against
+                def/docs/codes/DIGGS/0.1/designProperty.xml (built S6, extended
+                W2/D6/VERT1b/GB6) (GB8, 2026-09-28 - replacing a separate, now-retired designProperty
+                element that carried only an OPTIONAL codeSpace; see
+                diggs:AbstractAcceptanceCriterionType's own documentation for the full account -
+                requiring limit to be an AuthorizedParameter is a strict improvement on that
+                guarantee, not merely a relocation). Where the requirement is on a measured physical
+                property instead, use diggs:PerformanceCriterion.</documentation>
         </annotation>
     </element>
-    <complexType name="DesignConformanceCriterionType">
-        <complexContent>
-            <extension base="diggs:AbstractAcceptanceCriterionType">
-                <sequence>
-                    <element minOccurs="1" maxOccurs="1" name="designProperty" type="gml:CodeType">
-                        <annotation>
-                            <documentation>The design property this criterion governs - for example
-                                position, verticality, diameter, cut-off elevation. gml:CodeType
-                                rather than gml:CodeWithAuthorityType because no design-property
-                                dictionary exists yet; populate codeSpace once one does. Where the
-                                requirement is on a measured physical property, use
-                                diggs:PerformanceCriterion instead.</documentation>
-                        </annotation>
-                    </element>
-                </sequence>
-            </extension>
-        </complexContent>
-    </complexType>
 
     <simpleType name="LogicalOperatorEnumType">
         <annotation>

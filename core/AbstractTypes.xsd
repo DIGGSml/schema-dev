@@ -23,13 +23,20 @@
                 one value, the comparison applied, and the limit compared against. Being a program
                 specification, a criterion also carries the scope of features it governs and may
                 specialize a more general criterion through basedOnRef.
-                
+
                 Its two members differ only in WHAT IS MEASURED, and that difference is carried by
-                the element name rather than by a discriminator field:
+                the element name alone (GB8, 2026-09-28 - previously also by a
+                propertyClass/designProperty choice, retired below):
                 diggs:PerformanceCriterion measures a physical property of the completed work,
                 diggs:DesignConformanceCriterion measures a geometric or constructional property
-                against its design intent.
-                
+                against its design intent. Each names its subject through limit's own
+                diggs:AuthorizedParameter/parameterName (mandatory codeSpace) - diggs:PerformanceCriterion
+                against def/docs/codes/DIGGS/0.1/properties.xml, diggs:DesignConformanceCriterion
+                against def/docs/codes/DIGGS/0.1/designProperty.xml. This is a convention the two
+                dictionaries' own curation carries, not an XSD-enforced constraint - nothing stops
+                either element's limit from citing the other dictionary, exactly as nothing enforced
+                the former propertyClass/designProperty split's own codeSpace target either.
+
                 One criterion states ONE requirement. A specification imposing several requirements
                 on the same property - say a mean and a minimum - is several criteria sharing a
                 scope, not one criterion with several limits.
@@ -49,11 +56,34 @@
                 documentation for why nothing is lost by that placement.</documentation>
         </annotation>
     </element>
-    <complexType abstract="true" name="AbstractAcceptanceCriterionType">
+    <complexType name="AbstractAcceptanceCriterionType">
         <annotation>
-            <documentation>Base type for acceptance criteria. Carries everything a criterion needs
-                except its subject, which its concrete members supply.
-                
+            <documentation>Base type for acceptance criteria. Carries everything a criterion needs,
+                including its subject - limit's own diggs:AuthorizedParameter/parameterName names
+                what is being judged, so no separate subject-naming field is declared per concrete
+                member.
+
+                NO LONGER ABSTRACT (GB8, 2026-09-28). diggs:PerformanceCriterionType and
+                diggs:DesignConformanceCriterionType formerly extended this type to add exactly one
+                element each - propertyClass and designProperty respectively, both naming the same
+                thing limit's own parameterName already names on every criterion built against
+                either (checked directly, GB7: every criterion in the verify suite and
+                SaudiTestCase.xml names an identical or paraphrased subject in both places, with
+                nothing enforcing the two stay consistent - two found to have already drifted).
+                Requiring limit to be a diggs:AuthorizedParameterPropertyType (below) makes that
+                subject dictionary-bound with a MANDATORY codeSpace, which diggs:DesignConformanceCriterionType's
+                own former designProperty (plain gml:CodeType) did not guarantee - a strict
+                improvement, not merely a rename. With no element left to add, both former types
+                became bare, identical extensions of this one; diggs:PerformanceCriterion and
+                diggs:DesignConformanceCriterion now use this type directly, distinguished by
+                element name alone (see diggs:AbstractAcceptanceCriterion's own documentation) - the
+                same substitution-group-based tagging DIGGS already uses elsewhere for this class of
+                distinction, considered and preferred over reintroducing a discriminator field
+                (rejected once already, B5, for exactly the reason a discriminator can drift from
+                structure that is supposed to correlate with it - here there is no longer any such
+                structure to drift from, but element identity costs nothing and matches house
+                style).
+
                 Factoring the criterion this way - subject, statistic, operator, limit - is what
                 lets one type express what diggs:GroutingPerformanceSpecificationType
                 (specialty/Grouting.xsd) spells out as roughly thirty separately named elements
@@ -91,16 +121,25 @@
                         </annotation>
                     </element>
                     <element minOccurs="1" maxOccurs="1" name="limit"
-                        type="diggs:ParameterPropertyType">
+                        type="diggs:AuthorizedParameterPropertyType">
                         <annotation>
-                            <documentation>The value or range the evaluated value is compared
-                                against, with its unit. A diggs:ParameterPropertyType so that the
-                                limit may be a single value (parameterValue) or a band
-                                (parameterMinValue / parameterMaxValue, with operator "within"),
-                                and so that a dictionary-bound or provenanced form may be used where
-                                the limit itself derives from evidence - the widened property type
-                                admits diggs:Parameter, diggs:AuthorizedParameter and
-                                diggs:ProvenancedParameter alike.</documentation>
+                            <documentation>The subject this criterion governs, and the value or
+                                range the evaluated value is compared against. A
+                                diggs:AuthorizedParameterPropertyType (NARROWED FROM
+                                diggs:ParameterPropertyType, GB8, 2026-09-28) - the free-text
+                                diggs:Parameter variant is excluded, so every criterion's subject is
+                                dictionary-bound with a mandatory codeSpace
+                                (diggs:AuthorizedParameter/parameterName), exactly the guarantee
+                                diggs:AuthorizedParameterPropertyType's own documentation states its
+                                purpose to be: "wherever a named element is the designated home for a
+                                quantity DIGGS has already defined a dictionary entry for." This is
+                                what replaced the former, separately-declared
+                                propertyClass/designProperty on the two concrete members - see this
+                                type's own documentation. diggs:ProvenancedParameter remains admitted
+                                alongside diggs:AuthorizedParameter, since it extends that type by
+                                plain extension. The value may still be a single value
+                                (parameterValue) or a band (parameterMinValue / parameterMaxValue,
+                                with operator "within").</documentation>
                         </annotation>
                     </element>
                     <element minOccurs="0" name="basis" type="gml:CodeType">
