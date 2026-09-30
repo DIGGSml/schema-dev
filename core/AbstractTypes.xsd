@@ -1528,6 +1528,20 @@
                 <sequence>
                     <element ref="diggs:projectRef" maxOccurs="unbounded"/>
                     <element minOccurs="0" ref="diggs:programRef"/>
+                    <element minOccurs="0" maxOccurs="unbounded" ref="diggs:programDesignRef">
+                        <annotation>
+                            <documentation>Zero or more references to program design objects this
+                                observation system was made to satisfy - for example a planned
+                                log.</documentation>
+                        </annotation>
+                    </element>
+                    <element minOccurs="0" maxOccurs="unbounded" ref="diggs:programSpecificationRef">
+                        <annotation>
+                            <documentation>Zero or more references to program specification objects
+                                this observation system must satisfy - for example a logging
+                                requirement it is evaluated against.</documentation>
+                        </annotation>
+                    </element>
                     <choice>
                         <annotation>
                             <documentation>The feature this observation system occurs in or was made
@@ -2315,6 +2329,42 @@
             </extension>
         </complexContent>
     </complexType>
+    <element abstract="true" name="AbstractEvaluation" type="diggs:AbstractEvaluationType">
+        <annotation>
+            <documentation>Head of the substitution group for evaluations - records of whether
+                realized work met the acceptance criteria stated by one or more programs. Delivered
+                at the top level of a DIGGS document (diggs:Diggs/evaluation). An evaluation cites
+                its programs, the criteria it applies, the subjects it judges and the evidence it
+                relies on; none of those cite the evaluation.</documentation>
+        </annotation>
+    </element>
+    <complexType abstract="true" name="AbstractEvaluationType">
+        <annotation>
+            <documentation>Base type for evaluations. Who made the evaluation is recorded with the
+                inherited role property.</documentation>
+        </annotation>
+        <complexContent>
+            <extension base="diggs:AbstractFeatureType">
+                <sequence>
+                    <element maxOccurs="unbounded" ref="diggs:programRef">
+                        <annotation>
+                            <documentation>The program or programs whose acceptance criteria this
+                                evaluation applies. Every criterion the evaluation cites belongs to
+                                one of them. More than one where an evaluation spans programs - for
+                                example a testing program's results judged against a ground
+                                improvement program's criteria.</documentation>
+                        </annotation>
+                    </element>
+                    <element minOccurs="0" name="evaluationDate" type="gml:TimePositionType">
+                        <annotation>
+                            <documentation>When the evaluation was issued. Individual checks may
+                                carry their own date.</documentation>
+                        </annotation>
+                    </element>
+                </sequence>
+            </extension>
+        </complexContent>
+    </complexType>
     <element abstract="true" name="AbstractProject" type="diggs:AbstractProjectType">
         <annotation>
             <documentation>Abstract element serving as the head of the substitution group for all project types. A Project represents an organizational unit that contains one or more sampling features, samples, and associated data. Projects typically correspond to specific geographical locations or engineering studies. All DIGGS data must be associated with a project, which provides the organizational context for the investigation.</documentation>
@@ -2467,42 +2517,6 @@
                                 measurementRef rather than sampleRef, and diggs:MeasurementGroupType -
                                 the only type that holds sampleRef - is referenced by no element at
                                 all.</documentation>
-                        </annotation>
-                    </element>
-                    <element minOccurs="0" maxOccurs="unbounded" name="nonConformance"
-                        type="diggs:NonConformancePropertyType">
-                        <annotation>
-                            <documentation>A departure of this sample from a stated requirement,
-                                together with what was decided about it. See diggs:NonConformance
-                                for what the object does and does not record.
-
-                                DECLARED HERE AS WELL AS ON diggs:AbstractSamplingFeatureType
-                                because a sample is the other thing that can fail to perform. The
-                                classic case is material rather than geometry: a grout or concrete
-                                specimen failing its strength requirement is a non-conformance of
-                                the SAMPLE, and no sampling feature is out of specification as a
-                                result - the material that went into the feature is. Recording it
-                                against the feature instead would misattribute it and would lose the
-                                distinction between a defective element and a defective batch.
-
-                                These two are the only homes for this object. Targets and
-                                activities are not carriers: a planned or performed activity is
-                                always directed AT a sampling feature or a sample, so the thing that
-                                failed to conform is always one of those two.
-
-                                Repeatable, since one sample may depart from more than one
-                                requirement.</documentation>
-                        </annotation>
-                    </element>
-                    <element minOccurs="0" maxOccurs="unbounded" name="acceptanceCheck"
-                        type="diggs:AcceptanceCheckPropertyType">
-                        <annotation>
-                            <documentation>The verdict of evaluating an acceptance criterion against
-                                this sample - most commonly a material requirement such as a grout
-                                or concrete specimen's strength. See diggs:AcceptanceCheck, and
-                                diggs:AbstractSamplingFeatureType/acceptanceCheck for why this
-                                particle follows nonConformance rather than preceding
-                                it.</documentation>
                         </annotation>
                     </element>
                 </sequence>
@@ -2853,50 +2867,6 @@
                                 matching fails silently exactly where it matters most - a column placed outside its
                                 position tolerance is the case a conformance check exists to catch, and it is also
                                 the case most likely to be nearer some other node.</documentation>
-                        </annotation>
-                    </element>
-                    <element minOccurs="0" maxOccurs="unbounded" name="nonConformance"
-                        type="diggs:NonConformancePropertyType">
-                        <annotation>
-                            <documentation>A departure of this sampling feature from a stated
-                                requirement, together with what was decided about it. See
-                                diggs:NonConformance for what the object does and does not record.
-
-                                CARRIED BY THE THING THAT FAILED TO CONFORM. A non-conformance
-                                attaches to the sampling feature itself, not to the activity that
-                                produced it, because it is the feature that is out of specification.
-                                An earlier draft of this element placed it on
-                                diggs:AbstractConstructionActivityType on the reasoning that a
-                                non-conformance is a fact about work performed rather than about the
-                                finished thing. THAT REASONING IS RETRACTED. It fails wherever a
-                                feature has no construction activity object at all - most clearly
-                                for diggs:LoadTransferPlatform, which is built but for which DIGGS
-                                declares no activity type, because nothing is routinely observed
-                                DURING its construction and its results (lift structure, material)
-                                are recorded on the as-built feature instead. A zone load test
-                                failing its acceptance criterion had, under that placement, nowhere
-                                to be recorded except free text. It also reads wrongly even where an
-                                activity does exist: what fails a load test is the column, not the
-                                drilling.
-
-                                Repeatable, since one feature may depart from more than one
-                                requirement, and each departure is disposed of separately.</documentation>
-                        </annotation>
-                    </element>
-                    <element minOccurs="0" maxOccurs="unbounded" name="acceptanceCheck"
-                        type="diggs:AcceptanceCheckPropertyType">
-                        <annotation>
-                            <documentation>The verdict of evaluating an acceptance criterion against
-                                this sampling feature as built - see diggs:AcceptanceCheck.
-
-                                DECLARED AFTER nonConformance ON PURPOSE. A failing check cites the
-                                non-conformance raised against it through nonConformanceRef, and
-                                DIGGS references point at antecedents, so the non-conformances of a
-                                feature are stated before the checks that cite them.
-
-                                Repeatable, since a feature is normally checked against several
-                                requirements - position, verticality, length, capacity - each
-                                reaching its own verdict.</documentation>
                         </annotation>
                     </element>
                     <element maxOccurs="unbounded" minOccurs="0" name="environment"

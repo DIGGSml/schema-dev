@@ -290,13 +290,11 @@
                 same parameter - use one kind of source.</documentation>
         </annotation>
     </element>
-    <element name="sourceObservationRef" type="gml:ReferenceType">
+    <element name="sourceObservationRef" type="diggs:FeatureReferenceType">
         <annotation>
             <appinfo source="urn:x-gml:targetElement">diggs:AbstractObservation</appinfo>
             <documentation>A reference to an observation providing a diggs:ProvenancedParameter
-                value's provenance. Repeatable. Typed gml:ReferenceType rather than
-                diggs:FeatureReferenceType because an observation is an object with no
-                gml:identifier. Do not mix with diggs:sourceMeasurementRef or
+                value's provenance. Repeatable. Do not mix with diggs:sourceMeasurementRef or
                 diggs:sourceSamplingFeatureRef on the same parameter.</documentation>
         </annotation>
     </element>
@@ -443,30 +441,16 @@
                 value is indicated in the appinfo element.</documentation>
         </annotation>
     </element>
-    <element name="observationRef" type="gml:ReferenceType">
+    <element name="observationRef" type="diggs:FeatureReferenceType">
         <annotation>
             <appinfo source="urn:x-gml:targetElement">diggs:AbstractObservation</appinfo>
             <documentation>A reference to an observation whose description informs this one - a
                 diggs:LithologyObservation that a diggs:StratigraphyObservation or
-                diggs:GeoUnitObservation was interpreted from, for example. Added 9/26 alongside the
-                diggs:AbstractObservation head.
-
-                TYPED gml:ReferenceType, NOT diggs:FeatureReferenceType, and the difference is
-                deliberate. FeatureReferenceType extends gml:ReferenceType with identifierRef, for
-                targets that carry a gml:identifier - that is, features. An observation is an
-                OBJECT: diggs:AbstractObservationType descends from
-                diggs:AbstractObjectNoDescriptionType, has no gml:identifier, and so can only ever
-                be addressed by gml:id through xlink:href. Offering identifierRef here would
-                advertise a way of resolving the target that cannot work. Compare
-                diggs:measurementRef in this same family, which IS a FeatureReferenceType because
-                diggs:Test, diggs:Monitor and diggs:MaterialTest are features.
-
-                THIS IS PROVENANCE BETWEEN OBSERVATIONS, and it is distinct from both of its
-                neighbours on diggs:AbstractObservationType: diggs:sampleRef says what the
-                observation was made ON, and diggs:measurementRef says which measurements support
-                it. This element says which other DESCRIPTIONS it rests on. It does not reference an
-                observation SYSTEM - the target is the individual observation, since a system spans
-                many and could not say which one bore on this description.</documentation>
+                diggs:GeoUnitObservation was interpreted from, for example. Records provenance
+                between descriptions, as distinct from diggs:sampleRef (what the observation was
+                made on) and diggs:measurementRef (which measurements support it). The target is
+                an individual observation, not an observation system. A property element that
+                supports a value by reference only.</documentation>
         </annotation>
     </element>
     <element name="observationGroupRef" type="diggs:FeatureReferenceType">
@@ -555,6 +539,14 @@
                 same feature concurrently, or where a later design governs a repair or re-use -
                 ProgramDesignReferenceType/designRole and effectiveFrom distinguish
                 these.</documentation>
+        </annotation>
+    </element>
+    <element name="observationSystemRef" type="diggs:FeatureReferenceType">
+        <annotation>
+            <appinfo source="urn:x-gml:targetElement">diggs:AbstractObservationSystem</appinfo>
+            <documentation>A reference to an observation system - a lithology log, a stratigraphy, a
+                geo-unit model. A property element that supports a value by reference
+                only.</documentation>
         </annotation>
     </element>
     <element name="programRef" type="diggs:FeatureReferenceType">
@@ -1108,6 +1100,15 @@
         </sequence>
         <attributeGroup ref="gml:AssociationAttributeGroup"/>
         <attributeGroup ref="gml:OwnershipAttributeGroup"/>
+    </complexType>
+    <complexType name="EvaluationPropertyType">
+        <annotation>
+            <documentation>Property type containing one evaluation (the diggs:AbstractEvaluation
+                substitution group).</documentation>
+        </annotation>
+        <sequence>
+            <element ref="diggs:AbstractEvaluation"/>
+        </sequence>
     </complexType>
     <complexType name="ProgramPropertyType" abstract="false">
         <annotation>
@@ -3294,144 +3295,73 @@
     </complexType>
     <element name="NonConformance" type="diggs:NonConformanceType">
         <annotation>
-            <documentation>A record that a realized thing departed from a stated requirement, and
-                what was decided about it. Distinguished from diggs:DesignVerification, which is a
-                verdict reached by ANALYSIS on the design side (a demand checked against a
-                capacity), by being an AS-BUILT finding: the requirement existed, the work did not
-                meet it, and a decision had to be taken.
+            <documentation>A record that realized work departed from a stated requirement, and what
+                was decided about it. Contained in a diggs:AcceptanceEvaluation, and normally cites
+                the diggs:AcceptanceCheck that found the departure.
 
-                WHY THIS IS IN SCOPE FOR DIGGS AT ALL, SINCE THAT WAS THE QUESTION. DIGGS
-                consistently declines to model project administration - a contract delivery method
-                is carried by diggs:Contract, not by a design basis, and this schema holds no
-                schedule, cost, or correspondence objects. A non-conformance sits close to that
-                line. It is included because the fact it turns on is ALREADY a DIGGS fact: a
-                diggs:AbstractAcceptanceCriterion states a requirement and names what it is
-                evaluated against, so whether that requirement was met is a statement this schema
-                can already almost make. What it could not express is the half that follows -
-                which requirement was breached, what was decided, and what was done. Those are
-                properties of the work, not of the contract, and without them a data set can say a
-                column was built and can say what it was required to achieve, but cannot say that
-                the two disagreed.
+                Records the engineering content of the finding, not its administration: a
+                non-conformance report as a document is an attachment (the inherited
+                associatedFile), a project reference number is the inherited gml:name, the
+                open/closed/superseded state is the inherited diggs:status, and the narrative of the
+                finding and its resolution is the inherited remark.
 
-                WHAT IS DELIBERATELY NOT HERE. There is no approval workflow, no assignee, no cost,
-                no correspondence trail, and no numbering scheme - a non-conformance report as a
-                DOCUMENT remains an attachment, carried by the inherited associatedFile property of
-                whatever object holds it. This object records the engineering content of the
-                finding, not its administration. The reference number, where a project uses one,
-                is the inherited gml:name.
-
-                LIFECYCLE STATE IS INHERITED, NOT DECLARED HERE. diggs:status is available on every
-                object descended from diggs:AbstractObjectType and is documented for exactly this
-                purpose - "to track QA/QC controls, review or release status" - so an open, closed,
-                or superseded non-conformance is expressed with status rather than with a second
-                field meaning the same thing. Likewise the narrative account of the finding and of
-                its resolution belongs in the inherited remark property; the coded elements below
-                exist so the record can be QUERIED, not to replace the description.
-
-                WHERE IT ATTACHES. Two carriers only - diggs:AbstractSamplingFeatureType and
-                diggs:AbstractSampleType - because those are the two things that can fail to
-                perform. Every target and every activity in DIGGS is directed AT a sampling feature
-                or a sample, so the non-conforming thing is always one of the two. An earlier draft
-                carried this object on diggs:AbstractConstructionActivityType instead; that is
-                RETRACTED, because a feature may have no construction activity object at all -
-                diggs:LoadTransferPlatform is built, but DIGGS declares no activity type for it,
-                since nothing is routinely observed during its construction and its results are
-                recorded on the as-built feature. Under the old placement a zone load test failing
-                its acceptance criterion had nowhere to go.
-
-                GENERIC, NOT RI-SPECIFIC, which is why it lives here beside diggs:DesignVerification
-                rather than in specialty/RigidInclusions.xsd. Any construction domain that states
-                acceptance criteria can fail to meet them. Note diggs:RIColumnConstructionType
-                already carries groutLevelCorrectiveAction, which is a narrow, in-progress,
-                RI-specific response to ONE failure mode (grout dropping below the expected level)
-                recorded while the column is being built. That element is not superseded by this
-                object and is not a special case of it: it records an immediate construction
-                response, whereas a NonConformance records a formal departure from a requirement
-                and its disposition.</documentation>
+                Generic: any construction domain that states acceptance criteria can fail to meet
+                them.</documentation>
         </annotation>
     </element>
     <complexType name="NonConformanceType">
         <annotation>
-            <documentation>Complex type: NonConformanceType. Extends diggs:AbstractObjectType
-                rather than the lighter diggs:AbstractComponentObjectBaseType that
-                diggs:DesignVerificationType uses, and the choice is deliberate: that base supplies
-                gml:name, diggs:status and remark, which are respectively the non-conformance's
-                reference number, its open/closed state, and its narrative - three things this
-                object needs and would otherwise have had to declare for itself. It also makes
-                gml:id mandatory, so a non-conformance can always be cited from
-                elsewhere.</documentation>
+            <documentation>Complex type: NonConformanceType. gml:id is mandatory, so a
+                non-conformance can be cited - by a remedial design, or by a later
+                evaluation.</documentation>
         </annotation>
         <complexContent>
             <extension base="diggs:AbstractObjectType">
                 <sequence>
+                    <choice minOccurs="0">
+                        <annotation>
+                            <documentation>What departed from the requirement. One kind per
+                                non-conformance; repeatable within the kind where one finding
+                                affects several subjects. May be omitted where detectedByRef is
+                                given, in which case the subject is that of the cited
+                                check(s).</documentation>
+                        </annotation>
+                        <element maxOccurs="unbounded" ref="diggs:samplingFeatureRef"/>
+                        <element maxOccurs="unbounded" ref="diggs:sampleRef"/>
+                        <element maxOccurs="unbounded" ref="diggs:samplingActivityRef"/>
+                        <element maxOccurs="unbounded" ref="diggs:constructionActivityRef"/>
+                        <element maxOccurs="unbounded" ref="diggs:measurementRef"/>
+                        <element maxOccurs="unbounded" ref="diggs:observationSystemRef"/>
+                    </choice>
+                    <element minOccurs="0" name="subjectLocation"
+                        type="diggs:LocationPropertyType">
+                        <annotation>
+                            <documentation>The part of the subject this applies to, where it is less
+                                than the whole - a depth interval along a linear feature (a grout
+                                stage, an anchor bond length, a column segment), an elevation band
+                                (a fill lift), or an area. Omit where it applies to the whole
+                                subject.</documentation>
+                        </annotation>
+                    </element>
                     <element name="disposition" type="gml:CodeType">
                         <annotation>
                             <documentation>What was decided about the non-conforming work - accept
                                 as is, repair, rework, replace, or reject. Intended to come from a
-                                controlled list.
+                                controlled list. Mandatory: the decision is what this record
+                                exists to hold.
 
-                                MANDATORY, and it is the one mandatory field on this type, because
-                                a non-conformance with no disposition is not a record of anything
-                                that was settled. The bare fact that work failed a criterion is
-                                already expressible without this object: the criterion states the
-                                limit, and the measurement states the value. What makes this object
-                                worth declaring is the decision, so an instance that omits it would
-                                carry no information the schema did not already hold.
-
-                                A DISPOSITION IS NOT A CORRECTIVE ACTION and the two are separate
-                                elements here. The disposition concerns THIS non-conforming work -
-                                what happens to the column that failed. A corrective action
-                                concerns the CAUSE - what changes so the next column does not fail
-                                the same way. Recording only one of the two is common practice and
-                                both are optional to populate in that sense, but conflating them
-                                loses the distinction a reviewer needs.</documentation>
-                        </annotation>
-                    </element>
-                    <element minOccurs="0" name="dispositionDesignRef"
-                        type="diggs:FeatureReferenceType">
-                        <annotation>
-                            <appinfo source="urn:x-gml:targetElement">diggs:AbstractProgramDesign</appinfo>
-                            <documentation>The remedial design the disposition was carried out to,
-                                where one exists - the repair, rework or replacement design prepared
-                                in response to this finding.
-
-                                CLOSES A GAP THE OTHER ELEMENTS DO NOT. Four of the five dispositions
-                                in common use - repair, rework, replace, redesign - imply that a
-                                design was prepared to implement them, and until this element existed
-                                nothing could cite it. Neither neighbour fills in: correctiveAction
-                                concerns the CAUSE and is a code rather than a reference, and
-                                breachedSpecificationRef names what was violated, not what resolves
-                                it. A file could state "column CMC-412 failed, decision: repair" and
-                                could not state what it was repaired TO.
-
-                                POINTS AT AN ANTECEDENT. The remedial design is prepared before the
-                                remedial work is executed and before this reference is written, so
-                                it exists when cited. Singular: one disposition is carried out to one
-                                design. Absent where the disposition needed no design of its own -
-                                accept-as-is and reject being the ordinary cases, and a simple
-                                rework carried out to the ORIGINAL design being the third, which
-                                cites that original design here rather than leaving the element
-                                empty.
-
-                                WHAT THIS DOES NOT DO. It does not make the affected feature a member
-                                of the referenced design - membership is asserted only by the
-                                feature's own diggs:programDesignRef, and a feature repaired under a
-                                remedial design states that there, with designRole marking it as
-                                later intervention rather than original intent. This element records
-                                how a FINDING was resolved; that one records what a FEATURE is
-                                governed by. Both are normally present for the same repair and they
-                                are not substitutes.</documentation>
+                                Distinct from correctiveAction: the disposition concerns this
+                                non-conforming work; a corrective action concerns the cause, so the
+                                next item does not fail the same way.</documentation>
                         </annotation>
                     </element>
                     <element minOccurs="0" maxOccurs="unbounded" name="correctiveAction"
                         type="gml:CodeType">
                         <annotation>
-                            <documentation>Action taken to address the CAUSE of the non-conformance
+                            <documentation>Action taken to address the cause of the non-conformance
                                 so that it does not recur - a change of method, plant, sequence, or
-                                supervision - as distinct from the disposition of the affected work
-                                itself. Intended to come from a controlled list. Repeatable, since
-                                one finding commonly triggers more than one change. Absent where
-                                the non-conformance was isolated and no cause needed
+                                supervision. Intended to come from a controlled list. Repeatable.
+                                Absent where the non-conformance was isolated and no cause needed
                                 addressing.</documentation>
                         </annotation>
                     </element>
@@ -3439,58 +3369,37 @@
                         type="diggs:FeatureReferenceType">
                         <annotation>
                             <appinfo source="urn:x-gml:targetElement">diggs:AbstractProgramSpecification</appinfo>
-                            <documentation>The requirement that was not met, as a reference to the
-                                specification object stating it - typically a
-                                diggs:DesignConformanceCriterion or a diggs:PerformanceCriterion.
-
-                                TARGETS diggs:AbstractProgramSpecification RATHER THAN
-                                diggs:AbstractAcceptanceCriterion DELIBERATELY. The narrower head
-                                would exclude diggs:CompositeAcceptanceCriterion, which substitutes
-                                the specification head rather than the criterion head precisely
-                                because a composite has no operator and no limit of its own. Since
-                                a compound rule - rate below X AND torque above Y - is exactly the
-                                kind of requirement a refusal breaches, excluding it would exclude
-                                one of the cases this element exists to record.
-
-                                Repeatable, because one departure can breach more than one
-                                requirement at once. Optional, because a non-conformance may be
-                                raised against a requirement stated only in a specification
-                                document, in which case the document is an attachment and the
-                                narrative is in remark. A property element that supports a value by
+                            <documentation>The requirement that was not met - typically a
+                                diggs:DesignConformanceCriterion, a diggs:PerformanceCriterion, or a
+                                diggs:CompositeAcceptanceCriterion. Repeatable, since one departure
+                                can breach several requirements. Optional where the requirement is
+                                stated only in a specification document (an attachment, described
+                                in remark), or where it is the criterion of the check cited by
+                                detectedByRef. A property element that supports a value by
                                 reference only.</documentation>
                         </annotation>
                     </element>
                     <element minOccurs="0" maxOccurs="unbounded" name="detectedByRef"
                         type="diggs:FeatureReferenceType">
                         <annotation>
-                            <appinfo source="urn:x-gml:targetElement">diggs:AbstractMeasurement</appinfo>
-                            <documentation>The test, monitoring record, or other measurement that
-                                revealed the non-conformance - for example the load test whose
-                                settlement exceeded a performance criterion, or the integrity test
-                                that found a defect.
-
-                                This is how a non-conformance found AFTER construction attaches to
-                                the evidence for it, and it is why this object does not need to
-                                restate the measured value: the measurement already carries it.
-                                Optional, because a non-conformance may be found by inspection
-                                rather than by measurement. A property element that supports a
-                                value by reference only.</documentation>
+                            <appinfo source="urn:x-gml:targetElement">diggs:AcceptanceCheck</appinfo>
+                            <documentation>The check or checks that found the departure. The
+                                evidence the verdict rests on is cited by the check. Absent where
+                                the departure was found by inspection without a formal check. A
+                                property element that supports a value by reference
+                                only.</documentation>
                         </annotation>
                     </element>
                     <element minOccurs="0" name="dateIdentified" type="gml:TimePositionType">
                         <annotation>
-                            <documentation>When the non-conformance was identified. Together with
-                                dateResolved this is the trail the record exists to support: how
-                                long a departure stood open, and whether it was closed before or
-                                after subsequent work proceeded.</documentation>
+                            <documentation>When the non-conformance was identified.</documentation>
                         </annotation>
                     </element>
                     <element minOccurs="0" name="dateResolved" type="gml:TimePositionType">
                         <annotation>
                             <documentation>When the disposition was completed and the
-                                non-conformance closed. Absent while the non-conformance is still
-                                open - which the inherited status property states directly, this
-                                element carrying only the date.</documentation>
+                                non-conformance closed. Absent while it is still open, which the
+                                inherited diggs:status states.</documentation>
                         </annotation>
                     </element>
                 </sequence>
@@ -3499,14 +3408,9 @@
     </complexType>
     <complexType name="NonConformancePropertyType">
         <annotation>
-            <documentation>Property type for containing OR REFERENCING one diggs:NonConformance.
-                gml:AssociationAttributeGroup is what admits the reference form, and it is needed
-                here rather than as optional convenience: the thing that RESOLVES a non-conformance
-                is frequently not the thing that failed it - a remedial column installed alongside
-                the one that was rejected - and the replacement has to be able to cite the
-                non-conformance it answers rather than restate it. The same mechanism lets several
-                features cite one finding that affected all of them, and lets a sample's
-                non-conformance be cited from the features its material went into.</documentation>
+            <documentation>Property type containing or referencing one diggs:NonConformance. The
+                reference form lets one evaluation cite a non-conformance recorded in another - for
+                example a re-test after remedial work.</documentation>
         </annotation>
         <sequence minOccurs="0">
             <element ref="diggs:NonConformance"/>
@@ -3515,189 +3419,108 @@
     </complexType>
     <element name="AcceptanceCheck" type="diggs:AcceptanceCheckType">
         <annotation>
-            <documentation>The VERDICT of evaluating an acceptance criterion against what was
-                actually built, sampled or measured - that a column's verticality was within
-                tolerance, that a grout cube met its strength requirement, that a platform passed
-                its zone load test.
-
-                THE GAP THIS FILLS. A diggs:AbstractAcceptanceCriterion states a requirement and
-                names what it is evaluated against, but has no slot for the result;
-                diggs:DesignVerification records a verdict but is an ANALYSIS on the design side, a
-                demand checked against a capacity, and is reachable only from design objects; and
-                diggs:NonConformance records only the FAIL half, and only once a departure has been
-                formally raised and dispositioned. So before this element there was no way to say
-                that a requirement was MET - a pass was unrecordable. What projects did instead was
-                declare a boolean per property, which cannot say what the tolerance was, what was
-                measured, who checked, or when.
-
-                IT MUST STAND ALONE, AND THAT IS WHAT SHAPES IT. A DIGGS file will routinely carry
-                acceptance results WITHOUT the supporting test data, and sometimes without the
-                specifications themselves. So this object can restate both halves of the comparison
-                it reports - the requirement (checkedProperty, operator, limit) and the evidence
-                (observedValue) - and remains interpretable when criterionRef and evidenceRef both
-                dangle or are absent.
-
-                BUT RESTATE ONLY WHAT IS NOT REFERENCEABLE. Where a criterionRef is present, the
-                referenced criterion is the authority and checkedProperty, operator and limit should
-                be OMITTED rather than copied; where an evidenceRef is present, observedValue should
-                be omitted likewise. The schema cannot enforce this - both forms are permitted
-                because both are needed - but following it removes the possibility of a restatement
-                disagreeing with its source rather than leaving that disagreement to be adjudicated.
-                WHERE THEY DO DISAGREE, THE REFERENCED CRITERION AND THE REFERENCED MEASUREMENT
-                GOVERN; this object's copies are a convenience for transfer, never the authority.
-
-                THE FAIL HALF IS diggs:NonConformance, CITED, NOT DUPLICATED. A failing check names
-                the non-conformance raised against it through nonConformanceRef. The two objects
-                answer different questions - this one whether the requirement was met, that one what
-                was decided about it not being met - and they are separable in both directions: a
-                check may fail before anyone raises a non-conformance, and a non-conformance may be
-                raised from an inspection that was never a formal check.
-
-                GENERIC, NOT RI-SPECIFIC. Any domain that states acceptance criteria evaluates
-                them. Carried by diggs:AbstractSamplingFeatureType and diggs:AbstractSampleType -
-                the same two homes as diggs:NonConformance and for the same reason: the thing
-                checked is a feature or a sample, and every target and activity in DIGGS is directed
-                at one of those two.</documentation>
+            <documentation>The verdict of evaluating one acceptance criterion against a subject -
+                that a column's verticality was within tolerance, that a grout batch met its
+                strength requirement, that a test was performed to its procedure. Records a pass as
+                well as a fail; a failure that needs a decision is recorded as a
+                diggs:NonConformance citing this check. Contained in a
+                diggs:AcceptanceEvaluation.</documentation>
         </annotation>
     </element>
     <complexType name="AcceptanceCheckType">
         <annotation>
-            <documentation>Complex type: AcceptanceCheckType. Extends diggs:AbstractObjectType, the
-                same base diggs:NonConformanceType uses and for the same reasons: it supplies
-                gml:name (a check reference where a project numbers them), diggs:status (the review
-                or release state of the check itself, as distinct from its outcome) and remark (the
-                narrative), and it makes gml:id mandatory.
-
-                Note diggs:status and outcome are NOT the same thing and neither substitutes for the
-                other. outcome is the verdict on the WORK - did it meet the requirement. status is
-                the state of this RECORD - draft, reviewed, released.</documentation>
+            <documentation>Complex type: AcceptanceCheckType. gml:name carries a check reference
+                where a project numbers them; diggs:status is the state of this record (draft,
+                reviewed, released), which is distinct from outcome, the verdict on the
+                work.</documentation>
         </annotation>
         <complexContent>
             <extension base="diggs:AbstractObjectType">
                 <sequence>
+                    <element name="criterionRef" type="diggs:FeatureReferenceType">
+                        <annotation>
+                            <appinfo source="urn:x-gml:targetElement">diggs:AbstractProgramSpecification</appinfo>
+                            <documentation>The requirement this check evaluates - a
+                                diggs:DesignConformanceCriterion, a diggs:PerformanceCriterion, or a
+                                diggs:CompositeAcceptanceCriterion. The criterion is the
+                                authoritative statement of the property, operator and limit. To
+                                evaluate several criteria as one requirement, cite a composite
+                                criterion. A property element that supports a value by reference
+                                only.</documentation>
+                        </annotation>
+                    </element>
+                    <choice>
+                        <annotation>
+                            <documentation>The subject - what was checked. One kind per check;
+                                repeatable within the kind where one verdict covers several
+                                subjects, as a criterion evaluated over a population
+                                does.</documentation>
+                        </annotation>
+                        <element maxOccurs="unbounded" ref="diggs:samplingFeatureRef"/>
+                        <element maxOccurs="unbounded" ref="diggs:sampleRef"/>
+                        <element maxOccurs="unbounded" ref="diggs:samplingActivityRef"/>
+                        <element maxOccurs="unbounded" ref="diggs:constructionActivityRef"/>
+                        <element maxOccurs="unbounded" ref="diggs:measurementRef"/>
+                        <element maxOccurs="unbounded" ref="diggs:observationSystemRef"/>
+                    </choice>
+                    <element minOccurs="0" name="subjectLocation"
+                        type="diggs:LocationPropertyType">
+                        <annotation>
+                            <documentation>The part of the subject this applies to, where it is less
+                                than the whole - a depth interval along a linear feature (a grout
+                                stage, an anchor bond length, a column segment), an elevation band
+                                (a fill lift), or an area. Omit where it applies to the whole
+                                subject.</documentation>
+                        </annotation>
+                    </element>
+                    <element name="determination" type="diggs:DeterminationEnumType">
+                        <annotation>
+                            <documentation>How the verdict was reached - from a measured value, a
+                                derived value, or a declaration.</documentation>
+                        </annotation>
+                    </element>
                     <element name="outcome" type="gml:CodeType">
                         <annotation>
                             <documentation>The verdict - whether the criterion was satisfied.
-                                Intended to come from a controlled list; see
-                                verificationOutcome.xml, shared with diggs:DesignVerification so
-                                that a design-side and an as-built verdict read the same way.
-
-                                MANDATORY, and the only mandatory particle here. Every other field
-                                either restates something referenced elsewhere or is optional
-                                context; the verdict is the reason the object exists, and a check
-                                without one records nothing.</documentation>
+                                Intended to come from a controlled list: verificationOutcome.xml,
+                                shared with diggs:DesignVerification so that a design-side and an
+                                as-built verdict read the same way.</documentation>
                         </annotation>
                     </element>
-                    <element minOccurs="0" maxOccurs="unbounded" name="criterionRef"
-                        type="diggs:FeatureReferenceType">
-                        <annotation>
-                            <appinfo source="urn:x-gml:targetElement">diggs:AbstractProgramSpecification</appinfo>
-                            <documentation>The requirement this check evaluated - normally a
-                                diggs:DesignConformanceCriterion or a diggs:PerformanceCriterion.
-                                THE AUTHORITATIVE STATEMENT OF THE REQUIREMENT WHERE PRESENT, in
-                                which case checkedProperty, operator and limit should be omitted.
-
-                                Targets diggs:AbstractProgramSpecification rather than
-                                diggs:AbstractAcceptanceCriterion so that
-                                diggs:CompositeAcceptanceCriterion is reachable - it substitutes the
-                                specification head, having no operator or limit of its own, and a
-                                compound rule is exactly the kind of requirement a single check
-                                reports on.
-
-                                Repeatable, because one check may report a verdict against several
-                                criteria evaluated together. A property element that supports a
-                                value by reference only.</documentation>
-                        </annotation>
-                    </element>
-                    <element minOccurs="0" maxOccurs="unbounded" name="evidenceRef"
+                    <element minOccurs="0" maxOccurs="unbounded" name="evidenceMeasurementRef"
                         type="diggs:FeatureReferenceType">
                         <annotation>
                             <appinfo source="urn:x-gml:targetElement">diggs:AbstractMeasurement</appinfo>
-                            <documentation>The test, survey or monitoring record the verdict was
-                                reached from. THE AUTHORITATIVE STATEMENT OF WHAT WAS MEASURED WHERE
-                                PRESENT, in which case observedValue should be omitted.
-
-                                Repeatable, since a verdict may rest on several measurements - a
-                                statistical criterion over a set of cube tests, or a verticality
-                                verdict from surveys at two depths. Absent where the check was made
-                                by inspection, or where the supporting data is simply not
-                                transferred in this file, which is the normal case this object is
-                                designed to survive. A property element that supports a value by
-                                reference only.</documentation>
+                            <documentation>A test, survey or monitoring record the compared value
+                                was taken from. Repeatable - a statistical criterion over several
+                                tests, for example. Absent where the value is read from the subject
+                                itself, or where the determination is declared. A property element
+                                that supports a value by reference only.</documentation>
                         </annotation>
                     </element>
-                    <element minOccurs="0" maxOccurs="unbounded" name="nonConformanceRef"
+                    <element minOccurs="0" maxOccurs="unbounded" name="evidenceObservationRef"
                         type="diggs:FeatureReferenceType">
                         <annotation>
-                            <appinfo source="urn:x-gml:targetElement">diggs:NonConformance</appinfo>
-                            <documentation>The non-conformance raised because this check failed.
-                                Cited rather than contained, so that diggs:NonConformance keeps the
-                                two containment homes it was given - the sampling feature and the
-                                sample - and one non-conformance can be cited by every check it
-                                answers.
-
-                                Expected only where outcome is a failure, but not constrained to it:
-                                a check may be re-run and pass after remedial work while still
-                                citing the non-conformance that prompted the work. Referencing a
-                                component object with diggs:FeatureReferenceType follows
-                                diggs:DesignVerificationType/analysisCaseRef, which cites
-                                diggs:DesignLoad the same way. A property element that supports a
+                            <appinfo source="urn:x-gml:targetElement">diggs:AbstractObservation</appinfo>
+                            <documentation>An observation the compared value was taken from - for
+                                example the geo-unit whose top surface gives the bearing stratum
+                                level at a column. Repeatable. A property element that supports a
                                 value by reference only.</documentation>
-                        </annotation>
-                    </element>
-                    <element minOccurs="0" name="checkedProperty" type="gml:CodeWithAuthorityType">
-                        <annotation>
-                            <documentation>What was checked, as a code - verticality, plan position,
-                                length, unconfined compressive strength. RESTATEMENT: populate this
-                                ONLY where no criterionRef is given, since the criterion already
-                                names its own subject through designProperty or propertyClass.
-
-                                gml:CodeWithAuthorityType, so codeSpace is MANDATORY. The value is
-                                drawn from whichever dictionary the corresponding criterion would
-                                have used - designProperty.xml for a design conformance check,
-                                properties.xml for a performance check - and without a required
-                                codeSpace a bare token could not be resolved to either. Deliberately
-                                not bound to a single dictionary for that reason.</documentation>
-                        </annotation>
-                    </element>
-                    <element minOccurs="0" name="operator" type="diggs:CriterionOperatorEnumType">
-                        <annotation>
-                            <documentation>The comparison the requirement applied - the same
-                                enumeration diggs:AbstractAcceptanceCriterionType/operator uses, so
-                                a restated requirement reads identically to the one it restates.
-                                RESTATEMENT: populate ONLY where no criterionRef is
-                                given.</documentation>
-                        </annotation>
-                    </element>
-                    <element minOccurs="0" name="limit" type="diggs:ParameterPropertyType">
-                        <annotation>
-                            <documentation>The limiting value the requirement set, mirroring
-                                diggs:AbstractAcceptanceCriterionType/limit in both name and type so
-                                the restatement is transcribable without reinterpretation.
-                                RESTATEMENT: populate ONLY where no criterionRef is
-                                given.</documentation>
                         </annotation>
                     </element>
                     <element minOccurs="0" name="observedValue" type="diggs:ParameterPropertyType">
                         <annotation>
-                            <documentation>The value actually observed, against which the limit was
-                                compared. RESTATEMENT: populate ONLY where no evidenceRef is given -
-                                where the measurement travels with the file, it is the authority and
-                                this copy is redundant.
-
-                                A Parameter rather than a fixed measure type because the quantity
-                                class varies with what is being checked - a percentage for
-                                verticality, a length for position, a pressure for strength - which
-                                is the same reason diggs:DesignVerificationType/demand and /capacity
-                                are Parameter-typed.</documentation>
+                            <documentation>The value compared against the criterion's limit, as it
+                                stood when the check was made. Where the subject or evidence travels
+                                with the file it is the authority; this value lets the verdict be
+                                read without it. Normally absent for a declared
+                                determination.</documentation>
                         </annotation>
                     </element>
                     <element minOccurs="0" name="checkDate" type="gml:TimePositionType">
                         <annotation>
-                            <documentation>When the check was made. Distinct from the date of the
-                                underlying measurement, which the referenced diggs:AbstractMeasurement
-                                carries - a verdict is often reached some time after the data was
-                                collected.</documentation>
+                            <documentation>When the check was made. Distinct from the date of any
+                                evidence it relies on.</documentation>
                         </annotation>
                     </element>
                 </sequence>
@@ -3706,20 +3529,38 @@
     </complexType>
     <complexType name="AcceptanceCheckPropertyType">
         <annotation>
-            <documentation>Property type containing one diggs:AcceptanceCheck.
-
-                Containment only - NO gml:AssociationAttributeGroup, deliberately, and the contrast
-                with diggs:NonConformancePropertyType is the point. A non-conformance is cited from
-                outside itself, because the work that resolves one is usually not the work that
-                failed it. A check is not: it is a statement about exactly one feature or sample,
-                made once, and nothing else needs to point at it. Where a check does need to name
-                something, it does the pointing itself, through criterionRef, evidenceRef and
-                nonConformanceRef.</documentation>
+            <documentation>Property type containing one diggs:AcceptanceCheck.</documentation>
         </annotation>
         <sequence minOccurs="0">
             <element ref="diggs:AcceptanceCheck"/>
         </sequence>
     </complexType>
+    <simpleType name="DeterminationEnumType">
+        <annotation>
+            <documentation>How an acceptance check's verdict was reached.</documentation>
+        </annotation>
+        <restriction base="string">
+            <enumeration value="measured">
+                <annotation>
+                    <documentation>The compared value was measured or recorded directly - on the
+                        subject itself or in cited evidence.</documentation>
+                </annotation>
+            </enumeration>
+            <enumeration value="derived">
+                <annotation>
+                    <documentation>The compared value was computed from recorded values - for
+                        example an as-built position against its design position, or the
+                        embedment of a column toe below a modelled unit surface.</documentation>
+                </annotation>
+            </enumeration>
+            <enumeration value="declared">
+                <annotation>
+                    <documentation>No value was compared; conformance was asserted by the party
+                        identified on the evaluation - for example by inspection.</documentation>
+                </annotation>
+            </enumeration>
+        </restriction>
+    </simpleType>
     <element name="LoadTransferRelation" type="diggs:LoadTransferRelationType">
         <annotation>
             <documentation>A shaft (t-z) or tip (q-z) load-transfer relation for one geotechnical
