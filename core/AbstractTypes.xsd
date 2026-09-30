@@ -58,49 +58,26 @@
     </element>
     <complexType name="AbstractAcceptanceCriterionType">
         <annotation>
-            <documentation>Base type for acceptance criteria. Carries everything a criterion needs,
-                including its subject - limit's own diggs:AuthorizedParameter/parameterName names
-                what is being judged, so no separate subject-naming field is declared per concrete
-                member.
+            <documentation>Base type for acceptance criteria - one testable requirement: which
+                evidence counts, how it is reduced to one value (statistic, over statisticScope),
+                the comparison (operator) and the limit. The subject is named by limit's own
+                diggs:AuthorizedParameter/parameterName, so no separate subject field is declared.
+                diggs:PerformanceCriterion and diggs:DesignConformanceCriterion both use this type
+                and are distinguished by element name.
 
-                NO LONGER ABSTRACT (GB8, 2026-09-28). diggs:PerformanceCriterionType and
-                diggs:DesignConformanceCriterionType formerly extended this type to add exactly one
-                element each - propertyClass and designProperty respectively, both naming the same
-                thing limit's own parameterName already names on every criterion built against
-                either (checked directly, GB7: every criterion in the verify suite and
-                SaudiTestCase.xml names an identical or paraphrased subject in both places, with
-                nothing enforcing the two stay consistent - two found to have already drifted).
-                Requiring limit to be a diggs:AuthorizedParameterPropertyType (below) makes that
-                subject dictionary-bound with a MANDATORY codeSpace, which diggs:DesignConformanceCriterionType's
-                own former designProperty (plain gml:CodeType) did not guarantee - a strict
-                improvement, not merely a rename. With no element left to add, both former types
-                became bare, identical extensions of this one; diggs:PerformanceCriterion and
-                diggs:DesignConformanceCriterion now use this type directly, distinguished by
-                element name alone (see diggs:AbstractAcceptanceCriterion's own documentation) - the
-                same substitution-group-based tagging DIGGS already uses elsewhere for this class of
-                distinction, considered and preferred over reintroducing a discriminator field
-                (rejected once already, B5, for exactly the reason a discriminator can drift from
-                structure that is supposed to correlate with it - here there is no longer any such
-                structure to drift from, but element identity costs nothing and matches house
-                style).
-
-                Factoring the criterion this way - subject, statistic, operator, limit - is what
-                lets one type express what diggs:GroutingPerformanceSpecificationType
-                (specialty/Grouting.xsd) spells out as roughly thirty separately named elements
-                encoding property x statistic x bound. That type is untouched by this step;
-                re-expressing it against this family comes later, with a migration
-                path.</documentation>
+                A criterion names no evidence of its own: the evidence it is evaluated against is
+                cited by the diggs:AcceptanceCheck that applies it.</documentation>
         </annotation>
         <complexContent>
             <extension base="diggs:AbstractProgramSpecificationType">
                 <sequence>
                     <element minOccurs="0" name="statistic" type="gml:CodeType">
                         <annotation>
-                            <documentation>How multiple measurements within the criterion's scope
-                                are reduced to the single value that is compared against the limit.
-                                Intended values: individual, mean, minimum, maximum, percentile.
-                                Omit where the criterion applies to each measurement
-                                individually.</documentation>
+                            <documentation>How several values are reduced to the single value
+                                compared against the limit. Intended values: individual, mean,
+                                minimum, maximum, percentile. What the values are gathered over is
+                                stated by statisticScope. Omit where the criterion applies to each
+                                value individually.</documentation>
                         </annotation>
                     </element>
                     <element minOccurs="0" name="percentileValue" type="double">
@@ -110,6 +87,15 @@
                                 otherwise; that this element and statistic must agree is a
                                 correlation XSD cannot express, and is left to the validation
                                 chain.</documentation>
+                        </annotation>
+                    </element>
+                    <element minOccurs="0" name="statisticScope" type="diggs:StatisticScopeEnumType">
+                        <annotation>
+                            <documentation>What statistic is gathered over: the values within one
+                                record (series), the evidence for one subject (evidence), or all
+                                subjects the criterion governs (population). Required whenever
+                                statistic is given - a correlation XSD cannot express, checked by
+                                the evaluator.</documentation>
                         </annotation>
                     </element>
                     <element minOccurs="1" maxOccurs="1" name="operator"
@@ -160,17 +146,17 @@
                                 single length-valued element can carry.</documentation>
                         </annotation>
                     </element>
-                    <choice minOccurs="0">
+                    <element minOccurs="0" maxOccurs="unbounded" name="evidenceCondition"
+                        type="diggs:AuthorizedParameterPropertyType">
                         <annotation>
-                            <documentation>A reference to what supplies the value this criterion is
-                                evaluated against - measurements or sampling features, one kind
-                                repeated as needed. Do not mix kinds on one criterion; a requirement
-                                evaluated jointly across both belongs on a separate criterion or a
-                                diggs:CompositeAcceptanceCriterion instead.</documentation>
+                            <documentation>A condition evidence must meet to count toward this
+                                criterion - a coded parameter and its value or range, for example
+                                specimen age 28 d, elapsed time 1 to 10 min, or depth below the
+                                platform. Evidence counts only if it meets every condition given.
+                                Omit where all evidence of the criterion's subject
+                                counts.</documentation>
                         </annotation>
-                        <element maxOccurs="unbounded" ref="diggs:evaluatedAgainstMeasurementRef"/>
-                        <element maxOccurs="unbounded" ref="diggs:evaluatedAgainstSamplingFeatureRef"/>
-                    </choice>
+                    </element>
                     <element minOccurs="0" maxOccurs="1" name="sourceSpecRef"
                         type="diggs:FeatureReferenceType">
                         <annotation>
