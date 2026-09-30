@@ -1001,9 +1001,10 @@
         substitutionGroup="diggs:AbstractTestProcedure" abstract="true">
         <annotation>
             <documentation>Base type for laboratory test procedure objects. A laboratory test
-                procedure is performed on a specimen derived from a sample that was collected from a
-                samplingFeature, and therefore the sample's location is known and relates to a
-                geographic feature of interest. Use of a laboratory test procedure within a Test
+                procedure is performed on a specimen. Within a diggs:Test, the specimen derives from
+                a sample collected from a samplingFeature, so the sample's location is known and
+                relates to a geographic feature of interest; within a diggs:MaterialTest, the
+                specimen is made from a manufactured material and has no location relevance. Use of a laboratory test procedure within a Test
                 object does not require that information about the specific sample or specimen is
                 known, only that the source location of the sample is known or recorded. This allows
                 results of a test to be transferred without specific information about the sample or
@@ -1012,7 +1013,7 @@
     </element>
     <complexType name="AbstractLaboratoryTestProcedureType" abstract="true">
         <annotation>
-            <documentation>Base type for laboratory test procedures performed on specimens removed from sampling features.</documentation>
+            <documentation>Base type for laboratory test procedures performed on specimens, whether prepared from samples removed from sampling features or made from manufactured materials.</documentation>
         </annotation>
         <complexContent>
             <extension base="diggs:AbstractTestProcedureType">
@@ -2966,14 +2967,14 @@
         <annotation>
             <documentation>AbstractSpecimen serves as the head of a substitution group for concrete
                 specimen specializations based on specimen state or type: eg. soil, liquid, gas,
-                rock. A specimen derives from one or more Samples, is created as part of a test
+                rock, manufactured cementitious material. A specimen derives from one or more Samples, is created as part of a test
                 procedure, and exists only in the context of the test procedure that creates
                 it.</documentation>
         </annotation>
     </element>
     <complexType abstract="true" name="AbstractSpecimenType">
         <annotation>
-            <documentation>Base type for test specimens derived from samples or manufactured materials. A specimen is a prepared portion of a sample used for a specific laboratory test. Specimens differ from samples in that they are typically prepared to standard dimensions and conditions (e.g., trimmed, molded, cured) according to test method requirements. A single sample may yield multiple specimens for different tests or repeat testing. Specimens are always associated with a MaterialTest procedure.</documentation>
+            <documentation>Base type for test specimens derived from samples or manufactured materials. A specimen is a prepared portion of a sample used for a specific laboratory test. Specimens differ from samples in that they are typically prepared to standard dimensions and conditions (e.g., trimmed, molded, cured) according to test method requirements. A single sample may yield multiple specimens for different tests or repeat testing. A specimen is described within the test procedure (specimen) of the diggs:Test or diggs:MaterialTest that tests it.</documentation>
         </annotation>
         <complexContent>
             <extension base="diggs:AbstractFeatureType">
@@ -2993,10 +2994,11 @@
                     <element minOccurs="0" name="extractionTime" type="gml:TimePositionType">
                         <annotation>
                             <documentation>The time instant when this specimen was extracted from
-                                the sample for testing. This is equivalent to
-                                diggs:MaterialTest/sampleTime and diggs:Test/diggs:samplingTime
-                                where only one specimen is used for the test and should generally
-                                not be used in that case. Where multiple specimens are used for a
+                                the sample for testing or, for a specimen molded or cast from fresh
+                                material, the time it was made. This is equivalent to
+                                diggs:MaterialTest/diggs:samplingTime and
+                                diggs:Test/diggs:samplingTime where only one specimen is used for
+                                the test and should generally not be used in that case. Where multiple specimens are used for a
                                 test and each was extracted from the host at different times, then
                                 this property should be used to record the precise sampling time for
                                 each specimen.</documentation>
