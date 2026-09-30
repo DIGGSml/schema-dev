@@ -66,6 +66,17 @@
                             <documentation>A property containing one or more Occurrence objects, which hold XPATH locations for the element that may contain the identifier value and any element (and optionally an element value) that must be present for the identifier value to be valid.</documentation>
                         </annotation>
                     </element>
+                    <element maxOccurs="1" minOccurs="0" name="valueBindings"
+                        type="diggs:ValueBindingArrayPropertyType">
+                        <annotation>
+                            <documentation>Where the VALUE of the property this definition names is
+                                found in DIGGS data, so that an acceptance criterion citing this
+                                definition can be evaluated from the data. Distinct from
+                                occurrences, which say where the definition's CODE may be used.
+                                Ordered: an evaluator tries each binding in turn and uses the first
+                                that resolves.</documentation>
+                        </annotation>
+                    </element>
                 </sequence>
             </extension>
         </complexContent>
@@ -101,6 +112,210 @@
             </element>
         </sequence>
     </complexType>
+    <element name="ValueBinding" type="diggs:ValueBindingType">
+        <annotation>
+            <documentation>One way of finding the value of a defined property in DIGGS data, and of
+                turning it into the value an acceptance criterion's limit is compared against.</documentation>
+        </annotation>
+    </element>
+    <complexType name="ValueBindingArrayPropertyType">
+        <annotation>
+            <documentation>Property type containing one or more ValueBinding objects, in the order an
+                evaluator tries them.</documentation>
+        </annotation>
+        <sequence maxOccurs="unbounded" minOccurs="1">
+            <element ref="diggs:ValueBinding"/>
+        </sequence>
+    </complexType>
+    <complexType name="ValueBindingType">
+        <annotation>
+            <documentation>Type defining how a property's value is located and compared.
+
+                PATHS are XPath 3.1 expressions evaluated with the check's subject as the context
+                node. Two variables are bound: $design, the subject's governing design (resolved
+                through programDesignRef, then basedOnRef, most specific first), and $evidence, the
+                evidence the acceptance check cites. Three functions are available:
+                diggs:deref(ref) follows a reference's xlink:href to its target;
+                diggs:series(result, propertyCode) returns a result's encoded data for one coded
+                property as ordered (index, value) pairs; diggs:valueAt(series, x) interpolates a
+                series linearly at x.
+
+                UNITS: every value carries the uom of its measure (or its parameterUnits). The
+                evaluator converts it to the units of the criterion's limit using the DIGGS unit
+                dictionary. A value that cannot be converted leaves the binding unresolved.
+
+                GEOMETRIC REFERENCE EVALUATIONS are made at the subject's plan position (the x,y of
+                its referencePoint). Surfaces may be PlanarSurface, CompositeSurface,
+                MultiPlanarSurface or TriangulatedSurface; volumes may be a SurfaceBoundedSolid
+                (top and bottom surfaces clipped by its footprint) or a Solid (exterior and interior
+                shells). A plan position outside the geometry, or geometry in a different CRS from
+                the subject, leaves the binding unresolved.
+
+                A binding that does not resolve is skipped, and the next binding is
+                tried.</documentation>
+        </annotation>
+        <sequence>
+            <element minOccurs="0" name="subjectElement" type="string">
+                <annotation>
+                    <documentation>The qualified name of the subject element this binding applies to
+                        - for example diggs:GroutBatch. Omit where the binding applies to any
+                        subject that carries the value.</documentation>
+                </annotation>
+            </element>
+            <element name="method" type="diggs:ValueBindingMethodEnumType">
+                <annotation>
+                    <documentation>How the realized value (and any reference value) become the value
+                        compared against the criterion's limit.</documentation>
+                </annotation>
+            </element>
+            <element name="realizedValueXpath" type="string">
+                <annotation>
+                    <documentation>Path to the realized value - on the subject, or within the cited
+                        evidence through $evidence. For series and population methods, the path
+                        yields the series, curve or set of items the method works on.</documentation>
+                </annotation>
+            </element>
+            <element minOccurs="0" name="referenceValueXpath" type="string">
+                <annotation>
+                    <documentation>Path to the reference value the realized value is compared with,
+                        evaluated against the source named by referenceSource. Required by the
+                        methods that compare two values (horizontal_offset, difference,
+                        angular_difference, containment, value_at, within_envelope); not used by the
+                        others.</documentation>
+                </annotation>
+            </element>
+            <element minOccurs="0" name="referenceSource" type="diggs:ReferenceSourceEnumType">
+                <annotation>
+                    <documentation>Where the reference path is evaluated: the governing design, or
+                        the cited evidence. Required with referenceValueXpath.</documentation>
+                </annotation>
+            </element>
+            <element minOccurs="0" name="referenceEvaluation"
+                type="diggs:ReferenceEvaluationEnumType">
+                <annotation>
+                    <documentation>How the node the reference path yields becomes a value. Omitted
+                        means value.</documentation>
+                </annotation>
+            </element>
+            <element minOccurs="0" name="normalizeByXpath" type="string">
+                <annotation>
+                    <documentation>Path to a divisor applied to the computed value - for a criterion
+                        stated as a multiple (for example embedment as a multiple of the column
+                        diameter) or as a rate per quantity (for example tests per volume
+                        placed).</documentation>
+                </annotation>
+            </element>
+        </sequence>
+    </complexType>
+    <simpleType name="ValueBindingMethodEnumType">
+        <annotation>
+            <documentation>How a value binding produces the value compared against a criterion's
+                limit. Methods marked boolean yield true or false, compared with operator eq and a
+                boolean limit.</documentation>
+        </annotation>
+        <restriction base="string">
+            <enumeration value="direct">
+                <annotation>
+                    <documentation>The realized value itself.</documentation>
+                </annotation>
+            </enumeration>
+            <enumeration value="horizontal_offset">
+                <annotation>
+                    <documentation>The plan distance between the realized position and the reference position.</documentation>
+                </annotation>
+            </enumeration>
+            <enumeration value="difference">
+                <annotation>
+                    <documentation>The realized value minus the reference value.</documentation>
+                </annotation>
+            </enumeration>
+            <enumeration value="angular_difference">
+                <annotation>
+                    <documentation>The angle between the realized direction and the reference direction - for example an as-built plunge against the design plunge.</documentation>
+                </annotation>
+            </enumeration>
+            <enumeration value="containment">
+                <annotation>
+                    <documentation>Boolean: whether the realized position lies within the reference geometry.</documentation>
+                </annotation>
+            </enumeration>
+            <enumeration value="sequence_between">
+                <annotation>
+                    <documentation>Boolean: whether the subject was installed after its nearest built design predecessor and before its nearest built design successor. The realized value is the subject's as-built order (installationSequenceNumber, else its construction time). The neighbours are found from the governing design's installation sequence and the design position each built feature realizes. The first and last in sequence are checked against the one neighbour they have; unbuilt design positions are skipped. A feature installed out of order fails, and so can one of its neighbours.</documentation>
+                </annotation>
+            </enumeration>
+            <enumeration value="value_at">
+                <annotation>
+                    <documentation>The realized series interpolated at the reference value - for example settlement at 1.5 times the design load.</documentation>
+                </annotation>
+            </enumeration>
+            <enumeration value="rate">
+                <annotation>
+                    <documentation>The slope of the realized series per unit of its index, over the window the criterion's evidenceCondition selects.</documentation>
+                </annotation>
+            </enumeration>
+            <enumeration value="rate_per_log_cycle">
+                <annotation>
+                    <documentation>The change in the realized series per log10 cycle of its index, over the window the criterion's evidenceCondition selects - for example anchor creep.</documentation>
+                </annotation>
+            </enumeration>
+            <enumeration value="within_envelope">
+                <annotation>
+                    <documentation>Boolean: whether every point of the realized curve lies between the two reference curves (lower then upper) at its index, both interpolated - for example a gradation between its limit curves.</documentation>
+                </annotation>
+            </enumeration>
+            <enumeration value="frequency">
+                <annotation>
+                    <documentation>The count of qualifying evidence items across the population, divided by the summed normalizing quantity - for example tests per volume placed. Requires the criterion's statisticScope to be population.</documentation>
+                </annotation>
+            </enumeration>
+        </restriction>
+    </simpleType>
+    <simpleType name="ReferenceSourceEnumType">
+        <annotation>
+            <documentation>Where a value binding's reference path is evaluated.</documentation>
+        </annotation>
+        <restriction base="string">
+            <enumeration value="design">
+                <annotation>
+                    <documentation>The subject's governing design ($design).</documentation>
+                </annotation>
+            </enumeration>
+            <enumeration value="evidence">
+                <annotation>
+                    <documentation>The evidence the acceptance check cites ($evidence).</documentation>
+                </annotation>
+            </enumeration>
+        </restriction>
+    </simpleType>
+    <simpleType name="ReferenceEvaluationEnumType">
+        <annotation>
+            <documentation>How the node a value binding's reference path yields becomes a
+                value.</documentation>
+        </annotation>
+        <restriction base="string">
+            <enumeration value="value">
+                <annotation>
+                    <documentation>The node's value, as is.</documentation>
+                </annotation>
+            </enumeration>
+            <enumeration value="vertical_intersection">
+                <annotation>
+                    <documentation>The node is a surface; the value is its elevation at the subject's plan position.</documentation>
+                </annotation>
+            </enumeration>
+            <enumeration value="volume_top">
+                <annotation>
+                    <documentation>The node is a volume; the value is the elevation where a vertical line at the subject's plan position first enters it from above.</documentation>
+                </annotation>
+            </enumeration>
+            <enumeration value="volume_base">
+                <annotation>
+                    <documentation>The node is a volume; the value is the elevation where a vertical line at the subject's plan position last leaves it below.</documentation>
+                </annotation>
+            </enumeration>
+        </restriction>
+    </simpleType>
     <simpleType name="QuantityClassEmlEnumType">
         <annotation>
             <documentation>Enumeration of Energistics quantity classes from the Unit of Measure Dictionary. Each quantity class represents a physical dimension or dimensionless ratio that can be measured. The quantity class defines what is being measured (e.g., length, pressure, volume per time), while units within that class define how it is measured (e.g., metres, feet, inches for length). This enumeration provides a comprehensive list of all standard quantity classes defined in the Energistics Unit Dictionary, including fundamental SI quantities, derived quantities, dimensionless ratios, and specialized petroleum/geotechnical quantities.</documentation>
