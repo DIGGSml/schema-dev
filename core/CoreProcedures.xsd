@@ -3907,12 +3907,30 @@
                             <documentation>The shearing increment property.</documentation>
                         </annotation>
                     </element>
-                    <element minOccurs="0" name="slopeOfAngleOfFailureSurface"
-                        type="diggs:PlaneAngleMeasureType">
-                        <annotation>
-                            <documentation>The slope of angle of failure surface property.</documentation>
-                        </annotation>
-                    </element>
+                    <choice minOccurs="0">
+                        <element name="slopeOfAngleOfFailureSurface"
+                            type="diggs:PlaneAngleMeasureType">
+                            <annotation>
+                                <appinfo>DEPRECATED 9/26. Use failureSurfaceDipAngle.</appinfo>
+                                <documentation>The angle of the failure surface of the specimen.
+                                    DEPRECATED.
+
+                                    Superseded by failureSurfaceDipAngle, which defines the angle
+                                    and its reference plane. The two are alternatives: only one may
+                                    be given.</documentation>
+                            </annotation>
+                        </element>
+                        <element name="failureSurfaceDipAngle" type="diggs:PlaneAngleMeasureType">
+                            <annotation>
+                                <documentation>Dip of the failure surface of the specimen: the
+                                    angle between the failure surface and the plane perpendicular to
+                                    the specimen axis (the horizontal, for a vertical specimen),
+                                    measured along the line of steepest slope of the surface. Only
+                                    one of this and slopeOfAngleOfFailureSurface may be
+                                    given.</documentation>
+                            </annotation>
+                        </element>
+                    </choice>
                     <element minOccurs="1" name="totalCellPressureDuringShearStage"
                         type="diggs:PressureMeasureType">
                         <annotation>
@@ -4352,13 +4370,24 @@
                             <documentation>Duration of the test.</documentation>
                         </annotation>
                     </element>
-                    <element minOccurs="0" name="averageRateOfStrain"
-                        type="diggs:RelativeRateMeasureType">
-                        <annotation>
-                            <documentation>Average axial strain rate applied to the specimen during
-                                loading, for strain-controlled tests (e.g. %/min).</documentation>
-                        </annotation>
-                    </element>
+                    <choice minOccurs="0">
+                        <element name="averageRateOfStrain" type="diggs:RelativeRateMeasureType">
+                            <annotation>
+                                <documentation>Average axial strain rate applied to the specimen
+                                    during loading, for strain-controlled tests (e.g. %/min). A test
+                                    records either this or loadingRate, not both.</documentation>
+                            </annotation>
+                        </element>
+                        <element name="loadingRate" type="diggs:PressurePerTimeMeasureType">
+                            <annotation>
+                                <documentation>Stress rate applied to the specimen during loading,
+                                    for stress-controlled tests (e.g. MPa/s for concrete). Where the
+                                    machine is displacement-controlled, the stress rate that the
+                                    rate of movement is set to produce. A test records either this
+                                    or averageRateOfStrain, not both.</documentation>
+                            </annotation>
+                        </element>
+                    </choice>
                     <element minOccurs="0" name="modeOfFailure" type="gml:CodeType">
                         <annotation>
                             <documentation>How the specimen failed: for soil and rock, e.g. shear
@@ -4367,12 +4396,30 @@
                                 Intended to come from a controlled list of terms.</documentation>
                         </annotation>
                     </element>
-                    <element minOccurs="0" name="slopeOfAngleOfFailureSurface"
-                        type="diggs:PlaneAngleMeasureType">
-                        <annotation>
-                            <documentation>The slope of angle of failure surface property.</documentation>
-                        </annotation>
-                    </element>
+                    <choice minOccurs="0">
+                        <element name="slopeOfAngleOfFailureSurface"
+                            type="diggs:PlaneAngleMeasureType">
+                            <annotation>
+                                <appinfo>DEPRECATED 9/26. Use failureSurfaceDipAngle.</appinfo>
+                                <documentation>The angle of the failure surface of the specimen.
+                                    DEPRECATED.
+
+                                    Superseded by failureSurfaceDipAngle, which defines the angle
+                                    and its reference plane. The two are alternatives: only one may
+                                    be given.</documentation>
+                            </annotation>
+                        </element>
+                        <element name="failureSurfaceDipAngle" type="diggs:PlaneAngleMeasureType">
+                            <annotation>
+                                <documentation>Dip of the failure surface of the specimen: the
+                                    angle between the failure surface and the plane perpendicular to
+                                    the specimen axis (the horizontal, for a vertical specimen),
+                                    measured along the line of steepest slope of the surface. Only
+                                    one of this and slopeOfAngleOfFailureSurface may be
+                                    given.</documentation>
+                            </annotation>
+                        </element>
+                    </choice>
                     <element minOccurs="0" name="axialStrainAtFailure"
                         type="diggs:LengthPerLengthMeasureType">
                         <annotation>
@@ -4415,7 +4462,11 @@
                     </element>
                     <element minOccurs="0" name="loadDialReading" type="string">
                         <annotation>
-                            <documentation>The load dial reading property.</documentation>
+                            <appinfo>DEPRECATED 9/26. Use axialLoad.</appinfo>
+                            <documentation>The load dial reading property. DEPRECATED.
+
+                                Superseded by axialLoad, which records the force as a measure with
+                                units.</documentation>
                         </annotation>
                     </element>
                     <element minOccurs="0" name="axialLoad" type="diggs:ForceMeasureType">
@@ -4426,20 +4477,29 @@
                     </element>
                     <element minOccurs="0" name="strainDialReading" type="string">
                         <annotation>
-                            <documentation>The strain dial reading property.</documentation>
+                            <appinfo>DEPRECATED 9/26. Use axialDeformation or totalStrain.</appinfo>
+                            <documentation>The strain dial reading property. DEPRECATED.
+
+                                Superseded by axialDeformation, which records the shortening as a
+                                length with units, and totalStrain, which records it as a
+                                strain.</documentation>
                         </annotation>
                     </element>
-                    <element minOccurs="1" name="totalStrain"
+                    <element minOccurs="0" name="totalStrain"
                         type="diggs:LengthPerLengthMeasureType">
                         <annotation>
                             <documentation>Axial strain of the specimen at this reading: axial
-                                deformation divided by the specimen height before
-                                loading.</documentation>
+                                deformation divided by the specimen height before loading. A
+                                reading may record axialDeformation instead.</documentation>
                         </annotation>
                     </element>
                     <element minOccurs="0" name="unitStrain" type="string">
                         <annotation>
-                            <documentation>strain per unit length? Units?</documentation>
+                            <appinfo>DEPRECATED 9/26. Use totalStrain.</appinfo>
+                            <documentation>Strain per unit length, as text. DEPRECATED.
+
+                                Superseded by totalStrain, which records the axial strain as a
+                                measure with units.</documentation>
                         </annotation>
                     </element>
                     <element minOccurs="0" name="correctedArea" type="diggs:AreaMeasureType">
@@ -4453,6 +4513,12 @@
                             <documentation>Axial compressive stress on the specimen at this reading:
                                 axialLoad divided by the cross-sectional area (corrected area where
                                 given).</documentation>
+                        </annotation>
+                    </element>
+                    <element minOccurs="0" name="axialDeformation" type="diggs:LengthMeasureType">
+                        <annotation>
+                            <documentation>Axial shortening of the specimen at this reading,
+                                measured from the start of loading.</documentation>
                         </annotation>
                     </element>
                 </sequence>
