@@ -7010,10 +7010,29 @@
         </complexContent>
     </complexType>
 
+    <complexType name="GridIndexType">
+        <annotation>
+            <documentation>The index of one node in the index space of a grid: a whitespace-separated
+                list of integers, one per grid axis, ordered per the grid's axisLabels. Written in
+                the same form as the gml:low and gml:high bounds of the gml:GridEnvelope the index
+                must fall within.</documentation>
+        </annotation>
+        <simpleContent>
+            <extension base="gml:integerList">
+                <attribute name="dimension" type="positiveInteger" default="2">
+                    <annotation>
+                        <documentation>The number of values in the index, equal to the dimension of
+                            the grid it indexes. Two where omitted; state 3 for an index into a
+                            three-dimensional grid.</documentation>
+                    </annotation>
+                </attribute>
+            </extension>
+        </simpleContent>
+    </complexType>
     <complexType name="GridIndexStepType">
         <annotation>
             <documentation>One explicitly ordered installation position: a grid index (the list
-                content, same type and ordering convention as diggs:realizesGridIndex and
+                content, a diggs:GridIndexType, the same type as diggs:realizesGridIndex and
                 diggs:plannedGridIndex) with a sequenceNumber attribute stating its position in the
                 installation order. Repeated directly within diggs:InstallationSequence's steps
                 branch to state an order no traversal rule can generate.
@@ -7039,7 +7058,7 @@
                 in the first place.</documentation>
         </annotation>
         <simpleContent>
-            <extension base="gml:integerList">
+            <extension base="diggs:GridIndexType">
                 <attribute name="sequenceNumber" type="positiveInteger" use="required">
                     <annotation>
                         <documentation>The position of this node in the installation order,
@@ -7048,10 +7067,9 @@
                             compared directly against the as-built
                             diggs:RIColumnType/installationSequenceNumber. Document order supports
                             neither. Since diggs:InstallationSequenceType is a choice, steps account
-                            for every node when present and the numbers of one sequence run 1..n. A
-                            single node taken out of order is
-                            diggs:TargetPositionType/designInstallationSequenceNumber
-                            instead.</documentation>
+                            for every node when present and the numbers of one sequence run 1..n,
+                            counted within this design. A diggs:DesignProductionSequence places the
+                            design among the program's other work.</documentation>
                     </annotation>
                 </attribute>
             </extension>
@@ -7155,42 +7173,18 @@
                 and account for every node of the grid. One branch is mandatory: an
                 InstallationSequence carrying neither would state nothing.
 
-                AN EARLIER DRAFT LET THE TWO COMBINE, with the explicit entries winning for the
-                nodes they named and the rule governing the rest. That was withdrawn because the
-                composition had no stated meaning. "The rule governs the rest" admits three
-                readings, and they disagree: the rule numbers every node and the explicit entries
-                overwrite, which collides and is not a total order at all; the entries are a prefix
-                the rule continues after, which cannot express a sparse number; or the entries claim
-                absolute positions and the rule deals the unnamed nodes into the positions left
-                free. Only the third is always a total order. Nothing said which was meant, so an
-                author and a consumer could disagree while each believed itself correct - and no
-                rule was stated either for the further collision between a diggs:GridIndexStep and a
-                diggs:TargetPositionType/designInstallationSequenceNumber claiming the same position.
-                
-                A PREFIX-THEN-FALLBACK ORDER IS A GROUPING, NOT A TRAVERSAL, and belongs to
-                diggs:DesignRIColumnType/installationOrder ranking sibling designs - which is what
-                that element's own documentation already says of an order driven by equipment
-                availability or by load transfer platform zone. A few nodes first and then the
-                serpentine over the remainder is two designs, each with its own plannedPositions
-                grid stating exactly which nodes it contains. A single node taken out of order is
-                diggs:TargetPositionType/designInstallationSequenceNumber on an individually planned node.
-                Neither case needs this object to blend a rule with an enumeration.
-                
-                WHAT THIS OBJECT DOES NOT EXPRESS, deliberately, because other machinery already
-                does:
-                - ORDER BETWEEN DESIGNS - primary/secondary/tertiary passes, or "all columns of one
-                type first, wherever they are" - is diggs:DesignRIColumnType/installationOrder
-                ranking sibling designs, each with its own scope. Per R12 a multi-grid treated
-                area is already sibling designs; a pass is the same construct. GML's sequence
-                rules cannot express split spacing, and this is why they do not need to.
-                - MINIMUM SPACING TO FRESH CONCRETE and MINIMUM AGE BEFORE ADJACENT INSTALLATION are
-                requirements, not an order, and are diggs:ClearanceConstraint - a minimum
-                separation, a minimum elapsed time, or both together as a conditional rule - so
-                that they are checkable rather than inert. (An earlier version of this note pointed
-                at diggs:DesignConformanceCriterion; that type's single subject/operator/limit shape
-                cannot express a pairwise distance-triggers-timing rule, which is why
-                diggs:ClearanceConstraint exists as its own object - see its own
-                documentation.)</documentation>
+                The order is local to the design: numbers run 1..n over its own nodes. Where the
+                design's work is to be carried out relative to other designs, or where a few nodes
+                are to be carried out of order, a diggs:DesignProductionSequence places the design
+                as a block, or places individual nodes or planned positions, at program-wide
+                positions.
+
+                WHAT THIS OBJECT DOES NOT EXPRESS, because other machinery does:
+                - ORDER BETWEEN DESIGNS - primary, secondary and tertiary passes, or all columns of
+                one type first wherever they are - is a diggs:DesignProductionSequence.
+                - MINIMUM SPACING TO FRESH CONCRETE and MINIMUM AGE BEFORE ADJACENT INSTALLATION
+                are requirements, not an order, and are diggs:ClearanceConstraint - a minimum
+                separation, a minimum elapsed time, or both together as a conditional rule.</documentation>
         </annotation>
     </element>
     <complexType name="InstallationSequenceType">
@@ -7216,7 +7210,7 @@
                                     reasoning.</documentation>
                             </annotation>
                         </element>
-                        <element minOccurs="0" name="startPoint" type="gml:integerList">
+                        <element minOccurs="0" name="startPoint" type="diggs:GridIndexType">
                             <annotation>
                                 <documentation>The grid node the sequence begins at. Where omitted,
                                     the grid's gml:low - its lowest-indexed corner - as
@@ -7396,16 +7390,85 @@
                                 AbstractVolume for a 3-D extent.</documentation>
                         </annotation>
                     </element>
-                    <element minOccurs="0" name="designInstallationSequenceNumber"
-                        type="positiveInteger">
+                </sequence>
+            </extension>
+        </complexContent>
+    </complexType>
+    <element name="DesignProductionSequence" type="diggs:DesignProductionSequenceType"
+        substitutionGroup="diggs:AbstractProgramDesign">
+        <annotation>
+            <documentation>The order in which the work of a whole program is to be carried out,
+                across all of its designs: columns installed, boreholes drilled, samples taken,
+                measurements made. One object holds one order, so the question of whether one
+                feature is produced after a second and before a third is answered from a single
+                series of numbers, wherever the three are designed.
+
+                Declared in the program's design slot, after the designs it orders. A
+                diggs:ClearanceConstraint on the program (a minimum spacing to fresh work, a minimum
+                age before adjacent work) attaches through programSpecificationRef.</documentation>
+        </annotation>
+    </element>
+    <complexType name="DesignProductionSequenceType">
+        <annotation>
+            <documentation>Type for the program-wide production order. A sequence of steps, each
+                placing one feature, one design, or one node of a design's grid at a position in
+                the order.</documentation>
+        </annotation>
+        <complexContent>
+            <extension base="diggs:AbstractProgramDesignType">
+                <sequence>
+                    <element name="step" type="diggs:ProductionSequenceStepType" minOccurs="1"
+                        maxOccurs="unbounded">
                         <annotation>
-                            <documentation>The position this feature is intended to occupy in the
-                                installation order, counting from 1.</documentation>
+                            <documentation>One placement in the order. What the step's xlink:href
+                                points at decides what the step places and whether a grid index is
+                                stated; see diggs:ProductionSequenceStepType.</documentation>
                         </annotation>
                     </element>
                 </sequence>
             </extension>
         </complexContent>
+    </complexType>
+    <complexType name="ProductionSequenceStepType">
+        <annotation>
+            <documentation>One placement in a diggs:DesignProductionSequence. The xlink:href names
+                the thing placed; the element content, where present, is the grid index of one node;
+                the sequenceNumber is the position in the order.
+
+                What is placed depends on the target:
+                - A DESIGN THAT STATES A plannedPositions GRID: the content is required and is the
+                node placed, a node of that grid. sequenceNumber is that node's position.
+                - A TargetPosition: the content is empty. sequenceNumber is that feature's
+                position.
+                - A DESIGN WHOSE plannedPositions CARRY AN InstallationSequence, with empty content:
+                the whole design is placed as a block. sequenceNumber is the START of the block - the
+                design's own order, numbered 1..n, occupies sequenceNumber to sequenceNumber + n - 1.
+                - ANY OTHER DESIGN, with empty content: the whole design is placed at
+                sequenceNumber, its features unordered among themselves.
+
+                A design is placed either as a block or whole, or node by node, not both. Steps that
+                share a number, or whose blocks overlap, are unordered with respect to each other;
+                sequenceNumber is comparable directly with the as-built
+                diggs:RIColumnType/installationSequenceNumber.</documentation>
+        </annotation>
+        <simpleContent>
+            <extension base="diggs:GridIndexType">
+                <attribute ref="xlink:href" use="required">
+                    <annotation>
+                        <documentation>The design or TargetPosition this step places, as a
+                            reference to its gml:id.</documentation>
+                    </annotation>
+                </attribute>
+                <attribute name="sequenceNumber" type="positiveInteger" use="required">
+                    <annotation>
+                        <documentation>The position of what this step places in the program-wide
+                            order, counting from 1. Where the step places a design that carries its
+                            own InstallationSequence as a block, the number at which that design's
+                            own order starts.</documentation>
+                    </annotation>
+                </attribute>
+            </extension>
+        </simpleContent>
     </complexType>
     <element name="plannedPositions" type="diggs:PlannedPositionsPropertyType">
         <annotation>
