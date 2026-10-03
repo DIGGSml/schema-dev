@@ -1385,6 +1385,52 @@
     </complexType>
 
     <!-- ================================================================================== -->
+    <!-- CONSTRUCTION ACTIVITY METHOD ELEMENTS                                              -->
+    <!-- (declared ahead of the Sounding elements below; used by any construction activity) -->
+    <!-- ================================================================================== -->
+    <element name="ConstructionActivityMethod" type="diggs:ConstructionActivityMethodType">
+        <annotation>
+            <documentation>A construction method together with the part of the constructed feature
+                it was applied to. Held by the constructionMethod property of a construction
+                activity (diggs:AbstractConstructionActivity). Where the method changes along the
+                feature, give one object per method, each with its own depth interval or geometry
+                in location; where one method applies throughout, give one object and omit
+                location.</documentation>
+        </annotation>
+    </element>
+    <complexType name="ConstructionActivityMethodType">
+        <annotation>
+            <documentation>A diggs:Specification of the method followed, optionally limited to a
+                part of the feature by location.</documentation>
+        </annotation>
+        <complexContent>
+            <extension base="diggs:AbstractComponentObjectBaseType">
+                <sequence>
+                    <element minOccurs="0" ref="diggs:location">
+                        <annotation>
+                            <documentation>The part of the constructed feature the method applies
+                                to, in the feature's own referencing system - typically a depth
+                                interval along a linear feature. If omitted, the method applies to
+                                the whole extent of the feature.</documentation>
+                        </annotation>
+                    </element>
+                    <element name="constructionMethod" type="diggs:SpecificationPropertyType"
+                        maxOccurs="unbounded">
+                        <annotation>
+                            <documentation>A specification of the method followed over the stated
+                                location. It cites or describes the method - the standard,
+                                procedure or technique - rather than merely naming it. Repeat for
+                                each specification that applies over the location, for example a
+                                driving standard and a grouting standard. Equipment is stated by
+                                the activity's equipment property.</documentation>
+                        </annotation>
+                    </element>
+                </sequence>
+            </extension>
+        </complexContent>
+    </complexType>
+    
+    <!-- ================================================================================== -->
     <!-- SOUNDING ELEMENTS                                                                  -->
     <!-- ================================================================================== -->
     <element abstract="false" name="Sounding"
@@ -7668,7 +7714,8 @@
                                 together.</documentation>
                         </annotation>
                     </element>
-                    <element minOccurs="0" name="sampleScope" type="diggs:SampleDesignScopePropertyType">
+                    <element minOccurs="0" name="sampleScope"
+                        type="diggs:SampleDesignScopePropertyType">
                         <annotation>
                             <documentation>Which population this sample design's activity draws
                                 from, and how densely or in what pattern - see
@@ -8135,27 +8182,6 @@
         </complexContent>
     </complexType>
 
-    <complexType name="ConstructionMethodPropertyType">
-        <annotation>
-            <documentation>Property type for containing or referencing the diggs:Specification a
-                planned construction activity is to follow. A twin of
-                diggs:MeasurementMethodPropertyType (this file), not a reuse of it: the two wrap the
-                same diggs:Specification the same way (modelled on diggs:ProcedurePropertyType,
-                core/Common.xsd:722, with the contained element minOccurs="0" so the by-reference
-                form is actually valid - see diggs:MeasurementMethodPropertyType's documentation for
-                why that matters), but a property named constructionMethod typed
-                "MeasurementMethodPropertyType" would misdescribe itself to a schema browser. No
-                house-style mechanism (xsd:group, attributeGroup) exists to share the shape without
-                that cost - the same trade AuthorizedParameterType/ParameterType already
-                accepted.</documentation>
-        </annotation>
-        <sequence minOccurs="0">
-            <element ref="diggs:Specification" maxOccurs="1"/>
-        </sequence>
-        <attributeGroup ref="gml:AssociationAttributeGroup"/>
-        <attributeGroup ref="gml:OwnershipAttributeGroup"/>
-    </complexType>
-
     <element name="TargetConstructionActivity" type="diggs:TargetConstructionActivityType"
         substitutionGroup="diggs:AbstractTargetObject">
         <annotation>
@@ -8195,7 +8221,7 @@
                         </annotation>
                     </element>
                     <element minOccurs="0" maxOccurs="unbounded" name="constructionMethod"
-                        type="diggs:ConstructionMethodPropertyType">
+                        type="diggs:SpecificationPropertyType">
                         <annotation>
                             <documentation>The method(s) this activity is planned to follow, held
                                 inline or by reference (see diggs:ConstructionMethodPropertyType).

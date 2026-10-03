@@ -1012,19 +1012,13 @@
                                 constraint is evaluated against.</documentation>
                         </annotation>
                     </element>
-                    <element maxOccurs="unbounded" minOccurs="0" name="constructionMethod"
-                        type="diggs:RIConstructionMethodPropertyType">
+                    <element maxOccurs="unbounded" minOccurs="0" ref="diggs:groutRef">
                         <annotation>
-                            <documentation>Information regarding construction of the rigid inclusion over
-                                different depth and/or time 
-                               intervals</documentation>
-                        </annotation>
-                    </element>
-                    <element maxOccurs="unbounded" minOccurs="0" name="constructionEvent"
-                        type="diggs:RIEventPropertyType">
-                        <annotation>
-                            <documentation>Information about events recorded during construction of
-                                the rigid inclusion.</documentation>
+                            <documentation>The grout or concrete batch this column was formed from -
+                                a reference to a diggs:GroutBatch. Cite each batch where the column
+                                took more than one. The method followed and the events recorded
+                                while forming the column are stated on its
+                                diggs:RIColumnConstruction activity.</documentation>
                         </annotation>
                     </element>
                     <element minOccurs="0" name="groundSurfaceElevation"
@@ -1039,8 +1033,9 @@
                                 and the column takes precedence for geometry: the centerLine runs
                                 from the column head to the column tip, not from ground level to the
                                 tip. Depths recorded during drilling - measurement-while-drilling
-                                data, and RIEventType/riDepth - are measured instead from the ground
-                                or platform datum the rig works from. This property is what relates
+                                data, and events recorded on the construction activity - are
+                                measured instead from the ground or platform datum the rig works
+                                from. This property is what relates
                                 the two, and without it drilling-time depths cannot be placed on the
                                 column.
 
@@ -1118,130 +1113,6 @@
          only use. LTPArrayPropertyType was removed with loadTransferPlatforms for the same reason.
          Both are gone rather than left unreferenced: neither had any other use anywhere in the
          schema. -->
-    <complexType name="RIConstructionMethodType">
-        <annotation>
-            <documentation>The construction-method SUMMARY carried on the feature - one or more
-                intervals or discrete method changes over the depth or time of construction,
-                referenced from diggs:RIColumnType/constructionMethod.
-
-                THIS STAYS THE SUMMARY. THE REAL-TIME RECORD LIVES ON THE ACTIVITY. C3 added
-                diggs:RIColumnConstruction, whose installationRecord property carries the
-                continuous depth- or time-indexed telemetry stream this type only summarizes in a
-                handful of intervals. WHERE THE TWO DISAGREE, THE RECORD ON THE ACTIVITY GOVERNS -
-                this object is authored or derived from that stream, not the other way round, so a
-                conflict means this summary is stale or was rounded, not that the detailed record
-                is wrong.</documentation>
-        </annotation>
-        <complexContent>
-            <extension base="diggs:AbstractNamedRoleObjectType">
-                <sequence>
-                    <element minOccurs="0" ref="diggs:location">
-                        <annotation>
-                            <documentation>The location within the sampling feature that corresponds
-                                to the particular construction method being referenced here. If
-                                omitted, it is assumed that the procedures specified apply to the
-                                entire extent of the sampling feature</documentation>
-                        </annotation>
-                    </element>
-                    <element maxOccurs="1" minOccurs="0" name="methodTime"
-                        type="diggs:TimeIntervalPropertyType">
-                        <annotation>
-                            <documentation>The period of time during which the construction event is
-                                occurring</documentation>
-                        </annotation>
-                    </element>
-                    <element minOccurs="0" name="holeStability" type="string">
-                        <annotation>
-                            <documentation>Uncontrolled string describing stability conditions of
-                                the hole during this interval</documentation>
-                        </annotation>
-                    </element>
-                    <element maxOccurs="unbounded" minOccurs="0" name="constructionMethod"
-                        type="diggs:SpecificationPropertyType">
-                        <annotation>
-                            <documentation>Contains a Specification object that may be used to
-                                describe any details regarding the method of construction. It should
-                                not be used to simply provide a name for the construction method.
-                                That value should be entered in the gml:name property for this
-                                object.</documentation>
-                        </annotation>
-                    </element>
-                    <element maxOccurs="unbounded" minOccurs="0" name="constructionEquipment"
-                        type="diggs:EquipmentPropertyType">
-                        <annotation>
-                            <documentation>A property element that contains an Equipment feature (or
-                                reference to one) that details the construction equipment
-                                used.</documentation>
-                        </annotation>
-                    </element>
-                    <element minOccurs="0" name="cuttingToolInfo"
-                        type="diggs:CuttingToolArrayPropertyType">
-                        <annotation>
-                            <documentation>The cutting tool info property.</documentation>
-                        </annotation>
-                    </element>
-                    <element minOccurs="0" name="drillPipeInfo"
-                        type="diggs:DrillPipeArrayPropertyType">
-                        <annotation>
-                            <documentation>The drill pipe info property.</documentation>
-                        </annotation>
-                    </element>
-                    <element minOccurs="0" name="hydraulicFluidFlowRate"
-                        type="diggs:VolumePerTimeMeasureType">
-                        <annotation>
-                            <documentation>The flow rate of the hydraulic fluid.</documentation>
-                        </annotation>
-                    </element>
-                    <element minOccurs="0" ref="diggs:groutRef"/>
-                </sequence>
-            </extension>
-        </complexContent>
-    </complexType>
-    <element name="RIConstructionMethod" type="diggs:RIConstructionMethodType"/>
-    <complexType name="RIConstructionMethodPropertyType">
-        <sequence minOccurs="0" maxOccurs="1">
-            <element ref="diggs:RIConstructionMethod"/>
-        </sequence>
-        <attributeGroup ref="gml:OwnershipAttributeGroup"/>
-        <attributeGroup ref="gml:AssociationAttributeGroup"/>
-    </complexType>
-    <element name="RIEvent" type="diggs:RIEventType"/>
-    <complexType name="RIEventType">
-        <complexContent>
-            <extension base="diggs:AbstractEventType">
-                <sequence>
-                    <element minOccurs="0" name="riBottom" type="diggs:PointLocationPropertyType">
-                        <annotation>
-                            <documentation>Measured Depth to the base of the rigid inclusion at this event time,
-                                reported in the RI's linear referencing system.</documentation>
-                        </annotation>
-                    </element>
-                    <choice>
-                        <element minOccurs="0" name="depthToWater"
-                            type="diggs:PointLocationPropertyType">
-                            <annotation>
-                                <documentation>Depth to Water Surface as measured at this event
-                                    time, recorded in the hole's linear referencing
-                                    system.</documentation>
-                            </annotation>
-                        </element>
-                        <element fixed="true" minOccurs="0" name="isDry" type="boolean">
-                            <annotation>
-                                <documentation>Indicates whether dry.</documentation>
-                            </annotation>
-                        </element>
-                    </choice>
-                </sequence>
-            </extension>
-        </complexContent>
-    </complexType>
-    <complexType name="RIEventPropertyType">
-        <sequence minOccurs="0" maxOccurs="1">
-            <element ref="diggs:RIEvent"/>
-        </sequence>
-        <attributeGroup ref="gml:OwnershipAttributeGroup"/>
-        <attributeGroup ref="gml:AssociationAttributeGroup"/>
-    </complexType>
     <!-- ============================================================ -->
     <!-- RI PROGRAM MODULES                                           -->
     <!-- ============================================================ -->
@@ -2785,8 +2656,9 @@
             <documentation>Restricted type based on gml:AbstractCoverageType, mirroring
                 diggs:MWDResultType particle for particle. Where location carries the domain, expect
                 a diggs:LinearExtent in the column's own linear referencing system marking the depth
-                interval the record spans - the same idiom diggs:RIConstructionMethodType/location
-                already uses for its own, coarser intervals. Where timeDomain carries it instead, the
+                interval the record spans - the same idiom
+                diggs:ConstructionActivityMethodType/location uses for the part of the column a
+                method applies to. Where timeDomain carries it instead, the
                 per-row depth (if wanted) travels as its own property column in results, exactly as
                 "Measured Depth" does in the worked diggs-examples MWD instance. results carries an
                 open PropertyParameters list, so drilling columns (propertyClass values from
@@ -2829,8 +2701,11 @@
         <annotation>
             <documentation>The act of constructing one rigid inclusion column: drilling, and, where
                 the method grouts through the auger stem, grouting. Carries the real-time telemetry
-                record; diggs:RIConstructionMethodType on the diggs:RIColumn feature carries
-                the summary derived from it. Where the two disagree, THIS RECORD GOVERNS.
+                record. The method followed over each part of the column, and the events recorded
+                while it was formed, are stated through the constructionMethod and
+                constructionEvent properties it inherits from
+                diggs:AbstractConstructionActivity; where they disagree with this record, THIS
+                RECORD GOVERNS.
 
                 SCOPED TO COLUMN CONSTRUCTION ONLY, AND THE NAME NOW SAYS SO. This element was
                 called diggs:RIConstructionActivity until the rename recorded here; the old name

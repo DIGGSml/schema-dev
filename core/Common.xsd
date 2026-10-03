@@ -748,6 +748,33 @@
             <element ref="diggs:Calibration" minOccurs="1" maxOccurs="1"/>
         </sequence>
     </complexType>
+    <complexType name="ConstructionActivityMethodPropertyType">
+        <annotation>
+            <documentation>Property type for the method followed in a construction activity.
+                Contains a diggs:ConstructionActivityMethod, which states the method and, where
+                it applies to only part of the feature, the location it applies to; or references
+                one by xlink:href. A diggs:Specification may still be given directly, but that
+                form is deprecated.</documentation>
+        </annotation>
+        <choice minOccurs="0">
+            <element ref="diggs:Specification">
+                <annotation>
+                    <appinfo>DEPRECATED 10/26. Use diggs:ConstructionActivityMethod instead,
+                        omitting its location where the method applies to the whole
+                        feature.</appinfo>
+                    <documentation>Deprecated - a Specification given directly cannot be tied to a
+                        part of the feature. Use diggs:ConstructionActivityMethod, whose
+                        constructionMethod holds the same Specification and whose optional
+                        location states the part of the feature it applies to; with no location it
+                        applies to the whole feature. Retained for backward compatibility with
+                        documents written before 10/26; it is still valid.</documentation>
+                </annotation>
+            </element>
+            <element ref="diggs:ConstructionActivityMethod"/>
+        </choice>
+        <attributeGroup ref="gml:AssociationAttributeGroup"/>
+        <attributeGroup ref="gml:OwnershipAttributeGroup"/>
+    </complexType>
     <complexType name="ConstructionActivityPropertyType">
         <annotation>
             <documentation> Property type for containing any construction activity feature
@@ -1285,6 +1312,7 @@
         <attributeGroup ref="gml:AssociationAttributeGroup"/>
         <attributeGroup ref="gml:OwnershipAttributeGroup"/>
     </complexType>
+
     <complexType name="SpecificationPropertyType">
         <annotation>
             <documentation>Property type for containing or referencing a Specification
@@ -3314,8 +3342,7 @@
                         <element maxOccurs="unbounded" ref="diggs:measurementRef"/>
                         <element maxOccurs="unbounded" ref="diggs:observationSystemRef"/>
                     </choice>
-                    <element minOccurs="0" name="subjectLocation"
-                        type="diggs:LocationPropertyType">
+                    <element minOccurs="0" name="subjectLocation" type="diggs:LocationPropertyType">
                         <annotation>
                             <documentation>The part of the subject this applies to, where it is less
                                 than the whole - a depth interval along a linear feature (a grout
@@ -3444,8 +3471,7 @@
                         <element maxOccurs="unbounded" ref="diggs:measurementRef"/>
                         <element maxOccurs="unbounded" ref="diggs:observationSystemRef"/>
                     </choice>
-                    <element minOccurs="0" name="subjectLocation"
-                        type="diggs:LocationPropertyType">
+                    <element minOccurs="0" name="subjectLocation" type="diggs:LocationPropertyType">
                         <annotation>
                             <documentation>The part of the subject this applies to, where it is less
                                 than the whole - a depth interval along a linear feature (a grout
@@ -3788,9 +3814,8 @@
                         <annotation>
                             <documentation>h_c (z_n): the depth at which relative soil/column
                                 movement reverses. A POSITION IN THE RI'S OWN LINEAR REFERENCING
-                                SYSTEM, not a bare length - diggs:PointLocationPropertyType, matching
-                                diggs:RIEventType/riDepth's precedent for exactly this kind of
-                                depth, rather than a diggs:LengthMeasureType that would leave the
+                                SYSTEM, not a bare length - diggs:PointLocationPropertyType, as
+                                diggs:RIColumnType/cutoffElevation is, rather than a diggs:LengthMeasureType that would leave the
                                 depth uninterpretable without restating the datum it was measured
                                 from.</documentation>
                         </annotation>
