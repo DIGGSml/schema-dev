@@ -2614,9 +2614,10 @@
          (diggs:AbstractConstructionActivity, the <constructionActivity> slot) recording an act of
          BUILDING, of which drilling is only the first half. Embedding MWDResult inside a
          construction activity would misuse an object whose identity is bound to being a
-         measurement's outcome, so C3 declares diggs:RIInstallationRecordType as its own
-         restriction of gml:AbstractCoverageType, IDENTICAL IN SHAPE to MWDResultType - same choice,
-         same results particle - but its own name and its own object, correctly scoped to the
+         measurement's outcome, so C3 declares diggs:RIInstallationRecord as its own
+         object on diggs:TemporalResultType (a time domain and a results range; the depth/location
+         domain branch of MWDResultType is not offered - rig records are always time-indexed, with
+         depth a property column), with its own name, correctly scoped to the
          construction-activity head. The shape is borrowed; the object is not, by direct instruction
          rather than by the reasoning C2 used for the same move on aggregateGradationCurve.
 
@@ -2638,45 +2639,19 @@
          Six of the seven retired properties already have a home; nothing needed adding to either
          dictionary for them. Not one new element was needed on either coverage type either - the
          PropertyParameters/dataValues machinery built for MWD already does exactly this job. -->
-    <element name="RIInstallationRecord" type="diggs:RIInstallationRecordType">
+    <element name="RIInstallationRecord" type="diggs:TemporalResultType">
         <annotation>
-            <documentation>A depth- or time-indexed record of the real-time telemetry produced while
+            <documentation>The time-indexed record of the real-time telemetry produced while
                 constructing one rigid inclusion column - drilling parameters, grouting parameters,
                 or both mixed in one stream, according to what the producing system actually logs
-                together. Identical in shape to diggs:MWDResultType (a restriction of
-                gml:AbstractCoverageType choosing a location or timeDomain and carrying a
-                diggs:results range) but its own object, scoped to the construction-activity head
-                rather than to a measurement - see the header comment above
-                diggs:RIColumnConstructionType for why the two are not the same
-                object.</documentation>
+                together. Every row of results has a time in timeDomain; the depth at that time (the
+                position up or down the column, occupied twice, once in the drilling phase and once
+                in the withdrawal and grouting phase) is a property column of results, for example
+                mwd_properties.xml#depth. results carries an open PropertyParameters list, so
+                drilling columns (propertyClass values from mwd_properties.xml) and grouting columns
+                (from gr_inj_properties.xml) may sit in the same row set.</documentation>
         </annotation>
     </element>
-    <complexType name="RIInstallationRecordType">
-        <annotation>
-            <documentation>Restricted type based on gml:AbstractCoverageType, mirroring
-                diggs:MWDResultType particle for particle. Where location carries the domain, expect
-                a diggs:LinearExtent in the column's own linear referencing system marking the depth
-                interval the record spans - the same idiom
-                diggs:ConstructionActivityMethodType/location uses for the part of the column a
-                method applies to. Where timeDomain carries it instead, the
-                per-row depth (if wanted) travels as its own property column in results, exactly as
-                "Measured Depth" does in the worked diggs-examples MWD instance. results carries an
-                open PropertyParameters list, so drilling columns (propertyClass values from
-                mwd_properties.xml) and grouting columns (from gr_inj_properties.xml) may sit in the
-                same row set.</documentation>
-        </annotation>
-        <complexContent>
-            <restriction base="gml:AbstractCoverageType">
-                <sequence>
-                    <choice>
-                        <element ref="diggs:location"/>
-                        <element ref="diggs:timeDomain"/>
-                    </choice>
-                    <element ref="diggs:results"/>
-                </sequence>
-            </restriction>
-        </complexContent>
-    </complexType>
     <complexType name="RIInstallationRecordPropertyType">
         <annotation>
             <documentation>Property type for RIInstallationRecord. Carries an index attribute,
@@ -2754,7 +2729,7 @@
                         <annotation>
                             <documentation>The real-time telemetry record of this construction
                                 activity - see the header comment above this type and the one above
-                                diggs:RIInstallationRecordType for the reasoning behind its shape.
+                                diggs:RIInstallationRecord for the reasoning behind its shape.
 
                                 Unbounded, mirroring diggs:PileDrivingActivityType's
                                 pileDrivingRecord/pdaRecord pair: a producer may supply one mixed
