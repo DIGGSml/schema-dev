@@ -1425,6 +1425,16 @@
                                 the activity's equipment property.</documentation>
                         </annotation>
                     </element>
+                    <element minOccurs="0" name="cuttingToolInfo"
+                        type="diggs:CuttingToolArrayPropertyType">
+                        <annotation>
+                            <documentation>The cutting tool or tools used by the method over the
+                                stated location - an auger, a bit. The rig that drives the tool is the
+                                activity's equipment; the tool is stated here because one rig works
+                                with several tools, and a method over part of the feature may use a
+                                different tool from the rest.</documentation>
+                        </annotation>
+                    </element>
                 </sequence>
             </extension>
         </complexContent>
@@ -6561,6 +6571,56 @@
             <element ref="diggs:TestSpecification"/>
         </sequence>
     </complexType>
+    <element name="ConstructionActivitySpecification" type="diggs:ConstructionActivitySpecificationType"
+        substitutionGroup="diggs:AbstractProgramSpecification">
+        <annotation>
+            <documentation>A program specification governing how a construction activity is carried
+                out, as distinct from what the finished feature must be: the method to follow, the
+                equipment to use, and the telemetry the work must record. Requirements the activity
+                must meet - a termination or refusal rule, for example - are criteria that name this
+                specification through partOfSpecificationRef; the activity cites the specification
+                through programSpecificationRef.</documentation>
+        </annotation>
+    </element>
+    <complexType name="ConstructionActivitySpecificationType">
+        <annotation>
+            <documentation>Type for a construction activity specification. appliesToFeatureType,
+                inherited, names the kind of feature the activity builds or acts on.</documentation>
+        </annotation>
+        <complexContent>
+            <extension base="diggs:AbstractProgramSpecificationType">
+                <sequence>
+                    <element minOccurs="0" maxOccurs="unbounded" name="constructionMethod"
+                        type="diggs:ConstructionActivityMethodPropertyType">
+                        <annotation>
+                            <documentation>A method the activity is required to follow, as a
+                                diggs:ConstructionActivityMethod: the standard or procedure, over the
+                                part of the feature it applies to, and the cutting tool it requires.
+                                Repeat for methods over different parts of the feature.</documentation>
+                        </annotation>
+                    </element>
+                    <element minOccurs="0" maxOccurs="unbounded" name="recordingParameter"
+                        type="gml:CodeWithAuthorityType">
+                        <annotation>
+                            <documentation>A quantity the work is required to record in real time
+                                - a drilling speed, a depth, a torque, a grout pressure - as a code
+                                from a property dictionary (mwd_properties.xml, gr_inj_properties.xml).
+                                Compared with the propertyClass of the installation record of the
+                                realized activity. codeSpace is mandatory.</documentation>
+                        </annotation>
+                    </element>
+                    <element minOccurs="0" maxOccurs="unbounded" name="requiredEquipment"
+                        type="diggs:EquipmentPropertyType">
+                        <annotation>
+                            <documentation>Equipment the activity is required to use, held inline or
+                                by reference - a rig with a depth and torque monitor, a pump with a
+                                flow meter.</documentation>
+                        </annotation>
+                    </element>
+                </sequence>
+            </extension>
+        </complexContent>
+    </complexType>
     <element name="SpecimenPrepSpecification" type="diggs:SpecimenPrepSpecificationType"
         substitutionGroup="diggs:AbstractProgramSpecification">
         <annotation>
@@ -6755,6 +6815,12 @@
                 diggs:AbstractProgramSpecification - so a composite is accepted exactly where a
                 diggs:PerformanceCriterion is, with no slot changed.
 
+                A MEMBER MAY HAVE A DIFFERENT KIND OF SUBJECT FROM THE COMPOSITE. A requirement
+                about the act of construction - a refusal rule - is judged on the construction
+                activity (the check cites it through constructionActivityRef), while the composite
+                is judged on the feature. A construction activity member applies to the feature
+                named by that activity's samplingFeatureRef; where several activities act on the
+                feature, the latest by activityDateTime is the one that counts.
                 THE MEMBERS REMAIN FIRST-CLASS. Each is a normally declared criterion with its own
                 subject, statistic, operator, limit, basis and its own evaluated-against references,
                 evaluated on its own terms; this object combines the verdicts and adds nothing to how
