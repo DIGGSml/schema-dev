@@ -7687,17 +7687,16 @@
         <complexContent>
             <extension base="diggs:AbstractSamplingDesignType">
                 <sequence>
-                    <element minOccurs="0" name="targetConstructionActivityRef"
+                    <element minOccurs="0" name="constructionActivityDesignRef"
                         type="diggs:FeatureReferenceType">
                         <annotation>
-                            <appinfo source="urn:x-gml:targetElement">diggs:TargetConstructionActivity</appinfo>
-                            <documentation>A reference to the planned construction activity this
-                                sample is to be taken during or from - the planned counterpart of
-                                diggs:constructionActivityRef (AbstractSamplingActivityType). For
-                                example, cylinder or cube sampling planned against a specific column
-                                or batch installation. Plan-to-plan: cites a
-                                TargetConstructionActivity, an antecedent within the plan graph,
-                                never a realized construction activity.</documentation>
+                            <appinfo source="urn:x-gml:targetElement">diggs:AbstractConstructionActivityDesign</appinfo>
+                            <documentation>The design of the construction activity this sample is to
+                                be taken during or from - the planned counterpart of
+                                diggs:constructionActivityRef on a realized sampling activity. For
+                                example, cylinder sampling planned against a column installation.
+                                Cites a design, never a realized activity. A property element that
+                                supports a value by reference only.</documentation>
                         </annotation>
                     </element>
                     <element minOccurs="0" name="samplingLocation" type="diggs:LocationPropertyType">
@@ -8182,53 +8181,43 @@
         </complexContent>
     </complexType>
 
-    <element name="TargetConstructionActivity" type="diggs:TargetConstructionActivityType"
-        substitutionGroup="diggs:AbstractTargetObject">
+    <element name="DesignConstructionActivity" type="diggs:DesignConstructionActivityType"
+        substitutionGroup="diggs:AbstractConstructionActivityDesign">
         <annotation>
-            <documentation>A planned counterpart of a realized diggs:AbstractConstructionActivity -
-                the act that builds something, not the thing built. Where an AbstractSamplingFeatureDesign
-                plans "a column here", TargetConstructionActivity plans "installed by
-                full-displacement auger, terminated on this refusal criterion, in this sequence
-                relative to neighbours" - properties of the act, not of the object. The
-                termination/refusal criterion itself is not a property of this type: it is cited the
-                same way any other requirement is, through programSpecificationRef, inherited from
-                diggs:AbstractProgramDesignType.</documentation>
+            <documentation>A design for a construction activity with no specialization of its own:
+                the planned counterpart of a realized diggs:AbstractConstructionActivity. Where a
+                sampling feature design plans "a column here", a construction activity design plans
+                how it is to be built - the method to follow, the equipment to use, the planned
+                features the work acts on. Requirements the work must meet, such as a termination
+                or refusal criterion, are cited through programSpecificationRef, inherited.</documentation>
         </annotation>
     </element>
-    <complexType name="TargetConstructionActivityType">
+    <complexType name="DesignConstructionActivityType">
         <annotation>
-            <documentation>Base type for planned construction activities.</documentation>
+            <documentation>Type for a generic construction activity design.</documentation>
         </annotation>
         <complexContent>
-            <extension base="diggs:AbstractTargetObjectType">
+            <extension base="diggs:AbstractConstructionActivityDesignType">
                 <sequence>
-                    <element minOccurs="0" maxOccurs="unbounded" name="targetSFRef"
+                    <element minOccurs="0" maxOccurs="unbounded" name="samplingFeatureDesignRef"
                         type="diggs:FeatureReferenceType">
                         <annotation>
                             <appinfo source="urn:x-gml:targetElement">diggs:AbstractSamplingFeatureDesign</appinfo>
-                            <documentation>A reference to the planned sampling feature this activity
-                                is to construct or act on - the planned counterpart of
-                                diggs:samplingFeatureRef (AbstractConstructionActivityType, where it
-                                is mandatory and single-valued). Widened to [0..*] here, matching
-                                diggs:TargetMeasurement's targetSFRef rather than a literal mirror of
-                                the realized cardinality: a population-scope activity plan (scope,
-                                inherited) governs many features without naming one, and an
-                                individual activity may reasonably act on more than one feature (a
-                                platform excavation spanning several planned columns). Plan-to-plan:
-                                cites an AbstractSamplingFeatureDesign (or one of its specializations,
-                                DesignBorehole / DesignInstallation), an antecedent within the
-                                plan graph, never a realized sampling feature.</documentation>
+                            <documentation>The design of a feature this activity is to construct or
+                                act on - the planned counterpart of diggs:samplingFeatureRef on the
+                                realized activity. Repeatable: one activity design may govern every
+                                feature a population design covers, or act on several features. Cites
+                                a design, never a realized feature. A property element that supports
+                                a value by reference only.</documentation>
                         </annotation>
                     </element>
                     <element minOccurs="0" maxOccurs="unbounded" name="constructionMethod"
-                        type="diggs:SpecificationPropertyType">
+                        type="diggs:ConstructionActivityMethodPropertyType">
                         <annotation>
-                            <documentation>The method(s) this activity is planned to follow, held
-                                inline or by reference (see diggs:ConstructionMethodPropertyType).
-                                Unbounded and by-reference-capable because the same method is
-                                typically shared across many planned activities - the same reuse
-                                reason diggs:TargetMeasurement.measurementMethod was widened for
-                                (architecture §9 item 8).</documentation>
+                            <documentation>The method this activity is planned to follow, as a
+                                diggs:ConstructionActivityMethod - the same object the realized
+                                activity uses, so a plan can state a method for part of the work (its
+                                location) as well as for the whole.</documentation>
                         </annotation>
                     </element>
                 </sequence>
