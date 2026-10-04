@@ -1309,7 +1309,7 @@
                         <annotation>
                             <documentation>Zero or more references to program design objects this
                                 measurement was realized to satisfy - for example a
-                                TargetMeasurement (S7). A measurement may cite more than one design
+                                DesignMeasurement. A measurement may cite more than one design
                                 where multiple planning strands govern different aspects of
                                 it.</documentation>
                         </annotation>
@@ -2049,43 +2049,13 @@
                     <element maxOccurs="unbounded" minOccurs="0" name="plannedEquipment"
                         type="diggs:EquipmentPropertyType">
                         <annotation>
-                            <documentation>Equipment planned to be used in realizing this target,
-                                held inline or by reference - a piezometer a monitoring plan intends
-                                to install, a sampler a collection plan intends to use, a rig a
-                                construction plan intends to bring. GENERIC ACROSS THE WHOLE TARGET
-                                FAMILY (D2, decided 2026-08-16, built 2026-08-19): placed here rather
-                                than as a per-type named field so it is "referenceable from any other
-                                target," per D2's own framing, rather than requiring a parallel
-                                bespoke field on each Target specialization that happens to need one.
-                                Named for what it is (equipment), not for which Target subtype hosts
-                                it - diggs:TargetMeasurement uses this for a planned instrument;
-                                it does not get its own differently-named copy. diggs:DesignSample
-                                (DS1, 2026-09-27 - replaced diggs:TargetSample, whose own
-                                plannedEquipment this field originally was) now declares an
-                                identically-shaped copy on diggs:AbstractSamplingDesignType instead
-                                of this one, since a design for a sample or sampling activity is no
-                                longer a member of this Target-object family - see that type's own
-                                documentation for why each design-family branch keeps its own copy
-                                rather than sharing one upward.
-
-                                THE PROPERTY DIGGS ALREADY HAD NO HOME FOR. Before this element,
-                                ri_properties.xml#instrument_type stated a planned instrument's kind
-                                as a bare parameter, explicitly because "there is no equipment
-                                reference on diggs:TargetMeasurementType for it to become instead."
-                                That entry is now retired: state the instrument as an inline or
-                                referenced diggs:Sensor/diggs:Equipment here, with its kind carried
-                                on the equipment's own diggs:class (equipmentClass.xml already binds
-                                to //diggs:Sensor/diggs:class and //diggs:Equipment/diggs:class
-                                unconditionally, so no dictionary change was needed to make this
-                                element's content dictionary-checkable).
-
-                                SUPERSEDES diggs:TargetSampleType's own former samplingEquipment
-                                field (built one day earlier, same session arc, as part of the
-                                TargetSample rework) - that field was the first instance of exactly
-                                this need, built before D2's generic answer existed. Retired in favour
-                                of this element; diggs:DesignSample (DS1, 2026-09-27 - retired and
-                                replaced diggs:TargetSample) carries planned sampling equipment
-                                here like every other design in this family.</documentation>
+                            <documentation>Equipment planned to be used in realizing this design, held inline
+                                or by reference - a piezometer a monitoring plan intends to
+                                install, a sampler a collection plan intends to use, a rig a
+                                construction plan intends to bring. The kind of instrument is
+                                carried on the equipment's own diggs:class
+                                (equipmentClass.xml binds to //diggs:Sensor/diggs:class and
+                                //diggs:Equipment/diggs:class).</documentation>
                         </annotation>
                     </element>
                     <element maxOccurs="unbounded" minOccurs="0" name="otherDesignProperty"
@@ -2116,9 +2086,8 @@
     <complexType abstract="true" name="AbstractSamplingDesignType">
         <annotation>
             <documentation>Base type for the sample/sampling-activity design branch. Every field
-                here has a direct precedent from one of its two existing siblings
-                (diggs:AbstractSamplingFeatureDesignType, diggs:AbstractTargetObjectType) - nothing
-                invented for this type alone.
+                here has a direct precedent in a sibling design branch
+                (diggs:AbstractSamplingFeatureDesignType, diggs:AbstractMeasurementDesignType).
 
                 scope IS DELIBERATELY NOT HERE, unlike diggs:AbstractSamplingFeatureDesignType.
                 diggs:SFDesignScopePropertyType is purely geospatial (zone/grid/position), which
@@ -2145,11 +2114,8 @@
                         type="diggs:ProgressEventArrayPropertyType">
                         <annotation>
                             <documentation>The lifecycle of this planned object, as a track of dated
-                                states. Matches diggs:AbstractSamplingFeatureDesignType/progress and
-                                diggs:AbstractTargetObjectType/progress in name, type and
-                                meaning - each design-family branch declares its own copy rather
-                                than sharing one upward, the established pattern in this
-                                family.</documentation>
+                                states. Matches diggs:AbstractSamplingFeatureDesignType/progress in
+                                name, type and meaning.</documentation>
                         </annotation>
                     </element>
                     <element maxOccurs="unbounded" minOccurs="0" name="plannedEquipment"
@@ -2157,9 +2123,8 @@
                         <annotation>
                             <documentation>Equipment planned to carry out this design - a batching
                                 plant or mixer for a grout mix, a sampler for a collection. Matches
-                                diggs:AbstractSamplingFeatureDesignType/plannedEquipment and
-                                diggs:AbstractTargetObjectType/plannedEquipment in name, type and
-                                meaning (D2).</documentation>
+                                diggs:AbstractSamplingFeatureDesignType/plannedEquipment in name,
+                                type and meaning.</documentation>
                         </annotation>
                     </element>
                     <element maxOccurs="unbounded" minOccurs="0" name="otherDesignProperty"
@@ -2206,6 +2171,56 @@
                         <annotation>
                             <documentation>Equipment planned to carry out this activity - a rig,
                                 a pump, a batching plant - held inline or by reference.</documentation>
+                        </annotation>
+                    </element>
+                    <element maxOccurs="unbounded" minOccurs="0" name="otherDesignProperty"
+                        type="diggs:ParameterPropertyType">
+                        <annotation>
+                            <documentation>The dictionary escape hatch: a planned property with no
+                                named element on this or a more specific type. Prefer a named
+                                element wherever one exists.</documentation>
+                        </annotation>
+                    </element>
+                </sequence>
+            </extension>
+        </complexContent>
+    </complexType>
+    <element name="AbstractMeasurementDesign" type="diggs:AbstractMeasurementDesignType"
+        substitutionGroup="diggs:AbstractProgramDesign">
+        <annotation>
+            <documentation>Abstract head for designs of measurements - the planned counterpart of
+                diggs:AbstractMeasurement, and the sibling branch to
+                diggs:AbstractSamplingFeatureDesign (designs for the features built),
+                diggs:AbstractSamplingDesign (designs for samples and sampling activities) and
+                diggs:AbstractConstructionActivityDesign (designs for construction activities). A
+                measurement design plans the inputs and the procedure of an in-situ test, a
+                laboratory test, a monitoring campaign or a measurement taken while drilling;
+                results do not exist at planning time and are not planned.</documentation>
+        </annotation>
+    </element>
+    <complexType abstract="true" name="AbstractMeasurementDesignType">
+        <annotation>
+            <documentation>Base type for measurement designs.</documentation>
+        </annotation>
+        <complexContent>
+            <extension base="diggs:AbstractProgramDesignType">
+                <sequence>
+                    <element minOccurs="0" name="progress"
+                        type="diggs:ProgressEventArrayPropertyType">
+                        <annotation>
+                            <documentation>The lifecycle of this planned measurement, as a track of
+                                dated states. A design with no progress recorded, or whose latest
+                                progressState has not reached completion, is not yet
+                                performed.</documentation>
+                        </annotation>
+                    </element>
+                    <element maxOccurs="unbounded" minOccurs="0" name="plannedEquipment"
+                        type="diggs:EquipmentPropertyType">
+                        <annotation>
+                            <documentation>Equipment planned to take this measurement, held inline
+                                or by reference - a piezometer a monitoring plan intends to install,
+                                a load frame, a logger. The kind of instrument is carried on the
+                                equipment's own diggs:class.</documentation>
                         </annotation>
                     </element>
                     <element maxOccurs="unbounded" minOccurs="0" name="otherDesignProperty"
@@ -3097,132 +3112,6 @@
     <complexType abstract="true" name="AbstractSurfaceType">
         <complexContent>
             <extension base="gml:AbstractSurfaceType"/>
-        </complexContent>
-    </complexType>
-
-    <element abstract="true" name="AbstractTargetObject" type="diggs:AbstractTargetObjectType"
-        substitutionGroup="diggs:AbstractProgramDesign">
-        <annotation>
-            <documentation>Head of the substitution group for the Target pattern: a planned
-                counterpart of a realized DIGGS object, carrying what is intended (through inherited
-                scope and basedOnRef) and a progress track, but never a reference to its own
-                realization - the realized object cites the plan instead
-                (diggs:programDesignRef), never the reverse. Being a program design, a target also
-                carries the specification(s) it must satisfy (programSpecificationRef) and the basis
-                it rests on (basisRef), both inherited.
-                
-                One Target exists per REALIZED ABSTRACT HEAD that is independently instantiable at
-                document root - never one per concrete type, and never for a head that exists only
-                inside another object's context (diggs:AbstractSpecimen is the case that fails this
-                test and gets no Target: it exists only inside a MaterialTest, and planning it is
-                already covered by diggs:PlannedTest). A Target plans the inputs and the procedure;
-                concrete realized types differ from one another almost entirely in their RESULTS,
-                which do not exist at planning time and so have nothing to target.</documentation>
-        </annotation>
-    </element>
-    <complexType abstract="true" name="AbstractTargetObjectType">
-        <annotation>
-            <documentation>Base type for the Target pattern. Carries a progress track, a planned-
-                equipment slot and a dictionary escape hatch; everything else a target needs comes
-                from diggs:AbstractProgramDesignType (programSpecificationRef, basisRef) and,
-                through it, diggs:AbstractProgramModuleType (scope, basedOnRef) - nothing is
-                redeclared here.</documentation>
-        </annotation>
-        <complexContent>
-            <extension base="diggs:AbstractProgramDesignType">
-                <sequence>
-                    <element minOccurs="0" name="plannedGridIndex" type="diggs:GridIndexType">
-                        <annotation>
-                            <documentation>Declares which planned position of a LARGER design this
-                                target refines, as the index of the node within the index space of
-                                that design's plannedPositions grid. The planned-side mirror of
-                                diggs:realizesGridIndex, which does the same job from the realized
-                                side, and deliberately the same type (diggs:GridIndexType) and the same
-                                ordering convention (per the grid's axisLabels, of the grid's
-                                dimension) so the two are directly comparable.
-
-                                WHAT IT IS FOR: a design may enumerate SOME of its planned
-                                positions as individual targets and leave the rest to the grid - a
-                                partially specified layout, where a handful of columns need
-                                individually stated properties and the remainder are uniform.
-                                Without this element such a target cannot say WHICH node it refines,
-                                and the only remaining way to associate the two would be matching by
-                                proximity, which diggs:realizesGridIndex's own documentation forbids
-                                for the reason given there: nearest-node matching fails silently
-                                exactly where it matters most.
-
-                                OMIT IT where the target is not refining a node of a larger grid -
-                                a standalone planned feature, or one whose own scope carries its
-                                position directly. A target that states this element should not also
-                                restate the node's position as geometry; the index resolves
-                                it.</documentation>
-                        </annotation>
-                    </element>
-                    <element minOccurs="0" name="progress"
-                        type="diggs:ProgressEventArrayPropertyType">
-                        <annotation>
-                            <documentation>The lifecycle of this planned object, as a track of dated
-                                states. This is what answers "what is planned but not yet built?"
-                                without any reference from the plan to its realization: a target
-                                with no progress recorded, or whose latest progressState has not
-                                reached completion, is not yet fulfilled.</documentation>
-                        </annotation>
-                    </element>
-                    <element minOccurs="0" maxOccurs="unbounded" name="plannedEquipment"
-                        type="diggs:EquipmentPropertyType">
-                        <annotation>
-                            <documentation>Equipment planned to be used in realizing this target,
-                                held inline or by reference - a piezometer a monitoring plan intends
-                                to install, a sampler a collection plan intends to use, a rig a
-                                construction plan intends to bring. GENERIC ACROSS THE WHOLE TARGET
-                                FAMILY (D2, decided 2026-08-16, built 2026-08-19): placed here rather
-                                than as a per-type named field so it is "referenceable from any other
-                                target," per D2's own framing, rather than requiring a parallel
-                                bespoke field on each Target specialization that happens to need one.
-                                Named for what it is (equipment), not for which Target subtype hosts
-                                it - diggs:TargetMeasurement uses this for a planned instrument;
-                                it does not get its own differently-named copy. diggs:DesignSample
-                                (DS1, 2026-09-27 - replaced diggs:TargetSample, whose own
-                                plannedEquipment this field originally was) now declares an
-                                identically-shaped copy on diggs:AbstractSamplingDesignType instead
-                                of this one, since a design for a sample or sampling activity is no
-                                longer a member of this Target-object family - see that type's own
-                                documentation for why each design-family branch keeps its own copy
-                                rather than sharing one upward.
-
-                                THE PROPERTY DIGGS ALREADY HAD NO HOME FOR. Before this element,
-                                ri_properties.xml#instrument_type stated a planned instrument's kind
-                                as a bare parameter, explicitly because "there is no equipment
-                                reference on diggs:TargetMeasurementType for it to become instead."
-                                That entry is now retired: state the instrument as an inline or
-                                referenced diggs:Sensor/diggs:Equipment here, with its kind carried
-                                on the equipment's own diggs:class (equipmentClass.xml already binds
-                                to //diggs:Sensor/diggs:class and //diggs:Equipment/diggs:class
-                                unconditionally, so no dictionary change was needed to make this
-                                element's content dictionary-checkable).
-
-                                SUPERSEDES diggs:TargetSampleType's own former samplingEquipment
-                                field (built one day earlier, same session arc, as part of the
-                                TargetSample rework) - that field was the first instance of exactly
-                                this need, built before D2's generic answer existed. diggs:TargetSample
-                                itself was later retired (DS1, 2026-09-27), replaced by
-                                diggs:DesignSample, which left this Target-object family entirely
-                                and now carries its own plannedEquipment on
-                                diggs:AbstractSamplingDesignType instead of this
-                                element.</documentation>
-                        </annotation>
-                    </element>
-                    <element minOccurs="0" maxOccurs="unbounded" name="otherProperty"
-                        type="diggs:ParameterPropertyType">
-                        <annotation>
-                            <documentation>The dictionary escape hatch: a planned property that has
-                                no named element on this or a more specific target type. Prefer a
-                                named element wherever the plan has one; use this only where none
-                                exists.</documentation>
-                        </annotation>
-                    </element>
-                </sequence>
-            </extension>
         </complexContent>
     </complexType>
 

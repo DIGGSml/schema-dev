@@ -7963,64 +7963,73 @@
         <attributeGroup ref="gml:OwnershipAttributeGroup"/>
     </complexType>
 
-    <element name="TargetMeasurement" type="diggs:TargetMeasurementType"
-        substitutionGroup="diggs:AbstractTargetObject">
+    <element name="DesignMeasurement" type="diggs:DesignMeasurementType"
+        substitutionGroup="diggs:AbstractMeasurementDesign">
         <annotation>
-            <documentation>A planned counterpart of a realized diggs:AbstractMeasurement - covers
-                all five concrete members (Test, Monitor, MaterialTest, MeasurementWhileDrilling,
-                GeophysicalFieldSurvey) with one type, since what is plannable is already common to
-                the abstract head and what differs between the concretes is their result content.
-                Renamed from an earlier TargetTest for exactly that reason: a type named for one
-                member would misdescribe what it actually covers.</documentation>
+            <documentation>A design for a measurement: the planned counterpart of a realized
+                diggs:AbstractMeasurement. One type serves every kind of measurement - an in-situ
+                test, a laboratory test on a sample, a monitoring campaign, a measurement taken
+                while drilling, a geophysical survey - because what is plannable (what it is done
+                on, where, by what method, how often, how densely, for how long) is common to all of
+                them; what differs between the realized types is their result content, which is not
+                planned. A realized measurement cites its design through programDesignRef.</documentation>
         </annotation>
     </element>
-    <complexType name="TargetMeasurementType">
+    <complexType name="DesignMeasurementType">
         <annotation>
-            <documentation>Base type for planned measurements.</documentation>
+            <documentation>Type for a measurement design.</documentation>
         </annotation>
         <complexContent>
-            <extension base="diggs:AbstractTargetObjectType">
+            <extension base="diggs:AbstractMeasurementDesignType">
                 <sequence>
                     <element minOccurs="0" name="measurementKind" type="gml:CodeType">
                         <annotation>
                             <documentation>What kind of measurement is planned, so that a reader knows what is
                                 intended before any realized object exists to inspect.
                                 
-                                gml:CodeType with a dictionary vocabulary, deliberately NOT a closed XSD
-                                enumeration: the set of measurement kinds grows without a schema release. Note the
-                                contrast with diggs:AbstractSamplingFeatureDesignType/samplingFeatureType,
-                                which is gml:CodeWithAuthorityType. That element is mandatory and its values must be precise,
-                                so it compels a codeSpace; this one is optional and largely derivable, so it does
-                                not.
+                                A gml:CodeType with a dictionary vocabulary (measurementKind.xml), not a closed
+                                enumeration: the set of measurement kinds grows without a schema release.
                                 
-                                KEEP IT OPTIONAL AND EXPECT IT TO BE OMITTED. It is largely redundant with
-                                measurementMethod below: a planned ASTM D1143 test already announces itself as a
-                                static load test. State it where no method is cited, or where the method admits
-                                several kinds of measurement.</documentation>
+                                Optional, and largely redundant with measurementMethod below: a planned ASTM D1143
+                                test already announces itself as a static load test. State it where no method is
+                                cited, or where the method admits several kinds of measurement.</documentation>
                         </annotation>
                     </element>
-                    <element minOccurs="0" maxOccurs="unbounded" name="targetSFRef"
+                    <element minOccurs="0" maxOccurs="unbounded" name="samplingFeatureDesignRef"
                         type="diggs:FeatureReferenceType">
                         <annotation>
                             <appinfo source="urn:x-gml:targetElement">diggs:AbstractSamplingFeatureDesign</appinfo>
-                            <documentation>A reference to the planned sampling feature this
+                            <documentation>A reference to the design of the sampling feature this
                                 measurement is to be performed on or from - the planned counterpart
                                 of diggs:samplingFeatureRef (AbstractMeasurementType), and typed the
-                                same way. Plan-to-plan: cites an AbstractSamplingFeatureDesign (or one
-                                of its specializations, DesignBorehole / DesignInstallation), an
-                                antecedent within the plan graph, never a realized sampling
-                                feature.</documentation>
+                                same way. Cites an AbstractSamplingFeatureDesign (or one of its
+                                specializations), never a realized sampling feature. Repeatable: one
+                                measurement design may govern every feature a population design
+                                covers.</documentation>
                         </annotation>
                     </element>
-                    <element minOccurs="0" maxOccurs="unbounded" name="targetSampleRef"
+                    <element minOccurs="0" maxOccurs="unbounded" name="sampleDesignRef"
                         type="diggs:FractionalReferenceType">
                         <annotation>
                             <appinfo source="urn:x-gml:targetElement">diggs:DesignSample</appinfo>
-                            <documentation>A reference to the planned sample this measurement is to
-                                be performed on - the planned counterpart of diggs:sampleRef
-                                (AbstractMeasurementType), and typed the same way. Plan-to-plan:
-                                cites a DesignSample (DS1, 2026-09-27 - retired and replaced
-                                diggs:TargetSample), never a realized Sample.</documentation>
+                            <documentation>A reference to the design of the sample this measurement is
+                                to be performed on - the planned counterpart of diggs:sampleRef
+                                (AbstractMeasurementType), and typed the same way. Cites a
+                                diggs:DesignSample (or a specialization such as a grout mix design),
+                                never a realized Sample. This is how a laboratory test or a test on
+                                a produced material is planned.</documentation>
+                        </annotation>
+                    </element>
+                    <element minOccurs="0" name="constructionActivityDesignRef"
+                        type="diggs:FeatureReferenceType">
+                        <annotation>
+                            <appinfo source="urn:x-gml:targetElement">diggs:AbstractConstructionActivityDesign</appinfo>
+                            <documentation>A reference to the design of the construction activity this
+                                measurement accompanies - the planned counterpart of
+                                diggs:constructionActivityRef (AbstractMeasurementType): the
+                                measurement while drilling or the records of an installation. Cites a
+                                design, never a realized activity. A property element that supports
+                                a value by reference only.</documentation>
                         </annotation>
                     </element>
                     <element minOccurs="0" name="measurementLocation"
@@ -8028,13 +8037,12 @@
                         <annotation>
                             <documentation>The planned location of the measurement - most often a
                                 diggs:LinearExtent marking the planned depth or depth interval within
-                                targetSFRef's linear referencing system, a diggs:PointLocation for a
+                                samplingFeatureDesignRef's linear referencing system, a diggs:PointLocation for a
                                 single planned test position or instrument point, or a
                                 diggs:MultiPointLocation for several planned positions served by one
                                 provision.
 
-                                THERE IS NO NAMED REALIZED-SIDE COUNTERPART TO MIRROR, AND THAT IS WHY
-                                THIS ELEMENT IS NEEDED RATHER THAN INHERITED. On the realized side a
+                                A DESIGN HAS NO RESULT COVERAGE TO CARRY ITS POSITION. On the realized side a
                                 measurement's position is normally the DOMAIN of its result coverage -
                                 diggs:location, which substitutes gml:domainSet - so a
                                 diggs:Test carries no location property of its own and needs none: the
@@ -8047,13 +8055,10 @@
                                 a reason that does not transfer: a monitoring point is a fixed position
                                 that exists independently of, and prior to, any reading taken there.
 
-                                A PLANNED MEASUREMENT HAS NO COVERAGE, so it has no domain, so the
-                                mechanism the realized side relies on is simply unavailable to it. Before
-                                this element existed a plan could say WHICH feature a measurement was to
-                                be performed on (targetSFRef) and HOW DENSELY (the testingDensity choice
-                                below), but not WHERE - "a pressuremeter test at 4.5 m and 9.0 m in
-                                BH-3" was unstatable except as a bare otherProperty parameter, which is
-                                the un-queryable resting state the Target family exists to remove.
+                                A planned measurement has no coverage, so it has no domain: this
+                                element states which feature it is performed on (samplingFeatureDesignRef),
+                                how densely (the testingDensity choice below) and where - "a
+                                pressuremeter test at 4.5 m and 9.0 m in BH-3".
 
                                 DISTINCT FROM, AND COMPLEMENTARY TO, THE testingDensity CHOICE BELOW: a
                                 density states spacing without committing to positions ("one test per
@@ -8062,8 +8067,7 @@
                                 has been resolved into a planned schedule.
 
                                 NORMALLY OMITTED WHERE THE MEASUREMENT IS ON A PLANNED SAMPLE: cite the
-                                sample through targetSampleRef and let its own position (
-                                diggs:DesignSampleType/samplingLocation, or sampleScope/
+                                sample through sampleDesignRef and let its own position (diggs:DesignSampleType/samplingLocation, or sampleScope/
                                 samplingPosition where it is stated relative to a cited feature)
                                 carry the depth, rather than restating it here. Omit it too where the
                                 measurement applies to the
@@ -8078,9 +8082,7 @@
                             <documentation>The method(s) this measurement is planned to follow, held
                                 inline or by reference (see diggs:MeasurementMethodPropertyType).
                                 Unbounded and by-reference-capable because the same method is
-                                typically shared across many planned measurements - renamed from an
-                                earlier inline testSpecification for exactly that reuse
-                                reason.</documentation>
+                                typically shared across many planned measurements.</documentation>
                         </annotation>
                     </element>
                     <element minOccurs="0" name="readingFrequency"
@@ -8117,54 +8119,26 @@
                                 boundary. Not to be confused with the gml:duration of the GML profile, which is in
                                 a different namespace and is an XSD duration lexical form rather than a measure.
                                 
-                                State a start or end time, where one is planned, through the scope and progress
-                                machinery inherited from the Target spine rather than here: this element carries an
-                                elapsed span, not a position in time.</documentation>
+                                This element carries an elapsed span, not a position in time; state a
+                                planned date through progress.</documentation>
                         </annotation>
                     </element>
                     <choice minOccurs="0">
                         <annotation>
-                            <documentation>TESTING DENSITY (TF2, 2026-08-19, retyped from a single
-                                diggs:AuthorizedParameterPropertyType element): how densely this
-                                measurement is planned to be taken across a population or an area,
-                                where the provision is stated as a spatial or count-based density
-                                rather than a rate in time - one test per footing, one per linear foot
-                                of wall, one per unit area of slab (Post-installation Parameter
-                                Analysis V2 row 22: LTP special-inspection frequency/regime).
+                            <documentation>TESTING DENSITY: how densely this measurement is planned to be taken across
+                                a population or an area, where the provision is stated as a spatial or
+                                count-based density rather than a rate in time - one test per footing,
+                                one per linear foot of wall, one per unit area of slab.
 
-                                A CHOICE OF THREE, NOT ONE ELEMENT WITH A VARYING QUANTITY CLASS.
-                                Earlier documentation on this particle argued for a dictionary-bound
-                                parameter because "there is no reciprocal-length or reciprocal-area
-                                measure type in DIGGS today" - that premise was wrong: both
-                                diggs:ReciprocalLengthMeasureType and diggs:ReciprocalAreaMeasureType
-                                already exist (core/MeasureTypes.xsd). Once that is corrected, the
-                                three shapes a testing density can take are a CLOSED, PHYSICALLY FIXED
-                                SET - per linear length, per area, or per discrete element/count -
-                                unlike diggs:DesignVerificationType/demand and /capacity, whose
-                                quantity class genuinely is open-ended across verification types, or
-                                testedFraction below, which is always dimensionless. A dictionary
-                                carries no advantage for a fixed three-member set, so the dictionary-
-                                bound-parameter mechanism (still the right tool for demand/capacity,
-                                per docs/build/X2-analysis/NOTES.md in the RI project's working
-                                notes) is not needed here. Superseded
-                                ri_properties.xml#testing_density, retired with this change.
+                                Exactly one of the three branches: per length, per area, or per
+                                discrete element. Distinct from readingFrequency, which is time-based
+                                only, and from testedFraction below, which states what share of a
+                                population is tested rather than how closely spaced the tests are.
 
-                                DISTINCT FROM readingFrequency, WHICH IS TIME-BASED ONLY -
-                                diggs:ReciprocalTimeMeasureType cannot state "per linear foot" or "per
-                                unit area". DISTINCT FROM testedFraction below (what share of a
-                                population is tested, always dimensionless) - this states how closely
-                                spaced testing is in space or by count, testedFraction states what
-                                fraction of the population it covers.
-
-                                EXACTLY ONE BRANCH, NEVER MORE THAN ONE: a choice, not three
-                                independent optional elements, since a single planned measurement has
-                                one testing-density shape, not several stated simultaneously.
-
-                                Continuous, 100%-coverage inspection (this row's other half -
-                                "continuous visual inspection") is not a density at all and is not
-                                what this choice states; record it through measurementKind/remark
-                                instead, the same way a Test with no readingFrequency is understood to
-                                be a single planned event.</documentation>
+                                Continuous, 100%-coverage inspection is not a density and is not
+                                what this choice states; record it through measurementKind or
+                                remark. A measurement with no readingFrequency is understood to be a
+                                single planned event.</documentation>
                         </annotation>
                         <element name="testingDensityPerLength"
                             type="diggs:ReciprocalLengthMeasureType">
@@ -8208,16 +8182,12 @@
                                 temporal reading frequency carried by readingFrequency above, and from
                                 the spatial/count-based density carried by the testingDensityPerLength/
                                 PerArea/PerElement choice above - three related but independent
-                                provisions, retained as separate elements rather than folded into one
-                                another (TF1, 2026-08-19, retiring the former
-                                ri_properties.xml#tested_fraction, which stated this as an
-                                undictionaried parameter before this element existed).
+                                provisions, retained as separate elements.
 
-                                diggs:ProgramScopeType (inherited via the Target spine) states WHICH
-                                features a provision governs, by geometry, layout or feature type, and
-                                has no fraction concept by design; this element states what share of
-                                that scoped population is sampled. The two are complementary and both
-                                are normally needed.</documentation>
+                                samplingFeatureDesignRef names WHICH features a provision governs
+                                (typically a population design); this element states what share of
+                                that population is tested. The two are complementary and both are
+                                normally needed.</documentation>
                         </annotation>
                     </element>
                     <element minOccurs="0" name="testLoadPercentDesignLoad"
@@ -8233,13 +8203,7 @@
                                 population-scoped test provision govern a whole zone. Where the
                                 provision is adopted from a standard or a published recommendation
                                 rather than derived for the project, state that in a remark - this
-                                element itself carries only the value, not its derivation (TF1,
-                                2026-08-19, retiring the former
-                                ri_properties.xml#test_load_pct_design_load, whose own documentation
-                                suggested a diggs:ProvenancedParameter for exactly this
-                                provenance-tracking case; a fixed measure type has no equivalent
-                                mechanism, so cite the source in remark
-                                instead).</documentation>
+                                element itself carries only the value, not its derivation.</documentation>
                         </annotation>
                     </element>
                 </sequence>
