@@ -1192,10 +1192,9 @@
     <element name="LoadTestIncrement" type="diggs:LoadTestIncrementType" abstract="false"
         substitutionGroup="diggs:AbstractProcedureTrial">
         <annotation>
-            <documentation>One load increment applied during a load test - the procedure's planned
-                or as-executed schedule, not the measured readings taken at it (those belong on
-                Test/outcome's ResultSet, per diggs:AbstractLoadTestProcedure's own
-                documentation).
+            <documentation>One load application during a load test - a staged increment or
+                decrement, a force pulse, or an impact - with the readings taken during it carried
+                in incrementTimeSeries.
 
                 TWO ALTERNATIVE HOLD-CRITERION FIELDS, BY DESIGN, NOT REDUNDANTLY. holdDuration (a
                 fixed clock time) is how ASTM's Quick Test and Constant Time Interval procedures
@@ -1250,9 +1249,33 @@
                                 hold. See this type's own documentation above.</documentation>
                         </annotation>
                     </element>
+                    <element minOccurs="0" name="appliedStress" type="diggs:PressureMeasureType">
+                        <annotation>
+                            <documentation>The stress applied at this increment, for tests loaded
+                                and reported as a stress on a bearing area. Stated alongside, not
+                                instead of, appliedLoad.</documentation>
+                        </annotation>
+                    </element>
+                    <element minOccurs="0" name="incrementTimeSeries"
+                        type="diggs:LoadTestIncrementTimeSeriesPropertyType">
+                        <annotation>
+                            <documentation>The readings taken during this increment, in time order -
+                                for example load, movement and temperature at each reading time. The
+                                first and last times bound the hold.</documentation>
+                        </annotation>
+                    </element>
                 </sequence>
             </extension>
         </complexContent>
+    </complexType>
+    <complexType name="LoadTestIncrementTimeSeriesPropertyType">
+        <annotation>
+            <documentation>Property type holding the time series recorded during one load test
+                increment.</documentation>
+        </annotation>
+        <sequence>
+            <element maxOccurs="1" minOccurs="1" ref="diggs:TemporalResult"/>
+        </sequence>
     </complexType>
     <complexType name="LoadTestIncrementPropertyType">
         <annotation>
@@ -1422,6 +1445,19 @@
                                 plateBearingTestProcedure.xml (nonrepetitive / repetitive /
                                 two_cycle). See this type's own documentation above for how the
                                 vocabulary spans the ASTM and DIN traditions.</documentation>
+                        </annotation>
+                    </element>
+                    <element minOccurs="0" name="seatingStress" type="diggs:PressureMeasureType">
+                        <annotation>
+                            <documentation>The stress applied to seat the plate before increments
+                                and readings begin. Stated alongside, not instead of
+                                seatingLoad.</documentation>
+                        </annotation>
+                    </element>
+                    <element minOccurs="0" name="beddingMaterial" type="gml:CodeType">
+                        <annotation>
+                            <documentation>The material the plate was bedded on, such as sand or
+                                gypsum plaster.</documentation>
                         </annotation>
                     </element>
                 </sequence>
