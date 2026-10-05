@@ -742,7 +742,7 @@
     </complexType>
     <complexType name="CalibrationPropertyType">
         <annotation>
-            <documentation> Property type for containing a Calibration feature.</documentation>
+            <documentation>Property type containing one Calibration object.</documentation>
         </annotation>
         <sequence>
             <element ref="diggs:Calibration" minOccurs="1" maxOccurs="1"/>
@@ -1749,40 +1749,58 @@
     </complexType>
     <element name="Calibration" type="diggs:CalibrationType" abstract="false">
         <annotation>
-            <documentation>An object containing properties pertaining to instrument
-                calibration.</documentation>
+            <documentation>The calibration of an item of equipment or a sensor: when it was
+                calibrated, what was found, and how the equipment has been used since. Held on an
+                equipment record through calibrationAuditTrail; an item calibrated more than
+                once carries one Calibration per occasion. The laboratory or person who performed or
+                approved the calibration is stated through the role property inherited from
+                AbstractFeature.</documentation>
         </annotation>
     </element>
     <complexType name="CalibrationType">
         <annotation>
-            <documentation>Type for instrument calibration information. Contains calibration data,
-                calibration values, date, and use since last calibration. Documents calibration
-                history and parameters for equipment and sensors.</documentation>
+            <documentation>Type for one calibration of an item of equipment or a sensor. Carries
+                the calibration procedure and recorded data, the calibration values, the date
+                calibration was performed, and a note on use since. The party responsible for the
+                calibration is stated through the inherited role property.</documentation>
         </annotation>
         <complexContent>
             <extension base="diggs:AbstractFeatureType">
                 <sequence>
                     <element minOccurs="0" name="calibrationData" type="gml:StringOrRefType">
                         <annotation>
-                            <documentation>Procedure and recorded data obtained during calibration.
-                                This can be represented as text or as a reference to another object
-                                or external file via an xlink:href attribute</documentation>
+                            <documentation>The procedure followed and the data recorded during the
+                                calibration, as text or as a reference (xlink:href) to another
+                                object or an external file such as the calibration
+                                certificate.</documentation>
                         </annotation>
                     </element>
-                    <element name="cqlibrationValues" type="diggs:ParameterArrayPropertyType"
-                        minOccurs="0" maxOccurs="1">
-                        <annotation>
-                            <documentation>Date calibration was perfomed</documentation>
-                        </annotation>
-                    </element>
+                    <choice minOccurs="0">
+                        <element name="cqlibrationValues" type="diggs:ParameterArrayPropertyType"
+                            minOccurs="1" maxOccurs="1">
+                            <annotation>
+                                <documentation>DEPRECATED: misspelling of calibrationValues, kept so
+                                    that existing instances remain valid. Use calibrationValues
+                                    instead.</documentation>
+                            </annotation>
+                        </element>
+                        <element name="calibrationValues" type="diggs:ParameterArrayPropertyType"
+                            minOccurs="1" maxOccurs="1">
+                            <annotation>
+                                <documentation>Values established or reported by the calibration,
+                                    as named parameters with their values and units - for example a
+                                    calibration constant, resolution or uncertainty.</documentation>
+                            </annotation>
+                        </element>
+                    </choice>
                     <element name="date" type="gml:TimePositionType" minOccurs="0" maxOccurs="1">
                         <annotation>
-                            <documentation>Date calibration was perfomed</documentation>
+                            <documentation>The date the calibration was performed.</documentation>
                         </annotation>
                     </element>
                     <element minOccurs="0" name="useSinceLastCalibration" type="string">
                         <annotation>
-                            <documentation>Note about the amount of use of the equipment since the
+                            <documentation>A note on how much the equipment has been used since the
                                 last calibration.</documentation>
                         </annotation>
                     </element>
