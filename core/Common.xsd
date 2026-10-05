@@ -1760,9 +1760,11 @@
     <complexType name="CalibrationType">
         <annotation>
             <documentation>Type for one calibration of an item of equipment or a sensor. Carries
-                the calibration procedure and recorded data, the calibration values, the date
-                calibration was performed, and a note on use since. The party responsible for the
-                calibration is stated through the inherited role property.</documentation>
+                the certificate number, the dates calibrated and due, the method followed, the
+                conditions, the reference equipment used, the values established and the table of
+                calibration points, with the procedure and recorded data as text or by reference,
+                and a note on use since. The laboratory and the people who performed or approved
+                the calibration are stated through the inherited role property.</documentation>
         </annotation>
         <complexContent>
             <extension base="diggs:AbstractFeatureType">
@@ -1793,15 +1795,66 @@
                             </annotation>
                         </element>
                     </choice>
+                    <element name="certificateNumber" type="string" minOccurs="0" maxOccurs="1">
+                        <annotation>
+                            <documentation>The number of the calibration certificate or report
+                                issued for this calibration.</documentation>
+                        </annotation>
+                    </element>
                     <element name="date" type="gml:TimePositionType" minOccurs="0" maxOccurs="1">
                         <annotation>
                             <documentation>The date the calibration was performed.</documentation>
+                        </annotation>
+                    </element>
+                    <element name="dueDate" type="gml:TimePositionType" minOccurs="0" maxOccurs="1">
+                        <annotation>
+                            <documentation>The date by which the equipment is due to be calibrated
+                                again, as stated on the certificate.</documentation>
                         </annotation>
                     </element>
                     <element minOccurs="0" name="useSinceLastCalibration" type="string">
                         <annotation>
                             <documentation>A note on how much the equipment has been used since the
                                 last calibration.</documentation>
+                        </annotation>
+                    </element>
+                    <element minOccurs="0" maxOccurs="unbounded" name="calibrationMethod"
+                        type="diggs:SpecificationPropertyType">
+                        <annotation>
+                            <documentation>The standard or procedure the calibration followed, as
+                                a Specification object or a reference to one - for example a
+                                registry entry for the standard, or the laboratory's own
+                                procedure.</documentation>
+                        </annotation>
+                    </element>
+                    <element minOccurs="0" name="calibrationConditions"
+                        type="diggs:ParameterArrayPropertyType">
+                        <annotation>
+                            <documentation>The conditions the calibration was performed under, as
+                                named parameters with values, tolerances and units - for example
+                                ambient temperature and humidity.</documentation>
+                        </annotation>
+                    </element>
+                    <element minOccurs="0" maxOccurs="unbounded" name="referenceStandard"
+                        type="diggs:EquipmentPropertyType">
+                        <annotation>
+                            <appinfo>diggs:AbstractEquipment</appinfo>
+                            <documentation>The reference equipment the item was calibrated
+                                against, such as a dead-weight tester or a proving load cell, as an
+                                Equipment object or a reference to one. The reference equipment's
+                                own certificate, due date and traceability are carried by its
+                                calibrationAuditTrail.</documentation>
+                        </annotation>
+                    </element>
+                    <element minOccurs="0" maxOccurs="unbounded" name="calibrationResults"
+                        type="diggs:ResultsPropertyType">
+                        <annotation>
+                            <documentation>A table of calibration points: one row per point, with
+                                columns such as the reference value applied, the value the item
+                                indicated, the deviation between them and the expanded uncertainty
+                                at that point. The columns, their units and their order are
+                                declared by the table's parameters. An item calibrated over more
+                                than one range or quantity carries one table for each.</documentation>
                         </annotation>
                     </element>
                 </sequence>
