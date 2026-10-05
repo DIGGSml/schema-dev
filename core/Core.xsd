@@ -6467,8 +6467,8 @@
                         type="diggs:TestingSchedulePropertyType"/>
                     <element maxOccurs="unbounded" minOccurs="0" name="plannedTest"
                         type="diggs:PlannedTestPropertyType"/>
-                    <element maxOccurs="unbounded" minOccurs="0" name="testSpecification"
-                        type="diggs:TestSpecificationPropertyType"/>
+                    <element maxOccurs="unbounded" minOccurs="0" name="measurementSpecification"
+                        type="diggs:MeasurementSpecificationPropertyType"/>
                     <element maxOccurs="unbounded" minOccurs="0" name="specimenPrepSpecification"
                         type="diggs:SpecimenPrepSpecificationPropertyType"/>
                 </sequence>
@@ -6540,7 +6540,7 @@
                 <sequence>
                     <element name="testingScheduleRef" type="diggs:FeatureReferenceType"/>
                     <element maxOccurs="unbounded" ref="diggs:sampleRef"/>
-                    <element name="testSpecificationRef" type="diggs:FeatureReferenceType"/>
+                    <element name="measurementSpecificationRef" type="diggs:FeatureReferenceType"/>
                     <element minOccurs="0" name="specimenPrepSpecificationRef"
                         type="diggs:FeatureReferenceType">
                         <annotation>
@@ -6559,16 +6559,68 @@
             <element ref="diggs:PlannedTest"/>
         </sequence>
     </complexType>
-    <element name="TestSpecification" type="diggs:TestSpecificationType"
-        substitutionGroup="diggs:AbstractProgramSpecification"/>
-    <complexType name="TestSpecificationType">
+    <element name="MeasurementSpecification" type="diggs:MeasurementSpecificationType"
+        substitutionGroup="diggs:AbstractProgramSpecification">
+        <annotation>
+            <documentation>A program specification governing how a measurement is carried out, as
+                distinct from what its result must be: the method to follow, the quantities to
+                record and the equipment to use. Applies to any kind of measurement - an in-situ
+                test, a laboratory test, a monitoring campaign. Requirements the measurement must
+                meet - a minimum number of load increments, a maximum test stress, a hold time -
+                are criteria that name this specification through partOfSpecificationRef; the
+                planned measurement cites the specification through programSpecificationRef.
+                Criteria on the measured result of the test (a settlement limit, say) are
+                performance criteria and are stated separately.</documentation>
+        </annotation>
+    </element>
+    <complexType name="MeasurementSpecificationType">
+        <annotation>
+            <documentation>Type for a measurement specification. appliesToFeatureType, inherited,
+                names the kind of feature the measurement is performed on.</documentation>
+        </annotation>
         <complexContent>
-            <extension base="diggs:AbstractProgramSpecificationType"/>
+            <extension base="diggs:AbstractProgramSpecificationType">
+                <sequence>
+                    <element minOccurs="0" name="appliesToMeasurementKind" type="gml:CodeType">
+                        <annotation>
+                            <documentation>The kind of measurement this specification applies to,
+                                from measurementKind.xml - the same vocabulary as
+                                diggs:DesignMeasurementType/measurementKind. Where absent, the
+                                specification is not limited to one kind.</documentation>
+                        </annotation>
+                    </element>
+                    <element minOccurs="0" maxOccurs="unbounded" name="measurementMethod"
+                        type="diggs:MeasurementMethodPropertyType">
+                        <annotation>
+                            <documentation>A method the measurement is required to follow: the
+                                standard or procedure document, as a diggs:Specification, held
+                                inline or by reference. Repeat where the measurement follows more
+                                than one document.</documentation>
+                        </annotation>
+                    </element>
+                    <element minOccurs="0" maxOccurs="unbounded" name="recordingParameter"
+                        type="gml:CodeWithAuthorityType">
+                        <annotation>
+                            <documentation>A quantity the measurement is required to record - a
+                                settlement, an applied stress, a water level - as a code from a
+                                property dictionary. codeSpace is mandatory.</documentation>
+                        </annotation>
+                    </element>
+                    <element minOccurs="0" maxOccurs="unbounded" name="requiredEquipment"
+                        type="diggs:EquipmentPropertyType">
+                        <annotation>
+                            <documentation>Equipment the measurement is required to use, held
+                                inline or by reference - a calibrated jack, dial gauges of a stated
+                                resolution, a reference beam.</documentation>
+                        </annotation>
+                    </element>
+                </sequence>
+            </extension>
         </complexContent>
     </complexType>
-    <complexType name="TestSpecificationPropertyType">
+    <complexType name="MeasurementSpecificationPropertyType">
         <sequence>
-            <element ref="diggs:TestSpecification"/>
+            <element ref="diggs:MeasurementSpecification"/>
         </sequence>
     </complexType>
     <element name="ConstructionActivitySpecification" type="diggs:ConstructionActivitySpecificationType"
@@ -6885,7 +6937,7 @@
 
                                 targetElement names diggs:AbstractProgramSpecification, which is
                                 BROADER THAN THE INTENDED TARGET SET - it also admits
-                                diggs:TestSpecification and the domain specifications. It is named
+                                diggs:MeasurementSpecification and the domain specifications. It is named
                                 anyway because it is a real substitution-group head that covers all
                                 three legitimate targets, and naming a head is the pattern;
                                 enumerating members instead is what left diggs:samplingFeatureRef
@@ -7951,10 +8003,9 @@
                 the Specification inline, by xlink:href, or both, with the embedded object
                 prevailing when both are present.
                 
-                Renamed from an earlier inline testSpecification to avoid a third schema-wide
-                collision on the word "Specification", alongside diggs:Specification (the component
-                object this property type wraps) and diggs:AbstractProgramSpecification (the
-                feature head).</documentation>
+                Not to be confused with diggs:MeasurementSpecification, a program specification
+                that holds requirements; the Specification this property type wraps only cites a
+                published standard.</documentation>
         </annotation>
         <sequence minOccurs="0">
             <element ref="diggs:Specification" maxOccurs="1"/>
@@ -8085,6 +8136,22 @@
                                 typically shared across many planned measurements.</documentation>
                         </annotation>
                     </element>
+                    <element minOccurs="0" maxOccurs="unbounded" name="plannedProcedure"
+                        type="diggs:ProcedurePropertyType">
+                        <annotation>
+                            <documentation>The procedure this measurement is planned to be carried
+                                out with, as the same procedure object a realized measurement
+                                carries in its procedure property - a diggs:PlateLoadTest, a
+                                diggs:StaticLoadTest - held inline or by reference. It states the
+                                planned values of the procedure (plate size, bedding, reference
+                                system, maximum stress, the planned increments with their stress and
+                                hold) in the structure the realized procedure uses, so planned and
+                                realized values are compared field for field. It states intent; a
+                                requirement the realized measurement must meet is a criterion.
+                                Distinct from measurementMethod, which cites the standard to
+                                follow.</documentation>
+                        </annotation>
+                    </element>
                     <element minOccurs="0" name="readingFrequency"
                         type="diggs:ReciprocalTimeMeasureType">
                         <annotation>
@@ -8201,9 +8268,14 @@
                                 is written that way in practice and because the absolute value differs
                                 per element while the ratio does not, which is what lets one
                                 population-scoped test provision govern a whole zone. Where the
-                                provision is adopted from a standard or a published recommendation
-                                rather than derived for the project, state that in a remark - this
-                                element itself carries only the value, not its derivation.</documentation>
+                                tested element is not the element the design load acts on - a column
+                                loaded through a plate in a test of a platform design pressure -
+                                state the planned maximum stress on the planned procedure instead.
+
+                                Where the provision is adopted from a standard or a published
+                                recommendation rather than derived for the project, state that in a
+                                remark - this element itself carries only the value, not its
+                                derivation.</documentation>
                         </annotation>
                     </element>
                 </sequence>
