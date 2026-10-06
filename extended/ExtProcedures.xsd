@@ -1621,23 +1621,28 @@
                 by otherTestProperty. The software that evaluated the record is evaluationSoftware;
                 who evaluated it is stated by the inherited role.
 
-                THE INTERPRETED DEFECT DEPTH IS A RESULT, NOT PROCEDURE CONTENT, per this test
-                family's established split (S27/S28). It goes on Test/outcome's ResultSet via the new
-                properties.xml#defect_depth, conditioned to this element, exactly as
-                properties.xml#critical_creep_load (S27) and #modulus_of_subgrade_reaction (S28)
-                are.
+                THE RECORD IS THE RESULT. A test is a diggs:Test on the element tested. Its
+                outcome is the evaluated record as a depth-indexed result: the location is a
+                MultiPoint of the record's depths along the element, and the ResultSet holds one
+                column per curve sampled at those depths - the amplified, normalized velocity
+                (properties.xml#normalized_velocity) and, where reported, the force, the time after
+                the impact (properties.xml#elapsed_time) and a reconstructed relative impedance.
+                Depth and time are related by waveSpeed (depth = waveSpeed x time / 2), so a record
+                reported against time is stated at the depths that waveSpeed gives, with the time
+                as a column. One test, with one set of procedure values, has one Test however many
+                reflections it shows.
 
-                WHEN ONE TEST EVENT REPORTS MORE THAN ONE DEFECT DEPTH, THEY BELONG UNDER ONE Test,
-                NOT ONE Test PER DEFECT - the deciding factor for whether a set of readings shares
-                one Test or gets one Test each is whether the PROCEDURE's own parameter values are
-                constant across them, not whether the readings are many or few. testMethod and
-                waveSpeed do not vary within a single hammer-strike/reading event, so that
-                event is diggs:StaticConePenetrationType's precedent, not diggs:SPT's: one
-                Test/TestResult, diggs:MultiPointLocation carrying however many defect depths were
-                found (one point if there is only one), one ResultSet. Contrast SPT, which is
-                genuinely one Test per depth because its blow-count schedule is itself per-interval
-                procedure content and a physical sample is collected at each interval, tying a
-                SamplingActivity to that specific one - neither is true here.</documentation>
+                VALUES PICKED FROM THE RECORD - the toe depth, the depth of a reflection above it,
+                the relative amplitude of a reflection - are stated in otherMeasurementProperty, or
+                as a column of the result (the value on every row, or only on the row at the
+                depth it was picked). The conclusion the tester draws from the whole record is
+                measurementSummary.
+
+                A FREQUENCY-DOMAIN RECORD has no depth or time domain. The mobility of a transient
+                response test (velocity over force as a function of frequency) is stated in
+                frequencyResponse, a table whose columns its parameters declare; values read from it,
+                such as the characteristic mobility or the dynamic stiffness, are stated in
+                otherMeasurementProperty.</documentation>
         </annotation>
     </element>
     <complexType name="LowStrainIntegrityTestType">
@@ -1805,6 +1810,17 @@
                     <element minOccurs="0" name="impactOffset" type="diggs:LengthMeasureType">
                         <annotation>
                             <documentation>The distance from the point of impact to the motion transducer.</documentation>
+                        </annotation>
+                    </element>
+                    <element minOccurs="0" maxOccurs="unbounded" name="frequencyResponse"
+                        type="diggs:ResultsPropertyType">
+                        <annotation>
+                            <documentation>A frequency-domain record of the test as a table: one row
+                                per frequency, with columns such as the frequency and the mobility
+                                (the velocity transform over the force transform). The columns,
+                                their units and their order are declared by the table's parameters.
+                                A record evaluated in more than one way carries one table for
+                                each.</documentation>
                         </annotation>
                     </element>
                     <element minOccurs="0" name="evaluationSoftware" type="diggs:SoftwareApplicationPropertyType">
