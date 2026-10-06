@@ -1606,15 +1606,19 @@
                 EQUIPMENT AND TRANSDUCER ARE CARRIED AS EQUIPMENT OBJECTS. The impact hammer and the
                 motion transducer are Equipment/Sensor objects carried through the inherited
                 testProcedureEquipment, classified via equipmentClass.xml#low_strain_impact_hammer
-                and equipmentClass.xml#accelerometer. Where the transducer was placed on the pile
-                head is stated in the inherited remark or otherTestProperty.
+                and equipmentClass.xml#accelerometer. How the transducer was attached and where it
+                and the impact were placed on the pile head are stated by sensorMounting,
+                sensorPositionCount, sensorOffset and impactOffset.
 
                 THE AMPLIFICATION APPLIED TO THE RECORD IS STATED, because the height of a
                 reflection can be read only against it. amplificationFunction gives its shape,
                 amplificationFactor the setting of the equipment that produced it, and
-                amplificationStart and amplificationEnd the depths over which it rises. Other
-                processing - filtering, sharpening, the reference of the plot - is
-                equipment-specific and is carried by otherTestProperty.
+                amplificationStart and amplificationEnd the depths over which it rises. The other
+                processing and acquisition settings that a report states are filterType,
+                filterCutoff, sharpeningApplied, impactNormalized, recordReference, samplingRate,
+                sampleResolution and recordLength. Processing specific to one equipment is carried
+                by otherTestProperty. The software that evaluated the record is evaluationSoftware;
+                who evaluated it is stated by the inherited role.
 
                 THE INTERPRETED DEFECT DEPTH IS A RESULT, NOT PROCEDURE CONTENT, per this test
                 family's established split (S27/S28). It goes on Test/outcome's ResultSet via the new
@@ -1673,6 +1677,15 @@
                                 element, which the sampling feature carries.</documentation>
                         </annotation>
                     </element>
+                    <element minOccurs="0" name="referenceLengthBasis"
+                        type="diggs:referenceLengthBasisEnumExtType">
+                        <annotation>
+                            <documentation>What referenceLength measures: as_cast (the whole
+                                element as constructed), embedded (the part below the ground
+                                surface) or below_sensor (from the sensor position down). A basis
+                                outside the list is stated as "Other: name".</documentation>
+                        </annotation>
+                    </element>
                     <element minOccurs="0" name="averagedImpactCount" type="positiveInteger">
                         <annotation>
                             <documentation>The number of hammer impacts averaged into the record of
@@ -1711,6 +1724,71 @@
                         <annotation>
                             <documentation>The depth below the pile head at which the amplification
                                 reaches its maximum - the end of the plotted record.</documentation>
+                        </annotation>
+                    </element>
+                    <element minOccurs="0" name="recordReference" type="diggs:recordReferenceEnumExtType">
+                        <annotation>
+                            <documentation>What time zero of the evaluated record is referenced to: initial_rise (the first rise of the impact pulse from the baseline) or first_peak (the peak of the impact pulse). Depths read from the record are measured from this time. A reference outside the list is stated as "Other: name".</documentation>
+                        </annotation>
+                    </element>
+                    <element minOccurs="0" name="impactNormalized" type="boolean">
+                        <annotation>
+                            <documentation>True where the impact (the force or the pulse) is normalized in the displayed record, so that the height of the impact is not comparable between records.</documentation>
+                        </annotation>
+                    </element>
+                    <element minOccurs="0" name="filterType" type="diggs:filterTypeEnumExtType">
+                        <annotation>
+                            <documentation>The kind of filter applied to the record: low_pass, high_pass, band_pass or none. A kind outside the list is stated as "Other: name". The frequency limit is filterCutoff.</documentation>
+                        </annotation>
+                    </element>
+                    <element minOccurs="0" name="filterCutoff" type="diggs:FrequencyMeasureType">
+                        <annotation>
+                            <documentation>The cutoff frequency of the filter applied to the record, as reported by the test equipment. For a band-pass filter, the upper limit; a lower limit is stated in otherTestProperty.</documentation>
+                        </annotation>
+                    </element>
+                    <element minOccurs="0" name="sharpeningApplied" type="boolean">
+                        <annotation>
+                            <documentation>True where a sharpening or similar enhancement was applied to the record to make reflections more distinct.</documentation>
+                        </annotation>
+                    </element>
+                    <element minOccurs="0" name="samplingRate" type="diggs:FrequencyMeasureType">
+                        <annotation>
+                            <documentation>The rate at which the transducer signal was digitized.</documentation>
+                        </annotation>
+                    </element>
+                    <element minOccurs="0" name="sampleResolution" type="positiveInteger">
+                        <annotation>
+                            <documentation>The resolution of the analog-to-digital conversion, in bits.</documentation>
+                        </annotation>
+                    </element>
+                    <element minOccurs="0" name="recordLength" type="diggs:TimeMeasureType">
+                        <annotation>
+                            <documentation>The duration of the digitized record after the impact.</documentation>
+                        </annotation>
+                    </element>
+                    <element minOccurs="0" name="sensorMounting" type="diggs:sensorMountingEnumExtType">
+                        <annotation>
+                            <documentation>How the motion transducer was attached to the pile head: wax, adhesive, clamp or hand_held. A means outside the list is stated as "Other: name".</documentation>
+                        </annotation>
+                    </element>
+                    <element minOccurs="0" name="sensorPositionCount" type="positiveInteger">
+                        <annotation>
+                            <documentation>The number of positions on the pile head at which the motion transducer was placed for this test.</documentation>
+                        </annotation>
+                    </element>
+                    <element minOccurs="0" maxOccurs="unbounded" name="sensorOffset" type="diggs:LengthMeasureType">
+                        <annotation>
+                            <documentation>The distance of a transducer position from the centre of the pile head. One element for each position; positions at the same distance are stated once.</documentation>
+                        </annotation>
+                    </element>
+                    <element minOccurs="0" name="impactOffset" type="diggs:LengthMeasureType">
+                        <annotation>
+                            <documentation>The distance from the point of impact to the motion transducer.</documentation>
+                        </annotation>
+                    </element>
+                    <element minOccurs="0" name="evaluationSoftware" type="diggs:SoftwareApplicationPropertyType">
+                        <annotation>
+                            <documentation>The software, and its version, that was used to evaluate the record.</documentation>
                         </annotation>
                     </element>
                 </sequence>
@@ -1776,6 +1854,123 @@
                 function outside the list stated as "Other: name".</documentation>
         </annotation>
         <union memberTypes="diggs:OtherNameType diggs:amplificationFunctionEnumType"/>
+    </simpleType>
+    <simpleType name="referenceLengthBasisEnumType">
+        <annotation>
+            <documentation>The lengths that a low strain integrity test record can be evaluated against.</documentation>
+        </annotation>
+        <restriction base="string">
+            <enumeration value="as_cast">
+                <annotation>
+                    <documentation>The whole element as constructed, from the pile head to the toe.</documentation>
+                </annotation>
+            </enumeration>
+            <enumeration value="embedded">
+                <annotation>
+                    <documentation>The part of the element below the ground surface.</documentation>
+                </annotation>
+            </enumeration>
+            <enumeration value="below_sensor">
+                <annotation>
+                    <documentation>The part of the element from the sensor position down.</documentation>
+                </annotation>
+            </enumeration>
+        </restriction>
+    </simpleType>
+    <simpleType name="referenceLengthBasisEnumExtType">
+        <annotation>
+            <documentation>The lengths that a low strain integrity test record can be evaluated against, or a value outside the list stated as "Other: name".</documentation>
+        </annotation>
+        <union memberTypes="diggs:OtherNameType diggs:referenceLengthBasisEnumType"/>
+    </simpleType>
+    <simpleType name="recordReferenceEnumType">
+        <annotation>
+            <documentation>The references of time zero of a low strain integrity test record.</documentation>
+        </annotation>
+        <restriction base="string">
+            <enumeration value="initial_rise">
+                <annotation>
+                    <documentation>Time zero is the first rise of the impact pulse from the baseline.</documentation>
+                </annotation>
+            </enumeration>
+            <enumeration value="first_peak">
+                <annotation>
+                    <documentation>Time zero is the peak of the impact pulse.</documentation>
+                </annotation>
+            </enumeration>
+        </restriction>
+    </simpleType>
+    <simpleType name="recordReferenceEnumExtType">
+        <annotation>
+            <documentation>The references of time zero of a low strain integrity test record, or a value outside the list stated as "Other: name".</documentation>
+        </annotation>
+        <union memberTypes="diggs:OtherNameType diggs:recordReferenceEnumType"/>
+    </simpleType>
+    <simpleType name="filterTypeEnumType">
+        <annotation>
+            <documentation>The kinds of filter applied to a low strain integrity test record.</documentation>
+        </annotation>
+        <restriction base="string">
+            <enumeration value="low_pass">
+                <annotation>
+                    <documentation>Frequencies above the cutoff are attenuated.</documentation>
+                </annotation>
+            </enumeration>
+            <enumeration value="high_pass">
+                <annotation>
+                    <documentation>Frequencies below the cutoff are attenuated.</documentation>
+                </annotation>
+            </enumeration>
+            <enumeration value="band_pass">
+                <annotation>
+                    <documentation>Frequencies outside a band are attenuated.</documentation>
+                </annotation>
+            </enumeration>
+            <enumeration value="none">
+                <annotation>
+                    <documentation>No filter is applied.</documentation>
+                </annotation>
+            </enumeration>
+        </restriction>
+    </simpleType>
+    <simpleType name="filterTypeEnumExtType">
+        <annotation>
+            <documentation>The kinds of filter applied to a low strain integrity test record, or a value outside the list stated as "Other: name".</documentation>
+        </annotation>
+        <union memberTypes="diggs:OtherNameType diggs:filterTypeEnumType"/>
+    </simpleType>
+    <simpleType name="sensorMountingEnumType">
+        <annotation>
+            <documentation>The means of attaching a motion transducer to a pile head.</documentation>
+        </annotation>
+        <restriction base="string">
+            <enumeration value="wax">
+                <annotation>
+                    <documentation>Fixed to the cleaned head with wax.</documentation>
+                </annotation>
+            </enumeration>
+            <enumeration value="adhesive">
+                <annotation>
+                    <documentation>Fixed to the cleaned head with an adhesive other than wax.</documentation>
+                </annotation>
+            </enumeration>
+            <enumeration value="clamp">
+                <annotation>
+                    <documentation>Held to the head by a clamp or bracket.</documentation>
+                </annotation>
+            </enumeration>
+            <enumeration value="hand_held">
+                <annotation>
+                    <documentation>Held against the head by hand.</documentation>
+                </annotation>
+            </enumeration>
+        </restriction>
+    </simpleType>
+    <simpleType name="sensorMountingEnumExtType">
+        <annotation>
+            <documentation>The means of attaching a motion transducer to a pile head, or a value outside the list stated as "Other: name".</documentation>
+        </annotation>
+        <union memberTypes="diggs:OtherNameType diggs:sensorMountingEnumType"/>
     </simpleType>
     <element name="ThermalIntegrityProfiling" type="diggs:ThermalIntegrityProfilingType"
         abstract="false" substitutionGroup="diggs:AbstractInsituTestProcedure">
