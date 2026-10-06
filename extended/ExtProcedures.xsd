@@ -1603,17 +1603,18 @@
                 (S28) - it is expected to be cited through diggs:RIProgramBasis/governingStandard
                 rather than through this procedure's own testProcedureMethod.
 
-                EQUIPMENT, TRANSDUCER LOCATION AND DATA-ACQUISITION SETTINGS ARE DELIBERATELY NOT
-                MODELLED AS NAMED FIELDS. The impact hammer and the motion transducer are both
-                Equipment/Sensor objects carried through the inherited testProcedureEquipment,
-                classified via the new equipmentClass.xml#low_strain_impact_hammer and the
-                pre-existing, unconditioned equipmentClass.xml#accelerometer - no new schema particle
-                needed, the same reasoning diggs:AbstractLoadTestProcedureType gives for declining a
-                named reactionSystem field. Transducer mounting location and instrument filter/gain
-                settings have no precedent anywhere in DIGGS at this level of detail (checked against
-                specialty/DeepFoundation.xsd's diggs:PDARecordType, the schema's other structured
-                dynamic-test record, which does not model them either); the inherited remark or
-                otherProperty carries this where a project wants to record it.
+                EQUIPMENT AND TRANSDUCER ARE CARRIED AS EQUIPMENT OBJECTS. The impact hammer and the
+                motion transducer are Equipment/Sensor objects carried through the inherited
+                testProcedureEquipment, classified via equipmentClass.xml#low_strain_impact_hammer
+                and equipmentClass.xml#accelerometer. Where the transducer was placed on the pile
+                head is stated in the inherited remark or otherTestProperty.
+
+                THE AMPLIFICATION APPLIED TO THE RECORD IS STATED, because the height of a
+                reflection can be read only against it. amplificationFunction gives its shape,
+                amplificationFactor the setting of the equipment that produced it, and
+                amplificationStart and amplificationEnd the depths over which it rises. Other
+                processing - filtering, sharpening, the reference of the plot - is
+                equipment-specific and is carried by otherTestProperty.
 
                 THE INTERPRETED DEFECT DEPTH IS A RESULT, NOT PROCEDURE CONTENT, per this test
                 family's established split (S27/S28). It goes on Test/outcome's ResultSet via the new
@@ -1625,7 +1626,7 @@
                 NOT ONE Test PER DEFECT - the deciding factor for whether a set of readings shares
                 one Test or gets one Test each is whether the PROCEDURE's own parameter values are
                 constant across them, not whether the readings are many or few. testMethod and
-                assumedWaveSpeed do not vary within a single hammer-strike/reading event, so that
+                waveSpeed do not vary within a single hammer-strike/reading event, so that
                 event is diggs:StaticConePenetrationType's precedent, not diggs:SPT's: one
                 Test/TestResult, diggs:MultiPointLocation carrying however many defect depths were
                 found (one point if there is only one), one ResultSet. Contrast SPT, which is
@@ -1642,24 +1643,34 @@
         <complexContent>
             <extension base="diggs:AbstractInsituTestProcedureType">
                 <sequence>
-                    <element minOccurs="0" name="testMethod" type="gml:CodeType">
+                    <element minOccurs="0" name="testMethod"
+                        type="diggs:lowStrainTestMethodEnumExtType">
                         <annotation>
-                            <documentation>The analysis method used - Pulse Echo Method or Transient
-                                Response Method, from lowStrainTestMethod.xml. See this element's own
-                                documentation above for how the vocabulary spans the ASTM and French
-                                traditions.</documentation>
+                            <documentation>The analysis method used: pulse_echo (the record is
+                                evaluated in the time domain) or transient_response (the ratio of
+                                velocity to force is evaluated in the frequency domain). See this
+                                element's own documentation above for how the two relate to the ASTM
+                                and French standards. A method outside the list is stated as
+                                "Other: name".</documentation>
                         </annotation>
                     </element>
-                    <element minOccurs="0" name="assumedWaveSpeed"
-                        type="diggs:LengthPerTimeMeasureType">
+                    <element minOccurs="0" name="waveSpeed" type="diggs:LengthPerTimeMeasureType">
                         <annotation>
-                            <documentation>The one-dimensional stress-wave propagation velocity
-                                assumed when converting a reflection's travel time to a depth. The
-                                single most consequential input to the test's own interpretation - an
-                                assumed value taken from a known pile length and its own measured
-                                toe-reflection time where one is available, or from published
-                                literature values for the pile/element material otherwise, not a
-                                measured material property in its own right.</documentation>
+                            <documentation>The one-dimensional stress-wave propagation speed used
+                                when converting a reflection's travel time to a depth. The single
+                                most consequential input to the test's own interpretation. Its
+                                howDetermined attribute states how it was obtained: assigned for a
+                                value taken from experience or literature for the concrete (the
+                                usual case), calculated where it was taken from a known pile length
+                                and the measured travel time of the toe reflection.</documentation>
+                        </annotation>
+                    </element>
+                    <element minOccurs="0" name="referenceLength" type="diggs:LengthMeasureType">
+                        <annotation>
+                            <documentation>The length of the element that the record was evaluated
+                                against - the length entered into the equipment, which marks where
+                                the toe reflection is expected. It is not the as-built length of the
+                                element, which the sampling feature carries.</documentation>
                         </annotation>
                     </element>
                     <element minOccurs="0" name="averagedImpactCount" type="positiveInteger">
@@ -1671,10 +1682,101 @@
                                 impacts is checked against.</documentation>
                         </annotation>
                     </element>
+                    <element minOccurs="0" name="amplificationFunction"
+                        type="diggs:amplificationFunctionEnumExtType">
+                        <annotation>
+                            <documentation>The shape of the gain applied to the record with time
+                                after the impact to bring up the reflections weakened by damping:
+                                exponential, linear or none. A function outside the list is stated
+                                as "Other: name".</documentation>
+                        </annotation>
+                    </element>
+                    <element minOccurs="0" name="amplificationFactor"
+                        type="diggs:DimensionlessMeasureType">
+                        <annotation>
+                            <documentation>The setting of the amplification as reported by the test
+                                equipment, on the equipment's own scale (the "Amp" of a Piletest
+                                record, the magnification factor of a PDI record). A number with no
+                                unit of its own, comparable between records of one equipment and
+                                one set of settings only.</documentation>
+                        </annotation>
+                    </element>
+                    <element minOccurs="0" name="amplificationStart" type="diggs:LengthMeasureType">
+                        <annotation>
+                            <documentation>The depth below the pile head at which the amplification
+                                begins to rise from unity.</documentation>
+                        </annotation>
+                    </element>
+                    <element minOccurs="0" name="amplificationEnd" type="diggs:LengthMeasureType">
+                        <annotation>
+                            <documentation>The depth below the pile head at which the amplification
+                                reaches its maximum - the end of the plotted record.</documentation>
+                        </annotation>
+                    </element>
                 </sequence>
             </extension>
         </complexContent>
     </complexType>
+    <simpleType name="lowStrainTestMethodEnumType">
+        <annotation>
+            <documentation>The analysis methods of a low strain integrity test.</documentation>
+        </annotation>
+        <restriction base="string">
+            <enumeration value="pulse_echo">
+                <annotation>
+                    <documentation>Pulse Echo Method: the velocity of the pile head, and optionally
+                        the force, is evaluated as a function of time. The sonic echo method; the
+                        reflection method of NF P94-160-2.</documentation>
+                </annotation>
+            </enumeration>
+            <enumeration value="transient_response">
+                <annotation>
+                    <documentation>Transient Response Method: the ratio of the velocity transform to
+                        the force transform is evaluated as a function of frequency. Requires the
+                        force to be measured. The impedance method of NF P94-160-4.</documentation>
+                </annotation>
+            </enumeration>
+        </restriction>
+    </simpleType>
+    <simpleType name="lowStrainTestMethodEnumExtType">
+        <annotation>
+            <documentation>The analysis methods of a low strain integrity test, or a method outside
+                the list stated as "Other: name".</documentation>
+        </annotation>
+        <union memberTypes="diggs:OtherNameType diggs:lowStrainTestMethodEnumType"/>
+    </simpleType>
+    <simpleType name="amplificationFunctionEnumType">
+        <annotation>
+            <documentation>The shapes of the gain applied to a low strain integrity test record
+                with time after the impact.</documentation>
+        </annotation>
+        <restriction base="string">
+            <enumeration value="exponential">
+                <annotation>
+                    <documentation>The gain rises exponentially with time after the
+                        impact.</documentation>
+                </annotation>
+            </enumeration>
+            <enumeration value="linear">
+                <annotation>
+                    <documentation>The gain rises linearly with time after the
+                        impact.</documentation>
+                </annotation>
+            </enumeration>
+            <enumeration value="none">
+                <annotation>
+                    <documentation>No amplification is applied.</documentation>
+                </annotation>
+            </enumeration>
+        </restriction>
+    </simpleType>
+    <simpleType name="amplificationFunctionEnumExtType">
+        <annotation>
+            <documentation>The shapes of the gain applied to a low strain integrity test record, or a
+                function outside the list stated as "Other: name".</documentation>
+        </annotation>
+        <union memberTypes="diggs:OtherNameType diggs:amplificationFunctionEnumType"/>
+    </simpleType>
     <element name="ThermalIntegrityProfiling" type="diggs:ThermalIntegrityProfilingType"
         abstract="false" substitutionGroup="diggs:AbstractInsituTestProcedure">
         <annotation>
