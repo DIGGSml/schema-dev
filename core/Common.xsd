@@ -544,7 +544,7 @@
         </annotation>
     </element>
     <element name="properties" substitutionGroup="gml:valueComponents"
-        type="diggs:PropertiesArrayPropertyYype">
+        type="diggs:PropertiesArrayPropertyType">
         <annotation>
             <documentation>
                 A sequence of Property objects that hold the measured properties of a test or
@@ -1100,17 +1100,6 @@
             <element ref="diggs:AbstractProgramBasis"/>
         </sequence>
     </complexType>
-    <complexType abstract="false" name="ProgramDesignPropertyType">
-        <annotation>
-            <documentation>
-                Property type that contains one object that substitutes for
-                diggs:AbstractProgramDesign inline.
-            </documentation>
-        </annotation>
-        <sequence>
-            <element ref="diggs:AbstractProgramDesign"/>
-        </sequence>
-    </complexType>
     <complexType name="ProgramDesignReferencePropertyType">
         <annotation>
             <documentation>
@@ -1146,17 +1135,6 @@
             <element maxOccurs="1" minOccurs="1" ref="diggs:AbstractProgram"/>
         </sequence>
     </complexType>
-    <complexType abstract="false" name="ProgramSpecificationPropertyType">
-        <annotation>
-            <documentation>
-                Property type that contains one object that substitutes for
-                diggs:AbstractProgramSpecification inline.
-            </documentation>
-        </annotation>
-        <sequence>
-            <element ref="diggs:AbstractProgramSpecification"/>
-        </sequence>
-    </complexType>
     <complexType name="ProjectEventPropertyType">
         <annotation>
             <documentation>
@@ -1167,7 +1145,7 @@
             <element ref="diggs:ProjectEvent"/>
         </sequence>
     </complexType>
-    <complexType name="PropertiesArrayPropertyYype">
+    <complexType name="PropertiesArrayPropertyType">
         <annotation>
             <documentation>
                 Property type that contains one or more diggs:Property objects inline.
@@ -1194,31 +1172,6 @@
                 </sequence>
             </restriction>
         </complexContent>
-    </complexType>
-    <complexType name="ProvenancedParameterPropertyType">
-        <annotation>
-            <documentation>
-                Property type that contains one diggs:ProvenancedParameter object inline. Unlike
-                diggs:ParameterPropertyType, only diggs:ProvenancedParameter is admitted: use it
-                where a value is meaningless without stating what it describes and where it came
-                from.
-            </documentation>
-        </annotation>
-        <sequence>
-            <element ref="diggs:ProvenancedParameter" minOccurs="1" maxOccurs="1"/>
-        </sequence>
-    </complexType>
-    <complexType name="ProvenancedParameterArrayPropertyType">
-        <annotation>
-            <documentation>
-                Property type that contains one or more diggs:ProvenancedParameter objects inline.
-                Unlike diggs:ParameterArrayPropertyType, only diggs:ProvenancedParameter is
-                admitted.
-            </documentation>
-        </annotation>
-        <sequence>
-            <element ref="diggs:ProvenancedParameter" minOccurs="1" maxOccurs="unbounded"/>
-        </sequence>
     </complexType>
 
     <complexType name="QualifierPropertyType">
@@ -1397,19 +1350,6 @@
         <sequence>
             <element ref="diggs:TargetPosition"/>
         </sequence>
-    </complexType>
-    <complexType name="TestProcedurePropertyType">
-        <annotation>
-            <documentation>
-                Property type that contains one object that substitutes for
-                diggs:AbstractTestProcedure inline, or refers to one with xlink:href.
-            </documentation>
-        </annotation>
-        <sequence minOccurs="0">
-            <element ref="diggs:AbstractTestProcedure" maxOccurs="1"/>
-        </sequence>
-        <attributeGroup ref="gml:AssociationAttributeGroup"/>
-        <attributeGroup ref="gml:OwnershipAttributeGroup"/>
     </complexType>
     <complexType name="TimeIntervalOrInstantPropertyType">
         <annotation>
@@ -2306,14 +2246,30 @@
                         </sequence>
                         <element minOccurs="0" ref="diggs:location"/>
                     </choice>
-                    <element minOccurs="0" name="localCoodinateUncertainty"
-                        type="diggs:LocationUncertaintyPropertyType">
-                        <annotation>
-                            <documentation>
-                                The uncertainty of the local coordinates.
-                            </documentation>
-                        </annotation>
-                    </element>
+                    <choice minOccurs="0" maxOccurs="1">
+                        <element name="localCoodinateUncertainty"
+                            type="diggs:LocationUncertaintyPropertyType">
+                            <annotation>
+                                <appinfo>
+                                    <diggs:deprecated since="3.1.0"
+                                        replacedBy="diggs:localCoordinateUncertainty"/>
+                                </appinfo>
+                                <documentation>
+                                    DEPRECATED. Use localCoordinateUncertainty; this name is a
+                                    misspelling of it. The uncertainty of the local coordinates.
+                                </documentation>
+                            </annotation>
+                        </element>
+                        <element name="localCoordinateUncertainty"
+                            type="diggs:LocationUncertaintyPropertyType">
+                            <annotation>
+                                <documentation>
+                                    The uncertainty of the local coordinates. Use this element, not
+                                    the deprecated localCoodinateUncertainty.
+                                </documentation>
+                            </annotation>
+                        </element>
+                    </choice>
                 </sequence>
             </extension>
         </complexContent>
@@ -2358,13 +2314,27 @@
                             </documentation>
                         </annotation>
                     </element>
-                    <element name="parceI" type="string" minOccurs="0" maxOccurs="1">
-                        <annotation>
-                            <documentation>
-                                The name or id of a territory of land classified as a parcel.
-                            </documentation>
-                        </annotation>
-                    </element>
+                    <choice minOccurs="0" maxOccurs="1">
+                        <element name="parceI" type="string">
+                            <annotation>
+                                <appinfo>
+                                    <diggs:deprecated since="3.1.0" replacedBy="diggs:parcel"/>
+                                </appinfo>
+                                <documentation>
+                                    DEPRECATED. Use parcel; this name is a misspelling of it. The name
+                                    or id of a territory of land classified as a parcel.
+                                </documentation>
+                            </annotation>
+                        </element>
+                        <element name="parcel" type="string">
+                            <annotation>
+                                <documentation>
+                                    The name or id of a territory of land classified as a parcel. Use
+                                    this element, not the deprecated parceI.
+                                </documentation>
+                            </annotation>
+                        </element>
+                    </choice>
                     <element name="plss" type="diggs:PlssPropertyType" minOccurs="0" maxOccurs="1">
                         <annotation>
                             <documentation>
@@ -7283,15 +7253,6 @@
                 </annotation>
             </enumeration>
         </restriction>
-    </simpleType>
-    <simpleType name="TerminationCriteriaExtEnumType">
-        <annotation>
-            <documentation>
-                A termination criterion from diggs:TerminationCriteriaEnumType, or a value of the
-                form "Other: xx".
-            </documentation>
-        </annotation>
-        <union memberTypes="diggs:OtherNameType diggs:TerminationCriteriaEnumType"/>
     </simpleType>
     <simpleType name="TerminationFeatureEnumType">
         <annotation>
