@@ -9,54 +9,56 @@
 
     <element name="ColorObservation" type="diggs:ColorObservationType" substitutionGroup="diggs:AbstractObservation">
         <annotation>
-            <documentation>A color observation describes the color of materials encountered. All
-                color observations within a color observation system must not overlap, although
-                multiple colors can be described within a single zone.</documentation>
+            <documentation>
+                A description of the color of the material encountered over one zone or interval.
+                Several colors can be described within a single observation.
+            </documentation>
         </annotation>
     </element>
     <complexType name="ColorObservationPropertyType">
         <annotation>
-            <documentation>Property type for color observation references. Used to wrap color observation objects or references in properties.</documentation>
+            <documentation>
+                Property type that contains one diggs:ColorObservation object inline.
+            </documentation>
         </annotation>
         <sequence maxOccurs="1">
-            <element maxOccurs="1" ref="diggs:ColorObservation">
-                <annotation>
-                    <documentation>Color observations must not overlap</documentation>
-                </annotation>
-            </element>
+            <element maxOccurs="1" ref="diggs:ColorObservation"/>
         </sequence>
     </complexType>
     <complexType name="ColorObservationType">
-        <annotation>
-            <documentation>Extended type based on AbstractObservationType. Adds elements for color observation type definition.</documentation>
-        </annotation>
         <complexContent>
             <extension base="diggs:AbstractObservationType">
                 <sequence>
                     <element minOccurs="0" name="colorCharacter"
                         type="diggs:ColorCharacterEnumExtType">
                         <annotation>
-                            <documentation>Describes the character of the color property or collection of color properties, from the following enumerated list: banded - multiple colors occur
-                            in horizontal layers within the unit mottled - unit consists of a
-                            pattern of irregular spots, blotches or patches of a different color
-                            than the unit matrix color multicalored - unit consists of multiple
-                            colors where there is no description of the pattern or character of the
-                            various colors uniform - unit consists of a single color variegated - a
-                            multicolored unit containing spots, streaks, or blotches of multiple
-                            colors </documentation>
+                            <documentation>
+                                The character of the color or colors observed: how multiple colors,
+                                if any, are distributed within the zone. Values come from the
+                                enumerated list, or "Other: xx", where xx is a user-defined term
+                                whose meaning differs from every listed value (not a synonym of
+                                one).
+                            </documentation>
                         </annotation>
                     </element>
                     <element maxOccurs="unbounded" name="color" type="diggs:ColorPropertyType">
                         <annotation>
-                            <documentation>The color property.</documentation>
+                            <documentation>
+                                A color observed in the zone or interval. Repeat for each distinct
+                                color, using the rank attribute of diggs:Color to show relative
+                                significance.
+                            </documentation>
                         </annotation>
                     </element>
                     <element maxOccurs="unbounded" minOccurs="0" ref="diggs:placedObservation"/>
                     <element maxOccurs="unbounded" minOccurs="0" ref="diggs:baseBoundary">
                         <annotation>
-                            <documentation>Description of the boundary at the base of the observed
-                                zone or interval as defined in the observation's location
-                                property</documentation>
+                            <documentation>
+                                Description of the boundary at the base of the observed zone or
+                                interval, as defined in the observation's location property. For a
+                                planar or volume location, repeat the element where the character of
+                                the boundary changes along its length or surface.
+                            </documentation>
                         </annotation>
                     </element>
                 </sequence>
@@ -66,27 +68,32 @@
     <element name="ColorSystem" substitutionGroup="diggs:AbstractObservationSystem"
         type="diggs:ColorSystemType">
         <annotation>
-            <documentation>An object that contains a system of color observations.</documentation>
+            <documentation>
+                A system of color observations along or within a sampling feature. Observations
+                within the system must not overlap.
+            </documentation>
         </annotation>
     </element>
     <complexType name="ColorSystemType">
-        <annotation>
-            <documentation>Extended type based on AbstractObservationSystemType. Adds elements for color system type definition.</documentation>
-        </annotation>
         <complexContent>
             <extension base="diggs:AbstractObservationSystemType">
                 <sequence>
                     <element minOccurs="0" name="colorType" type="gml:CodeType">
                         <annotation>
-                            <documentation>A text string defining the kind of "Color Description"
-                                system described *("eg. Munsell Color", "wet color".
+                            <documentation>
+                                The kind of color description system used, for example "Munsell
+                                Color" or "wet color". No DIGGS-authored dictionary currently exists
+                                for this element.
                             </documentation>
                         </annotation>
                     </element>
                     <element maxOccurs="unbounded" name="colorObservation"
                         type="diggs:ColorObservationPropertyType">
                         <annotation>
-                            <documentation>The color observation property.</documentation>
+                            <documentation>
+                                A color observation within the system. Repeat once for each zone or
+                                interval described.
+                            </documentation>
                         </annotation>
                     </element>
                 </sequence>
@@ -95,39 +102,45 @@
     </complexType>
     <element name="ConstituentObservation" type="diggs:ConstituentObservationType" substitutionGroup="diggs:AbstractObservation">
         <annotation>
-            <documentation>Constituent observations describe details of earth materials encountered
-                within a sampling feature. Constituent observations that are restricted to a
-                specific lithologic zone are encoded as constituent properties in the Lithology
-                zones themselves. </documentation>
+            <documentation>
+                A description of the details of earth materials encountered within a sampling
+                feature. Constituents restricted to a specific lithologic zone are instead encoded
+                as constituent properties of the diggs:Lithology zone itself.
+            </documentation>
         </annotation>
     </element>
     <complexType name="ConstituentObservationPropertyType">
         <annotation>
-            <documentation>Property type for constituent observation references. Used to wrap constituent observation objects or references in properties.</documentation>
+            <documentation>
+                Property type that contains one diggs:ConstituentObservation object inline.
+            </documentation>
         </annotation>
         <sequence maxOccurs="1">
             <element maxOccurs="1" ref="diggs:ConstituentObservation"/>
         </sequence>
     </complexType>
     <complexType name="ConstituentObservationType">
-        <annotation>
-            <documentation>Extended type based on AbstractObservationType. Adds elements for constituent observation type definition.</documentation>
-        </annotation>
         <complexContent>
             <extension base="diggs:AbstractObservationType">
                 <sequence>
                     <element maxOccurs="unbounded" name="constituent"
                         type="diggs:ConstituentPropertyType">
                         <annotation>
-                            <documentation>The constituent property.</documentation>
+                            <documentation>
+                                A constituent of the earth material in the observed zone or
+                                interval, such as a fossil or a diagenetic feature. Repeat for each
+                                constituent.
+                            </documentation>
                         </annotation>
                     </element>
                     <element maxOccurs="unbounded" minOccurs="0" ref="diggs:placedObservation"/>
                     <element minOccurs="0" ref="diggs:baseBoundary">
                         <annotation>
-                            <documentation>Description of the boundary at the base of the observed
-                                zone or interval as defined in the observation's location
-                                property</documentation>
+                            <documentation>
+                                Description of the boundary at the base of the observed zone or
+                                interval, as defined in the observation's location property. Only
+                                one baseBoundary may be given.
+                            </documentation>
                         </annotation>
                     </element>
                 </sequence>
@@ -137,29 +150,32 @@
     <element name="ConstituentSystem" substitutionGroup="diggs:AbstractObservationSystem"
         type="diggs:ConstituentSystemType">
         <annotation>
-            <documentation>An object that contains a system of constituent observations.
-                Observations within a constituent system need not be continuous and may overlap, but
-                zones with the same named constituents cannot overlap.</documentation>
+            <documentation>
+                A system of constituent observations. Observations need not be continuous and may
+                overlap, but zones with the same named constituents must not overlap.
+            </documentation>
         </annotation>
     </element>
     <complexType name="ConstituentSystemType">
-        <annotation>
-            <documentation>Extended type based on AbstractObservationSystemType. Adds elements for constituent system type definition.</documentation>
-        </annotation>
         <complexContent>
             <extension base="diggs:AbstractObservationSystemType">
                 <sequence>
                     <element name="constituentType" type="gml:CodeType">
                         <annotation>
-                            <documentation>A text string defining the kind of "Constituent
-                                Description" system described (eg. :"Fossils" or "Diagenesis".
+                            <documentation>
+                                The kind of constituent description the system contains, for example
+                                "Fossils" or "Diagenesis". No DIGGS-authored dictionary currently
+                                exists for this element.
                             </documentation>
                         </annotation>
                     </element>
                     <element maxOccurs="unbounded" name="constituentObservation"
                         type="diggs:ConstituentObservationPropertyType">
                         <annotation>
-                            <documentation>The constituent observation property.</documentation>
+                            <documentation>
+                                A constituent observation within the system. Repeat once for each
+                                zone or interval described.
+                            </documentation>
                         </annotation>
                     </element>
                 </sequence>
@@ -168,43 +184,56 @@
     </complexType>
     <element name="OrientationObservation" type="diggs:OrientationObservationType" substitutionGroup="diggs:AbstractObservation">
         <annotation>
-            <documentation>Orientation observations describe the geometry of vectors or planar
-                surfaces encountered at a sampling feature, such as bedding, joints, cross-beds,
-                etc. These observations are designed to characterize regions with generalized
-                geometries. Individual measurements of planar geometries of boundaries or faults are
-                recorded in Discontinuity or Lithology observations. </documentation>
+            <documentation>
+                A description of the geometry of vectors or planar surfaces encountered at a
+                sampling feature, such as bedding, joints or cross-beds, characterizing regions of
+                generalized geometry. Individual measurements of the planes of boundaries or faults
+                are recorded in diggs:DiscontinuityObservation or diggs:Lithology instead.
+            </documentation>
         </annotation>
     </element>
     <simpleType name="OrientationObsPropertyEnumType">
-        <annotation>
-            <documentation>Union type for orientation obs property enum type. Accepts values from .</documentation>
-        </annotation>
         <union>
             <simpleType>
                 <restriction base="string">
                     <enumeration value="bedding">
                         <annotation>
-                            <documentation>bedding - bedding value.</documentation>
+                            <documentation>
+                                Orientations of bedding: the layering of sediments or sedimentary
+                                rock.
+                            </documentation>
                         </annotation>
                     </enumeration>
                     <enumeration value="cross-bedding">
                         <annotation>
-                            <documentation>cross-bedding - cross bedding value.</documentation>
+                            <documentation>
+                                Orientations of cross-bedding: inclined layers within a bed that lie
+                                at an angle to the main bedding.
+                            </documentation>
                         </annotation>
                     </enumeration>
                     <enumeration value="faults">
                         <annotation>
-                            <documentation>faults - faults value.</documentation>
+                            <documentation>
+                                Orientations of faults: fractures along which the rock on either
+                                side has been displaced.
+                            </documentation>
                         </annotation>
                     </enumeration>
                     <enumeration value="joints">
                         <annotation>
-                            <documentation>joints - joints value.</documentation>
+                            <documentation>
+                                Orientations of joints: fractures along which there has been no
+                                appreciable displacement.
+                            </documentation>
                         </annotation>
                     </enumeration>
                     <enumeration value="fractures">
                         <annotation>
-                            <documentation>fractures - fractures value.</documentation>
+                            <documentation>
+                                Orientations of fractures, meaning breaks in the rock mass, that are
+                                not described as joints or faults.
+                            </documentation>
                         </annotation>
                     </enumeration>
                 </restriction>
@@ -217,23 +246,25 @@
         </union>
     </simpleType>
     <complexType name="OrientationObservationType">
-        <annotation>
-            <documentation>Extended type based on AbstractObservationType. Adds elements for orientation observation type definition.</documentation>
-        </annotation>
         <complexContent>
             <extension base="diggs:AbstractObservationType">
                 <sequence>
                     <element name="orientation" type="diggs:OrientationPropertyType">
                         <annotation>
-                            <documentation>The orientation property.</documentation>
+                            <documentation>
+                                The orientation of the feature, as strike or bearing and dip or
+                                plunge.
+                            </documentation>
                         </annotation>
                     </element>
                     <element maxOccurs="unbounded" minOccurs="0" ref="diggs:placedObservation"/>
                     <element minOccurs="0" ref="diggs:baseBoundary">
                         <annotation>
-                            <documentation>Description of the boundary at the base of the observed
-                                zone or interval as defined in the observation's location
-                                property</documentation>
+                            <documentation>
+                                Description of the boundary at the base of the observed zone or
+                                interval, as defined in the observation's location property. Only
+                                one baseBoundary may be given.
+                            </documentation>
                         </annotation>
                     </element>
                 </sequence>
@@ -243,29 +274,34 @@
     <element name="OrientationSystem" substitutionGroup="diggs:AbstractObservationSystem"
         type="diggs:OrientationSystemType">
         <annotation>
-            <documentation>An object that contains a system of Orientation observations.
-                Observations within an orientation zone system must not overlap.</documentation>
+            <documentation>
+                A system of orientation observations. Observations within the system must not
+                overlap.
+            </documentation>
         </annotation>
     </element>
     <complexType name="OrientationSystemType">
-        <annotation>
-            <documentation>Extended type based on AbstractObservationSystemType. Adds elements for orientation system type definition.</documentation>
-        </annotation>
         <complexContent>
             <extension base="diggs:AbstractObservationSystemType">
                 <sequence>
                     <element name="orientationFeatureType"
                         type="diggs:OrientationObsPropertyEnumType">
                         <annotation>
-                            <documentation>Selection from an enumerated list defining the type of
-                                planar feature whose orientations are being described in this system
-                                (eg. faults, bedding)</documentation>
+                            <documentation>
+                                The type of planar feature whose orientations the system describes,
+                                for example faults or bedding. Values come from the enumerated list,
+                                or "Other: xx", where xx is a user-defined term whose meaning
+                                differs from every listed value (not a synonym of one).
+                            </documentation>
                         </annotation>
                     </element>
                     <element maxOccurs="unbounded" name="orientationFeatureObservation"
                         type="diggs:OrientationObservationPropertyType">
                         <annotation>
-                            <documentation>The orientation feature observation property.</documentation>
+                            <documentation>
+                                An orientation observation within the system. Repeat once for each
+                                zone or interval described.
+                            </documentation>
                         </annotation>
                     </element>
                 </sequence>
@@ -274,7 +310,9 @@
     </complexType>
     <complexType name="OrientationPropertyType">
         <annotation>
-            <documentation>Property type for orientation references. Used to wrap orientation objects or references in properties.</documentation>
+            <documentation>
+                Property type that contains one diggs:Orientation object inline.
+            </documentation>
         </annotation>
         <sequence>
             <element ref="diggs:Orientation"/>
@@ -282,35 +320,43 @@
     </complexType>
     <element name="Orientation" type="diggs:OrientationType">
         <annotation>
-            <documentation>An object containing properties of of bedding, fracture, or zone orientation.</documentation>
+            <documentation>
+                The orientation of bedding, a fracture or a zone, given as a strike or bearing and a
+                dip or plunge.
+            </documentation>
         </annotation>
     </element>
     <complexType name="OrientationObservationPropertyType">
         <annotation>
-            <documentation>Property type for orientation observation references. Used to wrap orientation observation objects or references in properties.</documentation>
+            <documentation>
+                Property type that contains one diggs:OrientationObservation object inline.
+            </documentation>
         </annotation>
         <sequence maxOccurs="1">
             <element maxOccurs="1" ref="diggs:OrientationObservation"/>
         </sequence>
     </complexType>
     <complexType name="OrientationType">
-        <annotation>
-            <documentation>Extended type based on AbstractObjectType. Adds elements for orientation type definition.</documentation>
-        </annotation>
         <complexContent>
             <extension base="diggs:AbstractObjectType">
                 <sequence>
                     <element name="strikeOrBearing" type="diggs:PlaneAngleMeasureType">
                         <annotation>
-                            <documentation>The true bearing of the feature (if linear) or strike of
-                                the plane, from north (range 0-360), where 0 is north and 90 east,
-                                etc.</documentation>
+                            <documentation>
+                                The true bearing of the feature, if linear, or the strike of the
+                                plane, measured from north (range 0-360), where 0 is north and 90 is
+                                east.
+                            </documentation>
                         </annotation>
                     </element>
                     <element name="dipOrPlunge" type="diggs:DipMeasureType">
                         <annotation>
-                            <documentation>The inclination of the feature measured positive downward from horizontal (eg. 0 is
-                                horizontal, 90 degrees is vertical DOWN)</documentation>
+                            <documentation>
+                                The inclination of the feature measured positive downward from
+                                horizontal, where 0 is horizontal and 90 is vertically down. Set the
+                                apparent attribute to true if the value is an apparent dip rather
+                                than a true dip.
+                            </documentation>
                         </annotation>
                     </element>
                 </sequence>
@@ -319,15 +365,18 @@
     </complexType>
     <element name="OtherObservation" type="diggs:OtherObservationType" substitutionGroup="diggs:AbstractObservation">
         <annotation>
-            <documentation>A structure for defining a zone system of unknown type. Observations
-                consist of name-value pairs, where these names should reference code lists. As this
-                is an "open" description, no Schematron controls are appropriate here unless defined
-                for a specific use case.</documentation>
+            <documentation>
+                An observation of a kind not covered by the other observation types, described by
+                name-value pairs whose names should reference a dictionary. Because the description
+                is open, no validation rules apply beyond those defined for a specific use case.
+            </documentation>
         </annotation>
     </element>
     <complexType name="OtherObservationPropertyType">
         <annotation>
-            <documentation>Property type for other observation references. Used to wrap other observation objects or references in properties.</documentation>
+            <documentation>
+                Property type that contains one diggs:OtherObservation object inline.
+            </documentation>
         </annotation>
         <sequence maxOccurs="1">
             <element maxOccurs="1" ref="diggs:OtherObservation"/>
@@ -336,29 +385,32 @@
     <element name="OtherObservationSystem" substitutionGroup="diggs:AbstractObservationSystem"
         type="diggs:OtherObservationSystemType">
         <annotation>
-            <documentation>An object containing a system of OtherObservation
-                objects.</documentation>
+            <documentation>
+                A system of diggs:OtherObservation objects of the kind named by otherSystemType.
+            </documentation>
         </annotation>
     </element>
     <complexType name="OtherObservationType">
-        <annotation>
-            <documentation>Extended type based on AbstractObservationType. Adds elements for other observation type definition.</documentation>
-        </annotation>
         <complexContent>
             <extension base="diggs:AbstractObservationType">
                 <sequence>
                     <element maxOccurs="unbounded" name="property"
                         type="diggs:ParameterPropertyType">
                         <annotation>
-                            <documentation>The property property.</documentation>
+                            <documentation>
+                                A named parameter and its value describing the observed zone or
+                                interval. Repeat for each parameter observed.
+                            </documentation>
                         </annotation>
                     </element>
                     <element maxOccurs="unbounded" minOccurs="0" ref="diggs:placedObservation"/>
                     <element minOccurs="0" ref="diggs:baseBoundary">
                         <annotation>
-                            <documentation>Description of the boundary at the base of the observed
-                                zone or interval as defined in the observation's location
-                                property</documentation>
+                            <documentation>
+                                Description of the boundary at the base of the observed zone or
+                                interval, as defined in the observation's location property. Only
+                                one baseBoundary may be given.
+                            </documentation>
                         </annotation>
                     </element>
                 </sequence>
@@ -366,22 +418,24 @@
         </complexContent>
     </complexType>
     <complexType name="OtherObservationSystemType">
-        <annotation>
-            <documentation>Extended type based on AbstractObservationSystemType. Adds elements for other observation system type definition.</documentation>
-        </annotation>
         <complexContent>
             <extension base="diggs:AbstractObservationSystemType">
                 <sequence>
                     <element name="otherSystemType" type="gml:CodeType">
                         <annotation>
-                            <documentation>The kind of "Other Observation" system described.
+                            <documentation>
+                                The kind of observation described by the system. No DIGGS-authored
+                                dictionary currently exists for this element.
                             </documentation>
                         </annotation>
                     </element>
                     <element maxOccurs="unbounded" name="otherObservation"
                         type="diggs:OtherObservationPropertyType">
                         <annotation>
-                            <documentation>The other observation property.</documentation>
+                            <documentation>
+                                An observation within the system. Repeat once for each zone or
+                                interval described.
+                            </documentation>
                         </annotation>
                     </element>
                 </sequence>
