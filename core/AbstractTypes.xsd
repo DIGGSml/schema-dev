@@ -71,11 +71,10 @@
         <complexContent>
             <extension base="diggs:AbstractProgramSpecificationType">
                 <sequence>
-                    <element minOccurs="0" name="statistic" type="gml:CodeType">
+                    <element minOccurs="0" name="statistic" type="diggs:StatisticEnumExtType">
                         <annotation>
                             <documentation>How several values are reduced to the single value
-                                compared against the limit. Intended values: individual, mean,
-                                minimum, maximum, percentile. What the values are gathered over is
+                                compared against the limit. Values: individual, mean, median, minimum, maximum, percentile, standard_deviation, coefficient_of_variation. What the values are gathered over is
                                 stated by statisticScope. Omit where the criterion applies to each
                                 value individually.</documentation>
                         </annotation>
@@ -980,7 +979,8 @@
         <complexContent>
             <extension base="diggs:AbstractInsituTestProcedureType">
                 <sequence>
-                    <element minOccurs="0" name="referenceSystem" type="gml:CodeType">
+                    <element minOccurs="0" name="referenceSystem"
+                        type="diggs:LoadTestReferenceSystemEnumExtType">
                         <annotation>
                             <documentation>How the movement measured during the test was
                                 referenced - e.g. an independent reference beam, optical survey, or
@@ -3214,5 +3214,105 @@
             </extension>
         </complexContent>
     </complexType>
-
+    <simpleType name="LoadTestReferenceSystemEnumType">
+        <annotation>
+            <documentation>How movement was referenced during a load test. Both ASTM D1143/D1143M and EN ISO
+                22477-1 require the reference system to be independent of the reaction system and
+                unaffected by ground movement caused by the test; this value records which
+                arrangement was used, not that it satisfied the requirement.</documentation>
+        </annotation>
+        <restriction base="string">
+            <enumeration value="independent_reference_beam">
+                <annotation>
+                    <documentation>Displacement measured against a fixed reference beam supported clear of the
+                        reaction system and of any ground disturbed by the test.</documentation>
+                </annotation>
+            </enumeration>
+            <enumeration value="optical_survey">
+                <annotation>
+                    <documentation>Displacement measured by optical or total-station survey referenced to a
+                        fixed benchmark independent of the reaction system.</documentation>
+                </annotation>
+            </enumeration>
+            <enumeration value="satellite_positioning">
+                <annotation>
+                    <documentation>Displacement measured by real-time GNSS/satellite positioning referenced to
+                        a fixed benchmark.</documentation>
+                </annotation>
+            </enumeration>
+        </restriction>
+    </simpleType>
+    <simpleType name="LoadTestReferenceSystemEnumExtType">
+        <annotation>
+            <documentation>One of the values of LoadTestReferenceSystemEnumType, or a value outside the list
+                stated as "Other: name".</documentation>
+        </annotation>
+        <union memberTypes="diggs:OtherNameType diggs:LoadTestReferenceSystemEnumType"/>
+    </simpleType>
+    <simpleType name="StatisticEnumType">
+        <annotation>
+            <documentation>How multiple measurements within an acceptance criterion's scope are reduced to the
+                single value compared against its limit. Omit where the criterion applies to each
+                measurement individually rather than to a reduction over several.</documentation>
+        </annotation>
+        <restriction base="string">
+            <enumeration value="individual">
+                <annotation>
+                    <documentation>The criterion is evaluated against each measurement in its scope separately,
+                        with no reduction to a single value.</documentation>
+                </annotation>
+            </enumeration>
+            <enumeration value="mean">
+                <annotation>
+                    <documentation>The criterion is evaluated against the arithmetic mean of the measurements
+                        in its scope.</documentation>
+                </annotation>
+            </enumeration>
+            <enumeration value="median">
+                <annotation>
+                    <documentation>The criterion is evaluated against the median of the measurements in its
+                        scope.</documentation>
+                </annotation>
+            </enumeration>
+            <enumeration value="minimum">
+                <annotation>
+                    <documentation>The criterion is evaluated against the smallest of the measurements in its
+                        scope.</documentation>
+                </annotation>
+            </enumeration>
+            <enumeration value="maximum">
+                <annotation>
+                    <documentation>The criterion is evaluated against the largest of the measurements in its
+                        scope.</documentation>
+                </annotation>
+            </enumeration>
+            <enumeration value="percentile">
+                <annotation>
+                    <documentation>The criterion is evaluated against a stated percentile of the measurements
+                        in its scope; the percentile intended is given by the sibling
+                        percentileValue element.</documentation>
+                </annotation>
+            </enumeration>
+            <enumeration value="standard_deviation">
+                <annotation>
+                    <documentation>The criterion is evaluated against the standard deviation of the
+                        measurements in its scope.</documentation>
+                </annotation>
+            </enumeration>
+            <enumeration value="coefficient_of_variation">
+                <annotation>
+                    <documentation>The criterion is evaluated against the coefficient of variation (standard
+                        deviation divided by the mean) of the measurements in its scope, as a limit
+                        on scatter.</documentation>
+                </annotation>
+            </enumeration>
+        </restriction>
+    </simpleType>
+    <simpleType name="StatisticEnumExtType">
+        <annotation>
+            <documentation>One of the values of StatisticEnumType, or a value outside the list stated as
+                "Other: name".</documentation>
+        </annotation>
+        <union memberTypes="diggs:OtherNameType diggs:StatisticEnumType"/>
+    </simpleType>
 </schema>
