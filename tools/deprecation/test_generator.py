@@ -76,7 +76,7 @@ def main():
     expect('since is not a release version', c, o, 1, 'is not a release version')
 
     t = scratch()
-    edit(os.path.join(t, 'core/Core.xsd'), r'<documentation>DEPRECATED\. Use plunge', '<documentation>Use plunge')
+    edit(os.path.join(t, 'core/Core.xsd'), r'<documentation>\s*DEPRECATED\. Use plunge', '<documentation>Use plunge')
     c, o = run(t)
     expect('documentation does not open DEPRECATED.', c, o, 1, 'documentation does not open "DEPRECATED. "')
 
