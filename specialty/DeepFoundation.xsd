@@ -2,7 +2,7 @@
 <schema xmlns="http://www.w3.org/2001/XMLSchema" xmlns:diggs="http://diggsml.org/schemas/3"
     xmlns:gml="http://www.opengis.net/gml/3.2"
     xmlns:vc="http://www.w3.org/2007/XMLSchema-versioning" vc:maxVersion="1.1" vc:minVersion="1.0"
-    elementFormDefault="qualified" targetNamespace="http://diggsml.org/schemas/3" version="3.0.0">
+    elementFormDefault="qualified" targetNamespace="http://diggsml.org/schemas/3" version="3.1.0">
 
 
     <import namespace="http://www.opengis.net/gml/3.2"
@@ -21,33 +21,56 @@
                             <documentation>The date and time the pile was installed.</documentation>
                         </annotation>
                     </element>
-                    <element minOccurs="0" name="referenceElevation" type="diggs:LengthMeasureType">
+                    <element minOccurs="0" name="referenceElevation"
+                        type="diggs:PointLocationPropertyType">
                         <annotation>
-                            <documentation>A true vertical control element, in the same vertical CRS
-                                as the referencePoint), that is used to set elevations for the
-                                structural elements, and not the top of the piling. This property is
-                                used when groundSurfaceElevation is not used as the reference
-                                elevation. </documentation>
+                            <documentation>A true vertical control position, in the same vertical CRS as the
+                                referencePoint, that is used to set elevations for the structural elements, and not
+                                the top of the piling. This property is used when groundSurfaceElevation is not used
+                                as the reference elevation.
+                                
+                                An elevation is a position, not a length. The value may be given as a
+                                one-dimensional position in a vertical CRS, as a one-dimensional position in this
+                                pile's own linear referencing system, or as a full three-dimensional position;
+                                srsName on the PointLocation states which, and overrides the referencePoint default
+                                above. Populate uomLabels so that a consumer can read the unit without resolving the
+                                CRS.</documentation>
                         </annotation>
                     </element>
-                    <element minOccurs="1" name="groundSurfaceElevation"
-                        type="diggs:LengthMeasureType">
+                    <element minOccurs="0" name="groundSurfaceElevation"
+                        type="diggs:PointLocationPropertyType">
                         <annotation>
-                            <documentation>The elevation of the ground surface, in the same vertical
-                                CRS as the referencePoint. This point often serves as the pile's
-                                reference elevation.</documentation>
+                            <documentation>The elevation of the ground surface, in the same vertical CRS as the
+                                referencePoint. This point often serves as the pile's reference elevation.
+                                
+                                An elevation is a position, not a length - see referenceElevation for the frame
+                                options and the uomLabels guidance. Optional: this value duplicates information the
+                                geometry may already carry, and a duplicate cannot be mandatory. It was
+                                minOccurs="1" before this change.</documentation>
                         </annotation>
                     </element>
-                    <element minOccurs="1" name="cutoffElevation" type="diggs:LengthMeasureType">
+                    <element minOccurs="0" name="cutoffElevation"
+                        type="diggs:PointLocationPropertyType">
                         <annotation>
-                            <documentation>Elevation of the pile cutoff in the same vertical CRS as
-                                the referencePoint.</documentation>
+                            <documentation>Elevation of the pile cutoff, in the same vertical CRS as the
+                                referencePoint.
+                                
+                                An elevation is a position, not a length - see referenceElevation for the frame
+                                options and the uomLabels guidance. WHERE THIS ELEVATION IS EXTRACTABLE FROM THE
+                                GEOMETRY, THE GEOMETRY PREVAILS: the cutoff is the first point of the pile's
+                                centerLine, so this property is a convenience for consumers that do not want to walk
+                                the geometry, and it is optional for that reason. It was minOccurs="1" before this
+                                change.</documentation>
                         </annotation>
                     </element>
-                    <element minOccurs="0" name="jettingElevation" type="diggs:LengthMeasureType">
+                    <element minOccurs="0" name="jettingElevation"
+                        type="diggs:PointLocationPropertyType">
                         <annotation>
-                            <documentation>Elevation of the top of the pile in the same CRS as the
-                                referencePoint, that is reached by pile jetting.</documentation>
+                            <documentation>Elevation of the top of the pile, in the same CRS as the referencePoint,
+                                that is reached by pile jetting.
+                                
+                                An elevation is a position, not a length - see referenceElevation for the frame
+                                options and the uomLabels guidance.</documentation>
                         </annotation>
                     </element>
                     <element minOccurs="0" name="totalPileLength" type="diggs:LengthMeasureType">
@@ -64,14 +87,28 @@
                     </element>
                     <element minOccurs="0" name="tipDeviationNorth" type="diggs:LengthMeasureType">
                         <annotation>
-                            <documentation>The deviation of the pile tip from the vertical in the
-                                north direction.</documentation>
+                            <appinfo>
+                                <diggs:deprecated since="3.1.0"
+                                    replacedBy="diggs:alignmentDeviation"
+                                    note="with alignmentDeterminationMethod; where the tip position was surveyed, record it in centerLine"/>
+                            </appinfo>
+                            <documentation>DEPRECATED. Use alignmentDeviation with
+                                alignmentDeterminationMethod; where the tip position was surveyed,
+                                record it in centerLine. The deviation of the pile tip from the
+                                vertical in the north direction.</documentation>
                         </annotation>
                     </element>
                     <element minOccurs="0" name="tipDeviationEast" type="diggs:LengthMeasureType">
                         <annotation>
-                            <documentation>The deviation of the pile tip from the vertical in the
-                                east direction.</documentation>
+                            <appinfo>
+                                <diggs:deprecated since="3.1.0"
+                                    replacedBy="diggs:alignmentDeviation"
+                                    note="with alignmentDeterminationMethod; where the tip position was surveyed, record it in centerLine"/>
+                            </appinfo>
+                            <documentation>DEPRECATED. Use alignmentDeviation with
+                                alignmentDeterminationMethod; where the tip position was surveyed,
+                                record it in centerLine. The deviation of the pile tip from the
+                                vertical in the east direction.</documentation>
                         </annotation>
                     </element>
                     <element minOccurs="0" name="lengthAboveGroundSurface"
@@ -95,13 +132,19 @@
                         </annotation>
                     </element>
                     <element form="qualified" maxOccurs="1" minOccurs="0" name="finalTipElevation"
-                        type="diggs:LengthMeasureType">
+                        type="diggs:PointLocationPropertyType">
                         <annotation>
-                            <documentation>The final elevation of the pile tip after driving, in the
-                                same CRS as the referencePoint</documentation>
+                            <documentation>The final elevation of the pile tip after driving, in the same CRS as the
+                                referencePoint.
+                                
+                                An elevation is a position, not a length - see referenceElevation for the frame
+                                options and the uomLabels guidance. WHERE THIS ELEVATION IS EXTRACTABLE FROM THE
+                                GEOMETRY, THE GEOMETRY PREVAILS: the tip is the last point of the pile's centerLine.
+                                The released PileDrivingExample.xml states -45.25 here against a centerLine tip of
+                                -45.75, which is exactly the disagreement this rule resolves.</documentation>
                         </annotation>
                     </element>
-                    <element maxOccurs="unbounded" minOccurs="1" name="taperInterval"
+                    <element maxOccurs="unbounded" minOccurs="0" name="taperInterval"
                         type="diggs:TaperPropertyType">
                         <annotation>
                             <documentation>A list of intervals along the length of the pile that
@@ -369,9 +412,16 @@
                             <documentation>Depth of the soil plug inside the pile.</documentation>
                         </annotation>
                     </element>
-                    <element minOccurs="0" name="soilPlugElevation" type="diggs:LengthMeasureType">
+                    <element minOccurs="0" name="soilPlugElevation"
+                        type="diggs:PointLocationPropertyType">
                         <annotation>
-                            <documentation>Elevation of the top of the soil plug.</documentation>
+                            <documentation>Elevation of the top of the soil plug.
+                                
+                                An elevation is a position, not a length. This now matches
+                                diggs:ConcretePileType/soilPlugElevation, which has carried
+                                diggs:PointLocationPropertyType under the same name since 3.0.0; before this change
+                                the same property name carried two different types in sibling types of this
+                                file.</documentation>
                         </annotation>
                     </element>
                     <element maxOccurs="1" minOccurs="0" name="splices"
@@ -802,7 +852,7 @@
                         </annotation>
                     </element>
                     <element minOccurs="0" name="coefficientOfRestitution"
-                        type="diggs:value0to1ValueType">
+                        type="diggs:Value0to1ValueType">
                         <annotation>
                             <documentation>A value between 0 and 1 describing the energy returned
                                 after impact, 1 is a perfectly elastic impact and 0 is a perfectly
@@ -813,7 +863,7 @@
             </extension>
         </complexContent>
     </complexType>
-    <simpleType name="value0to1ValueType">
+    <simpleType name="Value0to1ValueType">
         <annotation>
             <documentation>Restricted double type for value to value type.</documentation>
         </annotation>
@@ -906,16 +956,23 @@
                     </element>
                     <element minOccurs="0" name="plumbCheck" type="boolean">
                         <annotation>
-                            <documentation>True indicates that a plumb check (verticality check) was
-                                performed, false or not provided indicates that it was not
-                                performed.</documentation>
+                            <appinfo>
+                                <diggs:deprecated since="3.1.0"
+                                    replacedBy="diggs:alignmentDeterminationMethod"/>
+                            </appinfo>
+                            <documentation>DEPRECATED. Use alignmentDeterminationMethod, which names
+                                the method used to establish the alignment. Whether a plumb
+                                (verticality) check was performed.</documentation>
                         </annotation>
                     </element>
                     <element minOccurs="0" name="plumbCheckDirection"
                         type="diggs:PlaneAngleMeasureType">
                         <annotation>
-                            <documentation>The direction the plumb was checked in relative to north
-                                (if applicable).</documentation>
+                            <appinfo>
+                                <diggs:deprecated since="3.1.0" replacedBy="diggs:bearing"/>
+                            </appinfo>
+                            <documentation>DEPRECATED. Use bearing. The direction, relative to
+                                north, in which the plumb was checked.</documentation>
                         </annotation>
                     </element>
                     <element minOccurs="0" name="hammer" type="diggs:PileDriveHammerPropertyType"

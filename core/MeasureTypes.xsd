@@ -1,13 +1,20 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <schema xmlns="http://www.w3.org/2001/XMLSchema" xmlns:diggs="http://diggsml.org/schemas/3"
     xmlns:eml="http://www.energistics.org/energyml/data/commonv2"
+    xmlns:gml="http://www.opengis.net/gml/3.2"
     xmlns:vc="http://www.w3.org/2007/XMLSchema-versioning" vc:maxVersion="1.1" vc:minVersion="1.0"
-    elementFormDefault="qualified" targetNamespace="http://diggsml.org/schemas/3" version="3.0.0">
+    elementFormDefault="qualified" targetNamespace="http://diggsml.org/schemas/3" version="3.1.0">
 
     <import namespace="http://www.energistics.org/energyml/data/commonv2"
         schemaLocation="../energistics/2.0/data/common/v2.1/xsd_schemas/EmlAllObjects.xsd"/>
 
-
+    <import namespace="http://www.opengis.net/gml/3.2" schemaLocation="../core/gml3.2Profile_diggs.xsd">
+        <annotation>
+            <documentation>Import of the DIGGS profile of GML 3.2.1. This profile includes the essential GML components needed for DIGGS features including geometry, temporal objects and feature collections.</documentation>
+        </annotation>
+    </import>
+    
+    
     <!-- ================================================================== -->
     <!-- DIGGS Custom UOM Enumerationa                                      -->
     <!-- These units extend Energistics UOM enumerations with new     -->
@@ -127,6 +134,39 @@
             <enumeration value="%/ky">
                 <annotation>
                     <documentation>percent per thousand years</documentation>
+                </annotation>
+            </enumeration>
+        </restriction>
+    </simpleType>
+
+    <simpleType name="DiggsThermalResistivityUomEnumBaseType">
+        <annotation>
+            <documentation>This enumerated list is a DIGGS extension to the Energistics Unit of Measurement Dictionary (and a new quantity class of thermal resistivity) used to provide units for the reciprocal of thermal conductivity, as reported by thermal needle probe testing (ASTM D5334, IEEE Std 442).</documentation>
+        </annotation>
+        <restriction base="eml:UomEnum">
+            <enumeration value="deltaK.m/W">
+                <annotation>
+                    <documentation>delta kelvin metre per watt</documentation>
+                </annotation>
+            </enumeration>
+            <enumeration value="deltaF.ft.h/Btu[IT]">
+                <annotation>
+                    <documentation>delta Fahrenheit foot hour per BTU</documentation>
+                </annotation>
+            </enumeration>
+            <enumeration value="cm.deltaC.h/cal[th]">
+                <annotation>
+                    <documentation>centimetre delta Celsius hour per calorie</documentation>
+                </annotation>
+            </enumeration>
+            <enumeration value="cm.deltaC.s/cal[th]">
+                <annotation>
+                    <documentation>centimetre delta Celsius second per calorie</documentation>
+                </annotation>
+            </enumeration>
+            <enumeration value="deltaC.h.m/kcal[th]">
+                <annotation>
+                    <documentation>delta Celsius hour metre per thousand calorie</documentation>
                 </annotation>
             </enumeration>
         </restriction>
@@ -662,6 +702,13 @@
         <union memberTypes="diggs:DiggsRelativeRateUomEnumBaseType diggs:OtherNameType"/>
     </simpleType>
 
+    <simpleType name="DiggsThermalResistivityUomEnumType">
+        <annotation>
+            <documentation>This enumerated list is a DIGGS extension to the Energistics Unit of Measurement Dictionary (and a new quantity class of thermal resistivity) used to provide units for the reciprocal of thermal conductivity.</documentation>
+        </annotation>
+        <union memberTypes="diggs:DiggsThermalResistivityUomEnumBaseType diggs:OtherNameType"/>
+    </simpleType>
+
     <simpleType name="DiggsVolumeOrMassLossMeasureUomEnumType">
         <annotation>
             <documentation>This enumerated list combines eml:VolumePerVolume and eml:MassPerMass to provide units for syneresis which records either volume or mass loss.</documentation>
@@ -693,7 +740,7 @@
         <restriction>
             <simpleType>
                 <union
-                    memberTypes="eml:UnitOfMeasure diggs:OtherNameType diggs:DiggsAreaPerTimeUomEnumType diggs:DiggsDensityOrUnitWeightUomEnumType diggs:DiggsMassPerVolumeUomEnumType diggs:DiggsEnergyDensityUomEnumType diggs:DiggsGravitationalGradientUomEnumBaseType diggs:DiggsLengthPerTimeUomEnumType diggs:DiggsLugeonValueUomEnumType diggs:DiggsMassUomEnumType diggs:DiggsParticleSizeUomEnumBaseType diggs:DiggsPressurePerTimeUomEnumType diggs:DiggsPressureUomEnumType diggs:DiggsReciprocalSquareRootTimeUomEnumBaseType diggs:DiggsRelativeRateUomEnumBaseType diggs:DiggsVolumeOrMassLossMeasureUomEnumType eml:PressurePerPressureUom eml:AreaPerCountUom eml:DiffusiveTimeOfFlightUom eml:MassPerVolumePerPressureUom eml:MassPerVolumePerTemperatureUom eml:ThermodynamicTemperaturePerThermodynamicTemperatureUom"
+                    memberTypes="eml:UnitOfMeasure diggs:OtherNameType diggs:DiggsAreaPerTimeUomEnumType diggs:DiggsDensityOrUnitWeightUomEnumType diggs:DiggsMassPerVolumeUomEnumType diggs:DiggsEnergyDensityUomEnumType diggs:DiggsGravitationalGradientUomEnumBaseType diggs:DiggsLengthPerTimeUomEnumType diggs:DiggsLugeonValueUomEnumType diggs:DiggsMassUomEnumType diggs:DiggsParticleSizeUomEnumBaseType diggs:DiggsPressurePerTimeUomEnumType diggs:DiggsPressureUomEnumType diggs:DiggsReciprocalSquareRootTimeUomEnumBaseType diggs:DiggsRelativeRateUomEnumBaseType diggs:DiggsThermalResistivityUomEnumBaseType diggs:DiggsVolumeOrMassLossMeasureUomEnumType eml:PressurePerPressureUom eml:AreaPerCountUom eml:DiffusiveTimeOfFlightUom eml:MassPerVolumePerPressureUom eml:MassPerVolumePerTemperatureUom eml:ThermodynamicTemperaturePerThermodynamicTemperatureUom eml:ThermalConductivityUom"
                 />
             </simpleType>
         </restriction>
@@ -832,18 +879,18 @@
 
     <complexType name="PlungeMeasureType">
         <annotation>
-            <documentation>A measure type for plunge angles of linear geological features. Plunge is the vertical angle between a line and the horizontal plane, measured downward from horizontal. The angle is positive for features dipping below horizontal and negative for features pointing upward above horizontal. Values are constrained to the range -90° to +90° (or equivalent in other angular units), where 0° represents horizontal, +90° represents vertically downward, and -90° represents vertically upward. Plunge is used extensively in structural geology to describe the orientation of fold axes, lineations, drill holes, mineral elongations, and other linear features. When combined with trend (the horizontal direction), plunge provides complete three-dimensional orientation of a line in space.</documentation>
+            <documentation>A measure type for plunge angles of linear features. Plunge is the vertical angle between a line and the horizontal plane, measured POSITIVE UP. The angle is negative for features dipping below horizontal and positive for features pointing upward above horizontal. Values are constrained to the range -90° to +90° (or equivalent in other angular units), where 0° represents horizontal, -90° represents vertically downward, and +90° represents vertically upward. A vertical borehole therefore plunges -90°. THIS REVERSES THE CONVENTION THIS TYPE PREVIOUSLY DOCUMENTED, which described plunge as positive downward following structural-geology usage. That statement was wrong for DIGGS on two counts: it contradicted the plunge property on diggs:AbstractLinearSamplingFeatureType, which has always said "positive up", and it contradicted actual practice - released DIGGS instances record downward holes as negative, for example a plunge of -88.5 dega on a near-vertical borehole, which the old wording would have read as a hole pointing almost straight UP. The element documentation and the instance data agree with each other, so the type text has been corrected to match them rather than the other way round. Plunge is used extensively in structural geology to describe the orientation of fold axes, lineations, drill holes, mineral elongations, and other linear features. When combined with trend (the horizontal direction), plunge provides complete three-dimensional orientation of a line in space.</documentation>
         </annotation>
         <simpleContent>
             <restriction base="diggs:PlaneAngleMeasureType">
                 <minInclusive value="-90">
                     <annotation>
-                        <documentation>Minimum plunge value (-90 degrees or equivalent): vertically upward orientation</documentation>
+                        <documentation>Minimum plunge value (-90 degrees or equivalent): vertically DOWNWARD orientation, the value a vertical borehole takes</documentation>
                     </annotation>
                 </minInclusive>
                 <maxInclusive value="90">
                     <annotation>
-                        <documentation>Maximum plunge value (+90 degrees or equivalent): vertically downward orientation</documentation>
+                        <documentation>Maximum plunge value (+90 degrees or equivalent): vertically UPWARD orientation</documentation>
                     </annotation>
                 </maxInclusive>
             </restriction>
@@ -2765,6 +2812,14 @@
             </extension>
         </simpleContent>
     </complexType>
+    
+    <complexType name="LengthDoubleListMeasureType">
+        <simpleContent>
+            <extension base="gml:doubleList">
+                <attribute name="uom" type="diggs:LengthUomEnumType" use="required"/>
+            </extension>
+        </simpleContent>
+    </complexType>
 
     <complexType name="LengthPerLengthMeasureType">
         <annotation>
@@ -4071,6 +4126,21 @@
         </simpleContent>
     </complexType>
 
+    <complexType name="ThermalResistivityMeasureType">
+        <annotation>
+            <documentation>Thermal resistivity: the reciprocal of thermal conductivity, a material's opposition to heat flow per unit length. Reported by thermal needle probe testing (ASTM D5334) per IEEE Std 442. Not part of the Energistics Unit of Measure Dictionary; the underlying quantity class and units are a DIGGS extension (see diggs:DiggsThermalResistivityUomEnumBaseType). Common units include mK/W (equivalently deltaK.m/W).</documentation>
+        </annotation>
+        <simpleContent>
+            <extension base="diggs:DescriptorValueType">
+                <attribute name="uom" type="diggs:DiggsThermalResistivityUomEnumType">
+                    <annotation>
+                        <documentation>The unit of measure for thermal resistivity.</documentation>
+                    </annotation>
+                </attribute>
+            </extension>
+        </simpleContent>
+    </complexType>
+
     <complexType name="ThermodynamicTemperaturePerThermodynamicTemperatureMeasureType">
         <annotation>
             <documentation>Temperature ratio: Dimensionless ratio of temperatures. Used in thermodynamic calculations and thermal efficiency. Commonly expressed as Euclid, K/K, °C/°C, or °F/°F.</documentation>
@@ -4191,6 +4261,15 @@
             </extension>
         </simpleContent>
     </complexType>
+    
+    <complexType name="VolumeDoubleListMeasureType">
+        <simpleContent>
+            <extension base="gml:doubleList">
+                <attribute name="uom" type="diggs:VolumeUomEnumType" use="required"/>
+            </extension>
+        </simpleContent>
+    </complexType>
+    
 
     <complexType name="VolumeFlowRatePerVolumeFlowRateMeasureType">
         <annotation>

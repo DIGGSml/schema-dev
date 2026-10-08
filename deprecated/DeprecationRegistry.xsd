@@ -1,0 +1,154 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<schema xmlns="http://www.w3.org/2001/XMLSchema" xmlns:dr="http://diggsml.org/schemas/3/deprecation"
+    targetNamespace="http://diggsml.org/schemas/3/deprecation" elementFormDefault="qualified"
+    version="3.1.0">
+    <annotation>
+        <documentation>Schema of DeprecationRegistry.xml, the list of everything in the DIGGS schema that is
+            deprecated or has been removed. It is not part of the DIGGS schema and is not included by
+            Diggs.xsd or DiggsCore.xsd.
+
+            An entry with status "deprecated" is still valid; it is read from the diggs:deprecated marker
+            in the appinfo of the deprecated declaration. An entry with status "removed" names something a
+            released version declared and the current schema no longer does; an instance that still uses
+            it fails validation, and the entry says what replaced it.</documentation>
+    </annotation>
+    <element name="DeprecationRegistry">
+        <complexType>
+            <sequence>
+                <element name="namespace" maxOccurs="unbounded">
+                    <annotation>
+                        <documentation>Binds a prefix used in the names and XPaths of the entries.</documentation>
+                    </annotation>
+                    <complexType>
+                        <attribute name="prefix" type="NCName" use="required"/>
+                        <attribute name="uri" type="anyURI" use="required"/>
+                    </complexType>
+                </element>
+                <element name="entry" type="dr:EntryType" minOccurs="0" maxOccurs="unbounded"/>
+            </sequence>
+            <attribute name="schemaVersion" type="dr:VersionType" use="required">
+                <annotation>
+                    <documentation>The schema release the registry describes.</documentation>
+                </annotation>
+            </attribute>
+        </complexType>
+        <unique name="entryKey">
+            <selector xpath="dr:entry"/>
+            <field xpath="@key"/>
+        </unique>
+    </element>
+    <simpleType name="VersionType">
+        <restriction base="string">
+            <pattern value="\d+\.\d+\.\d+"/>
+        </restriction>
+    </simpleType>
+    <complexType name="EntryType">
+        <sequence>
+            <element name="note" type="string" minOccurs="0">
+                <annotation>
+                    <documentation>What to use instead, where that is not a single named replacement, or what
+                        else the reader needs to know.</documentation>
+                </annotation>
+            </element>
+            <element name="instanceXPath" minOccurs="0">
+                <annotation>
+                    <documentation>XPath 1.0 (prefixes as bound by the namespace elements) selecting the places
+                        in an instance document where the entry applies. Absent for a type, which an instance
+                        does not name. Built from element names, so where a live use of the same names shares
+                        the path, exact is false and a match is a candidate rather than a certainty.</documentation>
+                </annotation>
+                <complexType>
+                    <simpleContent>
+                        <extension base="string">
+                            <attribute name="exact" type="boolean" default="true"/>
+                        </extension>
+                    </simpleContent>
+                </complexType>
+            </element>
+        </sequence>
+        <attribute name="key" type="string" use="required">
+            <annotation>
+                <documentation>Unique identity: kind, host and name, e.g.
+                    element:diggs:LabCompactionTestType/diggs:mouldDiameter.</documentation>
+            </annotation>
+        </attribute>
+        <attribute name="status" use="required">
+            <simpleType>
+                <restriction base="string">
+                    <enumeration value="deprecated"/>
+                    <enumeration value="removed"/>
+                </restriction>
+            </simpleType>
+        </attribute>
+        <attribute name="kind" use="required">
+            <annotation>
+                <documentation>element: an element declaration. branchRef: a use of an element that is itself
+                    live elsewhere (only this use is deprecated). type: a complex or simple type. attribute,
+                    enumValue: an attribute or an enumeration value. compoundBranch: a sequence or choice that
+                    is one branch of a choice.</documentation>
+            </annotation>
+            <simpleType>
+                <restriction base="string">
+                    <enumeration value="element"/>
+                    <enumeration value="branchRef"/>
+                    <enumeration value="type"/>
+                    <enumeration value="attribute"/>
+                    <enumeration value="enumValue"/>
+                    <enumeration value="compoundBranch"/>
+                </restriction>
+            </simpleType>
+        </attribute>
+        <attribute name="name" type="string" use="required">
+            <annotation>
+                <documentation>The deprecated or removed item: a prefixed name for an element, branchRef or
+                    type; the bare name or value for an attribute or enumeration value; sequence[n] or
+                    choice[n] for a compoundBranch.</documentation>
+            </annotation>
+        </attribute>
+        <attribute name="host" type="string">
+            <annotation>
+                <documentation>The type or element that contains the item. Absent for a global declaration.
+                    The same name can be deprecated in one host and live in another.</documentation>
+            </annotation>
+        </attribute>
+        <attribute name="file" type="string">
+            <annotation>
+                <documentation>The schema file that declares the item (for a removed item, the file that
+                    declared it in the last release that had it).</documentation>
+            </annotation>
+        </attribute>
+        <attribute name="since" type="dr:VersionType">
+            <annotation>
+                <documentation>The first release whose schema treats the item as deprecated.</documentation>
+            </annotation>
+        </attribute>
+        <attribute name="removedIn" type="dr:VersionType">
+            <annotation>
+                <documentation>The release in which the item was removed. Present only for status
+                    removed.</documentation>
+            </annotation>
+        </attribute>
+        <attribute name="replacedBy" type="string">
+            <annotation>
+                <documentation>The prefixed name of the single element, attribute or type that takes the
+                    item's place. Absent where no single name does; see note.</documentation>
+            </annotation>
+        </attribute>
+        <attribute name="migration">
+            <annotation>
+                <documentation>rename: the replacement is a drop-in with identical content under another
+                    name. convert: replaced, but the content must change (a different type, or a different
+                    place). manual: no single replacement; follow the note. none: nothing to migrate to (an
+                    item no instance could use).</documentation>
+            </annotation>
+            <simpleType>
+                <restriction base="string">
+                    <enumeration value="rename"/>
+                    <enumeration value="convert"/>
+                    <enumeration value="manual"/>
+                    <enumeration value="none"/>
+                </restriction>
+            </simpleType>
+        </attribute>
+    </complexType>
+</schema>

@@ -2,40 +2,32 @@
 <schema xmlns="http://www.w3.org/2001/XMLSchema" xmlns:diggs="http://diggsml.org/schemas/3"
     xmlns:gml="http://www.opengis.net/gml/3.2"
     xmlns:vc="http://www.w3.org/2007/XMLSchema-versioning" vc:maxVersion="1.1" vc:minVersion="1.0"
-    elementFormDefault="qualified" targetNamespace="http://diggsml.org/schemas/3" version="3.0.0">
+    elementFormDefault="qualified" targetNamespace="http://diggsml.org/schemas/3" version="3.1.0">
 
 
-    <import namespace="http://www.opengis.net/gml/3.2" schemaLocation="gml3.2Profile_diggs"/>
+    <import namespace="http://www.opengis.net/gml/3.2" schemaLocation="gml3.2Profile_diggs.xsd"/>
     <element name="LocalCartesianCRS" substitutionGroup="gml:AbstractSingleCRS"
         type="diggs:LocalCartesianCRSType">
         <annotation>
             <documentation>
-                A local Cartesian coordinate reference system with spatial positioning
-                information. This type extends the standard GML engineering CRS concept
-                by including explicit spatial definitions for the origin point and axis
-                orientations, enabling transformation between local and spatial coordinates.
+                A local Cartesian coordinate reference system that is tied to a spatial coordinate
+                reference system. In addition to the coordinate system and datum of a GML
+                engineering CRS, it gives the spatial location of its origin and the spatial
+                location and direction of each axis, so that local coordinates can be transformed to
+                spatial coordinates.
             </documentation>
         </annotation>
     </element>
     <complexType name="LocalCartesianCRSType">
-        <annotation>
-            <documentation>
-                Type definition for a spatially-defined local Cartesian coordinate reference
-                system. This type includes the standard CRS components (coordinate system,
-                datum) plus additional spatial positioning elements (origin location, axis
-                locations, transformation parameters) that enable coordinate transformations
-                between the local CRS and spatial coordinate reference systems.
-            </documentation>
-        </annotation>
         <complexContent>
             <extension base="gml:AbstractCRSType">
                 <sequence>
                     <element ref="gml:cartesianCS">
                         <annotation>
                             <documentation>
-                                The Cartesian coordinate system defining the axes and their
-                                properties for this local CRS. Must be a CartesianCS (not
-                                spherical, cylindrical, or other coordinate system types).
+                                The Cartesian coordinate system that defines the axes of this CRS.
+                                It must be a Cartesian coordinate system, not a spherical,
+                                cylindrical or other type.
                             </documentation>
                         </annotation>
                     </element>
@@ -50,10 +42,9 @@
                     <element name="originLocation" type="diggs:PointLocationPropertyType">
                         <annotation>
                             <documentation>
-                                The spatial location of the origin (0,0,0) point of this local
-                                engineering CRS, expressed in a recognized spatial coordinate
-                                reference system. This point serves as the anchor for transforming
-                                local engineering coordinates to the target spatial coordinates.
+                                The spatial location of the origin (0,0,0) of this local CRS, in a
+                                recognized spatial coordinate reference system. It anchors the
+                                transformation from local to spatial coordinates.
                             </documentation>
                         </annotation>
                     </element>
@@ -61,20 +52,19 @@
                         maxOccurs="unbounded">
                         <annotation>
                             <documentation>
-                                Spatial extent and direction for each axis defined in the
-                                Cartesian coordinate system. There should be one axisLocation
-                                element for each axis in the coordinate system. The order
-                                should match the axis order in the Cartesian CS definition.
+                                The spatial extent and direction of one axis of the Cartesian
+                                coordinate system. Give one for each axis, in the axis order of the
+                                Cartesian coordinate system.
                             </documentation>
                         </annotation>
                     </element>
                     <element name="transformationMethod" type="gml:CodeType" minOccurs="0">
                         <annotation>
                             <documentation>
-                                Identifier for the mathematical method to be used for coordinate
-                                transformation between this local engineering CRS and spatial
-                                coordinates. Examples include: "affine", "helmert", 
-                                "direct-linear-referencing", "polynomial", etc.
+                                The mathematical method used to transform between this local CRS and
+                                spatial coordinates, for example affine, helmert,
+                                direct-linear-referencing or polynomial. No DIGGS-authored
+                                dictionary currently exists for this element.
                             </documentation>
                         </annotation>
                     </element>
@@ -82,25 +72,23 @@
                         maxOccurs="3">
                         <annotation>
                             <documentation>
-                                Rotation angle(s) for orienting the local coordinate system
-                                axes relative to the spatial coordinate system. For 2D systems,
-                                one rotation angle is specified (rotation about the vertical
-                                axis). For 3D systems, up to three rotation angles may be
-                                specified (e.g., Euler angles or rotations about X, Y, and Z axes).
-                                The interpretation of multiple angles depends on the specified
-                                transformationMethod.
+                                The angle that orients the local axes relative to the spatial
+                                coordinate system. Give one angle for a 2D system (rotation about
+                                the vertical axis) and up to three for a 3D system (for example
+                                Euler angles, or rotations about the X, Y and Z axes);
+                                transformationMethod determines how multiple angles are interpreted.
+                                Repeat for each angle.
                             </documentation>
                         </annotation>
                     </element>
                     <element name="scaleFactor" type="double" minOccurs="0" default="1.0">
                         <annotation>
                             <documentation>
-                                Uniform scale factor applied to the local coordinate system
-                                relative to the spatial coordinate system. Default is 1.0
-                                (no scaling). Values greater than 1.0 indicate that local
-                                engineering coordinates represent larger distances than the
-                                corresponding spatial coordinates. Values less than 1.0 indicate
-                                that local engineering coordinates represent smaller distances.
+                                The uniform scale factor of the local coordinate system relative to
+                                the spatial coordinate system. The default is 1.0 (no scaling). A
+                                value above 1.0 means local coordinates represent larger distances
+                                than the corresponding spatial coordinates, and a value below 1.0
+                                smaller distances.
                             </documentation>
                         </annotation>
                     </element>
@@ -108,11 +96,8 @@
                         minOccurs="0">
                         <annotation>
                             <documentation>
-                                Estimated accuracy of coordinate transformation between this
-                                local CRS and spatial coordinates. Expressed as a linear
-                                distance uncertainty (e.g., in meters or feet). This value
-                                represents the expected positional error when transforming
-                                coordinates between the two systems.
+                                The expected positional error, as a distance, when transforming
+                                coordinates between this local CRS and spatial coordinates.
                             </documentation>
                         </annotation>
                     </element>
@@ -120,56 +105,36 @@
             </extension>
         </complexContent>
     </complexType>
-    <complexType name="LocalCartesianCRSPropertyType">
-        <annotation>
-            <documentation>
-                Property type for referencing or containing a LocalCartesianCRS.
-                Supports both inline definitions and references via xlink:href.
-            </documentation>
-        </annotation>
-        <sequence minOccurs="0">
-            <element ref="diggs:LocalCartesianCRS"/>
-        </sequence>
-        <attributeGroup ref="gml:AssociationAttributeGroup"/>
-    </complexType>
     <element name="AxisLocation" type="diggs:AxisLocationType">
         <annotation>
             <documentation>
-                Defines the spatial location and orientation of a single axis  in either the target spatial coordinate reference system, or as a unit vector (in usnits of the target CRS).
+                The spatial location and orientation of one axis of a local Cartesian coordinate
+                system, in the spatial coordinate reference system or as a unit vector in the units
+                of that system. It positions the axis so that local coordinates can be transformed.
             </documentation>
         </annotation>
     </element>
     <complexType name="AxisLocationType">
-        <annotation>
-            <documentation>
-                Type definition for specifying the spatial extent and direction of a
-                single axis in a local coordinate system. This information enables the
-                axis to be spatially positioned and oriented in a spatial coordinate
-                reference system, supporting coordinate transformation calculations.
-            </documentation>
-        </annotation>
         <complexContent>
             <extension base="diggs:AbstractComponentObjectBaseType">
                 <sequence>
                     <element name="axisRef" type="gml:ReferenceType">
                         <annotation>
                             <documentation>
-                                Reference to the axis being defined. Should reference an axis
-                                defined in the CartesianCS of the parent LocalCartesianCRS.
-                                Typically references the gml:id of a gml:CoordinateSystemAxis
-                                element (e.g., "X", "Y", "Z", "easting", "northing", "elevation",
-                                "station", "offset").
+                                The axis being defined: normally the gml:id of a
+                                gml:CoordinateSystemAxis in the Cartesian coordinate system of the
+                                parent diggs:LocalCartesianCRS, for example X, Y, Z, easting,
+                                northing, elevation, station or offset.
                             </documentation>
                         </annotation>
                     </element>
                     <element name="axisOrder" type="positiveInteger">
                         <annotation>
                             <documentation>
-                                The ordinal position of this axis in the Cartesian coordinate
-                                system definition (1 for the first axis, 2 for the second axis,
-                                etc.). This ensures correct matching between axes in the CS
-                                definition and their spatial extents, particularly important
-                                when the axis order is not alphabetical.
+                                The position of this axis in the Cartesian coordinate system
+                                definition: 1 for the first axis, 2 for the second, and so on. It
+                                matches each axis to its spatial extent when the axis order is not
+                                alphabetical.
                             </documentation>
                         </annotation>
                     </element>
@@ -179,26 +144,32 @@
                                 minOccurs="1">
                                 <annotation>
                                     <documentation>
-                                The spatial direction and extent of this axis, expressed as a
-                                LinearExtent in the spatial coordinate reference system of the . The
-                                start point of the LinearExtent typically corresponds to the
-                                origin location of the parent CRS, and the end point indicates
-                                the direction and length of the axis in spatial coordinates.
-                                The vector from start to end defines the positive direction of
-                                the axis. If omitted, the property directionVector must be used.
-                            </documentation>
+                                        The spatial direction and extent of this axis, as a
+                                        diggs:LinearExtent in the spatial coordinate reference
+                                        system. Its start point typically corresponds to the origin
+                                        location of the parent CRS, and the vector from start to end
+                                        gives the positive direction and length of the axis. Give
+                                        either this with an optional directionVector, or
+                                        directionVector alone.
+                                    </documentation>
                                 </annotation>
                             </element>
                             <element name="directionVector" type="gml:VectorType" minOccurs="0">
                                 <annotation>
                                     <documentation>
-                                Optional normalized direction vector (unit vector) for this axis
-                                in spatial coordinates. This provides an alternative or supplementary
-                                method to specify axis direction beyond the LinearExtent. When both
-                                are provided, they should be consistent with each other. The vector
-                                components correspond to the spatial CRS axes (typically X, Y, Z or
-                                Easting, Northing, Elevation). If omitted, location must be used.
-                            </documentation>
+                                        A unit vector giving the direction of this axis in spatial
+                                        coordinates, with components corresponding to the axes of
+                                        the spatial CRS (typically X, Y, Z or easting, northing,
+                                        elevation). Given with location, it supplements the linear
+                                        extent and must be consistent with it.
+                                    </documentation>
+                                </annotation>
+                            </element>
+                            <element name="originOffset" type="double" minOccurs="0">
+                                <annotation>
+                                    <documentation>
+                                        The value of the axis at its origin.
+                                    </documentation>
                                 </annotation>
                             </element>
                         </sequence>
@@ -206,13 +177,18 @@
                             <element name="directionVector" type="gml:VectorType" minOccurs="1">
                                 <annotation>
                                     <documentation>
-                                Optional normalized direction vector (unit vector) for this axis
-                                in spatial coordinates. This provides an alternative or supplementary
-                                method to specify axis direction beyond the LinearExtent. When both
-                                are provided, they should be consistent with each other. The vector
-                                components correspond to the spatial CRS axes (typically X, Y, Z or
-                                Easting, Northing, Elevation). If omitted, location must be used.
-                            </documentation>
+                                        A unit vector giving the direction of this axis in spatial
+                                        coordinates, with components corresponding to the axes of
+                                        the spatial CRS (typically X, Y, Z or easting, northing,
+                                        elevation). Used when location is not given.
+                                    </documentation>
+                                </annotation>
+                            </element>
+                            <element name="originOffset" type="double" minOccurs="0">
+                                <annotation>
+                                    <documentation>
+                                        The value of the axis at its origin.
+                                    </documentation>
                                 </annotation>
                             </element>
                         </sequence>
@@ -224,7 +200,8 @@
     <complexType name="AxisLocationPropertyType">
         <annotation>
             <documentation>
-                Property type for referencing or containing an AxisLocation element.
+                Property type that contains one diggs:AxisLocation object inline, or refers to one
+                with xlink:href.
             </documentation>
         </annotation>
         <sequence minOccurs="0">

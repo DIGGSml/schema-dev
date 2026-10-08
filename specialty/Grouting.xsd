@@ -2,7 +2,7 @@
 <schema xmlns="http://www.w3.org/2001/XMLSchema" xmlns:diggs="http://diggsml.org/schemas/3"
     xmlns:gml="http://www.opengis.net/gml/3.2"
     xmlns:vc="http://www.w3.org/2007/XMLSchema-versioning" vc:maxVersion="1.1" vc:minVersion="1.0"
-    elementFormDefault="qualified" targetNamespace="http://diggsml.org/schemas/3" version="3.0.0">
+    elementFormDefault="qualified" targetNamespace="http://diggsml.org/schemas/3" version="3.1.0">
 
 
 
@@ -63,10 +63,10 @@
     </element>
     <complexType name="BleedTestType">
         <annotation>
-            <documentation>Concrete type extending AbstractMaterialTestlProcedureType. Provides implementation for bleed test type.</documentation>
+            <documentation>Concrete type extending AbstractMaterialTestProcedureType. Provides implementation for bleed test type.</documentation>
         </annotation>
         <complexContent>
-            <extension base="diggs:AbstractMaterialTestlProcedureType"/>
+            <extension base="diggs:AbstractMaterialTestProcedureType"/>
         </complexContent>
     </complexType>
     <element name="Cement" type="diggs:GroutComponentCharacteristicsType">
@@ -98,28 +98,48 @@
             <element ref="diggs:Chemical"/>
         </sequence>
     </complexType>
-    <element name="DesignGroutMix" substitutionGroup="diggs:AbstractProgramDesign"
+    <element name="DesignGroutMix" substitutionGroup="diggs:DesignSample"
         type="diggs:DesignGroutMixType">
         <annotation>
             <documentation>An object that contains properites describing the characteristics of a
                 batch of grout. This object optionally can reference a DesignGroutMix object defined
-                within the GroutingProgram feature</documentation>
+                within the GroutingProgram feature.
+
+                A SPECIALIZATION OF diggs:DesignSample (DS1, 2026-09-27; previously a direct
+                diggs:AbstractProgramDesign extension). A grout mix is a manufactured/produced
+                sample: it inherits activityType (optional, but "aggregate" where stated - a grout
+                mix is produced by blending constituents), plannedEquipment (a batching plant or
+                mixer), and the generic plannedSampleWeight/Mass/Volume/Dimensions fields, none of
+                which this type needs to restate. sampleScope, DesignSample's population/selection
+                mechanism, is inherited but has no use here and is expected to stay absent - a
+                manufactured sample has no source-feature or source-sample population to scope, per
+                Dan's own framing of the design/build discussion this rebase came from - the type
+                hierarchy makes that fall out naturally rather than needing a special
+                case.</documentation>
         </annotation>
     </element>
     <complexType name="DesignGroutMixType">
         <annotation>
-            <documentation>Extended type based on AbstractProgramDesignType. Adds elements for design grout mix type definition.</documentation>
+            <documentation>Extended type based on DesignSampleType (rebased DS1, 2026-09-27; was
+                AbstractProgramDesignType). Adds elements for design grout mix type
+                definition.
+
+                REMOVED, GB2 (2026-09-28): the local groutSpecificationRef [0..1] to
+                diggs:GroutSpecification. Redundant with programSpecificationRef [0..*], inherited
+                from diggs:AbstractProgramDesignType since the DS1 rebase - two elements on the same
+                object expressing the same "specification(s) this design was prepared to satisfy"
+                relationship, one narrowly typed and singular, the other generic and repeatable. Cite
+                a GroutSpecification through programSpecificationRef; nothing else changes, since that
+                element was always untyped and GroutSpecification was always a member of the
+                substitution group it targets. Matches the "one mechanism" principle basisRef was
+                restricted to at PB7, and the precedent diggs:RIColumnSpecificationType already set -
+                its own documentation states plainly that a design cites its specification only
+                through programSpecificationRef, with no domain-specific alternative
+                element.</documentation>
         </annotation>
         <complexContent>
-            <extension base="diggs:AbstractProgramDesignType">
+            <extension base="diggs:DesignSampleType">
                 <sequence>
-                    <element minOccurs="0" ref="diggs:groutSpecificationRef">
-                        <annotation>
-                            <appinfo>diggs:GroutSpecification</appinfo>
-                            <documentation>Pointer to the GroutSpecification object that this grout
-                                mix is targeted to.</documentation>
-                        </annotation>
-                    </element>
                     <element minOccurs="0" name="placementDescription" type="string">
                         <annotation>
                             <documentation>Description of general location of grout mix on project
@@ -177,7 +197,17 @@
                                 type="diggs:VolumeMeasureType">
                                 <annotation>
                                     <documentation>Theoretical volume of a batch of grout produced
-                                        by following the design mix formula.</documentation>
+                                        by following the design mix formula.
+
+                                        DISTINCT FROM THE INHERITED plannedSampleVolume
+                                        (diggs:DesignSampleType, DS1, 2026-09-27), which now sits
+                                        alongside this field: theoreticalYield is what a stated mix
+                                        formula computes to, plannedSampleVolume is the generic
+                                        planned-size field every sample design carries. Both may be
+                                        stated; kept separate rather than merged since folding
+                                        theoreticalYield into plannedSampleVolume would mean
+                                        restructuring the choice this element is declared
+                                        inside.</documentation>
                                 </annotation>
                             </element>
                             <element minOccurs="0" name="typeMix" type="gml:CodeType">
@@ -230,6 +260,16 @@
                     <element minOccurs="0" name="marshFunnelTimeDesign" type="diggs:TimeMeasureType">
                         <annotation>
                             <documentation>Design value for grout shrinkage.</documentation>
+                        </annotation>
+                    </element>
+                    <element minOccurs="0" name="modulusDesign" type="diggs:PressureMeasureType">
+                        <annotation>
+                            <documentation>Design value for the elastic modulus of the grout/
+                                concrete (Design Parameter Analysis row 29, S24). Sits alongside
+                                strengthDesign below - strength and stiffness are independent design
+                                properties for a rigid inclusion column, and this type carried the
+                                former without the latter, a confirmed one-element
+                                gap.</documentation>
                         </annotation>
                     </element>
                     <element minOccurs="0" name="mudBalanceDensityDesign"
@@ -497,7 +537,7 @@
         </complexContent>
     </complexType>
     <element name="GroutingActivitySpecification" type="diggs:GroutingActivitySpecificationType"
-        substitutionGroup="diggs:AbstractProgramSpecificaton">
+        substitutionGroup="diggs:AbstractProgramSpecification">
         <annotation>
             <documentation>The grouting activity specification property.</documentation>
         </annotation>
@@ -800,7 +840,7 @@
                                 </annotation>
                             </element>
                             <element minOccurs="0" name="pressureControlLogic"
-                                type="diggs:pressureControlLogicEnumType">
+                                type="diggs:PressureControlLogicEnumType">
                                 <annotation>
                                     <documentation>Property defining how grout injection is to be
                                         controlled, either by constant flow or constant pressure.
@@ -825,7 +865,7 @@
             </extension>
         </complexContent>
     </complexType>
-    <simpleType name="pressureControlLogicEnumType">
+    <simpleType name="PressureControlLogicEnumType">
         <annotation>
             <documentation>Enumeration defining pressure control logic enum type values. Contains 2 allowed value(s).</documentation>
         </annotation>
@@ -978,7 +1018,7 @@
                         </annotation>
                     </element>
                     <element minOccurs="0" name="pressureControlLogic"
-                        type="diggs:pressureControlLogicEnumType">
+                        type="diggs:PressureControlLogicEnumType">
                         <annotation>
                             <documentation>Property defining how grout injection is to be
                                 controlled, either by constant flow or constant pressure. From an
@@ -1057,10 +1097,10 @@
     </element>
     <complexType name="FlowConeTestType">
         <annotation>
-            <documentation>Concrete type extending AbstractMaterialTestlProcedureType. Provides implementation for flow cone test type.</documentation>
+            <documentation>Concrete type extending AbstractMaterialTestProcedureType. Provides implementation for flow cone test type.</documentation>
         </annotation>
         <complexContent>
-            <extension base="diggs:AbstractMaterialTestlProcedureType"/>
+            <extension base="diggs:AbstractMaterialTestProcedureType"/>
         </complexContent>
     </complexType>
     <element name="FlowReading" type="diggs:FlowReadingType">
@@ -1111,19 +1151,65 @@
         </sequence>
     </complexType>
     <element name="GroutSpecification" type="diggs:GroutSpecificationType"
-        substitutionGroup="diggs:AbstractProgramSpecificaton">
+        substitutionGroup="diggs:AbstractProgramSpecification">
         <annotation>
             <documentation>The grout specification property.</documentation>
         </annotation>
     </element>
     <complexType name="GroutSpecificationType">
         <annotation>
-            <documentation>Extended type based on AbstractProgramSpecificationType. Adds elements for grout specification type definition.</documentation>
+            <documentation>Extended type based on AbstractProgramSpecificationType. A THIN TYPE,
+                DELIBERATELY SO (GB4, 2026-09-28) - the same shape diggs:RIColumnSpecificationType
+                already established: what remains here is content no diggs:AbstractAcceptanceCriterion
+                can express, not a restatement of what one already can.
+
+                REMOVED, GB2 (2026-09-28): the local designGroutMixRef [0..1] to
+                diggs:DesignGroutMix - a reverse pointer back at the design, unique to this type. No
+                other diggs:AbstractProgramSpecification member (diggs:RIColumnSpecification,
+                diggs:RILTPSpecification) points back at its design; the edge is asserted once, from
+                the design side, through diggs:DesignGroutMix's own inherited
+                programSpecificationRef. Matches the "member cites the group, never the reverse"
+                principle diggs:samplingFeatureGroupRef's own documentation already states for a
+                different relationship of the same shape.
+
+                REMOVED, GB4 (2026-09-28): strengthAverage, strength90Percent, strengthMinimum,
+                maxBleedAllowed, maxShrinkageAllowed, maxSlumpAllowed, maxSyneresisAllowed - seven
+                separately named elements each encoding one property x one implicit statistic x one
+                implicit bound, textbook instances of exactly the pattern
+                diggs:AbstractAcceptanceCriterionType's own documentation names as the reason it
+                exists: "one criterion states ONE requirement... several requirements on the same
+                property... is several criteria sharing a scope, not one criterion with several
+                limits" - strengthAverage/strength90Percent/strengthMinimum being three separate
+                elements for the SAME property (compressive strength) at three different statistics
+                is precisely that anti-pattern. Each now expresses as a sibling
+                diggs:PerformanceCriterion (propertyClass from properties.xml - bleed, shrinkage,
+                syneresis, slump and compressive_strength_unconfined all already have entries),
+                attached through diggs:partOfSpecificationRef (GB3) rather than restated as a typed
+                element here.
+
+                KEPT, AND WHY - two different reasons, not one:
+                - aggregateGradationCurveCoarseLimit/FineLimit carry a full grain-size curve
+                  (diggs:GroutGradingSpecificationType extends diggs:SieveAnalysisType), not a
+                  scalar. diggs:AbstractAcceptanceCriterionType/limit is a value or band
+                  (diggs:ParameterPropertyType) - it expresses a scalar tolerance exactly and a
+                  percent-passing curve across several sieve sizes not at all. Not a judgement call:
+                  this exact shape was already decided once, for the identical case, in
+                  diggs:RILTPSpecificationType's own aggregateGradationCurveCoarseLimit/FineLimit
+                  pair (built reusing this type's shape, C2, 2026-08-16) - "the requirement that
+                  could NOT be an acceptance criterion," per that build's own test case comment.
+                - maxDeviationFlowConeTime/GelTime/MarshFunnelTime/UnitWeight state a tolerance
+                  RELATIVE TO diggs:DesignGroutMix's own design value ("percent deviation... from
+                  design mix value"), not an absolute limit. diggs:AbstractAcceptanceCriterionType's
+                  limit compares an evaluated value against a fixed value or band; it has no element
+                  for "the limit is itself another cited object's field, plus or minus X%." Forcing
+                  these into diggs:PerformanceCriterion today would either lose the relative meaning
+                  or misstate it as absolute. Left as typed elements rather than invent a
+                  reference-value mechanism speculatively; worth reconsidering if the criterion
+                  family ever grows one for an unrelated reason.</documentation>
         </annotation>
         <complexContent>
             <extension base="diggs:AbstractProgramSpecificationType">
                 <sequence>
-                    <element minOccurs="0" ref="diggs:designGroutMixRef"/>
                     <element minOccurs="0" name="aggregateGradationCurveCoarseLimit"
                         type="diggs:GroutGradingSpecificationPropertyType">
                         <annotation>
@@ -1138,12 +1224,6 @@
                             <documentation>A property containing gradation data that describes a
                                 grain size curve that defines the fine grain size limit for grout
                                 aggregate.</documentation>
-                        </annotation>
-                    </element>
-                    <element minOccurs="0" name="maxBleedAllowed"
-                        type="diggs:VolumePerVolumeMeasureType">
-                        <annotation>
-                            <documentation>Maximum allowable bleed for all batches.</documentation>
                         </annotation>
                     </element>
                     <element minOccurs="0" name="maxDeviationFlowConeTime"
@@ -1174,50 +1254,12 @@
                                 density from design mix value.</documentation>
                         </annotation>
                     </element>
-                    <element minOccurs="0" name="maxShrinkageAllowed"
-                        type="diggs:VolumePerVolumeMeasureType">
-                        <annotation>
-                            <documentation>Maximum allowable shrinkage for all grout
-                                batches.</documentation>
-                        </annotation>
-                    </element>
-                    <element minOccurs="0" name="maxSlumpAllowed" type="diggs:LengthMeasureType">
-                        <annotation>
-                            <documentation>Maximum amount of slump allowed for all grout
-                                batches.</documentation>
-                        </annotation>
-                    </element>
-                    <element minOccurs="0" name="maxSyneresisAllowed"
-                        type="diggs:VolumeOrMassLossMeasureType">
-                        <annotation>
-                            <documentation>Maximum syneresis value allowed for all grout
-                                batches.</documentation>
-                        </annotation>
-                    </element>
-                    <element minOccurs="0" name="strengthAverage" type="diggs:PressureMeasureType">
-                        <annotation>
-                            <documentation>Minimum average strength allowed for all grout
-                                batches.</documentation>
-                        </annotation>
-                    </element>
-                    <element minOccurs="0" name="strength90Percent" type="diggs:PressureMeasureType">
-                        <annotation>
-                            <documentation>The minimum strength that 90% of grout batches must meet
-                                or exceed.</documentation>
-                        </annotation>
-                    </element>
-                    <element minOccurs="0" name="strengthMinimum" type="diggs:PressureMeasureType">
-                        <annotation>
-                            <documentation>Minimum allowable strength of all grout
-                                batches.</documentation>
-                        </annotation>
-                    </element>
                 </sequence>
             </extension>
         </complexContent>
     </complexType>
     <element name="MixedGrout-SoilSpecification" type="diggs:MixedGrout-SoilSpecificationType"
-        substitutionGroup="diggs:AbstractProgramSpecificaton">
+        substitutionGroup="diggs:AbstractProgramSpecification">
         <annotation>
             <documentation>The mixed grout soil specification property.</documentation>
         </annotation>
@@ -1457,32 +1499,33 @@
         type="diggs:GroutBatchType">
         <annotation>
             <documentation>A specialization of Sample that contains properties describing the
-                characteristics of a batch of grout used for production purposes. This object must
-                reference a DesignGroutMix object defined within the GroutingProgram
-                feature.</documentation>
+                characteristics of a batch of grout used for production purposes. This object is
+                expected to reference the diggs:DesignGroutMix it was produced to through its
+                sampling activity's currentDesign (diggs:AbstractSamplingActivityType) - a batching
+                activity that mixed to more than one design over time is stated as separate
+                SamplingActivity instances, one per design, each citing the batches it
+                produced.</documentation>
         </annotation>
     </element>
     <complexType name="GroutBatchType">
         <annotation>
-            <documentation>Extended type based on TrialGroutBatchType. Adds elements for grout batch type definition.</documentation>
+            <documentation>Extended type based on TrialGroutBatchType. Adds nothing of its
+                own.</documentation>
         </annotation>
         <complexContent>
-            <extension base="diggs:TrialGroutBatchType">
-                <sequence>
-                    <element ref="diggs:designGroutMixRef"/>
-                </sequence>
-            </extension>
+            <extension base="diggs:TrialGroutBatchType"/>
         </complexContent>
     </complexType>
     <element name="groutSpecificationRef" type="diggs:FeatureReferenceType">
         <annotation>
-            <documentation>Reference to grout specification.</documentation>
-        </annotation>
-    </element>
-    <element name="designGroutMixRef" type="diggs:FeatureReferenceType">
-        <annotation>
-            <documentation>A pointer to the gml:id of the DesignGroutMix object that serves as the
-                design standard for the grout used.</documentation>
+            <documentation>Reference to grout specification. Reused by
+                diggs:RIColumnSpecificationType, whose own use-site targets diggs:GroutSpecification
+                specifically - the sole remaining use as of GB2 (2026-09-28), a component reference
+                between two specification-family objects, not a design/specification duality (see
+                that use-site's own documentation). diggs:DesignGroutMixType and
+                diggs:TrialGroutBatchType no longer declare this element; both express "the
+                specification this object must satisfy" through the generic programSpecificationRef
+                instead.</documentation>
         </annotation>
     </element>
     <element name="GroutPump" type="diggs:GroutPumpType" substitutionGroup="diggs:AbstractEquipment">
@@ -1570,7 +1613,7 @@
                         </annotation>
                     </element>
                     <element minOccurs="0" name="pressureFlowCurveData"
-                        type="diggs:PressureFlowCurveDataType">
+                        type="diggs:PressureFlowCurveDataArraayPropertyType">
                         <annotation>
                             <documentation>The pressure flow curve data property.</documentation>
                         </annotation>
@@ -1765,12 +1808,18 @@
     </complexType>
     <complexType name="TrialGroutBatchType">
         <annotation>
-            <documentation>Extended type based on AbstractSampleType. Adds elements for trial grout batch type definition.</documentation>
+            <documentation>Extended type based on AbstractSampleType. Adds elements for trial grout
+                batch type definition.
+
+                REMOVED, GB2 (2026-09-28): the local groutSpecificationRef [0..1]. Redundant with
+                programSpecificationRef [0..*], already inherited from diggs:AbstractSampleType since
+                S7 - a realized batch (or its GroutBatchType specialization) cites the
+                GroutSpecification it must satisfy through that generic element, the same mechanism
+                every other sample and sampling feature uses.</documentation>
         </annotation>
         <complexContent>
             <extension base="diggs:AbstractSampleType">
                 <sequence>
-                    <element minOccurs="0" ref="diggs:groutSpecificationRef"/>
                     <element minOccurs="0" name="admixture" type="diggs:AdmixturePropertyType"
                         maxOccurs="unbounded">
                         <annotation>
@@ -1890,6 +1939,60 @@
                                 mix</documentation>
                         </annotation>
                     </element>
+                    <element minOccurs="0" name="deliveryToPlacementTime"
+                        type="diggs:TimeMeasureType">
+                        <annotation>
+                            <documentation>Elapsed time between the batch's delivery (arrival at
+                                the point of use, e.g. off a ready-mix truck) and its placement
+                                (Installation Parameter Analysis row 32, S23). Real, unrecorded data
+                                until now: neither this type nor diggs:AbstractSampleType, its
+                                ultimate base, carried any time field at all - only reference
+                                elements (samplingActivityRef, programRef and siblings). The
+                                transport window governs whether the batch is still placeable by the
+                                time it reaches the hole, so it belongs on the type this project's
+                                own trial/production split shares (diggs:TrialGroutBatchType is the
+                                base both diggs:TrialGroutBatch and, through it,
+                                diggs:GroutBatchType extend), rather than duplicated on
+                                diggs:GroutBatchType alone - a trial batch has the same transport
+                                question between mixing and test placement that a production batch
+                                has between mixing and column placement.</documentation>
+                        </annotation>
+                    </element>
+                    <element minOccurs="0" name="bindingMaterialContent"
+                        type="diggs:MassPerVolumeMeasureType">
+                        <annotation>
+                            <documentation>Mass of binding material per unit volume of the batch as
+                                produced: the cement plus any binders recorded as binder components
+                                (fly ash, slag, silica fume and the like), excluding fillers and
+                                admixtures. Reported in mass units (for example kg/m3), not as a
+                                weight. The quantity a minimum binder content requirement is stated
+                                against.</documentation>
+                        </annotation>
+                    </element>
+                    <element minOccurs="0" name="waterSolubleChlorideContent"
+                        type="diggs:MassPerMassMeasureType">
+                        <annotation>
+                            <documentation>Water-soluble chloride ion (Cl-) content of the hardened
+                                grout or concrete of the batch, as a mass fraction of the cement
+                                (for example %). The chloride that dissolves in water under the
+                                conditions of the test (ASTM C1218/C1218M). A different quantity
+                                from acidSolubleChlorideContent; a specification may limit them
+                                separately. The chloride content of the surrounding soil or
+                                groundwater is a separate quantity.</documentation>
+                        </annotation>
+                    </element>
+                    <element minOccurs="0" name="acidSolubleChlorideContent"
+                        type="diggs:MassPerMassMeasureType">
+                        <annotation>
+                            <documentation>Acid-soluble chloride ion (Cl-) content of the hardened
+                                grout or concrete of the batch, as a mass fraction of the cement
+                                (for example %). The chloride that dissolves in acid under the
+                                conditions of the test (ASTM C1152/C1152M), which in most concretes
+                                approximates the total chloride. A different quantity from
+                                waterSolubleChlorideContent; a specification may limit them
+                                separately.</documentation>
+                        </annotation>
+                    </element>
                 </sequence>
             </extension>
         </complexContent>
@@ -1937,7 +2040,7 @@
     </complexType>
     <element name="groutRef" type="diggs:FeatureReferenceType">
         <annotation>
-            <appinfo source="urn:x-gml:targetElement">Diggs:GroutBatch</appinfo>
+            <appinfo source="urn:x-gml:targetElement">diggs:GroutBatch</appinfo>
             <appinfo>diggs:TrialGroutBatch</appinfo>
             <documentation>A reference to a GroutBatch or TrialGroutBatch feature that is associated with this feature. </documentation>
             <documentation>A property element that supports a value by reference only. The target
@@ -1947,13 +2050,16 @@
     <element name="GroutSpecimen" substitutionGroup="diggs:AbstractSpecimen"
         type="diggs:GroutSpecimenType">
         <annotation>
-            <documentation>A specialization of a specimen that describes the physical conditions of
-                a grout or concrete sample subjected to testing.</documentation>
+            <documentation>A specimen of manufactured cementitious material - concrete, grout, mortar,
+                or soil-cement and other cement-stabilized soil - molded, cast, cored or otherwise
+                prepared from a sample or batch of that material for testing. Records how the
+                specimen was made and cured and, through specimenCondition, its measured physical
+                condition before testing.</documentation>
         </annotation>
     </element>
     <complexType name="GroutSpecimenType">
         <annotation>
-            <documentation>Extended type based on AbstractSpecimenType. Adds elements for grout specimen type definition.</documentation>
+            <documentation>Type for diggs:GroutSpecimen.</documentation>
         </annotation>
         <complexContent>
             <extension base="diggs:AbstractSpecimenType">
@@ -1961,8 +2067,9 @@
                     <element minOccurs="0" name="specimenCondition"
                         type="diggs:GroutSpecimenConditionsPropertyType">
                         <annotation>
-                            <documentation>Describes the physical conditions of the sample
-                                pre-test</documentation>
+                            <documentation>The measured physical condition of the specimen before
+                                testing: dimensions, weight or density, temperature and
+                                similar.</documentation>
                         </annotation>
                     </element>
                     <element maxOccurs="unbounded" minOccurs="0" name="componentRef"
@@ -1978,34 +2085,33 @@
                         </annotation>
                     </element>
                     <element minOccurs="0" name="componentType"
-                        type="diggs:goutComponentTypeEnumType">
+                        type="diggs:GroutComponentTypeType">
                         <annotation>
-                            <documentation>If test is performed on one type of grout component (as
-                                opposed to the grout mix itself, this property identifies the
-                                specific grout component type tested. From an emumerated list: 1)
-                                Admixture 2) Binder 3) Cement 4) Chemical 5) Filler See GroutBatch
-                                object for definition of these components</documentation>
+                            <documentation>Where the specimen is a single component of a grout mix
+                                rather than the mix itself, the type of component tested: Admixture,
+                                Binder, Cement, Chemical or Filler (see the component objects of
+                                diggs:GroutBatch), or Other: followed by a description.</documentation>
                         </annotation>
                     </element>
                     <element minOccurs="0" name="formMaterial" type="gml:CodeType">
                         <annotation>
-                            <documentation>Mold material. Used when forming sample for compressive
-                                testing. Intended to come from a controlled list of
-                                terms.</documentation>
+                            <documentation>Material of the mold in which the specimen was formed.
+                                Intended to come from a controlled list of terms.</documentation>
                         </annotation>
                     </element>
                     <element minOccurs="0" name="curingTime" type="diggs:TimeMeasureType">
                         <annotation>
-                            <documentation>The time the specimen is cured prior to
-                                testing.</documentation>
+                            <documentation>Duration of curing before the test. Not necessarily the
+                                specimen's age at test, which is counted from when water was added to
+                                the mix.</documentation>
                         </annotation>
                     </element>
                     <element minOccurs="0" name="groutSpecimenExtractionLocation"
                         type="gml:CodeType">
                         <annotation>
-                            <documentation>Describes location from where the grout specimen is
-                                pulled from the grout batch. Intended to come from a controlled list
-                                of terms.</documentation>
+                            <documentation>Point in the mixing and delivery process from which the
+                                material for the specimen was taken (e.g. mixer, plant, pump, riser).
+                                Intended to come from a controlled list of terms.</documentation>
                         </annotation>
                     </element>
                     <element minOccurs="0" name="specificGravityOfSolids"
@@ -2018,38 +2124,85 @@
                                 given volume.</documentation>
                         </annotation>
                     </element>
+                    <element minOccurs="0" name="ageAtTest" type="diggs:TimeMeasureType">
+                        <annotation>
+                            <documentation>Age of the specimen when tested, counted from the time
+                                water was added to the mix. Distinct from curingTime, the duration
+                                of curing.</documentation>
+                        </annotation>
+                    </element>
+                    <element maxOccurs="unbounded" minOccurs="0" name="curingMethod"
+                        type="gml:CodeType">
+                        <annotation>
+                            <documentation>How the specimen was cured (e.g. water immersion,
+                                humidity chamber, sealed, cured in the field alongside the
+                                structure). More than one may be given where the curing changed
+                                during the curing period. Intended to come from a controlled list of
+                                terms.</documentation>
+                        </annotation>
+                    </element>
+                    <element minOccurs="0" name="curingTemperature"
+                        type="diggs:ThermodynamicTemperatureMeasureType">
+                        <annotation>
+                            <documentation>Temperature at which the specimen was cured.</documentation>
+                        </annotation>
+                    </element>
+                    <element minOccurs="0" name="specimenOrigin"
+                        type="diggs:SpecimenOriginEnumExtType">
+                        <annotation>
+                            <documentation>How the specimen was made: molded from fresh material,
+                                cast in place in the structure, cored from hardened material, or
+                                sawed. </documentation>
+                        </annotation>
+                    </element>
+                    <element maxOccurs="unbounded" minOccurs="0" name="endPreparation"
+                        type="gml:CodeType">
+                        <annotation>
+                            <documentation>Preparation of the loaded end faces before testing (e.g.
+                                as molded, sawed, ground, capped, unbonded caps). More than one may
+                                be given where the ends were prepared in more than one way.
+                                Intended to come from a controlled list of terms.</documentation>
+                        </annotation>
+                    </element>
                 </sequence>
             </extension>
         </complexContent>
     </complexType>
-    <simpleType name="goutComponentTypeEnumType">
+    <simpleType name="GroutComponentTypeType">
         <annotation>
-            <documentation>Enumeration defining gout component type enum type values. Contains 5 allowed value(s).</documentation>
+            <documentation>Union type for grout component type. Accepts values from OtherNameType or
+                GroutComponentTypeEnumType.</documentation>
+        </annotation>
+        <union memberTypes="diggs:OtherNameType diggs:GroutComponentTypeEnumType"/>
+    </simpleType>
+    <simpleType name="GroutComponentTypeEnumType">
+        <annotation>
+            <documentation>Enumeration of the types of component of a grout mix. Contains 5 allowed value(s).</documentation>
         </annotation>
         <restriction base="string">
             <enumeration value="Admixture">
                 <annotation>
-                    <documentation>Admixture - admixture value.</documentation>
+                    <documentation>An admixture component of the grout mix.</documentation>
                 </annotation>
             </enumeration>
             <enumeration value="Binder">
                 <annotation>
-                    <documentation>Binder - binder value.</documentation>
+                    <documentation>A binder component of the grout mix.</documentation>
                 </annotation>
             </enumeration>
             <enumeration value="Cement">
                 <annotation>
-                    <documentation>Cement - cement value.</documentation>
+                    <documentation>A cement component of the grout mix.</documentation>
                 </annotation>
             </enumeration>
             <enumeration value="Chemical">
                 <annotation>
-                    <documentation>Chemical - chemical value.</documentation>
+                    <documentation>A chemical component of the grout mix.</documentation>
                 </annotation>
             </enumeration>
             <enumeration value="Filler">
                 <annotation>
-                    <documentation>Filler - filler value.</documentation>
+                    <documentation>A filler component of the grout mix.</documentation>
                 </annotation>
             </enumeration>
         </restriction>
@@ -2090,7 +2243,7 @@
                                 this stage</documentation>
                         </annotation>
                     </element>
-                    <element name="stageType" minOccurs="0" type="diggs:stageTypeEnnumType">
+                    <element name="stageType" minOccurs="0" type="diggs:StageTypeEnumType">
                         <annotation>
                             <documentation>Restricted string; either ascending or descending are
                                 allowed.</documentation>
@@ -2170,7 +2323,7 @@
                         </annotation>
                     </element>
                     <element minOccurs="0" name="lancePlacementMethod"
-                        type="diggs:lancePlacementMethodEnumType">
+                        type="diggs:LancePlacementMethodEnumType">
                         <annotation>
                             <documentation>Method of lance emplacement for this stage - either
                                 driven or wash bored, from an enumerated list.</documentation>
@@ -2234,7 +2387,7 @@
             </extension>
         </complexContent>
     </complexType>
-    <simpleType name="stageTypeEnnumType">
+    <simpleType name="StageTypeEnumType">
         <annotation>
             <documentation>Enumeration defining stage type ennum type values. Contains 2 allowed value(s).</documentation>
         </annotation>
@@ -2251,7 +2404,7 @@
             </enumeration>
         </restriction>
     </simpleType>
-    <simpleType name="lancePlacementMethodEnumType">
+    <simpleType name="LancePlacementMethodEnumType">
         <annotation>
             <documentation>Enumeration defining lance placement method enum type values. Contains 2 allowed value(s).</documentation>
         </annotation>
@@ -2761,10 +2914,10 @@
     </element>
     <complexType name="MarshFunnelTestType">
         <annotation>
-            <documentation>Extended type based on AbstractMaterialTestlProcedureType. Adds elements for marsh funnel test type definition.</documentation>
+            <documentation>Extended type based on AbstractMaterialTestProcedureType. Adds elements for marsh funnel test type definition.</documentation>
         </annotation>
         <complexContent>
-            <extension base="diggs:AbstractMaterialTestlProcedureType">
+            <extension base="diggs:AbstractMaterialTestProcedureType">
                 <sequence>
                     <element name="marshFunnelVolume" type="diggs:VolumeMeasureType" maxOccurs="1"
                         minOccurs="0">
@@ -2786,10 +2939,10 @@
     </element>
     <complexType name="MudBalanceTestType">
         <annotation>
-            <documentation>Concrete type extending AbstractMaterialTestlProcedureType. Provides implementation for mud balance test type.</documentation>
+            <documentation>Concrete type extending AbstractMaterialTestProcedureType. Provides implementation for mud balance test type.</documentation>
         </annotation>
         <complexContent>
-            <extension base="diggs:AbstractMaterialTestlProcedureType"/>
+            <extension base="diggs:AbstractMaterialTestProcedureType"/>
         </complexContent>
     </complexType>
     <element name="PressureFiltrationTest" type="diggs:PressureFiltrationTestType"
@@ -2801,10 +2954,10 @@
     </element>
     <complexType name="PressureFiltrationTestType">
         <annotation>
-            <documentation>Concrete type extending AbstractMaterialTestlProcedureType. Provides implementation for pressure filtration test type.</documentation>
+            <documentation>Concrete type extending AbstractMaterialTestProcedureType. Provides implementation for pressure filtration test type.</documentation>
         </annotation>
         <complexContent>
-            <extension base="diggs:AbstractMaterialTestlProcedureType"/>
+            <extension base="diggs:AbstractMaterialTestProcedureType"/>
         </complexContent>
     </complexType>
     <element name="RotationalViscometer" type="diggs:RotationalViscometerType">
@@ -2865,10 +3018,10 @@
     </element>
     <complexType name="TiltCupTestType">
         <annotation>
-            <documentation>Concrete type extending AbstractMaterialTestlProcedureType. Provides implementation for tilt cup test type.</documentation>
+            <documentation>Concrete type extending AbstractMaterialTestProcedureType. Provides implementation for tilt cup test type.</documentation>
         </annotation>
         <complexContent>
-            <extension base="diggs:AbstractMaterialTestlProcedureType">
+            <extension base="diggs:AbstractMaterialTestProcedureType">
                 <sequence> </sequence>
             </extension>
         </complexContent>
@@ -2882,10 +3035,10 @@
     </element>
     <complexType name="ShrinkageTestType">
         <annotation>
-            <documentation>Concrete type extending AbstractMaterialTestlProcedureType. Provides implementation for shrinkage test type.</documentation>
+            <documentation>Concrete type extending AbstractMaterialTestProcedureType. Provides implementation for shrinkage test type.</documentation>
         </annotation>
         <complexContent>
-            <extension base="diggs:AbstractMaterialTestlProcedureType">
+            <extension base="diggs:AbstractMaterialTestProcedureType">
                 <sequence> </sequence>
             </extension>
         </complexContent>
@@ -2899,10 +3052,10 @@
     </element>
     <complexType name="SlumpTestType">
         <annotation>
-            <documentation>Concrete type extending AbstractMaterialTestlProcedureType. Provides implementation for slump test type.</documentation>
+            <documentation>Concrete type extending AbstractMaterialTestProcedureType. Provides implementation for slump test type.</documentation>
         </annotation>
         <complexContent>
-            <extension base="diggs:AbstractMaterialTestlProcedureType"> </extension>
+            <extension base="diggs:AbstractMaterialTestProcedureType"> </extension>
         </complexContent>
     </complexType>
     <element name="LinearGroutingActivity" substitutionGroup="diggs:AbstractConstructionActivity"
@@ -3043,12 +3196,6 @@
             </extension>
         </complexContent>
     </complexType>
-    <simpleType name="GroutSpecimentExtractionLocationExtEnumType">
-        <annotation>
-            <documentation>Union type for grout speciment extraction location ext enum type. Accepts values from OtherNameType or GroutSpecimenExtractionLocationEnumType.</documentation>
-        </annotation>
-        <union memberTypes="diggs:OtherNameType diggs:GroutSpecimenExtractionLocationEnumType"/>
-    </simpleType>
     <element name="SetTimeTest" type="diggs:SetTimeTestType"
         substitutionGroup="diggs:AbstractMaterialTestProcedure">
         <annotation>
@@ -3058,10 +3205,10 @@
     </element>
     <complexType name="SetTimeTestType">
         <annotation>
-            <documentation>Concrete type extending AbstractMaterialTestlProcedureType. Provides implementation for set time test type.</documentation>
+            <documentation>Concrete type extending AbstractMaterialTestProcedureType. Provides implementation for set time test type.</documentation>
         </annotation>
         <complexContent>
-            <extension base="diggs:AbstractMaterialTestlProcedureType">
+            <extension base="diggs:AbstractMaterialTestProcedureType">
                 <sequence> </sequence>
             </extension>
         </complexContent>
@@ -3075,10 +3222,10 @@
     </element>
     <complexType name="ViscometerTestType">
         <annotation>
-            <documentation>Extended type based on AbstractMaterialTestlProcedureType. Adds elements for viscometer test type definition.</documentation>
+            <documentation>Extended type based on AbstractMaterialTestProcedureType. Adds elements for viscometer test type definition.</documentation>
         </annotation>
         <complexContent>
-            <extension base="diggs:AbstractMaterialTestlProcedureType">
+            <extension base="diggs:AbstractMaterialTestProcedureType">
                 <sequence>
                     <element minOccurs="0" name="startingTemperature"
                         type="diggs:ThermodynamicTemperatureMeasureType">
@@ -3182,10 +3329,10 @@
     </element>
     <complexType name="WashoutTestType">
         <annotation>
-            <documentation>Concrete type extending AbstractMaterialTestlProcedureType. Provides implementation for washout test type.</documentation>
+            <documentation>Concrete type extending AbstractMaterialTestProcedureType. Provides implementation for washout test type.</documentation>
         </annotation>
         <complexContent>
-            <extension base="diggs:AbstractMaterialTestlProcedureType">
+            <extension base="diggs:AbstractMaterialTestProcedureType">
                 <sequence> </sequence>
             </extension>
         </complexContent>
@@ -3207,10 +3354,10 @@
     </element>
     <complexType name="LineLossTestType">
         <annotation>
-            <documentation>Extended type based on AbstractMaterialTestlProcedureType. Adds elements for line loss test type definition.</documentation>
+            <documentation>Extended type based on AbstractMaterialTestProcedureType. Adds elements for line loss test type definition.</documentation>
         </annotation>
         <complexContent>
-            <extension base="diggs:AbstractMaterialTestlProcedureType">
+            <extension base="diggs:AbstractMaterialTestProcedureType">
                 <sequence>
                     <element minOccurs="0" name="lineLength" type="diggs:LengthMeasureType">
                         <annotation>
@@ -3400,10 +3547,10 @@
     </element>
     <complexType mixed="false" name="SyneresisTestType">
         <annotation>
-            <documentation>Extended type based on AbstractMaterialTestlProcedureType. Adds elements for syneresis test type definition.</documentation>
+            <documentation>Extended type based on AbstractMaterialTestProcedureType. Adds elements for syneresis test type definition.</documentation>
         </annotation>
         <complexContent>
-            <extension base="diggs:AbstractMaterialTestlProcedureType">
+            <extension base="diggs:AbstractMaterialTestProcedureType">
                 <sequence>
                     <element maxOccurs="unbounded" minOccurs="0" name="timeSeriesTrial"
                         type="diggs:TimeSeriesTrialPropertyType">
@@ -3459,42 +3606,78 @@
             <element maxOccurs="1" minOccurs="1" ref="diggs:TemporalResult"/>
         </sequence>
     </complexType>
+    <complexType name="PressureFlowCurveDataArraayPropertyType">
+        <choice>
+            <sequence>
+                <annotation>
+                    <appinfo>
+                        <diggs:deprecated since="3.1.0"
+                            replacedBy="diggs:PressureFlowCurveData"
+                            note="the other branch of this choice"/>
+                    </appinfo>
+                    <documentation>DEPRECATED. Use the PressureFlowCurveData branch of this choice.
+                        Pressure-flow curve data given as units followed by index, pressure and
+                        flow-rate values.</documentation>
+                </annotation>
+                <element name="pressureUOM" type="diggs:PressureUomEnumType">
+                    <annotation>
+                        <documentation>The UOM symbol for the pressure measurements that make up
+                                the data of the pressure-flow rate curve</documentation>
+                    </annotation>
+                </element>
+                <element name="flowRateUOM" type="diggs:VolumePerTimeUomEnumType">
+                    <annotation>
+                        <documentation>The UOM symbol for the flow rate measurements that make
+                                up the data of the pressure-flow rate curve</documentation>
+                    </annotation>
+                </element>
+                <sequence maxOccurs="unbounded" minOccurs="2">
+                    <element name="index" type="positiveInteger">
+                        <annotation>
+                            <documentation>The index property.</documentation>
+                        </annotation>
+                    </element>
+                    <element name="measuredPressure" type="double">
+                        <annotation>
+                            <documentation>The measured pressure property.</documentation>
+                        </annotation>
+                    </element>
+                    <element name="measuredFlowRate" type="double">
+                        <annotation>
+                            <documentation>The measured flow rate property.</documentation>
+                        </annotation>
+                    </element>
+                </sequence>
+            </sequence>
+            <sequence maxOccurs="unbounded" minOccurs="2">
+                <element ref="diggs:PressureFlowCurveData"/>
+            </sequence>
+        </choice>
+        <attributeGroup ref="gml:OwnershipAttributeGroup"/>
+    </complexType>
+    <element name="PressureFlowCurveData" type="diggs:PressureFlowCurveDataType"/>
     <complexType name="PressureFlowCurveDataType">
         <annotation>
-            <documentation>Extended type based on AbstractMetadataPropertyType. Adds elements for pressure flow curve data type definition.</documentation>
+            <documentation/>
         </annotation>
         <complexContent>
-            <extension base="gml:AbstractMetadataPropertyType">
+            <extension base="diggs:AbstractComponentObjectBaseType">
                 <sequence>
-                    <element name="pressureUOM" type="diggs:PressureUomEnumType">
+                    <element name="index" type="positiveInteger" minOccurs="0">
                         <annotation>
-                            <documentation>The UOM symbol for the pressure measurements that make up
-                                the data of the pressure-flow rate curve</documentation>
+                            <documentation>The index property.</documentation>
                         </annotation>
                     </element>
-                    <element name="flowRateUOM" type="diggs:VolumePerTimeUomEnumType">
+                    <element name="measuredPressure" type="diggs:PressureMeasureType">
                         <annotation>
-                            <documentation>The UOM symbol for the flow rate measurements that make
-                                up the data of the pressure-flow rate curve</documentation>
+                            <documentation>The measured pressure property.</documentation>
                         </annotation>
                     </element>
-                    <sequence maxOccurs="unbounded" minOccurs="2">
-                        <element name="index" type="positiveInteger">
-                            <annotation>
-                                <documentation>The index property.</documentation>
-                            </annotation>
-                        </element>
-                        <element name="measuredPressure" type="double">
-                            <annotation>
-                                <documentation>The measured pressure property.</documentation>
-                            </annotation>
-                        </element>
-                        <element name="measuredFlowRate" type="double">
-                            <annotation>
-                                <documentation>The measured flow rate property.</documentation>
-                            </annotation>
-                        </element>
-                    </sequence>
+                    <element name="measuredFlowRate" type="diggs:VolumePerTimeMeasureType">
+                        <annotation>
+                            <documentation>The measured flow rate property.</documentation>
+                        </annotation>
+                    </element>
                 </sequence>
             </extension>
         </complexContent>
@@ -3659,42 +3842,15 @@
             <documentation>The deep soil mixing tool property.</documentation>
         </annotation>
     </element>
-    <simpleType name="GroutSpecimenExtractionLocationEnumType">
-        <annotation>
-            <documentation>Enumeration defining grout specimen extraction location enum type values. Contains 4 allowed value(s).</documentation>
-        </annotation>
-        <restriction base="string">
-            <enumeration value="mixer">
-                <annotation>
-                    <documentation>mixer - mixer value.</documentation>
-                </annotation>
-            </enumeration>
-            <enumeration value="riser">
-                <annotation>
-                    <documentation>riser - riser value.</documentation>
-                </annotation>
-            </enumeration>
-            <enumeration value="plant">
-                <annotation>
-                    <documentation>plant - plant value.</documentation>
-                </annotation>
-            </enumeration>
-            <enumeration value="pump">
-                <annotation>
-                    <documentation>pump - pump value.</documentation>
-                </annotation>
-            </enumeration>
-        </restriction>
-    </simpleType>
     <element name="GroutSpecimenConditions" type="diggs:GroutSpecimenConditionsType">
         <annotation>
-            <documentation>An object that describes the physical conditions of a specimen subjected
-                to testing</documentation>
+            <documentation>An object that describes the measured physical condition of a
+                diggs:GroutSpecimen before testing.</documentation>
         </annotation>
     </element>
     <complexType name="GroutSpecimenConditionsType">
         <annotation>
-            <documentation>Extended type based on AbstractObjectType. Adds elements for grout specimen conditions type definition.</documentation>
+            <documentation>Type for diggs:GroutSpecimenConditions.</documentation>
         </annotation>
         <complexContent>
             <extension base="diggs:AbstractObjectType">
@@ -3785,17 +3941,92 @@
                             <documentation>The volume of the specimen.</documentation>
                         </annotation>
                     </element>
-                    <element minOccurs="0" name="wetWeight" type="diggs:ForceMeasureType">
+                    <choice minOccurs="0">
+                        <element name="wetWeight" type="diggs:ForceMeasureType">
+                            <annotation>
+                                <appinfo>
+                                    <diggs:deprecated since="3.1.0" replacedBy="diggs:wetMass"/>
+                                </appinfo>
+                                <documentation>DEPRECATED. Use wetMass; only one of the two may be
+                                    given. The weight of the specimen prior to
+                                    drying.</documentation>
+                            </annotation>
+                        </element>
+                        <element name="wetMass" type="diggs:MassMeasureType">
+                            <annotation>
+                                <documentation>The mass of the specimen before testing, with any
+                                    surface moisture removed. Only one of this and wetWeight may be
+                                    given.</documentation>
+                            </annotation>
+                        </element>
+                    </choice>
+                    <choice minOccurs="0">
+                        <element name="wtBleedWater" type="diggs:ForceMeasureType">
+                            <annotation>
+                                <appinfo>
+                                    <diggs:deprecated since="3.1.0"
+                                        replacedBy="diggs:bleedWaterMass"/>
+                                </appinfo>
+                                <documentation>DEPRECATED. Use bleedWaterMass; only one of the two
+                                    may be given. The weight of bleed water that occurs during
+                                    curing.</documentation>
+                            </annotation>
+                        </element>
+                        <element name="bleedWaterMass" type="diggs:MassMeasureType">
+                            <annotation>
+                                <documentation>The mass of bleed water that occurs during curing,
+                                    generally determined by weighing the specimen before and after
+                                    draining the bleed water off the sample. Only one of this and
+                                    wtBleedWater may be given.</documentation>
+                            </annotation>
+                        </element>
+                    </choice>
+                    <element minOccurs="0" name="crossSectionalArea" type="diggs:AreaMeasureType">
                         <annotation>
-                            <documentation>The weight of the specimen prior to
-                                drying.</documentation>
+                            <documentation>Cross-sectional area of the specimen on which the load
+                                acts. May be computed from the average of diameters measured on
+                                this specimen, or on a group of specimens from the same mold
+                                lot.</documentation>
                         </annotation>
                     </element>
-                    <element minOccurs="0" name="wtBleedWater" type="diggs:ForceMeasureType">
+                    <element minOccurs="0" name="heightDiameterRatio" type="double">
                         <annotation>
-                            <documentation>The weight of bleed water that occurs during curing,
-                                generally determined by weighing the specimen before and after
-                                draining the bleed water off the sample. </documentation>
+                            <documentation>For cylindrical specimens, the specimen height divided
+                                by the specimen diameter (H/D, also written L/D): the ratio that
+                                compressive strength standards use to decide whether a correction
+                                to the measured strength applies. To facilitate processing, where
+                                relevant, this value should be provided even if the specimen
+                                diameter and height are also provided.</documentation>
+                        </annotation>
+                    </element>
+                    <element minOccurs="0" name="bulkDensity"
+                        type="diggs:DensityOrUnitWeightMeasureType">
+                        <annotation>
+                            <documentation>Bulk density of the specimen before testing, from its
+                                mass and dimensions or by submerged weighing.</documentation>
+                        </annotation>
+                    </element>
+                    <element minOccurs="0" name="dimensionBasis" type="gml:CodeType">
+                        <annotation>
+                            <documentation>Whether the dimensions recorded are the designated
+                                (nominal) size of the mold or specimen, or the actual measured
+                                dimensions. Intended to come from a controlled list of
+                                terms.</documentation>
+                        </annotation>
+                    </element>
+                    <element minOccurs="0" name="moistureConditionAtTest"
+                        type="diggs:MoistureConditionAtTestEnumExtType">
+                        <annotation>
+                            <documentation>Moisture condition of the specimen when tested (e.g.
+                                moist, dry, soaked). </documentation>
+                        </annotation>
+                    </element>
+                    <element maxOccurs="unbounded" minOccurs="0" name="conditionOnReceipt"
+                        type="gml:CodeType">
+                        <annotation>
+                            <documentation>Defects or damage noted in the specimen, or in its caps,
+                                before testing (e.g. damaged, honeycombed). Intended to come from a
+                                controlled list of terms.</documentation>
                         </annotation>
                     </element>
                     <element maxOccurs="unbounded" minOccurs="0" name="otherConditionProperty"
@@ -3816,4 +4047,71 @@
             <element ref="diggs:GroutSpecimenConditions"/>
         </sequence>
     </complexType>
+    <simpleType name="MoistureConditionAtTestEnumType">
+        <annotation>
+            <documentation>The moisture condition of a specimen when it is tested.</documentation>
+        </annotation>
+        <restriction base="string">
+            <enumeration value="moist">
+                <annotation>
+                    <documentation>Tested in the moist condition: moist-cured specimens are kept moist between
+                        removal from moist storage and testing. Source: ASTM C39/C39M-09a 7.1-7.2.</documentation>
+                </annotation>
+            </enumeration>
+            <enumeration value="soaked">
+                <annotation>
+                    <documentation>Soaked at the time of loading. Source: ASTM C39/C39M-09a Note 11.</documentation>
+                </annotation>
+            </enumeration>
+            <enumeration value="dry">
+                <annotation>
+                    <documentation>Dry at the time of loading. Source: ASTM C39/C39M-09a Note 11.</documentation>
+                </annotation>
+            </enumeration>
+        </restriction>
+    </simpleType>
+    <simpleType name="MoistureConditionAtTestEnumExtType">
+        <annotation>
+            <documentation>One of the values of MoistureConditionAtTestEnumType, or a value outside the list
+                stated as "Other: name".</documentation>
+        </annotation>
+        <union memberTypes="diggs:OtherNameType diggs:MoistureConditionAtTestEnumType"/>
+    </simpleType>
+    <simpleType name="SpecimenOriginEnumType">
+        <annotation>
+            <documentation>How a specimen of manufactured cementitious material was made.</documentation>
+        </annotation>
+        <restriction base="string">
+            <enumeration value="molded">
+                <annotation>
+                    <documentation>Molded from fresh material in a mold and cured. Source: ASTM C31/C31M,
+                        C192/C192M; EN 12390-2; ISO 1920-3.</documentation>
+                </annotation>
+            </enumeration>
+            <enumeration value="cast in place">
+                <annotation>
+                    <documentation>Molded in place in a special mold attached to the formwork, so that the
+                        specimen cures within the structure. Source: ASTM C873/C873M.</documentation>
+                </annotation>
+            </enumeration>
+            <enumeration value="cored">
+                <annotation>
+                    <documentation>A core drilled from hardened material. Source: ASTM C42/C42M; EN 12504-1;
+                        ISO 1920-6; JIS A 1107.</documentation>
+                </annotation>
+            </enumeration>
+            <enumeration value="sawed">
+                <annotation>
+                    <documentation>Sawed from hardened material. Source: ASTM C42/C42M; ISO 1920-4.</documentation>
+                </annotation>
+            </enumeration>
+        </restriction>
+    </simpleType>
+    <simpleType name="SpecimenOriginEnumExtType">
+        <annotation>
+            <documentation>One of the values of SpecimenOriginEnumType, or a value outside the list stated as
+                "Other: name".</documentation>
+        </annotation>
+        <union memberTypes="diggs:OtherNameType diggs:SpecimenOriginEnumType"/>
+    </simpleType>
 </schema>
