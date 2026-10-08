@@ -720,7 +720,7 @@
         <complexContent>
             <extension base="diggs:AbstractLaboratoryTestProcedureType">
                 <sequence>
-                    <element name="drumMass" type="diggs:ForceMeasureType" minOccurs="0">
+                    <element name="drumMass" type="diggs:MassMeasureType" minOccurs="0">
                         <annotation>
                             <documentation>
                                 The mass of the drum used for the test.
@@ -843,7 +843,8 @@
                             <documentation>
                                 The state of the specimen at the start of the test: wet, air dried,
                                 or oven dried below 60 degrees C. Values come from the enumerated
-                                list.
+                                list, or "Other: xx", where xx is a user-defined term whose meaning
+                                differs from every listed value (not a synonym of one).
                             </documentation>
                         </annotation>
                     </element>
@@ -1155,8 +1156,23 @@
             </enumeration>
         </restriction>
     </simpleType>
+    <simpleType name="OtherPrefixTermType">
+        <annotation>
+            <appinfo>
+                <diggs:deprecated since="3.1.0" replacedBy="diggs:OtherNameType"/>
+            </appinfo>
+            <documentation>
+                DEPRECATED. Use diggs:OtherNameType, a value of the form "Other: xx". Value of the form
+                "other:xx", with a lower-case "o", no space and at least two word characters, that
+                extended a controlled list.
+            </documentation>
+        </annotation>
+        <restriction base="string">
+            <pattern value="other:\w{2,}"/>
+        </restriction>
+    </simpleType>
     <simpleType name="AtterbergInitialConditionEnumType">
-        <union>
+        <union memberTypes="diggs:OtherNameType diggs:OtherPrefixTermType">
             <simpleType>
                 <restriction base="string">
                     <enumeration value="Wet">
@@ -1180,11 +1196,6 @@
                             </documentation>
                         </annotation>
                     </enumeration>
-                </restriction>
-            </simpleType>
-            <simpleType>
-                <restriction base="string">
-                    <pattern value="other:\w{2,}"/>
                 </restriction>
             </simpleType>
         </union>
@@ -1679,21 +1690,50 @@
                             </documentation>
                         </annotation>
                     </element>
-                    <element minOccurs="0" name="HorizDisplPeakShear" type="diggs:LengthMeasureType">
-                        <annotation>
-                            <documentation>
-                                The horizontal displacement at peak shear stress.
-                            </documentation>
-                        </annotation>
-                    </element>
-                    <element minOccurs="0" name="HorizDisplResidualShear"
-                        type="diggs:LengthMeasureType">
-                        <annotation>
-                            <documentation>
-                                The horizontal displacement at residual shear stress.
-                            </documentation>
-                        </annotation>
-                    </element>
+                    <choice minOccurs="0">
+                        <element name="HorizDisplPeakShear" type="diggs:LengthMeasureType">
+                            <annotation>
+                                <appinfo>
+                                    <diggs:deprecated since="3.1.0" replacedBy="diggs:horizDisplPeakShear"/>
+                                </appinfo>
+                                <documentation>
+                                    DEPRECATED. Use horizDisplPeakShear; element names begin with a
+                                    lower-case letter. The horizontal displacement at peak shear
+                                    stress.
+                                </documentation>
+                            </annotation>
+                        </element>
+                        <element name="horizDisplPeakShear" type="diggs:LengthMeasureType">
+                            <annotation>
+                                <documentation>
+                                    The horizontal displacement at peak shear stress. Use this
+                                    element, not the deprecated HorizDisplPeakShear.
+                                </documentation>
+                            </annotation>
+                        </element>
+                    </choice>
+                    <choice minOccurs="0">
+                        <element name="HorizDisplResidualShear" type="diggs:LengthMeasureType">
+                            <annotation>
+                                <appinfo>
+                                    <diggs:deprecated since="3.1.0" replacedBy="diggs:horizDisplResidualShear"/>
+                                </appinfo>
+                                <documentation>
+                                    DEPRECATED. Use horizDisplResidualShear; element names begin
+                                    with a lower-case letter. The horizontal displacement at
+                                    residual shear stress.
+                                </documentation>
+                            </annotation>
+                        </element>
+                        <element name="horizDisplResidualShear" type="diggs:LengthMeasureType">
+                            <annotation>
+                                <documentation>
+                                    The horizontal displacement at residual shear stress. Use this
+                                    element, not the deprecated HorizDisplResidualShear.
+                                </documentation>
+                            </annotation>
+                        </element>
+                    </choice>
                     <element minOccurs="0" name="normalForcePriorToShearing"
                         type="diggs:ForceMeasureType">
                         <annotation>
@@ -1769,21 +1809,50 @@
                             </documentation>
                         </annotation>
                     </element>
-                    <element minOccurs="0" name="VertDisplPeakShear" type="diggs:LengthMeasureType">
-                        <annotation>
-                            <documentation>
-                                The vertical displacement at peak shear stress.
-                            </documentation>
-                        </annotation>
-                    </element>
-                    <element minOccurs="0" name="VertDisplResidualShear"
-                        type="diggs:LengthMeasureType">
-                        <annotation>
-                            <documentation>
-                                The vertical displacement at residual shear stress.
-                            </documentation>
-                        </annotation>
-                    </element>
+                    <choice minOccurs="0">
+                        <element name="VertDisplPeakShear" type="diggs:LengthMeasureType">
+                            <annotation>
+                                <appinfo>
+                                    <diggs:deprecated since="3.1.0" replacedBy="diggs:vertDisplPeakShear"/>
+                                </appinfo>
+                                <documentation>
+                                    DEPRECATED. Use vertDisplPeakShear; element names begin with a
+                                    lower-case letter. The vertical displacement at peak shear
+                                    stress.
+                                </documentation>
+                            </annotation>
+                        </element>
+                        <element name="vertDisplPeakShear" type="diggs:LengthMeasureType">
+                            <annotation>
+                                <documentation>
+                                    The vertical displacement at peak shear stress. Use this
+                                    element, not the deprecated VertDisplPeakShear.
+                                </documentation>
+                            </annotation>
+                        </element>
+                    </choice>
+                    <choice minOccurs="0">
+                        <element name="VertDisplResidualShear" type="diggs:LengthMeasureType">
+                            <annotation>
+                                <appinfo>
+                                    <diggs:deprecated since="3.1.0" replacedBy="diggs:vertDisplResidualShear"/>
+                                </appinfo>
+                                <documentation>
+                                    DEPRECATED. Use vertDisplResidualShear; element names begin with
+                                    a lower-case letter. The vertical displacement at residual shear
+                                    stress.
+                                </documentation>
+                            </annotation>
+                        </element>
+                        <element name="vertDisplResidualShear" type="diggs:LengthMeasureType">
+                            <annotation>
+                                <documentation>
+                                    The vertical displacement at residual shear stress. Use this
+                                    element, not the deprecated VertDisplResidualShear.
+                                </documentation>
+                            </annotation>
+                        </element>
+                    </choice>
                     <element maxOccurs="unbounded" minOccurs="0"
                         name="shearingIncrementPeakStressStage"
                         type="diggs:DirectShearTestIncrementPropertyType">
@@ -2172,9 +2241,9 @@
                         type="diggs:CompactionTestEnumType">
                         <annotation>
                             <documentation>
-                                The type of compaction test. Values come from the enumerated list,
-                                or "other:" followed by at least two characters for a method not
-                                listed.
+                                The type of compaction test. Values come from the enumerated list, or "Other: xx", where xx is a
+                                user-defined term whose meaning differs from every listed value (not a
+                                synonym of one).
                             </documentation>
                         </annotation>
                     </element>
@@ -2462,7 +2531,7 @@
         </complexContent>
     </complexType>
     <simpleType name="CompactionTestEnumType">
-        <union>
+        <union memberTypes="diggs:OtherNameType diggs:OtherPrefixTermType">
             <simpleType>
                 <restriction base="string">
                     <enumeration value="Proctor">
@@ -2642,11 +2711,6 @@
                             </documentation>
                         </annotation>
                     </enumeration>
-                </restriction>
-            </simpleType>
-            <simpleType>
-                <restriction base="string">
-                    <pattern value="other:\w{2,}"/>
                 </restriction>
             </simpleType>
         </union>
@@ -2910,7 +2974,7 @@
                         </annotation>
                     </element>
                     <element minOccurs="0" name="hydraulicConductivity"
-                        type="diggs:VolumeMeasureType">
+                        type="diggs:LengthPerTimeMeasureType">
                         <annotation>
                             <documentation>
                                 The hydraulic conductivity (coefficient of permeability) computed
@@ -2919,7 +2983,7 @@
                         </annotation>
                     </element>
                     <element minOccurs="0" name="hydraulicConductivity20C"
-                        type="diggs:VolumeMeasureType">
+                        type="diggs:LengthPerTimeMeasureType">
                         <annotation>
                             <documentation>
                                 The hydraulic conductivity computed for this trial, corrected to 20
