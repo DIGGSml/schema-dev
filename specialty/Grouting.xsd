@@ -98,220 +98,268 @@
             <element ref="diggs:Chemical"/>
         </sequence>
     </complexType>
+    <element name="GroutBatchFormulation" type="diggs:GroutBatchFormulationType">
+        <annotation>
+            <documentation>
+                The formulation of a grout batch: the constituents of the mix, the proportions they are
+                batched in and the values those proportions were calculated from. A trial batch gives
+                the formulation it was made to; a grout mix design gives its own formulation, or cites
+                the formulation of the trial batch adopted for the design.
+            </documentation>
+        </annotation>
+    </element>
+    <complexType name="GroutBatchFormulationType">
+        <complexContent>
+            <extension base="diggs:AbstractComponentObjectBaseType">
+                <sequence>
+                    <element minOccurs="0" maxOccurs="unbounded" name="admixture" type="diggs:AdmixturePropertyType">
+                        <annotation>
+                            <documentation>
+                                An admixture used in the mix. Repeat for each admixture.
+                            </documentation>
+                        </annotation>
+                    </element>
+                    <element minOccurs="0" maxOccurs="unbounded" name="binder" type="diggs:BinderPropertyType">
+                        <annotation>
+                            <documentation>
+                                A binder used in the mix, such as fly ash or lime, excluding cement,
+                                which is recorded in cement. Repeat for each binder.
+                            </documentation>
+                        </annotation>
+                    </element>
+                    <element minOccurs="0" maxOccurs="unbounded" name="cement" type="diggs:CementPropertyType">
+                        <annotation>
+                            <documentation>
+                                A cement used in the mix. Repeat for each cement.
+                            </documentation>
+                        </annotation>
+                    </element>
+                    <element minOccurs="0" maxOccurs="unbounded" name="chemical" type="diggs:ChemicalPropertyType">
+                        <annotation>
+                            <documentation>
+                                A chemical used in the mix. Repeat for each chemical.
+                            </documentation>
+                        </annotation>
+                    </element>
+                    <element minOccurs="0" maxOccurs="unbounded" name="filler" type="diggs:FillerPropertyType">
+                        <annotation>
+                            <documentation>
+                                A filler used in the mix. Aggregate is a filler, as is the soil in a
+                                soil-cement mixture used to determine the appropriate slurry-soil mixes
+                                for deep soil mixing. Repeat for each filler.
+                            </documentation>
+                        </annotation>
+                    </element>
+                    <element minOccurs="0" name="specificGravityWater" type="diggs:SpecificGravityMeasureType">
+                        <annotation>
+                            <documentation>
+                                The specific gravity of water used for the mix proportions, whether
+                                assumed or measured.
+                            </documentation>
+                        </annotation>
+                    </element>
+                    <element minOccurs="0" name="theoreticalYield" type="diggs:VolumeMeasureType">
+                        <annotation>
+                            <documentation>
+                                The volume of grout the mix formula yields. Contrast
+                                diggs:TrialGroutBatchType/totalBatchVolume, the volume actually
+                                produced.
+                            </documentation>
+                        </annotation>
+                    </element>
+                    <element minOccurs="0" name="typeMix" type="gml:CodeType">
+                        <annotation>
+                            <documentation>
+                                The type of grout mix, for example cement, chemical or soil-cement. No
+                                DIGGS-authored dictionary currently exists for this element.
+                            </documentation>
+                        </annotation>
+                    </element>
+                    <element minOccurs="0" name="volumeWater" type="diggs:VolumeMeasureType">
+                        <annotation>
+                            <documentation>
+                                The volume of water in the mix.
+                            </documentation>
+                        </annotation>
+                    </element>
+                    <element minOccurs="0" name="waterCementRatio" type="diggs:MassPerMassMeasureType">
+                        <annotation>
+                            <documentation>
+                                The ratio of the mass of water mixed with the cement to the mass of
+                                cement. Contrast waterCementRatioOfMix, which counts all the water in
+                                the mix.
+                            </documentation>
+                        </annotation>
+                    </element>
+                    <element minOccurs="0" name="waterCementRatioOfMix" type="diggs:MassPerMassMeasureType">
+                        <annotation>
+                            <documentation>
+                                The ratio of the mass of all the water in the mix to the mass of cement.
+                            </documentation>
+                        </annotation>
+                    </element>
+                    <element minOccurs="0" name="wtCementPerGalH2O" type="diggs:ForceMeasureType">
+                        <annotation>
+                            <documentation>
+                                The weight of cement used per unit volume of water.
+                            </documentation>
+                        </annotation>
+                    </element>
+                    <element minOccurs="0" name="binderFactor" type="diggs:DensityOrUnitWeightMeasureType">
+                        <annotation>
+                            <documentation>
+                                The weight of cement divided by the volume of soil in a soil-cement mix.
+                            </documentation>
+                        </annotation>
+                    </element>
+                    <element minOccurs="0" name="binderContent" type="diggs:ForcePerForceMeasureType">
+                        <annotation>
+                            <documentation>
+                                The binder content of mixed soil, equal to the ratio of the dry unit
+                                weights of the soil and slurry times the volume ratio.
+                            </documentation>
+                        </annotation>
+                    </element>
+                    <element minOccurs="0" name="volumeRatio" type="diggs:VolumePerVolumeMeasureType">
+                        <annotation>
+                            <documentation>
+                                The ratio of the combined volume of cement and water in the cement
+                                slurry to the volume of soil in a cement-soil mix.
+                            </documentation>
+                        </annotation>
+                    </element>
+                </sequence>
+            </extension>
+        </complexContent>
+    </complexType>
+    <complexType name="GroutBatchFormulationPropertyType">
+        <annotation>
+            <documentation>
+                Property type that contains one diggs:GroutBatchFormulation object inline or refers to
+                one with xlink:href.
+            </documentation>
+        </annotation>
+        <sequence minOccurs="0">
+            <element ref="diggs:GroutBatchFormulation"/>
+        </sequence>
+        <attributeGroup ref="gml:OwnershipAttributeGroup"/>
+        <attributeGroup ref="gml:AssociationAttributeGroup"/>
+    </complexType>
     <element name="DesignGroutMix" substitutionGroup="diggs:DesignSample"
         type="diggs:DesignGroutMixType">
         <annotation>
-            <documentation>An object that contains properites describing the characteristics of a
-                batch of grout. This object optionally can reference a DesignGroutMix object defined
-                within the GroutingProgram feature.
-
-                A SPECIALIZATION OF diggs:DesignSample (DS1, 2026-09-27; previously a direct
-                diggs:AbstractProgramDesign extension). A grout mix is a manufactured/produced
-                sample: it inherits activityType (optional, but "aggregate" where stated - a grout
-                mix is produced by blending constituents), plannedEquipment (a batching plant or
-                mixer), and the generic plannedSampleWeight/Mass/Volume/Dimensions fields, none of
-                which this type needs to restate. sampleScope, DesignSample's population/selection
-                mechanism, is inherited but has no use here and is expected to stay absent - a
-                manufactured sample has no source-feature or source-sample population to scope, per
-                Dan's own framing of the design/build discussion this rebase came from - the type
-                hierarchy makes that fall out naturally rather than needing a special
-                case.</documentation>
+            <documentation>
+                The design of a grout mix: its formulation and the design values the grout is to
+                achieve. It specializes diggs:DesignSample for a manufactured sample, so the inherited
+                sampleScope has no use here and stays absent.
+            </documentation>
         </annotation>
     </element>
     <complexType name="DesignGroutMixType">
-        <annotation>
-            <documentation>Extended type based on DesignSampleType (rebased DS1, 2026-09-27; was
-                AbstractProgramDesignType). Adds elements for design grout mix type
-                definition.
-
-                REMOVED, GB2 (2026-09-28): the local groutSpecificationRef [0..1] to
-                diggs:GroutSpecification. Redundant with programSpecificationRef [0..*], inherited
-                from diggs:AbstractProgramDesignType since the DS1 rebase - two elements on the same
-                object expressing the same "specification(s) this design was prepared to satisfy"
-                relationship, one narrowly typed and singular, the other generic and repeatable. Cite
-                a GroutSpecification through programSpecificationRef; nothing else changes, since that
-                element was always untyped and GroutSpecification was always a member of the
-                substitution group it targets. Matches the "one mechanism" principle basisRef was
-                restricted to at PB7, and the precedent diggs:RIColumnSpecificationType already set -
-                its own documentation states plainly that a design cites its specification only
-                through programSpecificationRef, with no domain-specific alternative
-                element.</documentation>
-        </annotation>
         <complexContent>
             <extension base="diggs:DesignSampleType">
                 <sequence>
                     <element minOccurs="0" name="placementDescription" type="string">
                         <annotation>
-                            <documentation>Description of general location of grout mix on project
-                                site.</documentation>
+                            <documentation>
+                                A description of the general location of the grout mix on the project
+                                site.
+                            </documentation>
                         </annotation>
                     </element>
-                    <choice>
-                        <element minOccurs="1" name="trialGroutBatchRef"
-                            type="diggs:FeatureReferenceType">
-                            <annotation>
-                                <appinfo source="urn:x-gml:targetElement">diggs:TrialGroutBatch</appinfo>
-                                <documentation>Pointer to the trial grout batch that represents this
-                                    grout design.</documentation>
-                            </annotation>
-                        </element>
-                        <sequence>
-                            <element minOccurs="0" name="admixture"
-                                type="diggs:AdmixturePropertyType" maxOccurs="unbounded">
-                                <annotation>
-                                    <documentation>Property containing information on admixtures
-                                        used in mix </documentation>
-                                </annotation>
-                            </element>
-                            <element minOccurs="0" name="binder" type="diggs:BinderPropertyType"
-                                maxOccurs="unbounded">
-                                <annotation>
-                                    <documentation>Property containing information on binders used
-                                        in mix; includes fly ash, lime, etc., but excluding cement,
-                                        which is recorded in its own component property
-                                    </documentation>
-                                </annotation>
-                            </element>
-                            <element minOccurs="0" name="cement" type="diggs:CementPropertyType"
-                                maxOccurs="unbounded">
-                                <annotation>
-                                    <documentation>Property containing information on cement used in
-                                        the grout mix </documentation>
-                                </annotation>
-                            </element>
-                            <element minOccurs="0" name="chemical" type="diggs:ChemicalPropertyType"
-                                maxOccurs="unbounded">
-                                <annotation>
-                                    <documentation>Property containing information on cement used in
-                                        the grout mix </documentation>
-                                </annotation>
-                            </element>
-                            <element minOccurs="0" name="filler" type="diggs:FillerPropertyType"
-                                maxOccurs="unbounded">
-                                <annotation>
-                                    <documentation>Property containing information on fillers used
-                                        in mix. Aggregate is a type of filler. </documentation>
-                                </annotation>
-                            </element>
-                            <element minOccurs="0" name="theoreticalYield"
-                                type="diggs:VolumeMeasureType">
-                                <annotation>
-                                    <documentation>Theoretical volume of a batch of grout produced
-                                        by following the design mix formula.
-
-                                        DISTINCT FROM THE INHERITED plannedSampleVolume
-                                        (diggs:DesignSampleType, DS1, 2026-09-27), which now sits
-                                        alongside this field: theoreticalYield is what a stated mix
-                                        formula computes to, plannedSampleVolume is the generic
-                                        planned-size field every sample design carries. Both may be
-                                        stated; kept separate rather than merged since folding
-                                        theoreticalYield into plannedSampleVolume would mean
-                                        restructuring the choice this element is declared
-                                        inside.</documentation>
-                                </annotation>
-                            </element>
-                            <element minOccurs="0" name="typeMix" type="gml:CodeType">
-                                <annotation>
-                                    <documentation>Type of grout mix; preferably from a controlled
-                                        list, eg. cement, chemical.</documentation>
-                                    <documentation>Should this be an enum if only a few common
-                                        choices?</documentation>
-                                </annotation>
-                            </element>
-                            <element minOccurs="0" name="volumeWater" type="diggs:VolumeMeasureType">
-                                <annotation>
-                                    <documentation>Volume of water used.</documentation>
-                                </annotation>
-                            </element>
-                            <element minOccurs="0" name="waterCementRatio"
-                                type="diggs:MassPerMassMeasureType">
-                                <annotation>
-                                    <documentation>Weight of water to weight of cement used for this
-                                        grout </documentation>
-                                </annotation>
-                            </element>
-                            <element minOccurs="0" name="wtCementPerGalH2O"
-                                type="diggs:ForceMeasureType">
-                                <annotation>
-                                    <documentation>Weight of cement used per gallon of
-                                        water.</documentation>
-                                </annotation>
-                            </element>
-                        </sequence>
-                    </choice>
-                    <element minOccurs="0" name="bleedDesign"
-                        type="diggs:VolumePerVolumeMeasureType">
+                    <element minOccurs="0" name="formulation" type="diggs:GroutBatchFormulationPropertyType">
                         <annotation>
-                            <documentation>Design value for grout bleed</documentation>
+                            <appinfo source="urn:x-gml:targetElement">diggs:GroutBatchFormulation</appinfo>
+                            <documentation>
+                                The formulation of the grout mix. Give it inline, or refer by xlink:href
+                                to the formulation of the trial batch adopted for the design.
+                            </documentation>
                         </annotation>
                     </element>
-                    <element minOccurs="0" name="filtrateVolumeDesign"
-                        type="diggs:VolumeMeasureType">
+                    <element minOccurs="0" name="bleedDesign" type="diggs:VolumePerVolumeMeasureType">
                         <annotation>
-                            <documentation>Design filtrate volume value from pressure filtration
-                                test.</documentation>
+                            <documentation>
+                                The design value for grout bleed.
+                            </documentation>
+                        </annotation>
+                    </element>
+                    <element minOccurs="0" name="filtrateVolumeDesign" type="diggs:VolumeMeasureType">
+                        <annotation>
+                            <documentation>
+                                The design filtrate volume from the pressure filtration test.
+                            </documentation>
                         </annotation>
                     </element>
                     <element minOccurs="0" name="gelTimeDesign" type="diggs:TimeMeasureType">
                         <annotation>
-                            <documentation>Design value for grout gel time.</documentation>
+                            <documentation>
+                                The design value for grout gel time.
+                            </documentation>
                         </annotation>
                     </element>
                     <element minOccurs="0" name="marshFunnelTimeDesign" type="diggs:TimeMeasureType">
                         <annotation>
-                            <documentation>Design value for grout shrinkage.</documentation>
+                            <documentation>
+                                The design value for grout Marsh funnel time.
+                            </documentation>
                         </annotation>
                     </element>
                     <element minOccurs="0" name="modulusDesign" type="diggs:PressureMeasureType">
                         <annotation>
-                            <documentation>Design value for the elastic modulus of the grout/
-                                concrete (Design Parameter Analysis row 29, S24). Sits alongside
-                                strengthDesign below - strength and stiffness are independent design
-                                properties for a rigid inclusion column, and this type carried the
-                                former without the latter, a confirmed one-element
-                                gap.</documentation>
+                            <documentation>
+                                The design value for the elastic modulus of the grout or concrete. It is
+                                independent of strengthDesign.
+                            </documentation>
                         </annotation>
                     </element>
-                    <element minOccurs="0" name="mudBalanceDensityDesign"
-                        type="diggs:DensityOrUnitWeightMeasureType">
+                    <element minOccurs="0" name="mudBalanceDensityDesign" type="diggs:DensityOrUnitWeightMeasureType">
                         <annotation>
-                            <documentation>Design value for grout unit weight.</documentation>
+                            <documentation>
+                                The design value for grout unit weight.
+                            </documentation>
                         </annotation>
                     </element>
-                    <element minOccurs="0" name="pressureFiltrationCoefficientDesign"
-                        type="diggs:ReciprocalSquareRootTimeMeasureType">
+                    <element minOccurs="0" name="pressureFiltrationCoefficientDesign" type="diggs:ReciprocalSquareRootTimeMeasureType">
                         <annotation>
-                            <documentation>Design pressure filtration value from pressure filtration
-                                test.</documentation>
+                            <documentation>
+                                The design pressure filtration coefficient from the pressure filtration
+                                test.
+                            </documentation>
                         </annotation>
                     </element>
-                    <element minOccurs="0" name="shrinkageDesign"
-                        type="diggs:VolumePerVolumeMeasureType">
+                    <element minOccurs="0" name="shrinkageDesign" type="diggs:VolumePerVolumeMeasureType">
                         <annotation>
-                            <documentation>Design value for grout shrinkage.</documentation>
+                            <documentation>
+                                The design value for grout shrinkage.
+                            </documentation>
                         </annotation>
                     </element>
                     <element minOccurs="0" name="slumpDesign" type="diggs:LengthMeasureType">
                         <annotation>
-                            <documentation>Design value for grout slump.</documentation>
+                            <documentation>
+                                The design value for grout slump.
+                            </documentation>
                         </annotation>
                     </element>
-                    <element minOccurs="0" name="specificGravityMixDesign"
-                        type="diggs:SpecificGravityMeasureType">
+                    <element minOccurs="0" name="specificGravityMixDesign" type="diggs:SpecificGravityMeasureType">
                         <annotation>
-                            <documentation>Design value for grout specific gravity.</documentation>
+                            <documentation>
+                                The design value for grout specific gravity.
+                            </documentation>
                         </annotation>
                     </element>
                     <element minOccurs="0" name="strengthDesign" type="diggs:PressureMeasureType">
                         <annotation>
-                            <documentation>Design value for grout unconfined compressive strength.
+                            <documentation>
+                                The design value for grout unconfined compressive strength.
                             </documentation>
                         </annotation>
                     </element>
-                    <element minOccurs="0" name="syneresisDesign"
-                        type="diggs:VolumeOrMassLossMeasureType">
+                    <element minOccurs="0" name="syneresisDesign" type="diggs:VolumeOrMassLossMeasureType">
                         <annotation>
-                            <documentation>Design value for grout syneresis.</documentation>
+                            <documentation>
+                                The design value for grout syneresis.
+                            </documentation>
                         </annotation>
                     </element>
                 </sequence>
@@ -1809,189 +1857,84 @@
     </complexType>
     <complexType name="TrialGroutBatchType">
         <annotation>
-            <documentation>Extended type based on AbstractSampleType. Adds elements for trial grout
-                batch type definition.
-
-                REMOVED, GB2 (2026-09-28): the local groutSpecificationRef [0..1]. Redundant with
-                programSpecificationRef [0..*], already inherited from diggs:AbstractSampleType since
-                S7 - a realized batch (or its GroutBatchType specialization) cites the
-                GroutSpecification it must satisfy through that generic element, the same mechanism
-                every other sample and sampling feature uses.</documentation>
+            <documentation>
+                Type for a batch of grout: its formulation and the properties of the batch as produced.
+            </documentation>
         </annotation>
         <complexContent>
             <extension base="diggs:AbstractSampleType">
                 <sequence>
-                    <element minOccurs="0" name="admixture" type="diggs:AdmixturePropertyType"
-                        maxOccurs="unbounded">
+                    <element minOccurs="0" name="formulation" type="diggs:GroutBatchFormulationPropertyType">
                         <annotation>
-                            <documentation>Property containing information on admixtures used in mix
+                            <documentation>
+                                The formulation the batch was made to. A grout mix design adopting the
+                                batch cites this formulation by reference.
                             </documentation>
                         </annotation>
                     </element>
-                    <element minOccurs="0" name="binder" type="diggs:BinderPropertyType"
-                        maxOccurs="unbounded">
+                    <element minOccurs="0" name="specificGravityMix" type="diggs:SpecificGravityMeasureType">
                         <annotation>
-                            <documentation>Property containing information on binders used in mix;
-                                includes fly ash, lime, etc., but excluding cement, which is
-                                recorded in its own component property </documentation>
-                        </annotation>
-                    </element>
-                    <element minOccurs="0" name="cement" type="diggs:CementPropertyType"
-                        maxOccurs="unbounded">
-                        <annotation>
-                            <documentation>Property containing information on cement used in the
-                                grout mix </documentation>
-                        </annotation>
-                    </element>
-                    <element minOccurs="0" name="chemical" type="diggs:ChemicalPropertyType"
-                        maxOccurs="unbounded">
-                        <annotation>
-                            <documentation>Property containing information on cement used in the
-                                grout mix </documentation>
-                        </annotation>
-                    </element>
-                    <element minOccurs="0" name="filler" type="diggs:FillerPropertyType"
-                        maxOccurs="unbounded">
-                        <annotation>
-                            <documentation>Property containing information on fillers used in mix.
-                                Aggregate is a type of filler, as would be a soil in a soil-cement
-                                mixture used to determine the appropriate slurry-soil mixes for deep
-                                soil mixing</documentation>
-                        </annotation>
-                    </element>
-                    <element minOccurs="0" name="specificGravityMix"
-                        type="diggs:SpecificGravityMeasureType">
-                        <annotation>
-                            <documentation>The specific gravity of the grout mix</documentation>
-                        </annotation>
-                    </element>
-                    <element minOccurs="0" name="specificGravityWater"
-                        type="diggs:SpecificGravityMeasureType">
-                        <annotation>
-                            <documentation>The specific gravity of water used for mix
-                                proportions,</documentation>
+                            <documentation>
+                                The specific gravity of the grout mix as produced.
+                            </documentation>
                         </annotation>
                     </element>
                     <element minOccurs="0" name="totalBatchVolume" type="diggs:VolumeMeasureType">
                         <annotation>
-                            <documentation>Total volume of batch produced</documentation>
+                            <documentation>
+                                The total volume of the batch produced.
+                            </documentation>
                         </annotation>
                     </element>
-                    <element minOccurs="0" name="typeMix" type="gml:CodeType">
+                    <element minOccurs="0" name="binderFactorInPlace" type="diggs:DensityOrUnitWeightMeasureType">
                         <annotation>
-                            <documentation>Type of grout mix; preferably from a controlled list, eg.
-                                cement, chemical, soil-cement, etc.</documentation>
-                            <documentation>Should this be an enum if only a few common
-                                choices?</documentation>
+                            <documentation>
+                                The weight of cement divided by the volume of the soil-cement mixture,
+                                which equals the sum of the volumes of the cement, soil and water.
+                            </documentation>
                         </annotation>
                     </element>
-                    <element minOccurs="0" name="volumeWater" type="diggs:VolumeMeasureType">
+                    <element minOccurs="0" name="deliveryToPlacementTime" type="diggs:TimeMeasureType">
                         <annotation>
-                            <documentation>Volume of water used</documentation>
+                            <documentation>
+                                The elapsed time between the batch's delivery to the point of use, for
+                                example off a ready-mix truck, and its placement. The transport window
+                                governs whether the batch is still placeable.
+                            </documentation>
                         </annotation>
                     </element>
-                    <element minOccurs="0" name="waterCementRatio"
-                        type="diggs:ForcePerForceMeasureType">
+                    <element minOccurs="0" name="bindingMaterialContent" type="diggs:MassPerVolumeMeasureType">
                         <annotation>
-                            <documentation>Ratio of the weight of water mixed with the cement to
-                                weight of cement used for this grout.</documentation>
+                            <documentation>
+                                The mass of binding material per unit volume of the batch as produced:
+                                the cement plus any binders recorded as binder components (fly ash,
+                                slag, silica fume and the like), excluding fillers and admixtures. It is
+                                the quantity a minimum binder content requirement is stated against.
+                            </documentation>
                         </annotation>
                     </element>
-                    <element minOccurs="0" name="waterCementRatioOfMix"
-                        type="diggs:ForcePerForceMeasureType">
+                    <element minOccurs="0" name="waterSolubleChlorideContent" type="diggs:MassPerMassMeasureType">
                         <annotation>
-                            <documentation>Ratio of the weight of total water in the mix to the
-                                weight of cement</documentation>
+                            <documentation>
+                                The water-soluble chloride ion (Cl-) content of the hardened grout or
+                                concrete of the batch, as a mass fraction of the cement. It is the
+                                chloride that dissolves in water under the conditions of the test (ASTM
+                                C1218/C1218M), a different quantity from acidSolubleChlorideContent; a
+                                specification may limit them separately. The chloride content of the
+                                surrounding soil or groundwater is a separate quantity.
+                            </documentation>
                         </annotation>
                     </element>
-                    <element minOccurs="0" name="wtCementPerGalH2O" type="diggs:ForceMeasureType">
+                    <element minOccurs="0" name="acidSolubleChlorideContent" type="diggs:MassPerMassMeasureType">
                         <annotation>
-                            <documentation>Weight of cement used per gallon of
-                                water.</documentation>
-                        </annotation>
-                    </element>
-                    <element minOccurs="0" name="binderFactor"
-                        type="diggs:DensityOrUnitWeightMeasureType">
-                        <annotation>
-                            <documentation>Weight of cement devided by the volume of soil in a
-                                soil-cement mix.</documentation>
-                        </annotation>
-                    </element>
-                    <element minOccurs="0" name="binderFactorInPlace"
-                        type="diggs:DensityOrUnitWeightMeasureType">
-                        <annotation>
-                            <documentation>Weight of cement devided by the volume of soil-cement
-                                mixture, which is equal to the sum of the volumes of the cement,
-                                soil, and water.</documentation>
-                        </annotation>
-                    </element>
-                    <element minOccurs="0" name="binderContent"
-                        type="diggs:ForcePerForceMeasureType">
-                        <annotation>
-                            <documentation>Weight of cement used per gallon of
-                                water.</documentation>
-                        </annotation>
-                    </element>
-                    <element minOccurs="0" name="volumeRatio"
-                        type="diggs:VolumePerVolumeMeasureType">
-                        <annotation>
-                            <documentation>Ratio of the volume of cenent plus volume of the water in
-                                the cement slurry, to the volume of soil in a cement-soil
-                                mix</documentation>
-                        </annotation>
-                    </element>
-                    <element minOccurs="0" name="deliveryToPlacementTime"
-                        type="diggs:TimeMeasureType">
-                        <annotation>
-                            <documentation>Elapsed time between the batch's delivery (arrival at
-                                the point of use, e.g. off a ready-mix truck) and its placement
-                                (Installation Parameter Analysis row 32, S23). Real, unrecorded data
-                                until now: neither this type nor diggs:AbstractSampleType, its
-                                ultimate base, carried any time field at all - only reference
-                                elements (samplingActivityRef, programRef and siblings). The
-                                transport window governs whether the batch is still placeable by the
-                                time it reaches the hole, so it belongs on the type this project's
-                                own trial/production split shares (diggs:TrialGroutBatchType is the
-                                base both diggs:TrialGroutBatch and, through it,
-                                diggs:GroutBatchType extend), rather than duplicated on
-                                diggs:GroutBatchType alone - a trial batch has the same transport
-                                question between mixing and test placement that a production batch
-                                has between mixing and column placement.</documentation>
-                        </annotation>
-                    </element>
-                    <element minOccurs="0" name="bindingMaterialContent"
-                        type="diggs:MassPerVolumeMeasureType">
-                        <annotation>
-                            <documentation>Mass of binding material per unit volume of the batch as
-                                produced: the cement plus any binders recorded as binder components
-                                (fly ash, slag, silica fume and the like), excluding fillers and
-                                admixtures. Reported in mass units (for example kg/m3), not as a
-                                weight. The quantity a minimum binder content requirement is stated
-                                against.</documentation>
-                        </annotation>
-                    </element>
-                    <element minOccurs="0" name="waterSolubleChlorideContent"
-                        type="diggs:MassPerMassMeasureType">
-                        <annotation>
-                            <documentation>Water-soluble chloride ion (Cl-) content of the hardened
-                                grout or concrete of the batch, as a mass fraction of the cement
-                                (for example %). The chloride that dissolves in water under the
-                                conditions of the test (ASTM C1218/C1218M). A different quantity
-                                from acidSolubleChlorideContent; a specification may limit them
-                                separately. The chloride content of the surrounding soil or
-                                groundwater is a separate quantity.</documentation>
-                        </annotation>
-                    </element>
-                    <element minOccurs="0" name="acidSolubleChlorideContent"
-                        type="diggs:MassPerMassMeasureType">
-                        <annotation>
-                            <documentation>Acid-soluble chloride ion (Cl-) content of the hardened
-                                grout or concrete of the batch, as a mass fraction of the cement
-                                (for example %). The chloride that dissolves in acid under the
-                                conditions of the test (ASTM C1152/C1152M), which in most concretes
-                                approximates the total chloride. A different quantity from
-                                waterSolubleChlorideContent; a specification may limit them
-                                separately.</documentation>
+                            <documentation>
+                                The acid-soluble chloride ion (Cl-) content of the hardened grout or
+                                concrete of the batch, as a mass fraction of the cement. It is the
+                                chloride that dissolves in acid under the conditions of the test (ASTM
+                                C1152/C1152M), which in most concretes approximates the total chloride,
+                                a different quantity from waterSolubleChlorideContent; a specification
+                                may limit them separately.
+                            </documentation>
                         </annotation>
                     </element>
                 </sequence>
