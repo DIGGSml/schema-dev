@@ -6,6 +6,9 @@ Reads
     DIGGS schema file (core/, extended/, specialty/ and the masters)  -> entries with status "deprecated"
   * tools/deprecation/removed.json (hand kept: a removed name has no declaration left to carry a marker)
                                                                        -> entries with status "removed"
+  * tools/deprecation/retyped.json (hand kept: an element still declared under the same name whose type changed
+    incompatibly, so no marker can say that the released form is no longer valid)
+                                                                       -> entries with status "retyped"
 and writes
   deprecated/DeprecationRegistry.xml   (validates against deprecated/DeprecationRegistry.xsd)
   deprecated/DeprecationRegistry.json  (the same content, for tools that prefer JSON)
@@ -16,10 +19,12 @@ Usage
   generate_registry.py --audit-baseline 3.0.0 [--baseline-repo DIR]
                                             also fail if a global name that existed in the baseline git tag is
                                             neither declared now nor listed in removed.json, or if a removed
-                                            entry names something the baseline never had
+                                            entry names something the baseline never had, or a retyped entry whose element
+                                            the baseline did not declare, or declared with the same type
 Standard library only. The run fails (exit 1, every problem listed) on: a marker without since or without
 replacedBy/note, a marker whose documentation does not open "DEPRECATED.", deprecation stated in text with no
-marker, a replacedBy that names no declaration, a "removed" name still declared in the schema, a duplicate key.
+marker, a replacedBy that names no declaration, a "removed" name still declared in the schema, a "retyped" element not declared exactly once in its host,
+a duplicate key.
 """
 import argparse
 import io
@@ -47,6 +52,8 @@ EXCLUDE_FILES = {'DeletedElements.xsd'}          # only ever present in release 
 KINDS = ('element', 'branchRef', 'type', 'attribute', 'enumValue', 'compoundBranch')
 MIGRATIONS = ('rename', 'convert', 'manual', 'none')
 VERSION_RE = re.compile(r'^\d+\.\d+\.\d+$')
+RETYPED_FIELDS = {'kind', 'name', 'host', 'changedIn', 'replacedBy', 'note', 'migration', 'file', 'instanceXPath',
+                  'instanceXPathExact'}
 REMOVED_FIELDS = {'kind', 'name', 'removedIn', 'replacedBy', 'note', 'migration', 'file', 'deprecatedSince'}
 
 
@@ -401,6 +408,46 @@ def load_removed(path, live, problems):
     return out
 
 
+def element_type(docs, host, name):
+    """the type attribute of each element called name declared inside the type host, in these docs: a list, so
+    that zero (not declared) and several (ambiguous) are distinguishable from one."""
+    out = []
+    for doc in docs:
+        for t in doc.root:
+            if t.get('name') == host and t.tag in (q('complexType'), q('element')):
+                out += [e.get('type') or '(inline)' for e in t.iter(q('element')) if e.get('name') == name]
+    return out
+
+
+def load_retyped(path, docs, problems):
+    """Elements that are still declared, under the same name, with an incompatible type. The entry's instanceXPath
+    selects the released form only."""
+    if not os.path.exists(path):
+        return []
+    out = []
+    for r in json.load(open(path, encoding='utf-8'))['retyped']:
+        bad = set(r) - RETYPED_FIELDS
+        miss = {'kind', 'name', 'host', 'changedIn', 'migration', 'instanceXPath'} - set(r)
+        where = 'retyped.json %s %s/%s' % (r.get('kind'), r.get('host'), r.get('name'))
+        if bad or miss:
+            problems.append('%s: unknown fields %s, missing fields %s' % (where, sorted(bad), sorted(miss)))
+            continue
+        if r['kind'] != 'element' or r['migration'] not in MIGRATIONS or not VERSION_RE.match(r['changedIn']):
+            problems.append('%s: bad kind/migration/changedIn' % where)
+            continue
+        if not (r.get('replacedBy') or r.get('note')) and r['migration'] != 'none':
+            problems.append('%s: migration %s needs replacedBy or note' % (where, r['migration']))
+        now = element_type(docs, diggs_name(r['host']), diggs_name(r['name']))
+        if len(now) != 1:
+            problems.append('%s: the host declares %d elements of that name; a retyped element is declared exactly once'
+                            % (where, len(now)))
+        out.append(dict(status='retyped', kind='element', name=r['name'], host=r['host'], file=r.get('file', ''),
+                        since='', changedIn=r['changedIn'], replacedBy=r.get('replacedBy', ''),
+                        note=r.get('note', ''), migration=r['migration'], xpath=r['instanceXPath'],
+                        exact=r.get('instanceXPathExact', True), _loc=where, _type=now[0] if len(now) == 1 else None))
+    return out
+
+
 def key_of(e):
     return '%s:%s%s' % (e['kind'], (e['host'] + '/') if e['host'] else '', e['name'])
 
@@ -414,7 +461,7 @@ def render_xml(entries, version):
         L.append('    <dr:namespace prefix="%s" uri="%s"/>' % (p, u))
     for e in entries:
         attrs = [('key', key_of(e)), ('status', e['status']), ('kind', e['kind']), ('name', e['name'])]
-        for k, f in (('host', 'host'), ('file', 'file'), ('since', 'since'), ('removedIn', 'removedIn'),
+        for k, f in (('host', 'host'), ('file', 'file'), ('since', 'since'), ('removedIn', 'removedIn'), ('changedIn', 'changedIn'),
                      ('replacedBy', 'replacedBy'), ('migration', 'migration')):
             if e.get(f):
                 attrs.append((k, e[f]))
@@ -437,7 +484,7 @@ def render_json(entries, version):
     out = []
     for e in entries:
         d = {'key': key_of(e), 'status': e['status'], 'kind': e['kind'], 'name': e['name']}
-        for k in ('host', 'file', 'since', 'removedIn', 'replacedBy', 'migration', 'note'):
+        for k in ('host', 'file', 'since', 'removedIn', 'changedIn', 'replacedBy', 'migration', 'note'):
             if e.get(k):
                 d[k] = e[k]
         d['instanceXPath'] = e['xpath']
@@ -446,6 +493,13 @@ def render_json(entries, version):
         out.append(d)
     return json.dumps({'schemaVersion': version, 'namespaces': PREFIXES, 'entries': out},
                       indent=2, ensure_ascii=False) + '\n'
+
+
+def baseline_docs(root, tag):
+    raw = subprocess.run(['git', '-C', root, 'archive', tag], check=True, capture_output=True).stdout
+    with tempfile.TemporaryDirectory() as tmp:
+        tarfile.open(fileobj=io.BytesIO(raw)).extractall(tmp, filter='data')
+        return load_docs(tmp)
 
 
 def baseline_names(root, tag):
@@ -460,6 +514,7 @@ def main():
     ap = argparse.ArgumentParser(description=__doc__.split('\n')[0])
     ap.add_argument('--schema-root', default=os.path.abspath(os.path.join(here, '..', '..')))
     ap.add_argument('--removed', default=os.path.join(here, 'removed.json'))
+    ap.add_argument('--retyped', default=os.path.join(here, 'retyped.json'))
     ap.add_argument('--out-dir')
     ap.add_argument('--check', action='store_true')
     ap.add_argument('--audit-baseline', metavar='TAG')
@@ -476,7 +531,8 @@ def main():
     version = next(d.root.get('version') for d in docs if d.rel == 'Diggs.xsd')
     dep = build_deprecated(docs, idx, problems)
     rem = load_removed(a.removed, live, problems)
-    entries = dep + rem
+    ret = load_retyped(a.retyped, docs, problems)
+    entries = dep + rem + ret
 
     seen = {}
     for e in entries:
@@ -484,7 +540,7 @@ def main():
         if k in seen:
             problems.append('duplicate key %s (%s and %s)' % (k, seen[k], e['_loc']))
         seen[k] = e['_loc']
-    for e in rem:
+    for e in rem + ret:
         if e['replacedBy'].startswith('diggs:') and e['replacedBy'].split(':', 1)[1] not in idx.declared:
             problems.append('%s: replacedBy %s names no declaration' % (e['_loc'], e['replacedBy']))
 
@@ -501,6 +557,14 @@ def main():
                             % (a.audit_baseline, kind, n))
         for kind, n in sorted(listed - base):
             problems.append('removed.json lists %s %s, which baseline %s never declared' % (kind, n, a.audit_baseline))
+        bdocs = baseline_docs(a.baseline_repo or root, a.audit_baseline)
+        for e in ret:
+            was = element_type(bdocs, diggs_name(e['host']), diggs_name(e['name']))
+            if len(was) != 1:
+                problems.append('%s: baseline %s declares %d elements of that name in that host'
+                                % (e['_loc'], a.audit_baseline, len(was)))
+            elif was[0] == e['_type']:
+                problems.append('%s: the type is unchanged since baseline %s (%s)' % (e['_loc'], a.audit_baseline, was[0]))
 
     n_dep, n_rem = len(dep), len(rem)
     kinds = {}
@@ -508,7 +572,7 @@ def main():
         kinds.setdefault((e['status'], e['kind']), 0)
         kinds[(e['status'], e['kind'])] += 1
     if not a.quiet:
-        print('entries: %d (deprecated %d, removed %d)' % (len(entries), n_dep, n_rem))
+        print('entries: %d (deprecated %d, removed %d, retyped %d)' % (len(entries), n_dep, n_rem, len(ret)))
         print('by status/kind: ' + ', '.join('%s/%s %d' % (s, k, c) for (s, k), c in sorted(kinds.items())))
         print('migration: ' + ', '.join('%s %d' % (m, sum(1 for e in entries if e['migration'] == m)) for m in MIGRATIONS))
         print('instance XPath not exact (a live use shares the path): %d' % sum(1 for e in entries if e['xpath'] and not e.get('exact', True)))

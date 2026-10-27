@@ -38,6 +38,16 @@ if a listed name is still declared.
 At a major release, delete every deprecated declaration, move its entry from the markers into `removed.json`
 (`removedIn` = that release), and regenerate.
 
+## Retyping something
+
+An element that keeps its name but changes type incompatibly (a length becomes a position, a force becomes a mass)
+cannot carry a marker, because it is still live. Add an entry to `retyped.json`: `kind` (element), `name`, `host`
+(the type that declares it), `changedIn`, `migration`, `note` and/or `replacedBy`, `file`, and `instanceXPath`
+selecting only the released form (for example `//diggs:cutoffElevation[not(*) and not(@xlink:href)]`); set
+`instanceXPathExact` to false where the path cannot tell the released form from a valid use. Then regenerate.
+`--audit-baseline <last release tag>` fails if the baseline did not declare the element in that host, or declared it
+with the same type.
+
 ## What the generator checks
 
 A marker with no `since` or no `replacedBy`/`note`; documentation that does not open `DEPRECATED. `; deprecation
