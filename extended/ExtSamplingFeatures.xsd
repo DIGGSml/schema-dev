@@ -447,27 +447,18 @@
     <!-- GEOMETRY OBJECTS                                                                  -->
     <!-- ================================================================================= -->
 
-    <element abstract="true" name="AbstractVolume" type="diggs:AbstractVolumeType"
+    <element abstract="true" name="AbstractVolume" type="gml:AbstractSolidType"
         substitutionGroup="diggs:AbstractGeometricPrimitive">
         <annotation>
             <documentation>
-                Abstract head of the substitution group for 3D geometries.
+                Abstract head of the substitution group for volume geometries: an abstraction of a
+                solid that supports differing levels of complexity, and is always a continuous
+                geometric primitive. A concrete volume extends gml:AbstractSolidType, GML's
+                equivalent concept (DIGGS names it "Volume" rather than "Solid"), for example
+                diggs:Solid.
             </documentation>
         </annotation>
     </element>
-    <complexType abstract="true" name="AbstractVolumeType">
-        <annotation>
-            <documentation>
-                Abstract base type for volume geometries: an abstraction of a solid that supports
-                differing levels of complexity, and is always a continuous geometric primitive. It
-                extends gml:AbstractSolidType, GML's equivalent concept (DIGGS names it "Volume"
-                rather than "Solid"). Use one of its concrete extensions, for example diggs:Solid.
-            </documentation>
-        </annotation>
-        <complexContent>
-            <extension base="gml:AbstractSolidType"/>
-        </complexContent>
-    </complexType>
 
     <complexType name="VolumePropertyType">
         <annotation>
@@ -490,7 +481,7 @@
     </complexType>
     <complexType name="SolidType">
         <complexContent>
-            <extension base="diggs:AbstractVolumeType">
+            <extension base="gml:AbstractSolidType">
                 <sequence>
                     <element minOccurs="0" name="exterior" type="diggs:ShellPropertyType">
                         <annotation>
@@ -547,7 +538,7 @@
     </element>
     <complexType name="ShellType">
         <complexContent>
-            <extension base="diggs:AbstractSurfaceType">
+            <extension base="gml:AbstractSurfaceType">
                 <sequence>
                     <element minOccurs="1" ref="diggs:surfaceMembers"/>
                     <element minOccurs="0" name="uncertainty"
@@ -626,9 +617,9 @@
                 render an inverted volume. No GML counterpart: GML represents a solid only by
                 explicit boundary representation (gml:Solid bounded by gml:Shell), so this is a
                 DIGGS construct with nothing in GML to align to. It substitutes diggs:AbstractVolume
-                and its type derives from diggs:AbstractVolumeType, which derives from
-                gml:AbstractSolidType, so a schema-aware GML consumer sees a member of the solid
-                family, and only a DIGGS-aware consumer needs to know how to expand it.
+                and its type derives from gml:AbstractSolidType, so a schema-aware GML consumer
+                sees a member of the solid family, and only a DIGGS-aware consumer needs to know
+                how to expand it.
             </documentation>
         </annotation>
     </element>
@@ -663,7 +654,7 @@
 
     <complexType name="SurfaceBoundedSolidType">
         <complexContent>
-            <extension base="diggs:AbstractVolumeType">
+            <extension base="gml:AbstractSolidType">
                 <sequence>
                     <element name="footprint" type="diggs:PlanarSurfaceOrMultiSurfacePropertyType">
                         <annotation>
@@ -802,7 +793,7 @@
     </element>
     <complexType name="CompositeSolidType">
         <complexContent>
-            <extension base="diggs:AbstractVolumeType">
+            <extension base="gml:AbstractSolidType">
                 <sequence>
                     <element ref="diggs:solidMember" minOccurs="0" maxOccurs="unbounded"/>
                     <element ref="diggs:solidMembers" minOccurs="0"/>
@@ -839,7 +830,7 @@
     </element>
     <complexType name="MultiSolidType">
         <complexContent>
-            <extension base="diggs:AbstractGeometricAggregateType">
+            <extension base="gml:AbstractGeometricAggregateType">
                 <sequence>
                     <element ref="diggs:solidMember" minOccurs="0" maxOccurs="unbounded"/>
                     <element ref="diggs:solidMembers" minOccurs="0"/>
@@ -865,7 +856,7 @@
     </element>
     <complexType name="MultiCurveType">
         <complexContent>
-            <extension base="diggs:AbstractGeometricAggregateType">
+            <extension base="gml:AbstractGeometricAggregateType">
                 <sequence>
                     <element maxOccurs="1" minOccurs="0" ref="diggs:curveMembers"/>
                     <element minOccurs="0" name="uncertainty"
@@ -1090,15 +1081,15 @@
     </element>
     <!-- ================================================================================= -->
     <!-- TRIANGULATED SURFACE - v 3.1 addition (planar-triangle-mesh equivalent of gml:TriangulatedSurface)  -->
-    <!-- Parallels MultiPlanarSurface/PlanarSurfacePatch exactly: extends diggs:AbstractSurfaceType -->
+    <!-- Parallels MultiPlanarSurface/PlanarSurfacePatch exactly: extends gml:AbstractSurfaceType   -->
     <!-- and substitutes diggs:AbstractSurface, so it's automatically usable anywhere        -->
     <!-- PlanarSurface/MultiPlanarSurface already are today (arealExtent's SurfacePropertyType -->
     <!-- choice, a Solid's Shell surfaceMember, etc.) — no other schema changes needed.       -->
     <!-- (Corrected S32f, 2026-09: diggs:AbstractSurface does NOT itself substitute           -->
     <!-- gml:AbstractSurface - it substitutes diggs:AbstractGeometricPrimitive, which         -->
     <!-- substitutes diggs:AbstractGeometry, which substitutes gml:AbstractGeometry. Since    -->
-    <!-- S32e, diggs:AbstractSurfaceType does TYPE-DERIVE from gml:AbstractSurfaceType, which  -->
-    <!-- is the separate, correct sense in which this family now carries real GML identity.)-->
+    <!-- the type extends gml:AbstractSurfaceType directly, which is the separate, correct    -->
+    <!-- sense in which this family carries real GML identity.)                               -->
     <!-- ================================================================================= -->
 
     <element name="TriangulatedSurface" substitutionGroup="diggs:AbstractSurface"
@@ -1120,7 +1111,7 @@
 
     <complexType name="TriangulatedSurfaceType">
         <complexContent>
-            <extension base="diggs:AbstractSurfaceType">
+            <extension base="gml:AbstractSurfaceType">
                 <sequence>
                     <element ref="gml:patches">
                         <annotation>
