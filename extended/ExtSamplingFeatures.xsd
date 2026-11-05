@@ -404,7 +404,7 @@
                 <sequence>
                     <element minOccurs="0" ref="diggs:referenceEdge"/>
                     <element maxOccurs="1" minOccurs="1" name="featureExtent"
-                        type="diggs:VolumePropertyType">
+                        type="diggs:SolidPropertyType">
                         <annotation>
                             <documentation>
                                 The extent of the solid feature, usable for visual representations
@@ -447,23 +447,22 @@
     <!-- GEOMETRY OBJECTS                                                                  -->
     <!-- ================================================================================= -->
 
-    <element abstract="true" name="AbstractVolume" type="gml:AbstractSolidType"
+    <element abstract="true" name="AbstractSolid" type="gml:AbstractSolidType"
         substitutionGroup="diggs:AbstractGeometricPrimitive">
         <annotation>
             <documentation>
-                Abstract head of the substitution group for volume geometries: an abstraction of a
+                Abstract head of the substitution group for solid geometries: an abstraction of a
                 solid that supports differing levels of complexity, and is always a continuous
-                geometric primitive. A concrete volume extends gml:AbstractSolidType, GML's
-                equivalent concept (DIGGS names it "Volume" rather than "Solid"), for example
+                geometric primitive. A concrete solid extends gml:AbstractSolidType, for example
                 diggs:Solid.
             </documentation>
         </annotation>
     </element>
 
-    <complexType name="VolumePropertyType">
+    <complexType name="SolidPropertyType">
         <annotation>
             <documentation>
-                Property type that contains an object that substitutes for diggs:AbstractVolume
+                Property type that contains an object that substitutes for diggs:AbstractSolid
                 inline, or refers to one with xlink:href.
             </documentation>
         </annotation>
@@ -471,7 +470,7 @@
             <restriction base="gml:DomainSetType">
                 <sequence minOccurs="0">
                     <choice>
-                        <element ref="diggs:AbstractVolume"/>
+                        <element ref="diggs:AbstractSolid"/>
                     </choice>
                 </sequence>
                 <attributeGroup ref="gml:OwnershipAttributeGroup"/>
@@ -514,7 +513,7 @@
             </extension>
         </complexContent>
     </complexType>
-    <element name="Solid" substitutionGroup="diggs:AbstractVolume" type="diggs:SolidType">
+    <element name="Solid" substitutionGroup="diggs:AbstractSolid" type="diggs:SolidType">
         <annotation>
             <documentation>
                 A geometry object that forms the basis for 3D geometry: a volume bounded by shells.
@@ -566,7 +565,7 @@
     </complexType>
 
     <element name="SurfaceBoundedSolid" type="diggs:SurfaceBoundedSolidType"
-        substitutionGroup="diggs:AbstractVolume">
+        substitutionGroup="diggs:AbstractSolid">
         <annotation>
             <documentation>
                 A volume of earth material whose sides are vertical, encoded as a top surface, a
@@ -616,7 +615,7 @@
                 regions as void, with the parts of the walls that would stand on them, rather than
                 render an inverted volume. No GML counterpart: GML represents a solid only by
                 explicit boundary representation (gml:Solid bounded by gml:Shell), so this is a
-                DIGGS construct with nothing in GML to align to. It substitutes diggs:AbstractVolume
+                DIGGS construct with nothing in GML to align to. It substitutes diggs:AbstractSolid
                 and its type derives from gml:AbstractSolidType, so a schema-aware GML consumer
                 sees a member of the solid family, and only a DIGGS-aware consumer needs to know
                 how to expand it.
@@ -728,7 +727,7 @@
             <documentation>
                 A single volume member of a diggs:CompositeSolid or diggs:MultiSolid, given inline
                 or by reference with xlink:href. A volume here is any element substitutable for
-                diggs:AbstractVolume: diggs:Solid, diggs:SurfaceBoundedSolid or, though unusual and
+                diggs:AbstractSolid: diggs:Solid, diggs:SurfaceBoundedSolid or, though unusual and
                 worth a second look, a nested diggs:CompositeSolid. It corresponds to
                 diggs:surfaceMember for volumes.
             </documentation>
@@ -737,13 +736,13 @@
     <complexType name="SolidMemberPropertyType">
         <annotation>
             <documentation>
-                Property type that contains one object that substitutes for diggs:AbstractVolume
+                Property type that contains one object that substitutes for diggs:AbstractSolid
                 inline, or refers to one with xlink:href. Give either the reference or the contained
                 element, not both and not neither.
             </documentation>
         </annotation>
         <sequence minOccurs="0">
-            <element ref="diggs:AbstractVolume"/>
+            <element ref="diggs:AbstractSolid"/>
         </sequence>
         <attributeGroup ref="gml:AssociationAttributeGroup"/>
         <attributeGroup ref="gml:OwnershipAttributeGroup"/>
@@ -764,23 +763,23 @@
         <annotation>
             <documentation>
                 Property type that contains one or more objects that substitute for
-                diggs:AbstractVolume inline. Referencing members with xlink is not supported; use
+                diggs:AbstractSolid inline. Referencing members with xlink is not supported; use
                 diggs:solidMember for that.
             </documentation>
         </annotation>
         <sequence maxOccurs="unbounded">
-            <element ref="diggs:AbstractVolume"/>
+            <element ref="diggs:AbstractSolid"/>
         </sequence>
     </complexType>
 
-    <element name="CompositeSolid" substitutionGroup="diggs:AbstractVolume"
+    <element name="CompositeSolid" substitutionGroup="diggs:AbstractSolid"
         type="diggs:CompositeSolidType">
         <annotation>
             <documentation>
                 A single connected volume assembled from one or more independently existing volume
                 members that join along shared boundary faces (ISO 19107 GM_CompositeSolid): one
                 body, tiled into cells that between them cover it exactly once, with no gaps and no
-                overlaps. Because it is a volume, it substitutes diggs:AbstractVolume and is legal
+                overlaps. Because it is a volume, it substitutes diggs:AbstractSolid and is legal
                 wherever diggs:Solid or diggs:SurfaceBoundedSolid is, including diggs:featureExtent.
                 The no-gap, no-overlap condition is not machine-enforced, as elsewhere in this
                 geometry family. It is intended for a body divided into cells that carry different
@@ -819,7 +818,7 @@
                 between members (ISO 19107 GM_MultiSolid): a disjoint set of bodies, such as a
                 geologic unit present as several unconnected patches, or a coverage domain needing
                 one value per volume. Unlike diggs:CompositeSolid, it does not behave as one solid:
-                it substitutes diggs:AbstractGeometricAggregate, not diggs:AbstractVolume, so it can
+                it substitutes diggs:AbstractGeometricAggregate, not diggs:AbstractSolid, so it can
                 be given through diggs:location and any other diggs:AbstractGeometry property, but
                 not through diggs:featureExtent. Members may overlap; nothing here asserts they do
                 not. Members may be inline (solidMember or solidMembers) or cited by xlink:href to a
@@ -1067,7 +1066,7 @@
         </annotation>
     </element>
 
-    <element name="relativeFeatureExtent" type="diggs:VolumePropertyType">
+    <element name="relativeFeatureExtent" type="diggs:SolidPropertyType">
         <annotation>
             <appinfo>
                 <diggs:deprecated since="3.1.0"
