@@ -25,11 +25,13 @@ def scratch():
             shutil.copy(os.path.join(ROOT, f), tmp)
     shutil.copytree(os.path.join(ROOT, 'deprecated'), os.path.join(tmp, 'deprecated'))
     shutil.copy(os.path.join(HERE, 'removed.json'), os.path.join(tmp, 'removed.json'))
+    shutil.copy(os.path.join(HERE, 'retyped.json'), os.path.join(tmp, 'retyped.json'))
     return tmp
 
 
 def run(tmp, *extra):
     p = subprocess.run([sys.executable, GEN, '--schema-root', tmp, '--removed', os.path.join(tmp, 'removed.json'),
+                        '--retyped', os.path.join(tmp, 'retyped.json'),
                         '--quiet', '--baseline-repo', ROOT, *extra], capture_output=True, text=True)
     return p.returncode, p.stderr + p.stdout
 
@@ -111,6 +113,29 @@ def main():
     json.dump(r, open(os.path.join(t, 'removed.json'), 'w'))
     c, o = run(t, '--audit-baseline', '3.0.0')
     expect('audit: removed entry the baseline never had', c, o, 1, 'which baseline 3.0.0 never declared')
+
+    t = scratch()
+    r = json.load(open(os.path.join(t, 'retyped.json')))
+    r['retyped'].append(dict(r['retyped'][0], name='diggs:soilPlugElevation', host='diggs:ConcretePileType'))
+    json.dump(r, open(os.path.join(t, 'retyped.json'), 'w'))
+    c, o = run(t)
+    expect('retyped: without the audit, an element whose type never changed is not noticed', c, o, 0, None)
+    c, o = run(t, '--audit-baseline', '3.0.0')
+    expect('audit: retyped entry whose type is unchanged since the baseline', c, o, 1, 'the type is unchanged since baseline 3.0.0')
+
+    t = scratch()
+    r = json.load(open(os.path.join(t, 'retyped.json')))
+    r['retyped'][0]['host'] = 'diggs:SteelPipePileType'
+    json.dump(r, open(os.path.join(t, 'retyped.json'), 'w'))
+    c, o = run(t)
+    expect('retyped: host does not declare the element', c, o, 1, 'the host declares 0 elements of that name')
+
+    t = scratch()
+    r = json.load(open(os.path.join(t, 'retyped.json')))
+    del r['retyped'][0]['instanceXPath']
+    json.dump(r, open(os.path.join(t, 'retyped.json'), 'w'))
+    c, o = run(t)
+    expect('retyped: missing instanceXPath', c, o, 1, "missing fields ['instanceXPath']")
 
     t = scratch()
     c, o = run(t)

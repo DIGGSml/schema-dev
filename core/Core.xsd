@@ -13,9 +13,8 @@
             of the DIGGS Core profile. </documentation>
     </annotation>
 
-    <!-- Uncomment to clear validation errors without a master file
+    <!-- Uncomment to clear validation errors without a master file -->
     <include schemaLocation="../Diggs.xsd"/>
--->
 
     <import namespace="http://www.opengis.net/gml/3.2" schemaLocation="gml3.2Profile_diggs.xsd"/>
     <import namespace="http://www.w3.org/1999/xlink" schemaLocation="xlinks.xsd"/>
@@ -807,7 +806,7 @@
                     <element minOccurs="0" name="groutingActivityRef"
                         type="diggs:FeatureReferenceType">
                         <annotation>
-                            <appinfo>diggs:GroutingActivity</appinfo>
+                            <appinfo source="urn:x-gml:targetElement">diggs:GroutingActivity</appinfo>
                             <documentation>
                                 The grouting activity that placed this layer, where pressure and
                                 flow rate time series were recorded for it. Given by reference only.
@@ -816,7 +815,7 @@
                     </element>
                     <element minOccurs="0" name="groutRef" type="diggs:FeatureReferenceType">
                         <annotation>
-                            <appinfo>diggs:GroutBatch</appinfo>
+                            <appinfo source="urn:x-gml:targetElement">diggs:GroutBatch</appinfo>
                             <documentation>
                                 The diggs:GroutBatch used in this layer, where the components of the
                                 grout are recorded. Given by reference only.
@@ -825,7 +824,7 @@
                     </element>
                     <element minOccurs="0" name="wellOpeningRef" type="diggs:FeatureReferenceType">
                         <annotation>
-                            <appinfo>diggs:WellOpening</appinfo>
+                            <appinfo source="urn:x-gml:targetElement">diggs:WellOpening</appinfo>
                             <documentation>
                                 The well opening, a diggs:WellOpening held in
                                 diggs:WellType/opening, that this layer is associated with. Given by
@@ -1998,7 +1997,7 @@
                     <element name="constructionMethod" type="diggs:SpecificationPropertyType"
                         maxOccurs="unbounded" minOccurs="0">
                         <annotation>
-                            <appinfo>diggs:Specification</appinfo>
+                            <appinfo source="urn:x-gml:targetElement">diggs:Specification</appinfo>
                             <documentation>
                                 A diggs:Specification that describes the method of construction over
                                 the location. Given by reference only.
@@ -2008,7 +2007,7 @@
                     <element name="constructionEquipment" type="diggs:EquipmentPropertyType"
                         maxOccurs="unbounded" minOccurs="0">
                         <annotation>
-                            <appinfo>diggs:AbstractEquipment</appinfo>
+                            <appinfo source="urn:x-gml:targetElement">diggs:AbstractEquipment</appinfo>
                             <documentation>
                                 The equipment used to construct the trench or pit, as a
                                 diggs:Equipment feature. Given by reference only.
@@ -7053,6 +7052,70 @@
         </sequence>
     </complexType>
 
+    <element name="Program" type="diggs:ProgramType" substitutionGroup="diggs:AbstractProgram">
+        <annotation>
+            <documentation>
+                A generic program: the designs it issues, the specifications it must satisfy, and
+                the bases those were prepared from, for work that has no specialized program
+                element. Document order is strictly all design elements, then all specification
+                elements, then all basis elements, not interleaved; a design may still cite a
+                specification declared later in the document.
+            </documentation>
+        </annotation>
+    </element>
+    <complexType name="ProgramType">
+        <complexContent>
+            <extension base="diggs:AbstractProgramType">
+                <sequence>
+                    <element minOccurs="0" name="class" type="gml:CodeWithAuthorityType">
+                        <annotation>
+                            <documentation>
+                                The kind of work this program covers, for example rigid inclusions
+                                or ground improvement, as a code from a dictionary. Not used where a
+                                specialized program element exists for the kind of work, such as
+                                diggs:RigidInclusionProgram. No DIGGS-authored dictionary currently
+                                exists. The codeSpace attribute is mandatory.
+                            </documentation>
+                        </annotation>
+                    </element>
+                    <element minOccurs="0" maxOccurs="unbounded" name="design"
+                        type="diggs:ProgramDesignPropertyType">
+                        <annotation>
+                            <documentation>
+                                A design this program issues: what is intended to be built. It holds
+                                any member of the diggs:AbstractProgramDesign substitution group, so
+                                a program may carry a diggs:DesignMeasurement and a
+                                diggs:DesignGroutMix alongside one another. Repeat for each design.
+                            </documentation>
+                        </annotation>
+                    </element>
+                    <element minOccurs="0" maxOccurs="unbounded" name="specification"
+                        type="diggs:ProgramSpecificationPropertyType">
+                        <annotation>
+                            <documentation>
+                                A specification this program must satisfy: the constraints and
+                                tolerances the work is judged against. It holds any member of the
+                                diggs:AbstractProgramSpecification substitution group. Repeat for
+                                each specification.
+                            </documentation>
+                        </annotation>
+                    </element>
+                    <element minOccurs="0" maxOccurs="unbounded" name="basis"
+                        type="diggs:ProgramBasisPropertyType">
+                        <annotation>
+                            <documentation>
+                                A basis the designs of the program were prepared from: the ground
+                                model, requirement set or other evidence relied on. It holds any
+                                member of the diggs:AbstractProgramBasis substitution group. Repeat
+                                for each basis.
+                            </documentation>
+                        </annotation>
+                    </element>
+                </sequence>
+            </extension>
+        </complexContent>
+    </complexType>
+
     <!-- ================================================================================== -->
     <!-- TEST SCHEDULING ELEMENTS                                                                -->
     <!-- ================================================================================== -->
@@ -7235,6 +7298,7 @@
                 <sequence>
                     <element name="testingScheduleRef" type="diggs:FeatureReferenceType">
                         <annotation>
+                            <appinfo source="urn:x-gml:targetElement">diggs:TestingSchedule</appinfo>
                             <documentation>
                                 The testing schedule the test is planned under.
                             </documentation>
@@ -7249,6 +7313,7 @@
                     </element>
                     <element name="measurementSpecificationRef" type="diggs:FeatureReferenceType">
                         <annotation>
+                            <appinfo source="urn:x-gml:targetElement">diggs:MeasurementSpecification</appinfo>
                             <documentation>
                                 The measurement specification the test follows.
                             </documentation>
@@ -7534,7 +7599,7 @@
             </enumeration>
         </restriction>
     </simpleType>
-    <element name="PerformanceCriterion" type="diggs:AbstractAcceptanceCriterionType"
+    <element name="PerformanceCriterion" type="diggs:PerformanceCriterionType"
         substitutionGroup="diggs:AbstractAcceptanceCriterion">
         <annotation>
             <documentation>
@@ -7548,8 +7613,13 @@
             </documentation>
         </annotation>
     </element>
+    <complexType name="PerformanceCriterionType">
+        <complexContent>
+            <extension base="diggs:AbstractAcceptanceCriterionType"/>
+        </complexContent>
+    </complexType>
 
-    <element name="DesignConformanceCriterion" type="diggs:AbstractAcceptanceCriterionType"
+    <element name="DesignConformanceCriterion" type="diggs:DesignConformanceCriterionType"
         substitutionGroup="diggs:AbstractAcceptanceCriterion">
         <annotation>
             <documentation>
@@ -7564,6 +7634,11 @@
             </documentation>
         </annotation>
     </element>
+    <complexType name="DesignConformanceCriterionType">
+        <complexContent>
+            <extension base="diggs:AbstractAcceptanceCriterionType"/>
+        </complexContent>
+    </complexType>
 
     <simpleType name="LogicalOperatorEnumType">
         <restriction base="string">
@@ -7700,7 +7775,7 @@
                     </documentation>
                 </annotation>
             </enumeration>
-            <enumeration value="referenceBeforeSubject">
+            <enumeration value="reference before subject">
                 <annotation>
                     <documentation>
                         The reference feature (or, where referenceFeatureType is absent, an earlier
@@ -7710,11 +7785,11 @@
                     </documentation>
                 </annotation>
             </enumeration>
-            <enumeration value="subjectBeforeReference">
+            <enumeration value="subject before reference">
                 <annotation>
                     <documentation>
                         The subject must reach its governing timestamp at least minimumElapsedTime
-                        before the reference does; the reverse of referenceBeforeSubject.
+                        before the reference does; the reverse of "reference before subject".
                     </documentation>
                 </annotation>
             </enumeration>
@@ -7821,10 +7896,10 @@
                         <annotation>
                             <documentation>
                                 Whether minimumElapsedTime is symmetric ("unordered") or directional
-                                ("referenceBeforeSubject", "subjectBeforeReference"). If omitted,
-                                the order is unordered, the common case of two peer installations
-                                that need only clear the interval in either order. Values come from
-                                the enumerated list.
+                                ("reference before subject", "subject before reference"). If
+                                omitted, the order is unordered, the common case of two peer
+                                installations that need only clear the interval in either order.
+                                Values come from the enumerated list.
                             </documentation>
                         </annotation>
                     </element>
@@ -8045,30 +8120,40 @@
             </documentation>
         </annotation>
     </element>
+    <complexType name="RectifiedGridOrReferenceableGridByArrayPropertyType">
+        <annotation>
+            <documentation>
+                Property type that contains one diggs:RectifiedGrid or one
+                diggs:ReferenceableGridByArray inline, or refers to one with xlink:href.
+            </documentation>
+        </annotation>
+        <sequence minOccurs="0">
+            <choice>
+                <element ref="diggs:RectifiedGrid"/>
+                <element ref="diggs:ReferenceableGridByArray"/>
+            </choice>
+        </sequence>
+        <attributeGroup ref="gml:OwnershipAttributeGroup"/>
+        <attributeGroup ref="gml:AssociationAttributeGroup"/>
+    </complexType>
     <complexType name="PlannedPositionsType">
         <complexContent>
             <extension base="diggs:AbstractComponentObjectBaseType">
                 <choice>
                     <sequence>
-                        <choice>
-                            <element ref="diggs:RectifiedGrid">
-                                <annotation>
-                                    <documentation>
-                                        A regular lattice defined by an origin and offset vectors.
-                                        The offset vectors need not be orthogonal, so a triangular
-                                        or staggered layout is a rectified grid.
-                                    </documentation>
-                                </annotation>
-                            </element>
-                            <element ref="diggs:ReferenceableGridByArray">
-                                <annotation>
-                                    <documentation>
-                                        An irregular layout, with positions given explicitly against
-                                        a declared index space.
-                                    </documentation>
-                                </annotation>
-                            </element>
-                        </choice>
+                        <element name="grid"
+                            type="diggs:RectifiedGridOrReferenceableGridByArrayPropertyType">
+                            <annotation>
+                                <documentation>
+                                    The grid of planned positions. A diggs:RectifiedGrid is a
+                                    regular lattice defined by an origin and offset vectors; the
+                                    offset vectors need not be orthogonal, so a triangular or
+                                    staggered layout is a rectified grid. A
+                                    diggs:ReferenceableGridByArray is an irregular layout, with
+                                    positions given explicitly against a declared index space.
+                                </documentation>
+                            </annotation>
+                        </element>
                         <element minOccurs="0" name="installationSequence"
                             type="diggs:InstallationSequencePropertyType">
                             <annotation>
@@ -8553,7 +8638,7 @@
                                 The planned volume of the sample. Corresponds to
                                 diggs:SampleType/sampleVolume. On diggs:DesignGroutMix it overlaps
                                 in meaning, not in role, with
-                                diggs:DesignGroutMixType/theoreticalYield, the batch volume the mix
+                                diggs:GroutBatchFormulationType/theoreticalYield, the batch volume the mix
                                 formula computes to; both may be stated.
                             </documentation>
                         </annotation>
@@ -9421,6 +9506,7 @@
     </element>
     <element name="sensorRef" type="diggs:FeatureReferenceType">
         <annotation>
+            <appinfo source="urn:x-gml:targetElement">diggs:AbstractSensor</appinfo>
             <documentation>
                 A reference to a sensor associated with this feature. Given by reference only.
             </documentation>
@@ -10282,72 +10368,39 @@
         substitutionGroup="diggs:AbstractGeometry" type="gml:AbstractGeometricAggregateType">
         <annotation>
             <documentation>
-                Abstract head of the substitution group for geometry aggregates, the collections of
-                geometric primitives.
+                Abstract head of the substitution group for geometry aggregates: collections of
+                geometric primitives that together represent a single geometric concept, such as a
+                multi-part feature or a discontinuous sampling area. A concrete aggregate extends
+                gml:AbstractGeometricAggregateType, for example diggs:MultiPointLocation.
             </documentation>
         </annotation>
     </element>
-    <complexType abstract="true" name="AbstractGeometricAggregateType">
-        <annotation>
-            <documentation>
-                Abstract base type for geometry aggregates: collections of geometric primitives that
-                together represent a single geometric concept, such as a multi-part feature or a
-                discontinuous sampling area. Use one of its concrete extensions, for example
-                diggs:MultiPointLocationType.
-            </documentation>
-        </annotation>
-        <complexContent>
-            <extension base="gml:AbstractGeometricAggregateType"> </extension>
-        </complexContent>
-    </complexType>
 
     <element abstract="true" name="AbstractGeometricPrimitive"
         substitutionGroup="diggs:AbstractGeometry" type="gml:AbstractGeometricPrimitiveType">
         <annotation>
             <documentation>
-                Abstract head of the substitution group for geometry primitives.
+                Abstract head of the substitution group for geometry primitives: geometric objects
+                that are not decomposed further into other primitives. All primitives are oriented
+                in the direction implied by the sequence of their coordinate tuples. A concrete
+                primitive extends gml:AbstractGeometricPrimitiveType, for example
+                diggs:PointLocation.
             </documentation>
         </annotation>
     </element>
-    <complexType abstract="true" name="AbstractGeometricPrimitiveType">
-        <annotation>
-            <documentation>
-                Abstract base type for geometric primitives: geometric objects that are not
-                decomposed further into other primitives. All primitives are oriented in the
-                direction implied by the sequence of their coordinate tuples. Use one of its
-                concrete extensions, for example diggs:PointLocationType.
-            </documentation>
-        </annotation>
-        <complexContent>
-            <extension base="gml:AbstractGeometricPrimitiveType"/>
-        </complexContent>
-    </complexType>
 
     <element abstract="true" name="AbstractGeometry" substitutionGroup="gml:AbstractGeometry"
         type="gml:AbstractGeometryType">
         <annotation>
             <documentation>
-                Abstract head of the substitution group for DIGGS geometry objects.
+                Abstract head of the substitution group for DIGGS geometry objects. gml:id is
+                optional on a geometry, but state one whenever the geometry is referenced: a
+                linear-referencing element, a shared extent cited by xlink:href or a local CRS axis
+                definition cannot resolve without one. Omit it only for geometry that is wholly
+                contained and never cited.
             </documentation>
         </annotation>
     </element>
-    <complexType name="AbstractGeometryType" abstract="true">
-        <annotation>
-            <documentation>
-                Abstract base type for DIGGS geometry objects, the root of the DIGGS geometry
-                hierarchy; every DIGGS geometry type derives from gml:AbstractGeometryType through
-                it. gml:name, gml:identifier, gml:description and gml:descriptionReference are
-                available on every geometry. gml:id is optional, but state one whenever the geometry
-                is referenced: a linear-referencing element, a shared extent cited by xlink:href or
-                a local CRS axis definition cannot resolve without one. Omit it only for geometry
-                that is wholly contained and never cited. Use one of its concrete extensions, for
-                example diggs:PointLocationType.
-            </documentation>
-        </annotation>
-        <complexContent>
-            <extension base="gml:AbstractGeometryType"/>
-        </complexContent>
-    </complexType>
 
     <element name="PointLocation" substitutionGroup="diggs:AbstractGeometricPrimitive"
         type="diggs:PointLocationType">
@@ -10359,7 +10412,7 @@
     </element>
     <complexType name="PointLocationType">
         <complexContent>
-            <extension base="diggs:AbstractGeometricPrimitiveType">
+            <extension base="gml:AbstractGeometricPrimitiveType">
                 <sequence>
                     <choice>
                         <element ref="gml:pos"/>
@@ -10406,7 +10459,7 @@
     </element>
     <complexType name="MultiPointLocationType">
         <complexContent>
-            <extension base="diggs:AbstractGeometricAggregateType">
+            <extension base="gml:AbstractGeometricAggregateType">
                 <sequence>
                     <element ref="gml:posList"/>
                     <element minOccurs="0" name="uncertainty"
@@ -10499,7 +10552,7 @@
             </documentation>
         </annotation>
         <complexContent>
-            <extension base="diggs:AbstractGeometryType">
+            <extension base="gml:AbstractGeometryType">
                 <sequence>
                     <element name="limits" type="gml:GridLimitsType">
                         <annotation>
@@ -10585,26 +10638,16 @@
     </complexType>
 
     <element abstract="true" name="AbstractCurve"
-        substitutionGroup="diggs:AbstractGeometricPrimitive" type="diggs:AbstractCurveType">
+        substitutionGroup="diggs:AbstractGeometricPrimitive" type="gml:AbstractCurveType">
         <annotation>
             <documentation>
                 Abstract head of the substitution group for curves, the one-dimensional geometric
-                primitives.
+                primitives. A curve may always be viewed as a geometric primitive, that is, as
+                continuous. A concrete curve extends gml:AbstractCurveType, for example
+                diggs:LinearExtent.
             </documentation>
         </annotation>
     </element>
-    <complexType abstract="true" name="AbstractCurveType">
-        <annotation>
-            <documentation>
-                Abstract base type for curves. A curve may always be viewed as a geometric
-                primitive, that is, as continuous. Use one of its concrete extensions, for example
-                diggs:LinearExtentType.
-            </documentation>
-        </annotation>
-        <complexContent>
-            <extension base="gml:AbstractCurveType"/>
-        </complexContent>
-    </complexType>
 
     <element name="LinearExtent" substitutionGroup="diggs:AbstractCurve"
         type="diggs:LinearExtentType">
@@ -10622,7 +10665,7 @@
     </element>
     <complexType name="LinearExtentType">
         <complexContent>
-            <extension base="diggs:AbstractCurveType">
+            <extension base="gml:AbstractCurveType">
                 <sequence>
                     <choice>
                         <element ref="gml:posList"/>
@@ -10731,7 +10774,7 @@
     </element>
     <complexType name="PlanarSurfaceType">
         <complexContent>
-            <extension base="diggs:AbstractSurfaceType">
+            <extension base="gml:AbstractSurfaceType">
                 <sequence>
                     <element minOccurs="0" ref="gml:exterior"/>
                     <element maxOccurs="unbounded" minOccurs="0" ref="gml:interior"/>
@@ -10796,7 +10839,7 @@
     </element>
     <complexType name="MultiPlanarSurfaceType">
         <complexContent>
-            <extension base="diggs:AbstractSurfaceType">
+            <extension base="gml:AbstractSurfaceType">
                 <sequence>
                     <element ref="gml:patches"/>
                     <element minOccurs="0" name="uncertainty"
@@ -10831,7 +10874,7 @@
     </element>
     <complexType name="CompositeSurfaceType">
         <complexContent>
-            <extension base="diggs:AbstractSurfaceType">
+            <extension base="gml:AbstractSurfaceType">
                 <sequence>
                     <element ref="diggs:surfaceMember" minOccurs="0" maxOccurs="unbounded"/>
                     <element ref="diggs:surfaceMembers" minOccurs="0"/>
@@ -10884,7 +10927,7 @@
     </complexType>
     <complexType name="MultiSurfaceType">
         <complexContent>
-            <extension base="diggs:AbstractGeometricAggregateType">
+            <extension base="gml:AbstractGeometricAggregateType">
                 <sequence>
                     <element ref="diggs:surfaceMember" minOccurs="0" maxOccurs="unbounded"/>
                     <element ref="diggs:surfaceMembers" minOccurs="0"/>

@@ -4,9 +4,8 @@
     xmlns:vc="http://www.w3.org/2007/XMLSchema-versioning" vc:maxVersion="1.1" vc:minVersion="1.0"
     elementFormDefault="qualified" targetNamespace="http://diggsml.org/schemas/3" version="3.1.0">
 
-    <!-- Uncomment to clear validation errors without a master file
+    <!-- Uncomment to clear validation errors without a master file -->
     <include schemaLocation="../Diggs.xsd"/>
--->
 
     <import namespace="http://www.opengis.net/gml/3.2" schemaLocation="gml3.2Profile_diggs.xsd"/>
     <import namespace="http://www.w3.org/XML/1998/namespace" schemaLocation="xml.xsd"/>
@@ -515,6 +514,7 @@
     </element>
     <element name="programRef" type="diggs:FeatureReferenceType">
         <annotation>
+            <appinfo source="urn:x-gml:targetElement">diggs:AbstractProgram</appinfo>
             <documentation>
                 A reference to a program associated with this feature.
             </documentation>
@@ -534,6 +534,7 @@
     </element>
     <element name="programSpecificationRef" type="diggs:FeatureReferenceType">
         <annotation>
+            <appinfo source="urn:x-gml:targetElement">diggs:AbstractProgramSpecification</appinfo>
             <documentation>
                 A reference to a program specification object that this feature must satisfy.
             </documentation>
@@ -593,6 +594,7 @@
     </element>
     <element name="sampleProducedRef" type="gml:ReferenceType">
         <annotation>
+            <appinfo source="urn:x-gml:targetElement">diggs:SampleProduced</appinfo>
             <documentation>
                 A link to the gml:id of the SampleProduced object contained in the associated
                 sampling activity. That object holds the location and the specific sampling time of
@@ -603,8 +605,8 @@
     <element name="sampleRef" type="diggs:FractionalReferenceType">
         <annotation>
             <appinfo source="urn:x-gml:targetElement">diggs:Sample</appinfo>
-            <appinfo>diggs:TrialGroutBatch</appinfo>
-            <appinfo>diggs:GroutBatch</appinfo>
+            <appinfo source="urn:x-gml:targetElement">diggs:TrialGroutBatch</appinfo>
+            <appinfo source="urn:x-gml:targetElement">diggs:GroutBatch</appinfo>
             <documentation>
                 A reference to a sample associated with this feature. The percentage attribute can
                 state the proportion the sample contributes. Given by reference only.
@@ -757,9 +759,7 @@
             <element ref="diggs:Specification">
                 <annotation>
                     <appinfo>
-                        <diggs:deprecated since="3.1.0"
-                            replacedBy="diggs:ConstructionActivityMethod"
-                            note="omit its location where the method applies to the whole feature"/>
+                        <diggs:deprecated since="3.1.0" replacedBy="diggs:ConstructionActivityMethod" note="omit its location where the method applies to the whole feature"/>
                     </appinfo>
                     <documentation>DEPRECATED. Use diggs:ConstructionActivityMethod, omitting its
                         location where the method applies to the whole feature. The specification of
@@ -1223,7 +1223,7 @@
             </restriction>
         </complexContent>
     </complexType>
-    <complexType name="RIProgramDesignPropertyType">
+    <complexType name="ProgramDesignPropertyType">
         <annotation>
             <documentation>
                 Property type that contains one object that substitutes for
@@ -1234,7 +1234,7 @@
             <element ref="diggs:AbstractProgramDesign"/>
         </sequence>
     </complexType>
-    <complexType name="RIProgramSpecificationPropertyType">
+    <complexType name="ProgramSpecificationPropertyType">
         <annotation>
             <documentation>
                 Property type that contains one object that substitutes for
@@ -1278,8 +1278,8 @@
     </complexType>
     <complexType name="SamplingMethodPropertyType">
         <annotation>
-            <appinfo>diggs:Specification</appinfo>
-            <appinfo>diggs:DrivenPenetrationTest</appinfo>
+            <appinfo source="urn:x-gml:targetElement">diggs:Specification</appinfo>
+            <appinfo source="urn:x-gml:targetElement">diggs:DrivenPenetrationTest</appinfo>
             <documentation>
                 Property type that contains one diggs:Specification object inline, or refers to one
                 with xlink:href. Where the sampling method is a driven penetration test, the
@@ -1316,7 +1316,7 @@
     </complexType>
     <complexType name="SoftwareApplicationPropertyType">
         <annotation>
-            <appinfo>diggs:SoftwareApplication</appinfo>
+            <appinfo source="urn:x-gml:targetElement">diggs:SoftwareApplication</appinfo>
             <documentation>
                 Property type that contains one diggs:SoftwareApplication object inline, or refers
                 to one with xlink:href.
@@ -1877,8 +1877,7 @@
                             minOccurs="1" maxOccurs="1">
                             <annotation>
                                 <appinfo>
-                                    <diggs:deprecated since="3.1.0"
-                                        replacedBy="diggs:calibrationValues"/>
+                                    <diggs:deprecated since="3.1.0" replacedBy="diggs:calibrationValues"/>
                                 </appinfo>
                                 <documentation>DEPRECATED. Use calibrationValues; this name is a
                                     misspelling of it.</documentation>
@@ -1936,7 +1935,7 @@
                     <element minOccurs="0" maxOccurs="unbounded" name="referenceStandard"
                         type="diggs:EquipmentPropertyType">
                         <annotation>
-                            <appinfo>diggs:AbstractEquipment</appinfo>
+                            <appinfo source="urn:x-gml:targetElement">diggs:AbstractEquipment</appinfo>
                             <documentation>The reference equipment the item was calibrated
                                 against, such as a dead-weight tester or a proving load cell, as an
                                 Equipment object or a reference to one. The reference equipment's
@@ -2147,11 +2146,14 @@
                 <attribute name="identifierRef" type="diggs:IdentifierReferenceType" use="optional">
                     <annotation>
                         <documentation>
-                            The gml:identifier value of the referenced feature, as a fully qualified
-                            value. It gives an alternative to the gml:id in xlink:href for finding
-                            the referenced feature, mainly to reference a feature by a globally
-                            unique identifier and where naming conflicts occur with gml:id when
-                            accessing data in external files.
+                            The gml:identifier of the referenced feature, given exactly as the text
+                            value of that identifier; the codeSpace of the identifier is not part of
+                            the reference. An alternative to the gml:id in xlink:href, mainly to cite
+                            a feature in another file, where its gml:id may not be stable or may
+                            conflict with a gml:id in the citing file. The referenced gml:identifier
+                            should be a globally unique, fully qualified URI: a URN (for example
+                            urn:diggs:def:fi:USGS:usgs_b11) or an HTTP(S) URI. A reference to an
+                            identifier of another form is valid but not recommended.
                         </documentation>
                     </annotation>
                 </attribute>
@@ -2278,8 +2280,7 @@
                             type="diggs:LocationUncertaintyPropertyType">
                             <annotation>
                                 <appinfo>
-                                    <diggs:deprecated since="3.1.0"
-                                        replacedBy="diggs:localCoordinateUncertainty"/>
+                                    <diggs:deprecated since="3.1.0" replacedBy="diggs:localCoordinateUncertainty"/>
                                 </appinfo>
                                 <documentation>
                                     DEPRECATED. Use localCoordinateUncertainty; this name is a
@@ -2348,8 +2349,10 @@
                                     <diggs:deprecated since="3.1.0" replacedBy="diggs:parcel"/>
                                 </appinfo>
                                 <documentation>
-                                    DEPRECATED. Use parcel; this name is a misspelling of it. The name
-                                    or id of a territory of land classified as a parcel.
+                                    DEPRECATED. Use parcel. This name is a misspelling of it: it ends in a
+                                    capital letter I (parceI) where the correct name ends in a lowercase
+                                    letter l (parcel); the two look alike in many fonts. The name or id of
+                                    a territory of land classified as a parcel.
                                 </documentation>
                             </annotation>
                         </element>
@@ -2357,7 +2360,8 @@
                             <annotation>
                                 <documentation>
                                     The name or id of a territory of land classified as a parcel. Use
-                                    this element, not the deprecated parceI.
+                                    this element (lowercase letter l at the end), not the deprecated
+                                    parceI (capital letter I at the end).
                                 </documentation>
                             </annotation>
                         </element>
@@ -2992,6 +2996,7 @@
                     </element>
                     <element minOccurs="0" name="procedureRef" type="diggs:FeatureReferenceType">
                         <annotation>
+                            <appinfo source="urn:x-gml:targetElement">diggs:AbstractProcedure</appinfo>
                             <documentation>
                                 A reference to the procedure used to obtain this property.
                             </documentation>
@@ -2999,7 +3004,7 @@
                     </element>
                     <element name="detectorRef" type="gml:ReferenceType" minOccurs="0" maxOccurs="1">
                         <annotation>
-                            <appinfo>diggs:Detector</appinfo>
+                            <appinfo source="urn:x-gml:targetElement">diggs:Detector</appinfo>
                             <documentation>
                                 A reference to the source detector within a sensor used to measure
                                 this property, if applicable. Generally used for well logs, downhole
@@ -5136,8 +5141,7 @@
                         <element name="accredtingBody" type="string">
                             <annotation>
                                 <appinfo>
-                                    <diggs:deprecated since="3.1.0"
-                                        replacedBy="diggs:accreditingBody"/>
+                                    <diggs:deprecated since="3.1.0" replacedBy="diggs:accreditingBody"/>
                                 </appinfo>
                                 <documentation>DEPRECATED. Use accreditingBody; this name is a
                                     misspelling of it. Identification of the accrediting body and
@@ -7453,8 +7457,7 @@
     <element name="implementationStatus" type="gml:CodeType">
         <annotation>
             <appinfo>
-                <diggs:deprecated since="3.0.0"
-                    note="a program design object, to track progress from design through completion"/>
+                <diggs:deprecated since="3.0.0" note="a program design object, to track progress from design through completion"/>
             </appinfo>
             <documentation>DEPRECATED. Use a program design object to track progress from design
                 through completion. A text string describing the implementation status of the object
@@ -7533,8 +7536,7 @@
         <annotation>
             <documentation>
                 The direction in which the stiffness, strength, tension or installed orientation of
-                a geosynthetic is stated: machine, cross-machine, normal to the layer, or in the
-                plane of the layer. Shared by the design value
+                a geosynthetic is stated: machine or cross-machine. Shared by the design value
                 (diggs:DesignGeosyntheticLayerType/direction) and the as-built value
                 (diggs:GeosyntheticType/direction), so that the stated orientation of an installed
                 layer can be compared with the design value that governs it.
@@ -7549,17 +7551,6 @@
             <enumeration value="cross machine">
                 <annotation>
                     <documentation>The direction perpendicular to the machine direction.</documentation>
-                </annotation>
-            </enumeration>
-            <enumeration value="normal">
-                <annotation>
-                    <documentation>Perpendicular to the plane of the layer, through its thickness.</documentation>
-                </annotation>
-            </enumeration>
-            <enumeration value="planar">
-                <annotation>
-                    <documentation>In the plane of the layer, without distinction between the machine and
-                        cross-machine directions.</documentation>
                 </annotation>
             </enumeration>
         </restriction>
