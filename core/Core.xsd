@@ -8041,8 +8041,10 @@
                 existing. State the order in exactly one of two ways: sequenceRule with an optional
                 startPoint gives a generated traversal, compact and right for regular layouts; one
                 or more gridIndexStep entries, each a grid index with its own sequenceNumber, give
-                an explicit order and account for every node of the grid. The order is local to the
-                design: numbers run 1 to n over its own nodes. Order between designs (primary,
+                an explicit order and account for every position of the grid. When the scope
+                restricts the grid with a zone, the positions are the nodes inside the zone and the
+                nodes outside it are not numbered. The order is local to the design: numbers run 1
+                to n over its own positions. Order between designs (primary,
                 secondary and tertiary passes, or one column type first) and out-of-order nodes are
                 stated by a diggs:DesignProductionSequence. Minimum spacing to fresh concrete and
                 minimum age before adjacent installation are requirements, not an order; use
@@ -8062,7 +8064,10 @@
                                     grid: Linear or Boustrophedonic, with axisOrder stating which
                                     axis varies fastest and the direction along each. The rule names
                                     are restricted to these two; state any other order with
-                                    gridIndexStep.
+                                    gridIndexStep. Where a zone restricts the grid, the traversal
+                                    still moves through every node of the grid, turning at the grid
+                                    edge, and skips the nodes outside the zone; the sequence numbers
+                                    count only the nodes inside it.
                                 </documentation>
                             </annotation>
                         </element>
@@ -8071,8 +8076,9 @@
                                 <documentation>
                                     The grid node the sequence begins at. If omitted, it is the
                                     gml:low of the grid, its lowest-indexed corner, as
-                                    gml:GridFunction also defaults. Meaningful only with
-                                    sequenceRule.
+                                    gml:GridFunction also defaults. If the node lies outside the
+                                    zone, the sequence begins at the first node inside the zone that
+                                    the traversal reaches. Meaningful only with sequenceRule.
                                 </documentation>
                             </annotation>
                         </element>
@@ -8085,11 +8091,13 @@
                                 traversal. The content is the grid index of the node, a
                                 diggs:GridIndexType like diggs:realizesGridIndex and
                                 plannedGridIndex, and the sequenceNumber attribute states its
-                                position in the order. The entries account for every node of the
-                                design's plannedPositions grid, each node once, with the sequence
-                                numbers running 1 to n; the schema does not enforce either. Use it
-                                for an order no rule generates, such as (1,1) then (10,2) then
-                                (1,2).
+                                position in the order. The entries account for every position of
+                                the design's plannedPositions grid, each once, with the sequence
+                                numbers running 1 to n; the schema does not enforce either. Where a
+                                zone restricts the grid, the positions are the nodes inside the
+                                zone, and an entry for a node outside it is ignored, so one list
+                                can serve designs with different zones. Use it for an order no rule
+                                generates, such as (1,1) then (10,2) then (1,2).
                             </documentation>
                         </annotation>
                     </element>
@@ -8243,7 +8251,8 @@
                             <annotation>
                                 <documentation>
                                     Where present, restricts the grid nodes of plannedPositions to
-                                    those that also fall within this zone.
+                                    those that also fall within this zone. Only those nodes are
+                                    planned positions; an installationSequence skips the others.
                                 </documentation>
                             </annotation>
                         </element>
