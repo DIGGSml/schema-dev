@@ -117,6 +117,7 @@ class Index:
         self.global_elements = {}
         self.reverse = {}
         self.elements = []                 # (name, node, abstract)
+        self.doc_of = {}                   # element node -> its Doc
         self.declared = set()              # every declared local name, for resolving replacedBy
         for doc in docs:
             for e in doc.root:
@@ -133,6 +134,7 @@ class Index:
                     self.declared.add(e.get('name'))
                 if e.tag == q('element') and e.get('name'):
                     self.elements.append((e.get('name'), e, e.get('abstract') == 'true'))
+                    self.doc_of[e] = doc
 
     @staticmethod
     def bases(t):
@@ -240,12 +242,13 @@ def particle_set(idx, tname, depth=0):
     return out
 
 
-def is_exact(doc, node, idx, children):
-    """False when a same-named parent element is declared elsewhere with a type that can also contain the same
-    child: the name-based instance XPath then matches live, valid content as well."""
+def conflicts(doc, node, idx, children):
+    """[(parent name, element declaration)] of the same-named parent elements declared elsewhere with a type that
+    can also contain the same child: the name-based instance XPath then matches live, valid content as well."""
     g, inner = host_info(doc, node)
     own = inner if inner is not None else (g if g.tag == q('element') else None)
     clos = set() if own is not None else idx.closure(g.get('name'))
+    out = []
     for p in parent_names(doc, node, idx):
         for n, e, abstract in idx.elements:
             if n != p or e is own:
@@ -259,8 +262,48 @@ def is_exact(doc, node, idx, children):
             else:
                 names = set().union(*[particle_set(idx, t) for t in types])
             if children is None or names & children:
-                return False
-    return True
+                out.append((p, e))
+    return out
+
+
+def is_exact(doc, node, idx, children):
+    """False when a same-named parent element is declared elsewhere with a type that can also contain the same
+    child: the name-based instance XPath then matches live, valid content as well."""
+    return not conflicts(doc, node, idx, children)
+
+
+def scoped_xpath(doc, node, idx, children, suffix):
+    """(xpath, exact) of the marked child (suffix is 'diggs:name' or '@name') under each parent that can hold it.
+    Where a same-named parent is declared elsewhere with a type that can contain the child, the path excludes the
+    instance parents of that other declaration (`[not(parent::diggs:X)]`) and is exact. It stays name-based and
+    inexact when the other declaration is global, or when an excluded parent also holds the marked particle."""
+    parents = sorted(parent_names(doc, node, idx))
+    plain = ' | '.join('//diggs:%s/%s' % (p, suffix) for p in parents)
+    confl = conflicts(doc, node, idx, children)
+    if not confl:
+        return plain, True
+    g, inner = host_info(doc, node)
+    own = inner if inner is not None else (g if g.tag == q('element') else None)
+    if own is not None:
+        ctx = parent_names(idx.doc_of[own], own, idx) if own in idx.doc_of else set()
+    else:
+        clos = idx.closure(g.get('name'))
+        ctx = set()
+        for n, e, abstract in idx.elements:
+            if n in parents and not abstract and any(t in clos for t in idx.declared_types(e)):
+                ctx |= parent_names(idx.doc_of[e], e, idx)
+    excluded = {}
+    for p, e in confl:
+        ex = parent_names(idx.doc_of[e], e, idx)
+        if not ex or ex & ctx:
+            return plain, False
+        excluded.setdefault(p, set()).update(ex)
+    paths = []
+    for p in parents:
+        ex = sorted(excluded.get(p, ()))
+        pred = '[%s]' % ' and '.join('not(parent::diggs:%s)' % x for x in ex) if ex else ''
+        paths.append('//diggs:%s%s/%s' % (p, pred, suffix))
+    return ' | '.join(paths), True
 
 
 def particle_names(branch):
@@ -317,14 +360,12 @@ def build_deprecated(docs, idx, problems):
                 kind = 'branchRef' if decl.get('ref') else 'element'
                 name = decl.get('ref') or 'diggs:' + decl.get('name')
                 e.update(kind=kind, name=name, host=inner or host)
-                e['xpath'] = ' | '.join('//diggs:%s/%s' % (p, name) for p in sorted(parent_names(doc, decl, idx)))
-                e['exact'] = is_exact(doc, decl, idx, {name.split(':')[-1]})
+                e['xpath'], e['exact'] = scoped_xpath(doc, decl, idx, {name.split(':')[-1]}, name)
             elif tag in (q('complexType'), q('simpleType')):
                 e.update(kind='type', name='diggs:' + decl.get('name'), host='')
             elif tag == q('attribute'):
                 e.update(kind='attribute', name=decl.get('name'), host=inner or host)
-                e['xpath'] = ' | '.join('//diggs:%s/@%s' % (p, decl.get('name')) for p in sorted(parent_names(doc, decl, idx)))
-                e['exact'] = is_exact(doc, decl, idx, {'@' + decl.get('name')})
+                e['xpath'], e['exact'] = scoped_xpath(doc, decl, idx, {'@' + decl.get('name')}, '@' + decl.get('name'))
             elif tag == q('enumeration'):
                 tnames = idx.closure(host)
                 # a complexType with simple content extends the enumeration: include it as a holder too
