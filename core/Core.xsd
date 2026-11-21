@@ -8728,7 +8728,12 @@
                 in-situ test, a laboratory test on a sample, a monitoring campaign, a measurement
                 taken while drilling or a geophysical survey, because what is plannable (what it is
                 done on, where, by what method, how often, how densely, for how long) is common to
-                all of them. A realized measurement cites its design through programDesignRef.
+                all of them. A realized measurement cites its design through programDesignRef. It
+                also plans an observation that records descriptive or categorical data, such as a
+                lithologic log: measurementKind names the kind of observation, and the realized
+                diggs:AbstractObservationSystem cites the design through its own programDesignRef.
+                A plan is either general (the kind of measurement, the standard, the equipment) or
+                detailed (the planned procedure object).
             </documentation>
         </annotation>
     </element>
@@ -8736,20 +8741,8 @@
         <complexContent>
             <extension base="diggs:AbstractMeasurementDesignType">
                 <sequence>
-                    <element minOccurs="0" name="measurementKind" type="gml:CodeType">
-                        <annotation>
-                            <documentation>
-                                The kind of measurement planned, so a reader knows what is intended
-                                before any realized object exists. Optional, and largely redundant
-                                with measurementMethod: a planned ASTM D1143 test already announces
-                                itself as a static load test. State it where no method is cited, or
-                                where the method admits several kinds of measurement. Use the DIGGS
-                                dictionary measurementKind.xml for the list of values.
-                            </documentation>
-                        </annotation>
-                    </element>
                     <element minOccurs="0" maxOccurs="unbounded" name="samplingFeatureDesignRef"
-                        type="diggs:FeatureReferenceType">
+                        type="diggs:GridIndexReferenceType">
                         <annotation>
                             <appinfo source="urn:x-gml:targetElement">diggs:AbstractSamplingFeatureDesign</appinfo>
                             <documentation>
@@ -8757,8 +8750,11 @@
                                 performed on or from; the planned counterpart of
                                 diggs:samplingFeatureRef. It cites a
                                 diggs:AbstractSamplingFeatureDesign or a specialization, never a
-                                realized sampling feature. Repeat: one measurement design may govern
-                                every feature a population design covers. Given by reference only.
+                                realized sampling feature. Where the measurement is planned on one
+                                node of a gridded design, gridIndex names that node; without it the
+                                measurement may be made on any feature the design covers. Repeat:
+                                one measurement design may govern several nodes, or every feature a
+                                population design covers. Given by reference only.
                             </documentation>
                         </annotation>
                     </element>
@@ -8812,34 +8808,97 @@
                             </documentation>
                         </annotation>
                     </element>
-                    <element minOccurs="0" maxOccurs="unbounded" name="measurementMethod"
-                        type="diggs:MeasurementMethodPropertyType">
+                    <choice>
                         <annotation>
                             <documentation>
-                                The method the measurement is planned to follow, inline or by
-                                reference, so the same method can be shared across many planned
-                                measurements. Repeat for each method.
+                                The level of detail of the plan. A general plan gives any of the
+                                kind of measurement, the standard to follow, the planned equipment
+                                and, for a load test, the maximum load as a percentage of the design
+                                load. A detailed plan gives the procedure object itself, which
+                                carries its standard, its equipment and its planned values. A plan
+                                gives one or the other, never both.
                             </documentation>
                         </annotation>
-                    </element>
-                    <element minOccurs="0" maxOccurs="unbounded" name="plannedProcedure"
-                        type="diggs:ProcedurePropertyType">
-                        <annotation>
-                            <documentation>
-                                The procedure the measurement is planned to be carried out with, as
-                                the same procedure object a realized measurement carries in its
-                                procedure property, for example a diggs:PlateLoadTest or a
-                                diggs:StaticLoadTest, inline or by reference. It states the planned
-                                values of the procedure (plate size, bedding, reference system,
-                                maximum stress, planned increments with stress and hold) in the
-                                structure the realized procedure uses, so planned and realized
-                                values compare field for field. It states intent; a requirement the
-                                realized measurement must meet is a criterion. Contrast
-                                measurementMethod, which cites the standard to follow. Repeat for
-                                each procedure.
-                            </documentation>
-                        </annotation>
-                    </element>
+                        <sequence>
+                            <element minOccurs="0" name="measurementKind" type="gml:CodeType">
+                                <annotation>
+                                    <documentation>
+                                        The kind of measurement or observation planned, so a reader
+                                        knows what is intended before any realized object exists.
+                                        State it where no measurementMethod is cited, or where the
+                                        method admits several kinds of measurement, and always for a
+                                        planned observation such as a lithologic log, which no
+                                        procedure object names. A plan with a plannedProcedure omits
+                                        it, since the procedure object names its own test. Use the
+                                        DIGGS dictionary measurementKind.xml for the list of values.
+                                    </documentation>
+                                </annotation>
+                            </element>
+                            <element minOccurs="0" maxOccurs="unbounded" name="measurementMethod"
+                                type="diggs:MeasurementMethodPropertyType">
+                                <annotation>
+                                    <documentation>
+                                        The standard the measurement is planned to follow, inline or
+                                        by reference, so the same standard can be shared across many
+                                        planned measurements. A plan with a plannedProcedure omits
+                                        it and states the standard in the testProcedureMethod of the
+                                        procedure. Repeat for each standard.
+                                    </documentation>
+                                </annotation>
+                            </element>
+                            <element maxOccurs="unbounded" minOccurs="0" name="plannedEquipment"
+                                type="diggs:EquipmentPropertyType">
+                                <annotation>
+                                    <documentation>
+                                        Equipment planned to take this measurement, given inline or
+                                        by reference: for example a piezometer a monitoring plan
+                                        intends to install, a load frame or a logger. The kind of
+                                        instrument is carried on the class property of the
+                                        equipment. A plan with a plannedProcedure omits it and
+                                        states the equipment in the testProcedureEquipment of the
+                                        procedure.
+                                    </documentation>
+                                </annotation>
+                            </element>
+                            <element minOccurs="0" name="testLoadPercentDesignLoad"
+                                type="diggs:DimensionlessMeasureType">
+                                <annotation>
+                                    <documentation>
+                                        The maximum load a planned load test is to reach, as a
+                                        percentage of the design working load of the element tested.
+                                        Typically uom="%". It is a ratio because test requirements
+                                        are written that way and the absolute value differs per
+                                        element, which lets one population-scoped provision govern a
+                                        zone. A plan with a plannedProcedure omits it and states the
+                                        planned maximum load or stress on the procedure, as it also
+                                        does where the tested element is not the element the design
+                                        load acts on, such as a column loaded through a plate in a
+                                        test of a platform design pressure. It carries the value
+                                        only; state any derivation in a remark.
+                                    </documentation>
+                                </annotation>
+                            </element>
+                        </sequence>
+                        <element maxOccurs="unbounded" name="plannedProcedure"
+                            type="diggs:TestProcedurePropertyType">
+                            <annotation>
+                                <documentation>
+                                    The test procedure the measurement is planned to be carried out
+                                    with, as the same procedure object a realized measurement
+                                    carries in its procedure property, for example a
+                                    diggs:PlateLoadTest or a diggs:StaticLoadTest, inline or by
+                                    reference. It states the planned values of the procedure (plate
+                                    size, bedding, reference system, maximum stress, planned
+                                    increments with stress and hold), its standard
+                                    (testProcedureMethod) and its equipment (testProcedureEquipment)
+                                    in the structure the realized procedure uses, so planned and
+                                    realized values compare field for field. It states intent; a
+                                    requirement the realized measurement must meet is a criterion.
+                                    Repeat for each procedure.
+                                </documentation>
+                            </annotation>
+                        </element>
+                    </choice>
                     <element minOccurs="0" name="readingFrequency"
                         type="diggs:ReciprocalTimeMeasureType">
                         <annotation>
@@ -8924,22 +8983,6 @@
                             </documentation>
                         </annotation>
                     </element>
-                    <element minOccurs="0" name="testLoadPercentDesignLoad"
-                        type="diggs:DimensionlessMeasureType">
-                        <annotation>
-                            <documentation>
-                                The maximum load a planned load test is to reach, as a percentage of
-                                the design working load of the element tested. Typically uom="%". It
-                                is a ratio because test requirements are written that way and the
-                                absolute value differs per element, which lets one population-scoped
-                                provision govern a zone. Where the tested element is not the element
-                                the design load acts on, such as a column loaded through a plate in
-                                a test of a platform design pressure, state the planned maximum
-                                stress on the planned procedure instead. It carries the value only;
-                                state any derivation in a remark.
-                            </documentation>
-                        </annotation>
-                    </element>
                 </sequence>
             </extension>
         </complexContent>
@@ -8963,15 +9006,16 @@
             <extension base="diggs:AbstractConstructionActivityDesignType">
                 <sequence>
                     <element minOccurs="0" maxOccurs="unbounded" name="samplingFeatureDesignRef"
-                        type="diggs:FeatureReferenceType">
+                        type="diggs:GridIndexReferenceType">
                         <annotation>
                             <appinfo source="urn:x-gml:targetElement">diggs:AbstractSamplingFeatureDesign</appinfo>
                             <documentation>
                                 The design of a feature the activity is to construct or act on; the
                                 planned counterpart of diggs:samplingFeatureRef on the realized
-                                activity. It cites a design, never a realized feature. Repeat: one
-                                activity design may govern every feature a population design covers.
-                                Given by reference only.
+                                activity. It cites a design, never a realized feature. Where the
+                                activity acts on one node of a gridded design, gridIndex names that
+                                node. Repeat: one activity design may govern several nodes, or every
+                                feature a population design covers. Given by reference only.
                             </documentation>
                         </annotation>
                     </element>
