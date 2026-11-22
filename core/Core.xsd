@@ -7056,9 +7056,9 @@
     <element name="Program" type="diggs:ProgramType" substitutionGroup="diggs:AbstractProgram">
         <annotation>
             <documentation>
-                A generic program: the designs it issues, the specifications it must satisfy, and
-                the bases those were prepared from, for work that has no specialized program
-                element. Document order is strictly all design elements, then all specification
+                A program: the designs it issues, the specifications it must satisfy, and the bases
+                those were prepared from, for any kind of work. The class element names the kind of
+                work. Document order is strictly all design elements, then all specification
                 elements, then all basis elements, not interleaved; a design may still cite a
                 specification declared later in the document.
             </documentation>
@@ -7071,11 +7071,9 @@
                     <element minOccurs="0" name="class" type="gml:CodeWithAuthorityType">
                         <annotation>
                             <documentation>
-                                The kind of work this program covers, for example rigid inclusions
-                                or ground improvement, as a code from a dictionary. Not used where a
-                                specialized program element exists for the kind of work, such as
-                                diggs:RigidInclusionProgram. No DIGGS-authored dictionary currently
-                                exists. The codeSpace attribute is mandatory.
+                                The kind of work this program covers, for example rigid inclusions,
+                                grouting or site exploration. Use the DIGGS dictionary
+                                programClass.xml for the list of values.
                             </documentation>
                         </annotation>
                     </element>
@@ -7094,10 +7092,9 @@
                         type="diggs:ProgramSpecificationPropertyType">
                         <annotation>
                             <documentation>
-                                A specification this program must satisfy: the constraints and
-                                tolerances the work is judged against. It holds any member of the
-                                diggs:AbstractProgramSpecification substitution group. Repeat for
-                                each specification.
+                                A specification this program must satisfy: the criteria the work is
+                                judged against, held as a diggs:ProgramSpecification. Repeat for each
+                                specification.
                             </documentation>
                         </annotation>
                     </element>
@@ -7121,67 +7118,6 @@
     <!-- TEST SCHEDULING ELEMENTS                                                                -->
     <!-- ================================================================================== -->
 
-    <element name="TestingProgram" substitutionGroup="diggs:AbstractProgram"
-        type="diggs:TestingProgramType">
-        <annotation>
-            <documentation>
-                A program of testing: the schedules submitted for testing, the planned tests, and
-                the measurement and specimen preparation specifications they follow.
-            </documentation>
-        </annotation>
-    </element>
-    <complexType name="TestingProgramType">
-        <complexContent>
-            <extension base="diggs:AbstractProgramType">
-                <sequence>
-                    <element maxOccurs="unbounded" minOccurs="0" name="testingSchedule"
-                        type="diggs:TestingSchedulePropertyType">
-                        <annotation>
-                            <documentation>
-                                A testing schedule of the program. Repeat for each schedule.
-                            </documentation>
-                        </annotation>
-                    </element>
-                    <element maxOccurs="unbounded" minOccurs="0" name="plannedTest"
-                        type="diggs:PlannedTestPropertyType">
-                        <annotation>
-                            <documentation>
-                                A planned test of the program. Repeat for each test.
-                            </documentation>
-                        </annotation>
-                    </element>
-                    <element maxOccurs="unbounded" minOccurs="0" name="measurementSpecification"
-                        type="diggs:MeasurementSpecificationPropertyType">
-                        <annotation>
-                            <documentation>
-                                A specification of how a measurement is carried out. Repeat for each
-                                specification.
-                            </documentation>
-                        </annotation>
-                    </element>
-                    <element maxOccurs="unbounded" minOccurs="0" name="specimenPrepSpecification"
-                        type="diggs:SpecimenPrepSpecificationPropertyType">
-                        <annotation>
-                            <documentation>
-                                A specification of how a specimen is prepared. Repeat for each
-                                specification.
-                            </documentation>
-                        </annotation>
-                    </element>
-                </sequence>
-            </extension>
-        </complexContent>
-    </complexType>
-    <complexType name="TestingSchedulePropertyType">
-        <annotation>
-            <documentation>
-                Property type that contains one diggs:TestingSchedule object inline.
-            </documentation>
-        </annotation>
-        <sequence>
-            <element ref="diggs:TestingSchedule"/>
-        </sequence>
-    </complexType>
     <element name="TestingSchedule" substitutionGroup="diggs:AbstractProgramDesign"
         type="diggs:TestingScheduleType">
         <annotation>
@@ -7218,6 +7154,25 @@
                             <documentation>
                                 The date and time by which the complete schedule is planned to be
                                 completed.
+                            </documentation>
+                        </annotation>
+                    </element>
+                    <element minOccurs="0" maxOccurs="unbounded" name="measurementMethod"
+                        type="diggs:MeasurementMethodPropertyType">
+                        <annotation>
+                            <documentation>
+                                A standard the tests of the schedule are to follow, unless a planned
+                                measurement states its own. Repeat for each standard.
+                            </documentation>
+                        </annotation>
+                    </element>
+                    <element minOccurs="0" maxOccurs="unbounded" name="specimenPreparationMethod"
+                        type="diggs:SpecificationPropertyType">
+                        <annotation>
+                            <documentation>
+                                A standard or procedure the specimens of the schedule are to be
+                                prepared by, from the samples submitted. Repeat for each standard or
+                                procedure.
                             </documentation>
                         </annotation>
                     </element>
@@ -7285,238 +7240,6 @@
             <element ref="diggs:ProgressEvent"/>
         </sequence>
     </complexType>
-    <element name="PlannedTest" type="diggs:PlannedTestType">
-        <annotation>
-            <documentation>
-                A test planned under a testing schedule: the samples to test, the measurement
-                specification to follow, and the progress of the test.
-            </documentation>
-        </annotation>
-    </element>
-    <complexType name="PlannedTestType">
-        <complexContent>
-            <extension base="diggs:AbstractProgramDesignType">
-                <sequence>
-                    <element name="testingScheduleRef" type="diggs:FeatureReferenceType">
-                        <annotation>
-                            <appinfo source="urn:x-gml:targetElement">diggs:TestingSchedule</appinfo>
-                            <documentation>
-                                The testing schedule the test is planned under.
-                            </documentation>
-                        </annotation>
-                    </element>
-                    <element maxOccurs="unbounded" ref="diggs:sampleRef">
-                        <annotation>
-                            <documentation>
-                                A sample to be tested. Repeat for each sample.
-                            </documentation>
-                        </annotation>
-                    </element>
-                    <element name="measurementSpecificationRef" type="diggs:FeatureReferenceType">
-                        <annotation>
-                            <appinfo source="urn:x-gml:targetElement">diggs:MeasurementSpecification</appinfo>
-                            <documentation>
-                                The measurement specification the test follows.
-                            </documentation>
-                        </annotation>
-                    </element>
-                    <element minOccurs="0" name="specimenPrepSpecificationRef"
-                        type="diggs:FeatureReferenceType">
-                        <annotation>
-                            <appinfo source="urn:x-gml:targetElement">diggs:SpecimenPrepSpecification</appinfo>
-                            <documentation>
-                                The specimen preparation specification the test requires. Given by
-                                reference only.
-                            </documentation>
-                        </annotation>
-                    </element>
-                    <element minOccurs="0" name="testingProgress"
-                        type="diggs:ProgressEventArrayPropertyType">
-                        <annotation>
-                            <documentation>
-                                The progress of the test, as a series of progress events.
-                            </documentation>
-                        </annotation>
-                    </element>
-                    <element minOccurs="0" ref="diggs:measurementRef">
-                        <annotation>
-                            <documentation>
-                                The measurement that carried out the planned test.
-                            </documentation>
-                        </annotation>
-                    </element>
-                </sequence>
-            </extension>
-        </complexContent>
-    </complexType>
-    <complexType name="PlannedTestPropertyType">
-        <annotation>
-            <documentation>
-                Property type that contains one diggs:PlannedTest object inline.
-            </documentation>
-        </annotation>
-        <sequence maxOccurs="1" minOccurs="1">
-            <element ref="diggs:PlannedTest"/>
-        </sequence>
-    </complexType>
-    <element name="MeasurementSpecification" type="diggs:MeasurementSpecificationType"
-        substitutionGroup="diggs:AbstractProgramSpecification">
-        <annotation>
-            <documentation>
-                A program specification governing how a measurement is carried out, as distinct from
-                what its result must be: the method to follow, the quantities to record and the
-                equipment to use. It applies to any kind of measurement, such as an in-situ test, a
-                laboratory test or a monitoring campaign. Requirements the measurement must meet,
-                such as a minimum number of load increments, a maximum test stress or a hold time,
-                are criteria that name this specification through partOfSpecificationRef, and the
-                planned measurement cites the specification through programSpecificationRef.
-                Criteria on the measured result are performance criteria and are stated separately.
-            </documentation>
-        </annotation>
-    </element>
-    <complexType name="MeasurementSpecificationType">
-        <complexContent>
-            <extension base="diggs:AbstractProgramSpecificationType">
-                <sequence>
-                    <element minOccurs="0" name="appliesToMeasurementKind" type="gml:CodeType">
-                        <annotation>
-                            <documentation>
-                                The kind of measurement this specification applies to, from the same
-                                vocabulary as diggs:DesignMeasurementType/measurementKind. If
-                                absent, the specification is not limited to one kind. Use the DIGGS
-                                dictionary measurementKind.xml for the list of values.
-                            </documentation>
-                        </annotation>
-                    </element>
-                    <element minOccurs="0" maxOccurs="unbounded" name="measurementMethod"
-                        type="diggs:MeasurementMethodPropertyType">
-                        <annotation>
-                            <documentation>
-                                A method the measurement is required to follow: the standard or
-                                procedure document, as a diggs:Specification. Repeat where the
-                                measurement follows more than one document.
-                            </documentation>
-                        </annotation>
-                    </element>
-                    <element minOccurs="0" maxOccurs="unbounded" name="recordingParameter"
-                        type="gml:CodeWithAuthorityType">
-                        <annotation>
-                            <documentation>
-                                A quantity the measurement is required to record, such as a
-                                settlement, an applied stress or a water level, as a code from a
-                                property dictionary. Repeat for each quantity. Use the DIGGS
-                                dictionaries gr_inj_properties.xml or mwd_properties.xml for the
-                                list of values. The codeSpace attribute is mandatory.
-                            </documentation>
-                        </annotation>
-                    </element>
-                    <element minOccurs="0" maxOccurs="unbounded" name="requiredEquipment"
-                        type="diggs:EquipmentPropertyType">
-                        <annotation>
-                            <documentation>
-                                Equipment the measurement is required to use, such as a calibrated
-                                jack, dial gauges of a stated resolution or a reference beam. Repeat
-                                for each item.
-                            </documentation>
-                        </annotation>
-                    </element>
-                </sequence>
-            </extension>
-        </complexContent>
-    </complexType>
-    <complexType name="MeasurementSpecificationPropertyType">
-        <annotation>
-            <documentation>
-                Property type that contains one diggs:MeasurementSpecification object inline.
-            </documentation>
-        </annotation>
-        <sequence>
-            <element ref="diggs:MeasurementSpecification"/>
-        </sequence>
-    </complexType>
-    <element name="ConstructionActivitySpecification"
-        type="diggs:ConstructionActivitySpecificationType"
-        substitutionGroup="diggs:AbstractProgramSpecification">
-        <annotation>
-            <documentation>
-                A program specification governing how a construction activity is carried out, as
-                distinct from what the finished feature must be: the method to follow, the equipment
-                to use and the telemetry the work must record. Requirements the activity must meet,
-                such as a termination or refusal rule, are criteria that name this specification
-                through partOfSpecificationRef, and the activity cites the specification through
-                programSpecificationRef.
-            </documentation>
-        </annotation>
-    </element>
-    <complexType name="ConstructionActivitySpecificationType">
-        <complexContent>
-            <extension base="diggs:AbstractProgramSpecificationType">
-                <sequence>
-                    <element minOccurs="0" maxOccurs="unbounded" name="constructionMethod"
-                        type="diggs:ConstructionActivityMethodPropertyType">
-                        <annotation>
-                            <documentation>
-                                A method the activity is required to follow, as a
-                                diggs:ConstructionActivityMethod: the standard or procedure, the
-                                part of the feature it applies to, and the cutting tool it requires.
-                                Repeat for methods over different parts of the feature.
-                            </documentation>
-                        </annotation>
-                    </element>
-                    <element minOccurs="0" maxOccurs="unbounded" name="recordingParameter"
-                        type="gml:CodeWithAuthorityType">
-                        <annotation>
-                            <documentation>
-                                A quantity the work is required to record in real time, such as
-                                drilling speed, depth, torque or grout pressure, as a code from a
-                                property dictionary. Compare the propertyClass of the installation
-                                record of the realized activity. Repeat for each quantity. Use the
-                                DIGGS dictionaries gr_inj_properties.xml or mwd_properties.xml for
-                                the list of values. The codeSpace attribute is mandatory.
-                            </documentation>
-                        </annotation>
-                    </element>
-                    <element minOccurs="0" maxOccurs="unbounded" name="requiredEquipment"
-                        type="diggs:EquipmentPropertyType">
-                        <annotation>
-                            <documentation>
-                                Equipment the activity is required to use, such as a rig with a
-                                depth and torque monitor or a pump with a flow meter. Repeat for
-                                each item.
-                            </documentation>
-                        </annotation>
-                    </element>
-                </sequence>
-            </extension>
-        </complexContent>
-    </complexType>
-    <element name="SpecimenPrepSpecification" type="diggs:SpecimenPrepSpecificationType"
-        substitutionGroup="diggs:AbstractProgramSpecification">
-        <annotation>
-            <documentation>
-                A program specification governing the preparation of a specimen from one or more
-                samples: trimming, molding, curing or otherwise conditioning sampled material to the
-                state a test procedure requires. It corresponds to what test standards (for example
-                ASTM D421 and D2217) call sample preparation, but it governs the
-                diggs:AbstractSpecimen produced, not the diggs:Sample it is produced from.
-            </documentation>
-        </annotation>
-    </element>
-    <complexType name="SpecimenPrepSpecificationType">
-        <complexContent>
-            <extension base="diggs:AbstractProgramSpecificationType"/>
-        </complexContent>
-    </complexType>
-    <complexType name="SpecimenPrepSpecificationPropertyType">
-        <annotation>
-            <documentation>
-                Property type that contains one diggs:SpecimenPrepSpecification object inline.
-            </documentation>
-        </annotation>
-        <sequence>
-            <element ref="diggs:SpecimenPrepSpecification"/>
-        </sequence>
-    </complexType>
     <simpleType name="CriterionOperatorEnumType">
         <restriction base="string">
             <enumeration value="le">
@@ -7570,6 +7293,38 @@
                     </documentation>
                 </annotation>
             </enumeration>
+            <enumeration value="in">
+                <annotation>
+                    <documentation>
+                        Equal to one of the limit values. Use with two or more limit elements, each
+                        giving one permitted value.
+                    </documentation>
+                </annotation>
+            </enumeration>
+            <enumeration value="notIn">
+                <annotation>
+                    <documentation>
+                        Equal to none of the limit values. Use with two or more limit elements, each
+                        giving one excluded value.
+                    </documentation>
+                </annotation>
+            </enumeration>
+            <enumeration value="includesAll">
+                <annotation>
+                    <documentation>
+                        The evaluated set of values contains every limit value, for example every
+                        quantity a record is required to hold. Use with one or more limit elements.
+                    </documentation>
+                </annotation>
+            </enumeration>
+            <enumeration value="includesAny">
+                <annotation>
+                    <documentation>
+                        The evaluated set of values contains at least one of the limit values. Use
+                        with one or more limit elements.
+                    </documentation>
+                </annotation>
+            </enumeration>
         </restriction>
     </simpleType>
     <simpleType name="StatisticScopeEnumType">
@@ -7600,46 +7355,7 @@
             </enumeration>
         </restriction>
     </simpleType>
-    <element name="PerformanceCriterion" type="diggs:PerformanceCriterionType"
-        substitutionGroup="diggs:AbstractAcceptanceCriterion">
-        <annotation>
-            <documentation>
-                An acceptance criterion on a measured physical property of the completed work, such
-                as a strength, permeability, settlement or modulus, evaluated against what was
-                built. The parameterName of limit/AuthorizedParameter identifies the property; its
-                mandatory codeSpace should resolve against properties.xml, so that a consumer can
-                identify the quantity without interpreting free text. The schema does not enforce
-                which dictionary is used. Where the requirement is on a constructional or geometric
-                property, use diggs:DesignConformanceCriterion.
-            </documentation>
-        </annotation>
-    </element>
-    <complexType name="PerformanceCriterionType">
-        <complexContent>
-            <extension base="diggs:AbstractAcceptanceCriterionType"/>
-        </complexContent>
-    </complexType>
 
-    <element name="DesignConformanceCriterion" type="diggs:DesignConformanceCriterionType"
-        substitutionGroup="diggs:AbstractAcceptanceCriterion">
-        <annotation>
-            <documentation>
-                An acceptance criterion on a geometric, constructional or compositional property
-                measured against its design intent, such as position, verticality, diameter, length,
-                cut-off elevation, binding material content or a water/binding-material ratio. It is
-                a tolerance: it asks whether what was built matches what was designed, not whether
-                it performs. The parameterName of limit/AuthorizedParameter identifies the design
-                property; its mandatory codeSpace should resolve against designProperty.xml. The
-                schema does not enforce which dictionary is used. Where the requirement is on a
-                measured physical property, use diggs:PerformanceCriterion.
-            </documentation>
-        </annotation>
-    </element>
-    <complexType name="DesignConformanceCriterionType">
-        <complexContent>
-            <extension base="diggs:AbstractAcceptanceCriterionType"/>
-        </complexContent>
-    </complexType>
 
     <simpleType name="LogicalOperatorEnumType">
         <restriction base="string">
@@ -7663,69 +7379,280 @@
             </enumeration>
         </restriction>
     </simpleType>
-    <element name="CompositeAcceptanceCriterion" type="diggs:CompositeAcceptanceCriterionType"
-        substitutionGroup="diggs:AbstractProgramSpecification">
+    <element name="Criterion" type="diggs:CriterionType">
         <annotation>
             <documentation>
-                A requirement formed by combining two or more separately stated acceptance criteria
-                under one logical operator, for example the drilling refusal rule "penetration rate
-                below X and torque above Y". Each member is a normally declared criterion with its
-                own subject, statistic, operator, limit, basis and evaluated-against references,
-                evaluated on its own terms; the composite combines their verdicts and has no
-                statistic, basis or base length of its own. A member may have a different kind of
-                subject from the composite: a requirement about the act of construction, such as a
-                refusal rule, is judged on the construction activity cited through
-                constructionActivityRef, while the composite is judged on the feature. A
-                construction activity member applies to the feature named by that activity's
-                samplingFeatureRef; where several activities act on the feature, the latest by
-                activityDateTime counts. The composite substitutes
-                diggs:AbstractProgramSpecification, so it is accepted wherever a
-                diggs:PerformanceCriterion is.
+                One requirement the realized work must satisfy. A simple criterion names one
+                property through the parameterName of limit, reduces the evidence to one value and
+                compares it with the limit. A compound criterion combines two or more criteria with
+                one logical operator. A criterion is held by a diggs:ProgramSpecification, inline or
+                by reference, and is applied to a subject by a diggs:AcceptanceCheck. Use the DIGGS
+                dictionaries designProperty.xml and properties.xml for the parameterName of limit;
+                each entry states where the realized value is found.
             </documentation>
         </annotation>
     </element>
-    <complexType name="CompositeAcceptanceCriterionType">
+    <complexType name="CriterionType">
+        <complexContent>
+            <extension base="diggs:AbstractObjectType">
+                <sequence>
+                    <choice>
+                        <sequence>
+                            <element minOccurs="0" name="statistic" type="diggs:StatisticEnumExtType">
+                                <annotation>
+                                    <documentation>
+                                        How several values are reduced to the single value compared
+                                        against the limit. statisticScope states what the values are
+                                        gathered over. Omit where the criterion applies to each
+                                        value individually. Values come from the enumerated list, or
+                                        "Other: xx", where xx is a user-defined term whose meaning
+                                        differs from every listed value (not a synonym of one).
+                                    </documentation>
+                                </annotation>
+                            </element>
+                            <element minOccurs="0" name="percentileValue" type="double">
+                                <annotation>
+                                    <documentation>
+                                        The percentile intended where statistic is "percentile", for
+                                        example 90 for a 90th-percentile criterion. Give it only
+                                        with that statistic.
+                                    </documentation>
+                                </annotation>
+                            </element>
+                            <element minOccurs="0" name="statisticScope" type="diggs:StatisticScopeEnumType">
+                                <annotation>
+                                    <documentation>
+                                        What the statistic is gathered over: the values within one
+                                        record (series), the evidence for one subject (evidence), or
+                                        all subjects the criterion governs (population). Required
+                                        whenever statistic is given. Values come from the enumerated
+                                        list.
+                                    </documentation>
+                                </annotation>
+                            </element>
+                            <element name="operator" type="diggs:CriterionOperatorEnumType">
+                                <annotation>
+                                    <documentation>
+                                        The comparison applied between the evaluated value and the
+                                        limit. Required: a limit without a comparison states no
+                                        requirement. Values come from the enumerated list.
+                                    </documentation>
+                                </annotation>
+                            </element>
+                            <element maxOccurs="unbounded" name="limit"
+                                type="diggs:AuthorizedParameterPropertyType">
+                                <annotation>
+                                    <documentation>
+                                        The property this criterion governs, and the value or range
+                                        the evaluated value is compared against. The property is the
+                                        dictionary-bound parameterName of a
+                                        diggs:AuthorizedParameter or diggs:ProvenancedParameter; a
+                                        free-text diggs:Parameter is not allowed. Give a single
+                                        value (parameterValue) or a band (parameterMinValue and
+                                        parameterMaxValue, with operator "within"). Repeat only with
+                                        the operators "in", "notIn", "includesAll" and
+                                        "includesAny", one limit per listed value, all naming the
+                                        same property. For "the design value" give the parameterName
+                                        with no value; the dictionary entry states where the design
+                                        value is found.
+                                    </documentation>
+                                </annotation>
+                            </element>
+                            <element minOccurs="0" maxOccurs="unbounded" name="basis" type="gml:CodeType">
+                                <annotation>
+                                    <documentation>
+                                        The basis the criterion is assessed on: the unit of work
+                                        (per element, per 100 ft, as a multiple of diameter), how a
+                                        separation is measured (centerline to centerline, edge to
+                                        edge), or why a separation is required. Repeat for each kind
+                                        of basis. Use the DIGGS dictionary for the kind of basis:
+                                        basis.xml, separationBasis.xml or constraintRationale.xml.
+                                    </documentation>
+                                </annotation>
+                            </element>
+                            <element minOccurs="0" name="baseLength" type="diggs:LengthMeasureType">
+                                <annotation>
+                                    <documentation>
+                                        The reference length over which a gradient or rate-of-change
+                                        criterion is assessed, where basis expresses a quantity per
+                                        unit length. With limit it lets a criterion state a gradient
+                                        such as 0.5 in per 100 ft.
+                                    </documentation>
+                                </annotation>
+                            </element>
+                            <element minOccurs="0" maxOccurs="unbounded" name="evidenceCondition"
+                                type="diggs:AuthorizedParameterPropertyType">
+                                <annotation>
+                                    <documentation>
+                                        A condition evidence must meet to count toward this
+                                        criterion: a coded parameter and its value or range, for
+                                        example specimen age 28 d, elapsed time 1 to 10 min, or
+                                        depth below the platform. Evidence counts only if it meets
+                                        every condition given. Omit where all evidence of the
+                                        criterion's property counts. A condition may be stated as a
+                                        multiple of a design value where the dictionary entry of the
+                                        criterion's property names it as the scale of its reference
+                                        value, for example a load of 1.5 times the design load.
+                                    </documentation>
+                                </annotation>
+                            </element>
+                            <element minOccurs="0" name="neighborFeatureType"
+                                type="gml:CodeWithAuthorityType">
+                                <annotation>
+                                    <documentation>
+                                        The kind of neighboring feature the criterion's property is
+                                        measured against, for a property whose dictionary entry
+                                        takes its reference value from a neighbor: for example the
+                                        elapsed time since the installation of the nearest RI
+                                        column. Use the DIGGS dictionary samplingFeatureTypes.xml
+                                        for the list of values.
+                                    </documentation>
+                                </annotation>
+                            </element>
+                        </sequence>
+                        <sequence>
+                            <element name="logicalOperator" type="diggs:LogicalOperatorEnumType">
+                                <annotation>
+                                    <documentation>
+                                        How the components combine: "and", every component must be
+                                        satisfied; "or", at least one must be. The operator applies
+                                        to all components together, in any order. Write mixed logic
+                                        by nesting a compound criterion as a component. Values come
+                                        from the enumerated list.
+                                    </documentation>
+                                </annotation>
+                            </element>
+                            <element minOccurs="2" maxOccurs="unbounded" name="component"
+                                type="diggs:CriterionPropertyType">
+                                <annotation>
+                                    <documentation>
+                                        A criterion combined by logicalOperator, inline or by
+                                        reference. A component written inline is evaluated only as
+                                        part of this criterion; one given by reference can also be
+                                        applied on its own.
+                                    </documentation>
+                                </annotation>
+                            </element>
+                        </sequence>
+                    </choice>
+                    <choice minOccurs="0">
+                        <element name="minimumPassingCount" type="positiveInteger">
+                            <annotation>
+                                <documentation>
+                                    The least number that must be satisfied: of the components of a
+                                    compound criterion, or of the evidence items of a simple
+                                    criterion whose statisticScope is evidence or population, each
+                                    compared individually with the limit. For example 2 of 3
+                                    cylinders.
+                                </documentation>
+                            </annotation>
+                        </element>
+                        <element name="minimumPassingFraction" type="double">
+                            <annotation>
+                                <documentation>
+                                    The least fraction, greater than 0 and at most 1, that must be
+                                    satisfied: of the components of a compound criterion, or of the
+                                    evidence items of a simple criterion whose statisticScope is
+                                    evidence or population, each compared individually with the
+                                    limit. For example 0.9 for 90 percent of tests.
+                                </documentation>
+                            </annotation>
+                        </element>
+                    </choice>
+                    <element minOccurs="0" name="sourceSpecRef" type="diggs:FeatureReferenceType">
+                        <annotation>
+                            <appinfo source="urn:x-gml:targetElement">diggs:Specification</appinfo>
+                            <documentation>
+                                A reference to the published standard or project clause this
+                                criterion was taken from. The target is a diggs:Specification, the
+                                component object that cites a standard, not a program specification.
+                            </documentation>
+                        </annotation>
+                    </element>
+                    <element minOccurs="0" ref="diggs:basisRef">
+                        <annotation>
+                            <documentation>
+                                The program basis this criterion was derived from, such as a design
+                                calculation or a ground model.
+                            </documentation>
+                        </annotation>
+                    </element>
+                </sequence>
+            </extension>
+        </complexContent>
+    </complexType>
+    <complexType name="CriterionPropertyType">
+        <annotation>
+            <documentation>
+                Property type that contains one diggs:Criterion object inline or refers to one with
+                xlink:href.
+            </documentation>
+        </annotation>
+        <sequence minOccurs="0">
+            <element ref="diggs:Criterion"/>
+        </sequence>
+        <attributeGroup ref="gml:AssociationAttributeGroup"/>
+        <attributeGroup ref="gml:OwnershipAttributeGroup"/>
+    </complexType>
+
+    <element name="ProgramSpecification" type="diggs:ProgramSpecificationType"
+        substitutionGroup="diggs:AbstractProgramSpecification">
+        <annotation>
+            <documentation>
+                A named set of requirements on realized work: the criteria a design adopts by citing
+                it through programSpecificationRef. Realized features, activities and measurements
+                made to a design come under the specifications that design cites. A specification
+                states no requirement of its own; each requirement is a diggs:Criterion it holds.
+                appliesToFeatureType and appliesToZone narrow it to the features it governs, and
+                select its subjects where no design cites it.
+            </documentation>
+        </annotation>
+    </element>
+    <complexType name="ProgramSpecificationType">
         <complexContent>
             <extension base="diggs:AbstractProgramSpecificationType">
                 <sequence>
-                    <element minOccurs="1" maxOccurs="1" name="logicalOperator"
-                        type="diggs:LogicalOperatorEnumType">
-                        <annotation>
-                            <documentation>
-                                How the member criteria combine. One operator applies across all
-                                members; write a mixed expression such as "A and (B or C)" as nested
-                                composites, the inner one declared first and cited by the outer
-                                through criterionRef. There is no "not": negate a comparison by
-                                using the complementary operator on the member criterion. Values
-                                come from the enumerated list.
-                            </documentation>
-                        </annotation>
-                    </element>
-                    <element minOccurs="2" maxOccurs="unbounded" name="criterionRef"
-                        type="diggs:FeatureReferenceType">
-                        <annotation>
-                            <appinfo source="urn:x-gml:targetElement">diggs:AbstractProgramSpecification</appinfo>
-                            <documentation>
-                                A member criterion: a diggs:PerformanceCriterion, a
-                                diggs:DesignConformanceCriterion or, where the expression nests,
-                                another diggs:CompositeAcceptanceCriterion. A composite has at least
-                                two members. A member is cited rather than contained, because a
-                                criterion is cited from elsewhere (by a diggs:DesignVerification or
-                                a report) and may take part in more than one composite; declare it
-                                before the composite that cites it. The target is a criterion, not
-                                any other program specification, which the validation chain checks.
-                                Given by reference only.
-                            </documentation>
-                        </annotation>
-                    </element>
-                    <element minOccurs="0" ref="diggs:partOfSpecificationRef">
-                        <annotation>
-                            <documentation>
-                                The named program specification this composite elaborates, as for
-                                the members of diggs:AbstractAcceptanceCriterionType.
-                            </documentation>
-                        </annotation>
-                    </element>
+                    <choice>
+                        <sequence>
+                            <element maxOccurs="unbounded" name="criterion"
+                                type="diggs:CriterionPropertyType">
+                                <annotation>
+                                    <documentation>
+                                        A requirement of this specification, inline or by reference
+                                        to a criterion held by another specification. Repeat for
+                                        each criterion.
+                                    </documentation>
+                                </annotation>
+                            </element>
+                            <element minOccurs="0" maxOccurs="unbounded" name="include"
+                                type="gml:ReferenceType">
+                                <annotation>
+                                    <appinfo source="urn:x-gml:targetElement">diggs:ProgramSpecification</appinfo>
+                                    <documentation>
+                                        Another specification whose criteria this one takes on, in
+                                        addition to its own. Inclusion is transitive and adds
+                                        criteria only; it never replaces or relaxes one. Include
+                                        only specifications for the same kind of feature; reach a
+                                        specification for another kind of feature through that
+                                        feature's design. Given by reference only.
+                                    </documentation>
+                                </annotation>
+                            </element>
+                        </sequence>
+                        <element maxOccurs="unbounded" name="include" type="gml:ReferenceType">
+                            <annotation>
+                                <appinfo source="urn:x-gml:targetElement">diggs:ProgramSpecification</appinfo>
+                                <documentation>
+                                    Another specification whose criteria this one takes on, in
+                                    addition to its own. Inclusion is transitive and adds criteria
+                                    only; it never replaces or relaxes one. Include only
+                                    specifications for the same kind of feature; reach a
+                                    specification for another kind of feature through that feature's
+                                    design. Given by reference only.
+                                </documentation>
+                            </annotation>
+                        </element>
+                    </choice>
                 </sequence>
             </extension>
         </complexContent>
@@ -7759,160 +7686,6 @@
                             <documentation>
                                 A departure from a requirement found in this evaluation, and what
                                 was decided about it. Repeat for each non-conformance.
-                            </documentation>
-                        </annotation>
-                    </element>
-                </sequence>
-            </extension>
-        </complexContent>
-    </complexType>
-    <simpleType name="ClearanceTemporalOrderEnumType">
-        <restriction base="string">
-            <enumeration value="unordered">
-                <annotation>
-                    <documentation>
-                        The two governing timestamps must be at least minimumElapsedTime apart, in
-                        either order: no two of these within that time of each other.
-                    </documentation>
-                </annotation>
-            </enumeration>
-            <enumeration value="reference before subject">
-                <annotation>
-                    <documentation>
-                        The reference feature (or, where referenceFeatureType is absent, an earlier
-                        member of the same subject population) must reach its governing timestamp at
-                        least minimumElapsedTime before the subject does: wait that time after the
-                        reference completes.
-                    </documentation>
-                </annotation>
-            </enumeration>
-            <enumeration value="subject before reference">
-                <annotation>
-                    <documentation>
-                        The subject must reach its governing timestamp at least minimumElapsedTime
-                        before the reference does; the reverse of "reference before subject".
-                    </documentation>
-                </annotation>
-            </enumeration>
-        </restriction>
-    </simpleType>
-    <element name="ClearanceConstraint" type="diggs:ClearanceConstraintType"
-        substitutionGroup="diggs:AbstractProgramSpecification">
-        <annotation>
-            <documentation>
-                A requirement that two activities or features keep a minimum separation distance, a
-                minimum elapsed time between them, or both together as a conditional rule:
-                "installations within 3 m of each other must be at least 24 h apart". It is generic
-                across domains: adjacent columns protecting fresh grout from vibration,
-                grout-injection stages avoiding hydraulic fracture of a neighbor still curing, a new
-                borehole standing off from a utility, a pile sequenced away from a monitored
-                structure. It states a relation between two features, or two members of a
-                population, over a length and a duration, which the single operator and limit of a
-                criterion cannot combine; it therefore substitutes
-                diggs:AbstractProgramSpecification directly. appliesToFeatureType (inherited) names
-                the population the constraint governs, the subject; referenceFeatureType names what
-                the subject must keep clear of. If referenceFeatureType is absent, every member of
-                the subject population clears every other member. If it names a different type, the
-                constraint relates the subject population to that other one, typically a
-                pre-existing feature the program did not install and cannot date, in which case
-                minimumElapsedTime does not apply on that side. minimumSeparation and
-                minimumElapsedTime are independently optional. Both present is the conditional case:
-                within minimumSeparation, the two governing timestamps must be at least
-                minimumElapsedTime apart. minimumSeparation alone is an unconditional exclusion
-                zone. minimumElapsedTime alone is an unconditional sequencing gap for every pair the
-                scope selects. At least one of the two is expected; the validation chain checks it.
-                The object records the rule, not the check: evaluating it means finding, for every
-                pair of features the scope selects, the separation between their locations (per
-                separationBasis) and the elapsed time between their governing timestamps (per
-                elapsedTimeBasis, typically each feature's installing
-                diggs:AbstractConstructionActivity/activityDateTime), and comparing each against its
-                threshold.
-            </documentation>
-        </annotation>
-    </element>
-    <complexType name="ClearanceConstraintType">
-        <complexContent>
-            <extension base="diggs:AbstractProgramSpecificationType">
-                <sequence>
-                    <element minOccurs="0" name="referenceFeatureType"
-                        type="gml:CodeWithAuthorityType">
-                        <annotation>
-                            <documentation>
-                                The kind of feature the subject population (the inherited
-                                appliesToFeatureType) must keep clear of. If absent, members of the
-                                subject population clear each other; if it names a different type,
-                                the constraint relates the subject population to that other type.
-                                Use the DIGGS dictionary samplingFeatureTypes.xml, the same one
-                                appliesToFeatureType uses, for the list of values.
-                            </documentation>
-                        </annotation>
-                    </element>
-                    <element minOccurs="0" name="minimumSeparation" type="diggs:LengthMeasureType">
-                        <annotation>
-                            <documentation>
-                                The distance threshold. Where minimumElapsedTime is also given, the
-                                timing requirement applies only between features closer together
-                                than this distance; otherwise this alone is an unconditional
-                                exclusion distance.
-                            </documentation>
-                        </annotation>
-                    </element>
-                    <element minOccurs="0" name="separationBasis" type="gml:CodeType">
-                        <annotation>
-                            <documentation>
-                                How minimumSeparation is measured between two features: centerline
-                                to centerline, edge to edge, nearest point, plan-view distance or
-                                slant distance. A feature's location geometry alone does not say
-                                which two points the distance is taken between. Use the DIGGS
-                                dictionary separationBasis.xml for the list of values.
-                            </documentation>
-                        </annotation>
-                    </element>
-                    <element minOccurs="0" name="minimumElapsedTime" type="diggs:TimeMeasureType">
-                        <annotation>
-                            <documentation>
-                                The duration threshold. Where minimumSeparation is also given, it
-                                applies only between features closer together than that distance;
-                                otherwise this alone is an unconditional minimum interval between
-                                any two governing timestamps the scope selects.
-                            </documentation>
-                        </annotation>
-                    </element>
-                    <element minOccurs="0" name="elapsedTimeBasis"
-                        type="diggs:ElapsedTimeBasisEnumExtType">
-                        <annotation>
-                            <documentation>
-                                Which pair of timestamps minimumElapsedTime is measured between:
-                                completion of one to start of the other, start to start, completion
-                                to completion, or start to completion. The four intervals can differ
-                                by the full duration of either activity. Values come from the
-                                enumerated list, or "Other: xx", where xx is a user-defined term
-                                whose meaning differs from every listed value (not a synonym of
-                                one).
-                            </documentation>
-                        </annotation>
-                    </element>
-                    <element minOccurs="0" name="temporalOrder"
-                        type="diggs:ClearanceTemporalOrderEnumType">
-                        <annotation>
-                            <documentation>
-                                Whether minimumElapsedTime is symmetric ("unordered") or directional
-                                ("reference before subject", "subject before reference"). If
-                                omitted, the order is unordered, the common case of two peer
-                                installations that need only clear the interval in either order.
-                                Values come from the enumerated list.
-                            </documentation>
-                        </annotation>
-                    </element>
-                    <element minOccurs="0" name="constraintRationale" type="gml:CodeType">
-                        <annotation>
-                            <documentation>
-                                Why the constraint exists, such as vibration sensitivity, fresh
-                                material curing, hydraulic fracture risk, ground heave or settlement
-                                risk, utility strike risk, structural load interaction, personnel
-                                safety exclusion, noise restriction or environmental buffer. It does
-                                not affect the check itself. Use the DIGGS dictionary
-                                constraintRationale.xml for the list of values.
                             </documentation>
                         </annotation>
                     </element>
@@ -8045,11 +7818,11 @@
                 an explicit order and account for every position of the grid. When the scope
                 restricts the grid with a zone, the positions are the nodes inside the zone and the
                 nodes outside it are not numbered. The order is local to the design: numbers run 1
-                to n over its own positions. Order between designs (primary,
-                secondary and tertiary passes, or one column type first) and out-of-order nodes are
-                stated by a diggs:DesignProductionSequence. Minimum spacing to fresh concrete and
-                minimum age before adjacent installation are requirements, not an order; use
-                diggs:ClearanceConstraint.
+                to n over its own positions. Order between designs (primary, secondary and tertiary
+                passes, or one column type first) and out-of-order nodes are stated by a
+                diggs:DesignProductionSequence. Minimum spacing to fresh concrete and minimum age
+                before adjacent installation are requirements, not an order; state them as a
+                diggs:Criterion in a diggs:ProgramSpecification.
             </documentation>
         </annotation>
     </element>
@@ -8313,8 +8086,9 @@
                 One object holds one order, so whether one feature is produced after a second and
                 before a third is answered from a single series of numbers, wherever the three are
                 designed. Declare it in the program's design slot, after the designs it orders. A
-                diggs:ClearanceConstraint on the program (a minimum spacing to fresh work, a minimum
-                age before adjacent work) attaches through programSpecificationRef.
+                requirement on spacing or timing, such as a minimum spacing to fresh work or a
+                minimum age before adjacent work, is a diggs:Criterion in a
+                diggs:ProgramSpecification.
             </documentation>
         </annotation>
     </element>
@@ -8708,8 +8482,9 @@
             <documentation>
                 Property type that contains one diggs:Specification a planned measurement is to
                 follow, inline, by reference with xlink:href, or both; the embedded object prevails
-                when both are present. The Specification cites a published standard; it is not a
-                diggs:MeasurementSpecification, which holds requirements.
+                when both are present. The Specification cites a published standard; it states no
+                requirement; requirements are diggs:Criterion objects in a
+                diggs:ProgramSpecification.
             </documentation>
         </annotation>
         <sequence minOccurs="0">
@@ -8769,6 +8544,24 @@
                                 never a realized sample, and is how a laboratory test or a test on a
                                 produced material is planned. Repeat for each sample design. Given
                                 by reference only.
+                            </documentation>
+                        </annotation>
+                    </element>
+                    <element minOccurs="0" name="testingScheduleRef" type="diggs:FeatureReferenceType">
+                        <annotation>
+                            <appinfo source="urn:x-gml:targetElement">diggs:TestingSchedule</appinfo>
+                            <documentation>
+                                The testing schedule the planned measurement is submitted under.
+                                Given by reference only.
+                            </documentation>
+                        </annotation>
+                    </element>
+                    <element minOccurs="0" maxOccurs="unbounded" ref="diggs:sampleRef">
+                        <annotation>
+                            <documentation>
+                                A sample, already taken, the measurement is to be performed on. Use
+                                sampleDesignRef for a sample that is itself planned. Repeat for each
+                                sample.
                             </documentation>
                         </annotation>
                     </element>
@@ -8899,6 +8692,16 @@
                             </annotation>
                         </element>
                     </choice>
+                    <element minOccurs="0" maxOccurs="unbounded" name="recordingParameter"
+                        type="gml:CodeWithAuthorityType">
+                        <annotation>
+                            <documentation>
+                                A quantity the measurement is to record, such as a settlement or an
+                                applied stress. Repeat for each quantity. Use the DIGGS dictionary
+                                properties.xml for the list of values.
+                            </documentation>
+                        </annotation>
+                    </element>
                     <element minOccurs="0" name="readingFrequency"
                         type="diggs:ReciprocalTimeMeasureType">
                         <annotation>
@@ -9027,6 +8830,17 @@
                                 diggs:ConstructionActivityMethod, the same object the realized
                                 activity uses, so a plan can state a method for part of the work as
                                 well as for the whole. Repeat for each method.
+                            </documentation>
+                        </annotation>
+                    </element>
+                    <element minOccurs="0" maxOccurs="unbounded" name="recordingParameter"
+                        type="gml:CodeWithAuthorityType">
+                        <annotation>
+                            <documentation>
+                                A quantity the activity is to record in real time, such as depth,
+                                torque or grout pressure. Repeat for each quantity. Use the DIGGS
+                                dictionary for the kind of record: mwd_properties.xml or
+                                gr_inj_properties.xml.
                             </documentation>
                         </annotation>
                     </element>
@@ -11348,43 +11162,4 @@
             </extension>
         </complexContent>
     </complexType>
-    <simpleType name="ElapsedTimeBasisEnumType">
-        <restriction base="string">
-            <enumeration value="completion to start">
-                <annotation>
-                    <documentation>
-                        Elapsed time measured from the completion of the first activity's governing
-                        interval to the start of the second's.
-                    </documentation>
-                </annotation>
-            </enumeration>
-            <enumeration value="start to start">
-                <annotation>
-                    <documentation>
-                        Elapsed time measured between the start of each activity's governing
-                        interval.
-                    </documentation>
-                </annotation>
-            </enumeration>
-            <enumeration value="completion to completion">
-                <annotation>
-                    <documentation>
-                        Elapsed time measured between the completion of each activity's governing
-                        interval.
-                    </documentation>
-                </annotation>
-            </enumeration>
-            <enumeration value="start to completion">
-                <annotation>
-                    <documentation>
-                        Elapsed time measured from the start of the first activity's governing
-                        interval to the completion of the second's.
-                    </documentation>
-                </annotation>
-            </enumeration>
-        </restriction>
-    </simpleType>
-    <simpleType name="ElapsedTimeBasisEnumExtType">
-        <union memberTypes="diggs:OtherNameType diggs:ElapsedTimeBasisEnumType"/>
-    </simpleType>
 </schema>

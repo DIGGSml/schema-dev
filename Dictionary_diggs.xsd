@@ -199,15 +199,16 @@
                         evaluated against the source named by referenceSource. Required by the
                         methods that compare two values ("horizontal offset", "difference",
                         "reverse difference", "angular difference", "containment",
-                        "within envelope"), and optional for "value at", which otherwise takes the
-                        value of the criterion's evidenceCondition; not used by the
-                        others.</documentation>
+                        "within envelope", "match", "ratio", "relative difference"), and optional for
+                        "value at", which otherwise takes the value of the criterion's
+                        evidenceCondition; not used by the others.</documentation>
                 </annotation>
             </element>
             <element minOccurs="0" name="referenceSource" type="diggs:ReferenceSourceEnumType">
                 <annotation>
-                    <documentation>Where the reference path is evaluated: the governing design, or
-                        the cited evidence. Required with referenceValueXpath.</documentation>
+                    <documentation>Where the reference path is evaluated: the governing design, the
+                        cited evidence, the subject itself or the nearest neighbor. Required with
+                        referenceValueXpath.</documentation>
                 </annotation>
             </element>
             <element minOccurs="0" name="referenceEvaluation"
@@ -215,6 +216,15 @@
                 <annotation>
                     <documentation>How the node the reference path yields becomes a value. Omitted
                         means value.</documentation>
+                </annotation>
+            </element>
+            <element minOccurs="0" name="referenceScaleCode" type="string">
+                <annotation>
+                    <documentation>The code of the evidence condition whose value multiplies the
+                        reference value before it is used, for a condition stated as a multiple of a
+                        design value: for example a test load of 1.5 times the design load. The
+                        criterion's evidenceCondition with this parameterName gives the
+                        multiple.</documentation>
                 </annotation>
             </element>
             <element minOccurs="0" name="normalizeByXpath" type="string">
@@ -303,6 +313,21 @@
                     <documentation>The count of qualifying evidence items across the population, divided by the summed normalizing quantity - for example tests per volume placed. Requires the criterion's statisticScope to be population.</documentation>
                 </annotation>
             </enumeration>
+            <enumeration value="match">
+                <annotation>
+                    <documentation>Boolean: whether the realized value equals the reference value, for a property required to be as designed. The criterion's limit names the property and gives no value.</documentation>
+                </annotation>
+            </enumeration>
+            <enumeration value="ratio">
+                <annotation>
+                    <documentation>The realized value divided by the reference value, a dimensionless quantity that may be expressed as a fraction (Euc) or a percentage (%), for a requirement stated as a percentage of a design value.</documentation>
+                </annotation>
+            </enumeration>
+            <enumeration value="relative difference">
+                <annotation>
+                    <documentation>The realized value minus the reference value, divided by the reference value, a dimensionless quantity that may be expressed as a fraction (Euc) or a percentage (%); for example a permitted deviation of a measured grout property from its design value.</documentation>
+                </annotation>
+            </enumeration>
         </restriction>
     </simpleType>
     <simpleType name="ReferenceSourceEnumType">
@@ -324,6 +349,11 @@
                 <annotation>
                     <documentation>The check's subject itself - for a requirement about a
                         construction activity, the activity.</documentation>
+                </annotation>
+            </enumeration>
+            <enumeration value="neighbor">
+                <annotation>
+                    <documentation>The nearest feature, other than the subject, of the kind the criterion's neighborFeatureType names; the reference path is evaluated against it. Used for separation in distance and time.</documentation>
                 </annotation>
             </enumeration>
         </restriction>

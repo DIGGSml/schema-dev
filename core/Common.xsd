@@ -226,10 +226,9 @@
                 A reference to a more general program module that this one specializes. Resolution
                 is per property, most specific first: a value stated on the referring object
                 overrides the same property stated on the target. The target must belong to the same
-                substitution-group head as the referring object (a design cites a design, a
-                specification a specification, a basis a basis), and chains must be acyclic; the
-                validation chain checks both. A design that cites a specification belongs in
-                programSpecificationRef instead. Distinct from basisRef, which cites the evidence a
+                substitution-group head as the referring object (a design cites a design, a basis
+                a basis), and chains must be acyclic; the validation chain checks both. A design
+                that cites a specification belongs in programSpecificationRef instead. Distinct from basisRef, which cites the evidence a
                 design was prepared from rather than a more general object of the same kind.
             </documentation>
         </annotation>
@@ -469,27 +468,6 @@
             </documentation>
         </annotation>
     </element>
-    <element name="partOfSpecificationRef" type="diggs:FeatureReferenceType">
-        <annotation>
-            <appinfo source="urn:x-gml:targetElement">diggs:AbstractProgramSpecification</appinfo>
-            <documentation>
-                A reference from an acceptance criterion to the named specification it elaborates: a
-                diggs:PerformanceCriterion or diggs:DesignConformanceCriterion citing the
-                diggs:RIColumnSpecification, diggs:RILTPSpecification or diggs:GroutSpecification
-                whose requirements it states one of, or a diggs:CompositeAcceptanceCriterion doing
-                the same. This is not basedOnRef: a criterion is a component of the specification it
-                elaborates, not a more specific version of it, and the per-property
-                most-specific-wins resolution of basedOnRef has nothing to inherit between objects
-                that share no properties. Composition is not specialization. At most one may be
-                given: a criterion belongs to one specification, and where it is also relevant
-                elsewhere the consuming object cites both through its own repeatable
-                programSpecificationRef. The target is the broad diggs:AbstractProgramSpecification
-                head, so a criterion could technically cite another criterion or a composite; that
-                is not the intended use, since membership of a criterion in a composite is recorded
-                by the composite's own criterionRef. Given by reference only.
-            </documentation>
-        </annotation>
-    </element>
     <element name="programDesignRef" type="diggs:FeatureReferenceType">
         <annotation>
             <appinfo source="urn:x-gml:targetElement">diggs:AbstractProgramDesign</appinfo>
@@ -538,9 +516,12 @@
     </element>
     <element name="programSpecificationRef" type="diggs:FeatureReferenceType">
         <annotation>
-            <appinfo source="urn:x-gml:targetElement">diggs:AbstractProgramSpecification</appinfo>
+            <appinfo source="urn:x-gml:targetElement">diggs:ProgramSpecification</appinfo>
             <documentation>
-                A reference to a program specification object that this feature must satisfy.
+                A reference to a diggs:ProgramSpecification whose criteria this object must satisfy.
+                On a design it is the link that brings everything realized from the design under the
+                specification. On a realized object, give it only for a specification that no design
+                it realizes cites.
             </documentation>
         </annotation>
     </element>
@@ -3589,12 +3570,12 @@
                 seismic, short-term and long-term); distinguish repetitions by gml:name or remark.
                 Distinct from diggs:AcceptanceCheck. A design verification is an analytical check of
                 the design, made before construction by comparing a demand with a capacity, and is
-                held on the design. An acceptance check judges a realized feature or a test
-                against a diggs:AbstractAcceptanceCriterionType, using measured or as-built
-                evidence, and is held in a diggs:AcceptanceEvaluation. Use a design verification
-                only for analytical design checks such as buckling, shear, global stability or
-                punching. Record anything judged against measured or as-built evidence as an
-                acceptance check, so that the same fact is not stated twice.
+                held on the design. An acceptance check judges a realized feature or a test against
+                a diggs:Criterion, using measured or as-built evidence, and is held in a
+                diggs:AcceptanceEvaluation. Use a design verification only for analytical design
+                checks such as buckling, shear, global stability or punching. Record anything judged
+                against measured or as-built evidence as an acceptance check, so that the same fact
+                is not stated twice.
             </documentation>
         </annotation>
     </element>
@@ -3773,14 +3754,12 @@
                         </annotation>
                     </element>
                     <element minOccurs="0" maxOccurs="unbounded" name="breachedSpecificationRef"
-                        type="diggs:FeatureReferenceType">
+                        type="gml:ReferenceType">
                         <annotation>
-                            <appinfo source="urn:x-gml:targetElement">diggs:AbstractProgramSpecification</appinfo>
+                            <appinfo source="urn:x-gml:targetElement">diggs:Criterion</appinfo>
                             <documentation>
-                                The requirement that was not met, typically a
-                                diggs:DesignConformanceCriterion, a diggs:PerformanceCriterion or a
-                                diggs:CompositeAcceptanceCriterion. Repeat where one departure
-                                breaches several requirements. Optional where the requirement is
+                                The diggs:Criterion that was not met. Repeat where one departure
+                                breaches several criteria. Optional where the requirement is
                                 stated only in a specification document (an attachment, described in
                                 remark), or is the criterion of the check cited by detectedByRef.
                                 Given by reference only.
@@ -3855,15 +3834,13 @@
         <complexContent>
             <extension base="diggs:AbstractObjectType">
                 <sequence>
-                    <element name="criterionRef" type="diggs:FeatureReferenceType">
+                    <element name="criterionRef" type="gml:ReferenceType">
                         <annotation>
-                            <appinfo source="urn:x-gml:targetElement">diggs:AbstractProgramSpecification</appinfo>
+                            <appinfo source="urn:x-gml:targetElement">diggs:Criterion</appinfo>
                             <documentation>
-                                The requirement this check evaluates: a
-                                diggs:DesignConformanceCriterion, a diggs:PerformanceCriterion or a
-                                diggs:CompositeAcceptanceCriterion. The criterion is the
+                                The criterion this check evaluates. The criterion is the
                                 authoritative statement of the property, operator and limit. To
-                                evaluate several criteria as one requirement, cite a composite
+                                evaluate several criteria as one requirement, cite a compound
                                 criterion. Given by reference only.
                             </documentation>
                         </annotation>
@@ -4509,8 +4486,7 @@
                             <documentation>
                                 The additional creep strain allowed over the design life, beyond
                                 allowableStrain. The 15% minimum-load-fraction floor is a criterion,
-                                not a design value, and is not carried here; see
-                                diggs:AbstractAcceptanceCriterionType.
+                                not a design value, and is not carried here; see diggs:Criterion.
                             </documentation>
                         </annotation>
                     </element>

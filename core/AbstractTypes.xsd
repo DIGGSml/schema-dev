@@ -15,145 +15,6 @@
     <!-- HIERARCHY LEVEL 1: Root Base Type (Foundation of DIGGS Schema)    -->
     <!--=============================================================================-->
 
-    <element abstract="true" name="AbstractAcceptanceCriterion"
-        type="diggs:AbstractAcceptanceCriterionType"
-        substitutionGroup="diggs:AbstractProgramSpecification">
-        <annotation>
-            <documentation>
-                Abstract head of the substitution group for acceptance criteria. A criterion states
-                one testable requirement: what is measured, how the measurements are reduced to one
-                value, the comparison applied and the limit compared against. As a program
-                specification it also carries the scope of the features it governs and may
-                specialize a more general criterion through basedOnRef. Its members differ in what
-                is measured: diggs:PerformanceCriterion measures a physical property of the
-                completed work, and diggs:DesignConformanceCriterion measures a geometric or
-                constructional property against its design intent. Each names its subject through
-                the parameterName of limit; use the DIGGS dictionary properties.xml for a
-                performance criterion and designProperty.xml for a design conformance criterion. A
-                specification that imposes several requirements on one property, such as a mean and
-                a minimum, is stated as several criteria that share a scope.
-                diggs:CompositeAcceptanceCriterion states the requirement that a logical combination
-                of other criteria holds; it is a program specification but does not substitute this
-                head, because it has no operator or limit of its own.
-            </documentation>
-        </annotation>
-    </element>
-    <complexType abstract="true" name="AbstractAcceptanceCriterionType">
-        <annotation>
-            <documentation>
-                Abstract base type for acceptance criteria: which evidence counts, how it is reduced
-                to one value (statistic over statisticScope), the comparison (operator) and the
-                limit. The subject is named by the parameterName of limit. The criterion names no
-                evidence of its own; the evidence it is evaluated against is cited by the
-                diggs:AcceptanceCheck that applies it.
-            </documentation>
-        </annotation>
-        <complexContent>
-            <extension base="diggs:AbstractProgramSpecificationType">
-                <sequence>
-                    <element minOccurs="0" name="statistic" type="diggs:StatisticEnumExtType">
-                        <annotation>
-                            <documentation>
-                                How several values are reduced to the single value compared against
-                                the limit. statisticScope states what the values are gathered over.
-                                Omit where the criterion applies to each value individually. Values
-                                come from the enumerated list, or "Other: xx", where xx is a
-                                user-defined term whose meaning differs from every listed value (not
-                                a synonym of one).
-                            </documentation>
-                        </annotation>
-                    </element>
-                    <element minOccurs="0" name="percentileValue" type="double">
-                        <annotation>
-                            <documentation>
-                                The percentile intended where statistic is "percentile", for example
-                                90 for a 90th-percentile criterion. Give it only with that
-                                statistic.
-                            </documentation>
-                        </annotation>
-                    </element>
-                    <element minOccurs="0" name="statisticScope" type="diggs:StatisticScopeEnumType">
-                        <annotation>
-                            <documentation>
-                                What the statistic is gathered over: the values within one record
-                                (series), the evidence for one subject (evidence), or all subjects
-                                the criterion governs (population). Required whenever statistic is
-                                given. Values come from the enumerated list.
-                            </documentation>
-                        </annotation>
-                    </element>
-                    <element minOccurs="1" maxOccurs="1" name="operator"
-                        type="diggs:CriterionOperatorEnumType">
-                        <annotation>
-                            <documentation>
-                                The comparison applied between the evaluated value and the limit.
-                                Required: a limit without a comparison states no requirement. Values
-                                come from the enumerated list.
-                            </documentation>
-                        </annotation>
-                    </element>
-                    <element minOccurs="1" maxOccurs="1" name="limit"
-                        type="diggs:AuthorizedParameterPropertyType">
-                        <annotation>
-                            <documentation>
-                                The subject this criterion governs, and the value or range the
-                                evaluated value is compared against. The subject is the
-                                dictionary-bound parameterName of a diggs:AuthorizedParameter or
-                                diggs:ProvenancedParameter; a free-text diggs:Parameter is not
-                                allowed. The value may be a single value (parameterValue) or a band
-                                (parameterMinValue and parameterMaxValue, with operator "within").
-                            </documentation>
-                        </annotation>
-                    </element>
-                    <element minOccurs="0" name="basis" type="gml:CodeType">
-                        <annotation>
-                            <documentation>
-                                The unit of work the criterion is assessed over, for example per
-                                element, per unit cell, per 100 ft, or as a multiple of diameter.
-                                Distinct from the scope of the specification, which says which
-                                features are governed. Use the DIGGS dictionary basis.xml for the
-                                list of values.
-                            </documentation>
-                        </annotation>
-                    </element>
-                    <element minOccurs="0" name="baseLength" type="diggs:LengthMeasureType">
-                        <annotation>
-                            <documentation>
-                                The reference length over which a gradient or rate-of-change
-                                criterion is assessed, where basis expresses a quantity per unit
-                                length. With limit it lets a criterion state a gradient such as 0.5
-                                in per 100 ft.
-                            </documentation>
-                        </annotation>
-                    </element>
-                    <element minOccurs="0" maxOccurs="unbounded" name="evidenceCondition"
-                        type="diggs:AuthorizedParameterPropertyType">
-                        <annotation>
-                            <documentation>
-                                A condition evidence must meet to count toward this criterion: a
-                                coded parameter and its value or range, for example specimen age 28
-                                d, elapsed time 1 to 10 min, or depth below the platform. Evidence
-                                counts only if it meets every condition given. Omit where all
-                                evidence of the criterion's subject counts.
-                            </documentation>
-                        </annotation>
-                    </element>
-                    <element minOccurs="0" maxOccurs="1" name="sourceSpecRef"
-                        type="diggs:FeatureReferenceType">
-                        <annotation>
-                            <appinfo source="urn:x-gml:targetElement">diggs:Specification</appinfo>
-                            <documentation>
-                                A reference to the published standard or project clause this
-                                criterion was taken from. The target is a diggs:Specification, the
-                                component object that cites a standard, not a program specification.
-                            </documentation>
-                        </annotation>
-                    </element>
-                    <element minOccurs="0" ref="diggs:partOfSpecificationRef"/>
-                </sequence>
-            </extension>
-        </complexContent>
-    </complexType>
     <element abstract="true" name="AbstractDiggs" type="diggs:AbstractDiggsType"/>
     <complexType abstract="true" name="AbstractDiggsType">
         <annotation>
@@ -2183,15 +2044,14 @@
             <documentation>
                 Abstract head of the substitution group for program specifications: the requirements
                 a program issues, such as tolerances, acceptance limits and performance criteria,
-                each carrying the scope of features over which it applies. A realized feature
-                declares which specifications govern it through diggs:programSpecificationRef, and a
-                design declares which it was prepared to satisfy through the same property. Not to
-                be confused with diggs:Specification. A program specification is a feature head: its
-                members are independently identified, referenceable features that state requirements
-                and, as program modules, carry scope and basedOnRef. diggs:Specification is a
-                component object, a procedure that cites a published standard
-                (standardReferenceNumber, standardTitle, standardVersion and so on) and states no
-                requirement of its own. A program specification commonly cites a diggs:Specification
+                each carrying the scope of features over which it applies. Use
+                diggs:ProgramSpecification. A design declares the specification it was prepared to
+                satisfy through diggs:programSpecificationRef. Not to be confused with
+                diggs:Specification. A program specification is a feature: independently identified
+                and referenceable, it holds the criteria that state the requirements.
+                diggs:Specification is a component object, a procedure that cites a published
+                standard (standardReferenceNumber, standardTitle, standardVersion and so on) and
+                states no requirement of its own. A criterion commonly cites a diggs:Specification
                 for the test method by which conformance is measured; the two are complementary.
             </documentation>
         </annotation>
@@ -2199,29 +2059,16 @@
     <complexType abstract="true" name="AbstractProgramSpecificationType">
         <annotation>
             <documentation>
-                Abstract base type for detailed program specifications that define technical
-                requirements and acceptance criteria: references to specific standards (for example
-                ASTM or AASHTO), numerical acceptance criteria, testing methods and frequencies, and
-                quality control requirements. Unlike designs, specifications are typically
-                contractual and establish enforceable requirements. basedOnRef cites a more general
-                specification of the same kind that this one specializes; an acceptance criterion
-                cites the specification it elaborates through diggs:partOfSpecificationRef instead,
-                which is a component relationship rather than specialization. basisRef cites the
-                basis the requirements were derived from.
+                Abstract base type for program specifications: the technical requirements and
+                acceptance criteria of a program. Unlike designs, specifications are typically
+                contractual and establish enforceable requirements. basisRef cites the basis the
+                requirements were derived from. Use a concrete extension, for example
+                diggs:ProgramSpecificationType.
             </documentation>
         </annotation>
         <complexContent>
             <extension base="diggs:AbstractProgramModuleType">
                 <sequence>
-                    <element minOccurs="0" ref="diggs:basedOnRef">
-                        <annotation>
-                            <appinfo source="urn:x-gml:targetElement">diggs:AbstractProgramSpecification</appinfo>
-                            <documentation>
-                                A reference to a more general specification that this specification specializes. The target
-                                must be a diggs:AbstractProgramSpecification.
-                            </documentation>
-                        </annotation>
-                    </element>
                     <element minOccurs="0" maxOccurs="1" ref="diggs:basisRef">
                         <annotation>
                             <documentation>
