@@ -7055,9 +7055,9 @@
     <element name="Program" type="diggs:ProgramType" substitutionGroup="diggs:AbstractProgram">
         <annotation>
             <documentation>
-                A generic program: the designs it issues, the specifications it must satisfy, and
-                the bases those were prepared from, for work that has no specialized program
-                element. Document order is strictly all design elements, then all specification
+                A program: the designs it issues, the specifications it must satisfy, and the bases
+                those were prepared from, for any kind of work. The class element names the kind of
+                work. Document order is strictly all design elements, then all specification
                 elements, then all basis elements, not interleaved; a design may still cite a
                 specification declared later in the document.
             </documentation>
@@ -7070,11 +7070,9 @@
                     <element minOccurs="0" name="class" type="gml:CodeWithAuthorityType">
                         <annotation>
                             <documentation>
-                                The kind of work this program covers, for example rigid inclusions
-                                or ground improvement, as a code from a dictionary. Not used where a
-                                specialized program element exists for the kind of work, such as
-                                diggs:RigidInclusionProgram. No DIGGS-authored dictionary currently
-                                exists. The codeSpace attribute is mandatory.
+                                The kind of work this program covers, for example rigid inclusions,
+                                grouting or site exploration. Use the DIGGS dictionary
+                                programClass.xml for the list of values.
                             </documentation>
                         </annotation>
                     </element>
@@ -7093,10 +7091,9 @@
                         type="diggs:ProgramSpecificationPropertyType">
                         <annotation>
                             <documentation>
-                                A specification this program must satisfy: the constraints and
-                                tolerances the work is judged against. It holds any member of the
-                                diggs:AbstractProgramSpecification substitution group. Repeat for
-                                each specification.
+                                A specification this program must satisfy: the criteria the work is
+                                judged against, held as a diggs:ProgramSpecification. Repeat for each
+                                specification.
                             </documentation>
                         </annotation>
                     </element>
@@ -7569,6 +7566,38 @@
                     </documentation>
                 </annotation>
             </enumeration>
+            <enumeration value="in">
+                <annotation>
+                    <documentation>
+                        Equal to one of the limit values. Use with two or more limit elements, each
+                        giving one permitted value.
+                    </documentation>
+                </annotation>
+            </enumeration>
+            <enumeration value="notIn">
+                <annotation>
+                    <documentation>
+                        Equal to none of the limit values. Use with two or more limit elements, each
+                        giving one excluded value.
+                    </documentation>
+                </annotation>
+            </enumeration>
+            <enumeration value="includesAll">
+                <annotation>
+                    <documentation>
+                        The evaluated set of values contains every limit value, for example every
+                        quantity a record is required to hold. Use with one or more limit elements.
+                    </documentation>
+                </annotation>
+            </enumeration>
+            <enumeration value="includesAny">
+                <annotation>
+                    <documentation>
+                        The evaluated set of values contains at least one of the limit values. Use
+                        with one or more limit elements.
+                    </documentation>
+                </annotation>
+            </enumeration>
         </restriction>
     </simpleType>
     <simpleType name="StatisticScopeEnumType">
@@ -7662,6 +7691,284 @@
             </enumeration>
         </restriction>
     </simpleType>
+    <element name="Criterion" type="diggs:CriterionType">
+        <annotation>
+            <documentation>
+                One requirement the realized work must satisfy. A simple criterion names one
+                property through the parameterName of limit, reduces the evidence to one value and
+                compares it with the limit. A compound criterion combines two or more criteria with
+                one logical operator. A criterion is held by a diggs:ProgramSpecification, inline or
+                by reference, and is applied to a subject by a diggs:AcceptanceCheck. Use the DIGGS
+                dictionaries designProperty.xml and properties.xml for the parameterName of limit;
+                each entry states where the realized value is found.
+            </documentation>
+        </annotation>
+    </element>
+    <complexType name="CriterionType">
+        <complexContent>
+            <extension base="diggs:AbstractObjectType">
+                <sequence>
+                    <choice>
+                        <sequence>
+                            <element minOccurs="0" name="statistic" type="diggs:StatisticEnumExtType">
+                                <annotation>
+                                    <documentation>
+                                        How several values are reduced to the single value compared
+                                        against the limit. statisticScope states what the values are
+                                        gathered over. Omit where the criterion applies to each
+                                        value individually. Values come from the enumerated list, or
+                                        "Other: xx", where xx is a user-defined term whose meaning
+                                        differs from every listed value (not a synonym of one).
+                                    </documentation>
+                                </annotation>
+                            </element>
+                            <element minOccurs="0" name="percentileValue" type="double">
+                                <annotation>
+                                    <documentation>
+                                        The percentile intended where statistic is "percentile", for
+                                        example 90 for a 90th-percentile criterion. Give it only
+                                        with that statistic.
+                                    </documentation>
+                                </annotation>
+                            </element>
+                            <element minOccurs="0" name="statisticScope" type="diggs:StatisticScopeEnumType">
+                                <annotation>
+                                    <documentation>
+                                        What the statistic is gathered over: the values within one
+                                        record (series), the evidence for one subject (evidence), or
+                                        all subjects the criterion governs (population). Required
+                                        whenever statistic is given. Values come from the enumerated
+                                        list.
+                                    </documentation>
+                                </annotation>
+                            </element>
+                            <element name="operator" type="diggs:CriterionOperatorEnumType">
+                                <annotation>
+                                    <documentation>
+                                        The comparison applied between the evaluated value and the
+                                        limit. Required: a limit without a comparison states no
+                                        requirement. Values come from the enumerated list.
+                                    </documentation>
+                                </annotation>
+                            </element>
+                            <element maxOccurs="unbounded" name="limit"
+                                type="diggs:AuthorizedParameterPropertyType">
+                                <annotation>
+                                    <documentation>
+                                        The property this criterion governs, and the value or range
+                                        the evaluated value is compared against. The property is the
+                                        dictionary-bound parameterName of a
+                                        diggs:AuthorizedParameter or diggs:ProvenancedParameter; a
+                                        free-text diggs:Parameter is not allowed. Give a single
+                                        value (parameterValue) or a band (parameterMinValue and
+                                        parameterMaxValue, with operator "within"). Repeat only with
+                                        the operators "in", "notIn", "includesAll" and
+                                        "includesAny", one limit per listed value, all naming the
+                                        same property. For "the design value" give the parameterName
+                                        with no value; the dictionary entry states where the design
+                                        value is found.
+                                    </documentation>
+                                </annotation>
+                            </element>
+                            <element minOccurs="0" maxOccurs="unbounded" name="basis" type="gml:CodeType">
+                                <annotation>
+                                    <documentation>
+                                        The basis the criterion is assessed on: the unit of work
+                                        (per element, per 100 ft, as a multiple of diameter), how a
+                                        separation is measured (centerline to centerline, edge to
+                                        edge), or why a separation is required. Repeat for each kind
+                                        of basis. Use the DIGGS dictionary for the kind of basis:
+                                        basis.xml, separationBasis.xml or constraintRationale.xml.
+                                    </documentation>
+                                </annotation>
+                            </element>
+                            <element minOccurs="0" name="baseLength" type="diggs:LengthMeasureType">
+                                <annotation>
+                                    <documentation>
+                                        The reference length over which a gradient or rate-of-change
+                                        criterion is assessed, where basis expresses a quantity per
+                                        unit length. With limit it lets a criterion state a gradient
+                                        such as 0.5 in per 100 ft.
+                                    </documentation>
+                                </annotation>
+                            </element>
+                            <element minOccurs="0" maxOccurs="unbounded" name="evidenceCondition"
+                                type="diggs:AuthorizedParameterPropertyType">
+                                <annotation>
+                                    <documentation>
+                                        A condition evidence must meet to count toward this
+                                        criterion: a coded parameter and its value or range, for
+                                        example specimen age 28 d, elapsed time 1 to 10 min, or
+                                        depth below the platform. Evidence counts only if it meets
+                                        every condition given. Omit where all evidence of the
+                                        criterion's property counts. A condition may be stated as a
+                                        multiple of a design value where the dictionary entry of the
+                                        criterion's property names it as the scale of its reference
+                                        value, for example a load of 1.5 times the design load.
+                                    </documentation>
+                                </annotation>
+                            </element>
+                            <element minOccurs="0" name="neighborFeatureType"
+                                type="gml:CodeWithAuthorityType">
+                                <annotation>
+                                    <documentation>
+                                        The kind of neighboring feature the criterion's property is
+                                        measured against, for a property whose dictionary entry
+                                        takes its reference value from a neighbor: for example the
+                                        elapsed time since the installation of the nearest RI
+                                        column. Use the DIGGS dictionary samplingFeatureTypes.xml
+                                        for the list of values.
+                                    </documentation>
+                                </annotation>
+                            </element>
+                        </sequence>
+                        <sequence>
+                            <element name="logicalOperator" type="diggs:LogicalOperatorEnumType">
+                                <annotation>
+                                    <documentation>
+                                        How the components combine: "and", every component must be
+                                        satisfied; "or", at least one must be. The operator applies
+                                        to all components together, in any order. Write mixed logic
+                                        by nesting a compound criterion as a component. Values come
+                                        from the enumerated list.
+                                    </documentation>
+                                </annotation>
+                            </element>
+                            <element minOccurs="2" maxOccurs="unbounded" name="component"
+                                type="diggs:CriterionPropertyType">
+                                <annotation>
+                                    <documentation>
+                                        A criterion combined by logicalOperator, inline or by
+                                        reference. A component written inline is evaluated only as
+                                        part of this criterion; one given by reference can also be
+                                        applied on its own.
+                                    </documentation>
+                                </annotation>
+                            </element>
+                        </sequence>
+                    </choice>
+                    <choice minOccurs="0">
+                        <element name="minimumPassingCount" type="positiveInteger">
+                            <annotation>
+                                <documentation>
+                                    The least number that must be satisfied: of the components of a
+                                    compound criterion, or of the evidence items of a simple
+                                    criterion whose statisticScope is evidence or population, each
+                                    compared individually with the limit. For example 2 of 3
+                                    cylinders.
+                                </documentation>
+                            </annotation>
+                        </element>
+                        <element name="minimumPassingFraction" type="double">
+                            <annotation>
+                                <documentation>
+                                    The least fraction, greater than 0 and at most 1, that must be
+                                    satisfied: of the components of a compound criterion, or of the
+                                    evidence items of a simple criterion whose statisticScope is
+                                    evidence or population, each compared individually with the
+                                    limit. For example 0.9 for 90 percent of tests.
+                                </documentation>
+                            </annotation>
+                        </element>
+                    </choice>
+                    <element minOccurs="0" name="sourceSpecRef" type="diggs:FeatureReferenceType">
+                        <annotation>
+                            <appinfo source="urn:x-gml:targetElement">diggs:Specification</appinfo>
+                            <documentation>
+                                A reference to the published standard or project clause this
+                                criterion was taken from. The target is a diggs:Specification, the
+                                component object that cites a standard, not a program specification.
+                            </documentation>
+                        </annotation>
+                    </element>
+                    <element minOccurs="0" ref="diggs:basisRef">
+                        <annotation>
+                            <documentation>
+                                The program basis this criterion was derived from, such as a design
+                                calculation or a ground model.
+                            </documentation>
+                        </annotation>
+                    </element>
+                </sequence>
+            </extension>
+        </complexContent>
+    </complexType>
+    <complexType name="CriterionPropertyType">
+        <annotation>
+            <documentation>
+                Property type that contains one diggs:Criterion object inline or refers to one with
+                xlink:href.
+            </documentation>
+        </annotation>
+        <sequence minOccurs="0">
+            <element ref="diggs:Criterion"/>
+        </sequence>
+        <attributeGroup ref="gml:AssociationAttributeGroup"/>
+        <attributeGroup ref="gml:OwnershipAttributeGroup"/>
+    </complexType>
+
+    <element name="ProgramSpecification" type="diggs:ProgramSpecificationType"
+        substitutionGroup="diggs:AbstractProgramSpecification">
+        <annotation>
+            <documentation>
+                A named set of requirements on realized work: the criteria a design adopts by citing
+                it through programSpecificationRef. Realized features, activities and measurements
+                made to a design come under the specifications that design cites. A specification
+                states no requirement of its own; each requirement is a diggs:Criterion it holds.
+                appliesToFeatureType and appliesToZone narrow it to the features it governs, and
+                select its subjects where no design cites it.
+            </documentation>
+        </annotation>
+    </element>
+    <complexType name="ProgramSpecificationType">
+        <complexContent>
+            <extension base="diggs:AbstractProgramSpecificationType">
+                <sequence>
+                    <choice>
+                        <sequence>
+                            <element maxOccurs="unbounded" name="criterion"
+                                type="diggs:CriterionPropertyType">
+                                <annotation>
+                                    <documentation>
+                                        A requirement of this specification, inline or by reference
+                                        to a criterion held by another specification. Repeat for
+                                        each criterion.
+                                    </documentation>
+                                </annotation>
+                            </element>
+                            <element minOccurs="0" maxOccurs="unbounded" name="include"
+                                type="gml:ReferenceType">
+                                <annotation>
+                                    <appinfo source="urn:x-gml:targetElement">diggs:ProgramSpecification</appinfo>
+                                    <documentation>
+                                        Another specification whose criteria this one takes on, in
+                                        addition to its own. Inclusion is transitive and adds
+                                        criteria only; it never replaces or relaxes one. Include
+                                        only specifications for the same kind of feature; reach a
+                                        specification for another kind of feature through that
+                                        feature's design. Given by reference only.
+                                    </documentation>
+                                </annotation>
+                            </element>
+                        </sequence>
+                        <element maxOccurs="unbounded" name="include" type="gml:ReferenceType">
+                            <annotation>
+                                <appinfo source="urn:x-gml:targetElement">diggs:ProgramSpecification</appinfo>
+                                <documentation>
+                                    Another specification whose criteria this one takes on, in
+                                    addition to its own. Inclusion is transitive and adds criteria
+                                    only; it never replaces or relaxes one. Include only
+                                    specifications for the same kind of feature; reach a
+                                    specification for another kind of feature through that feature's
+                                    design. Given by reference only.
+                                </documentation>
+                            </annotation>
+                        </element>
+                    </choice>
+                </sequence>
+            </extension>
+        </complexContent>
+    </complexType>
     <element name="CompositeAcceptanceCriterion" type="diggs:CompositeAcceptanceCriterionType"
         substitutionGroup="diggs:AbstractProgramSpecification">
         <annotation>
